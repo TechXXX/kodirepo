@@ -153,12 +153,17 @@ def main() -> None:
     build_addons_xml(addon_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
 
-    # Keep the root release artifact aligned with the versioned package copy.
+    # Keep root copies for direct browser downloads on static hosts.
     plugin_id, plugin_version = get_addon_info(plugin_addon_xml)
-    source_zip = root_dir / "zips" / plugin_id / f"{plugin_id}-{plugin_version}.zip"
-    root_zip = root_dir / f"{plugin_id}-{plugin_version}.zip"
-    if source_zip != root_zip:
-        shutil.copy2(source_zip, root_zip)
+    plugin_source_zip = root_dir / "zips" / plugin_id / f"{plugin_id}-{plugin_version}.zip"
+    plugin_root_zip = root_dir / f"{plugin_id}-{plugin_version}.zip"
+    if plugin_source_zip != plugin_root_zip:
+        shutil.copy2(plugin_source_zip, plugin_root_zip)
+
+    repo_source_zip = root_dir / "zips" / REPO_ADDON_ID / "repository.fenlight-1.0.0.zip"
+    repo_root_zip = root_dir / "repository.fenlight-1.0.0.zip"
+    if repo_source_zip != repo_root_zip:
+        shutil.copy2(repo_source_zip, repo_root_zip)
 
     print(f"Built Kodi repo metadata for {len(addon_dirs)} addons")
     print(f"Base URL: {base_url}")

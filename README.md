@@ -26,6 +26,18 @@ You can also set `KODI_REPO_BASE_URL` instead of passing `--base-url`.
 1. Push this directory to a GitHub repository.
 2. Enable GitHub Pages for the repository.
 3. Rebuild with your real GitHub Pages URL.
-4. Install `zips/repository.fenlight/repository.fenlight-1.0.0.zip` in Kodi.
+4. Download `repository.fenlight-1.0.0.zip` from the site in a browser.
+5. Install that local zip file in Kodi.
 
 The checked-in files are configured for `https://TechXXX.github.io/kodirepo/`.
+
+## Important note about GitHub Pages
+
+GitHub Pages serves direct files but does not expose a browsable directory listing for `zips/`.
+That means Kodi will not show hosted zip files when you browse a GitHub Pages source in `Install from zip file`.
+
+Use this flow instead:
+
+1. Download `repository.fenlight-1.0.0.zip` directly from the site.
+2. In Kodi, install that local zip file.
+3. Then use `Install from repository` for `Fen Light`.
