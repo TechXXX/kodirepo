@@ -1,9 +1,9 @@
 <addon id="repository.fenlight" name="Fen Light Repository" provider-name="Fen Light" version="1.0.0">
     <extension point="xbmc.addon.repository" name="Fen Light Repository">
         <dir>
-            <info compressed="false">https://TechXXX.github.io/kodirepo/addons.xml</info>
-            <checksum>https://TechXXX.github.io/kodirepo/addons.xml.md5</checksum>
-            <datadir zip="true">https://TechXXX.github.io/kodirepo/zips/</datadir>
+            <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/TechXXX/kodirepo/main/zips/</datadir>
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">

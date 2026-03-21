@@ -20,6 +20,7 @@ python3 scripts/build_repo.py --base-url https://TechXXX.github.io/kodirepo/
 ```
 
 You can also set `KODI_REPO_BASE_URL` instead of passing `--base-url`.
+Kodi repository metadata defaults to `https://raw.githubusercontent.com/TechXXX/kodirepo/main/`.
 
 ## Publish
 
@@ -29,7 +30,8 @@ You can also set `KODI_REPO_BASE_URL` instead of passing `--base-url`.
 4. Download `repository.fenlight-1.0.0.zip` from the site in a browser.
 5. Install that local zip file in Kodi.
 
-The checked-in files are configured for `https://TechXXX.github.io/kodirepo/`.
+The checked-in install page is configured for `https://TechXXX.github.io/kodirepo/`.
+The repository addon itself is configured to fetch metadata and zips from `https://raw.githubusercontent.com/TechXXX/kodirepo/main/`.
 
 ## Important note about GitHub Pages
 

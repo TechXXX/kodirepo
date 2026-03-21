@@ -14,6 +14,7 @@ import zipfile
 
 
 DEFAULT_BASE_URL = "https://TechXXX.github.io/kodirepo/"
+DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo/main/"
 REPO_ADDON_ID = "repository.fenlight"
 REPO_ADDON_NAME = "Fen Light Repository"
 REPO_PROVIDER = "Fen Light"
@@ -36,6 +37,11 @@ def parse_args() -> argparse.Namespace:
         default=Path(__file__).resolve().parents[1],
         type=Path,
         help="Repository root directory.",
+    )
+    parser.add_argument(
+        "--repo-data-base-url",
+        default=os.environ.get("KODI_REPO_DATA_BASE_URL", DEFAULT_REPO_DATA_BASE_URL),
+        help="Base URL Kodi should use for addons.xml, addons.xml.md5, and zips.",
     )
     return parser.parse_args()
 
@@ -69,16 +75,16 @@ def get_addon_info(addon_xml: Path) -> tuple[str, str]:
     return addon_id, version
 
 
-def create_repo_addon_source(root_dir: Path, base_url: str) -> Path:
+def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     repo_dir = root_dir / REPO_ADDON_ID
     addon_xml = textwrap.dedent(
         f"""\
         <addon id="{REPO_ADDON_ID}" name="{REPO_ADDON_NAME}" provider-name="{REPO_PROVIDER}" version="1.0.0">
             <extension point="xbmc.addon.repository" name="{REPO_ADDON_NAME}">
                 <dir>
-                    <info compressed="false">{base_url}addons.xml</info>
-                    <checksum>{base_url}addons.xml.md5</checksum>
-                    <datadir zip="true">{base_url}zips/</datadir>
+                    <info compressed="false">{repo_data_base_url}addons.xml</info>
+                    <checksum>{repo_data_base_url}addons.xml.md5</checksum>
+                    <datadir zip="true">{repo_data_base_url}zips/</datadir>
                 </dir>
             </extension>
             <extension point="xbmc.addon.metadata">
@@ -137,12 +143,13 @@ def main() -> None:
     args = parse_args()
     root_dir = args.root.resolve()
     base_url = normalize_base_url(args.base_url)
+    repo_data_base_url = normalize_base_url(args.repo_data_base_url)
 
     plugin_addon_xml = root_dir / "plugin.video.fenlight" / "addon.xml"
     if not plugin_addon_xml.exists():
         raise SystemExit(f"Missing addon source: {plugin_addon_xml}")
 
-    create_repo_addon_source(root_dir, base_url)
+    create_repo_addon_source(root_dir, repo_data_base_url)
     addon_dirs = find_addon_dirs(root_dir)
 
     for addon_dir in addon_dirs:
@@ -166,7 +173,8 @@ def main() -> None:
         shutil.copy2(repo_source_zip, repo_root_zip)
 
     print(f"Built Kodi repo metadata for {len(addon_dirs)} addons")
-    print(f"Base URL: {base_url}")
+    print(f"Site URL: {base_url}")
+    print(f"Repo data URL: {repo_data_base_url}")
 
 
 if __name__ == "__main__":
