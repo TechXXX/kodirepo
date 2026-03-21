@@ -27,7 +27,7 @@ Kodi repository metadata defaults to `https://raw.githubusercontent.com/TechXXX/
 1. Push this directory to a GitHub repository.
 2. Enable GitHub Pages for the repository.
 3. Rebuild with your real GitHub Pages URL.
-4. Download `repository.fenlight-1.0.0.zip` from the site in a browser.
+4. Download `repository.fenlight-1.0.1.zip` from the site in a browser.
 5. Install that local zip file in Kodi.
 
 The checked-in install page is configured for `https://TechXXX.github.io/kodirepo/`.
@@ -40,6 +40,6 @@ That means Kodi will not show hosted zip files when you browse a GitHub Pages so
 
 Use this flow instead:
 
-1. Download `repository.fenlight-1.0.0.zip` directly from the site.
+1. Download `repository.fenlight-1.0.1.zip` directly from the site.
 2. In Kodi, install that local zip file.
 3. Then use `Install from repository` for `Fen Light`.

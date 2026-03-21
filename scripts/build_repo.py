@@ -18,6 +18,7 @@ DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo
 REPO_ADDON_ID = "repository.fenlight"
 REPO_ADDON_NAME = "Fen Light Repository"
 REPO_PROVIDER = "Fen Light"
+REPO_VERSION = "1.0.1"
 REPO_SUMMARY = "Repository for Fen Light Kodi add-ons."
 REPO_DESCRIPTION = (
     "Install this repository to receive Fen Light Kodi add-on updates "
@@ -79,7 +80,8 @@ def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     repo_dir = root_dir / REPO_ADDON_ID
     addon_xml = textwrap.dedent(
         f"""\
-        <addon id="{REPO_ADDON_ID}" name="{REPO_ADDON_NAME}" provider-name="{REPO_PROVIDER}" version="1.0.0">
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <addon id="{REPO_ADDON_ID}" name="{REPO_ADDON_NAME}" provider-name="{REPO_PROVIDER}" version="{REPO_VERSION}">
             <extension point="xbmc.addon.repository" name="{REPO_ADDON_NAME}">
                 <dir>
                     <info compressed="false">{repo_data_base_url}addons.xml</info>
@@ -88,14 +90,21 @@ def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
                 </dir>
             </extension>
             <extension point="xbmc.addon.metadata">
-                <summary lang="en">{REPO_SUMMARY}</summary>
-                <description lang="en">{REPO_DESCRIPTION}</description>
+                <summary>{REPO_SUMMARY}</summary>
+                <description>{REPO_DESCRIPTION}</description>
+                <disclaimer></disclaimer>
                 <platform>all</platform>
+                <assets>
+                    <icon>icon.png</icon>
+                    <fanart>fanart.jpg</fanart>
+                </assets>
             </extension>
         </addon>
         """
     )
     write_text(repo_dir / "addon.xml", addon_xml)
+    shutil.copy2(root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_icon.png", repo_dir / "icon.png")
+    shutil.copy2(root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_fanart2.jpg", repo_dir / "fanart.jpg")
     return repo_dir
 
 
@@ -167,8 +176,8 @@ def main() -> None:
     if plugin_source_zip != plugin_root_zip:
         shutil.copy2(plugin_source_zip, plugin_root_zip)
 
-    repo_source_zip = root_dir / "zips" / REPO_ADDON_ID / "repository.fenlight-1.0.0.zip"
-    repo_root_zip = root_dir / "repository.fenlight-1.0.0.zip"
+    repo_source_zip = root_dir / "zips" / REPO_ADDON_ID / f"{REPO_ADDON_ID}-{REPO_VERSION}.zip"
+    repo_root_zip = root_dir / f"{REPO_ADDON_ID}-{REPO_VERSION}.zip"
     if repo_source_zip != repo_root_zip:
         shutil.copy2(repo_source_zip, repo_root_zip)
 
