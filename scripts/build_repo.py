@@ -85,6 +85,7 @@ def get_addon_info(addon_xml: Path) -> tuple[str, str]:
 
 def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     repo_dir = root_dir / REPO_ADDON_ID
+    repo_dir.mkdir(parents=True, exist_ok=True)
     addon_xml = textwrap.dedent(
         f"""\
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -110,8 +111,20 @@ def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
         """
     )
     write_text(repo_dir / "addon.xml", addon_xml)
-    shutil.copy2(root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_icon.png", repo_dir / "icon.png")
-    shutil.copy2(root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_fanart2.jpg", repo_dir / "fanart.jpg")
+
+    # Keep existing custom repository artwork if present; otherwise seed defaults.
+    icon_path = repo_dir / "icon.png"
+    fanart_path = repo_dir / "fanart.jpg"
+    if not icon_path.exists():
+        shutil.copy2(
+            root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_icon.png",
+            icon_path,
+        )
+    if not fanart_path.exists():
+        shutil.copy2(
+            root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_fanart2.jpg",
+            fanart_path,
+        )
     return repo_dir
 
 
@@ -143,9 +156,12 @@ def package_addon(addon_dir: Path, output_dir: Path) -> Path:
     addon_id, version = get_addon_info(addon_dir / "addon.xml")
     output_dir.mkdir(parents=True, exist_ok=True)
     archive_path = output_dir / f"{addon_id}-{version}.zip"
+    allowed_repo_files = {"addon.xml", "icon.png", "fanart.jpg"}
     with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for file_path in sorted(addon_dir.rglob("*")):
             if file_path.is_dir():
+                continue
+            if addon_id == REPO_ADDON_ID and file_path.name not in allowed_repo_files:
                 continue
             arcname = str(Path(addon_dir.name) / file_path.relative_to(addon_dir))
             zf.write(file_path, arcname)
