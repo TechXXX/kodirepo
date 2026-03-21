@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fen Light Kodi Repository</title>
+  <style>
+    :root {
+      --bg: #0c1117;
+      --panel: rgba(12, 17, 23, 0.86);
+      --line: rgba(255, 255, 255, 0.14);
+      --text: #f3f1eb;
+      --muted: #b8b3a7;
+      --accent: #f2a93b;
+      --accent-2: #d3671c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(242, 169, 59, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(211, 103, 28, 0.2), transparent 32%),
+        linear-gradient(140deg, #0c1117, #151d25 58%, #20160f);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(760px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.3rem, 6vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0 18px;
+    }
+
+    a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .button {
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 169, 59, 0.35);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #16110a;
+      font-weight: 700;
+    }
+
+    .linkline {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      display: block;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      color: #ffd79a;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Fen Light Repo</h1>
+    <p>
+      Static Kodi repository for installing and updating Fen Light through a GitHub Pages host.
+      Repository metadata is configured for the GitHub Pages host at
+      <code>https://TechXXX.github.io/kodirepo/</code>.
+    </p>
+    <div class="links">
+      <a class="button" href="zips/repository.fenlight/repository.fenlight-1.0.0.zip">Download Repository Add-on</a>
+      <a class="button" href="addons.xml">View addons.xml</a>
+    </div>
+    <p>Raw package base:</p>
+    <a class="linkline" href="zips/">zips/</a>
+    <p>Rebuild everything locally with <code>python3 scripts/build_repo.py --base-url https://TechXXX.github.io/kodirepo/</code>.</p>
+  </main>
+</body>
+</html>
