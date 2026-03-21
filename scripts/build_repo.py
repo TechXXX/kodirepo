@@ -18,7 +18,7 @@ DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo
 REPO_ADDON_ID = "repository.dutchtech"
 REPO_ADDON_NAME = "DutchTech Repository"
 REPO_PROVIDER = "DutchTech"
-REPO_VERSION = "1.0.0"
+REPO_VERSION = "1.0.1"
 REPO_SUMMARY = "Repository for DutchTech Kodi add-ons."
 REPO_DESCRIPTION = (
     "Install this repository to receive DutchTech Kodi add-on updates "
