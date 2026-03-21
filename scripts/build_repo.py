@@ -15,13 +15,13 @@ import zipfile
 
 DEFAULT_BASE_URL = "https://TechXXX.github.io/kodirepo/"
 DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo/main/"
-REPO_ADDON_ID = "repository.fenlight"
-REPO_ADDON_NAME = "Fen Light Repository"
-REPO_PROVIDER = "Fen Light"
-REPO_VERSION = "1.0.1"
-REPO_SUMMARY = "Repository for Fen Light Kodi add-ons."
+REPO_ADDON_ID = "repository.dutchtech"
+REPO_ADDON_NAME = "DutchTech Repository"
+REPO_PROVIDER = "DutchTech"
+REPO_VERSION = "1.0.0"
+REPO_SUMMARY = "Repository for DutchTech Kodi add-ons."
 REPO_DESCRIPTION = (
-    "Install this repository to receive Fen Light Kodi add-on updates "
+    "Install this repository to receive DutchTech Kodi add-on updates "
     "from a GitHub Pages-hosted source."
 )
 
@@ -67,6 +67,13 @@ def indent_xml(elem: ET.Element, level: int = 0) -> None:
 def write_text(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def remove_path(path: Path) -> None:
+    if path.is_dir():
+        shutil.rmtree(path)
+    elif path.exists():
+        path.unlink()
 
 
 def get_addon_info(addon_xml: Path) -> tuple[str, str]:
@@ -120,6 +127,18 @@ def find_addon_dirs(root_dir: Path) -> list[Path]:
     return sorted(addon_dirs, key=lambda item: item.name)
 
 
+def cleanup_old_repo_artifacts(root_dir: Path) -> None:
+    for path in root_dir.glob("repository.*.zip"):
+        if path.name != f"{REPO_ADDON_ID}-{REPO_VERSION}.zip":
+            remove_path(path)
+    for path in (root_dir / "zips").glob("repository.*"):
+        if path.name != REPO_ADDON_ID:
+            remove_path(path)
+    for path in root_dir.glob("repository.*"):
+        if path.is_dir() and path.name != REPO_ADDON_ID:
+            remove_path(path)
+
+
 def package_addon(addon_dir: Path, output_dir: Path) -> Path:
     addon_id, version = get_addon_info(addon_dir / "addon.xml")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -158,6 +177,7 @@ def main() -> None:
     if not plugin_addon_xml.exists():
         raise SystemExit(f"Missing addon source: {plugin_addon_xml}")
 
+    cleanup_old_repo_artifacts(root_dir)
     create_repo_addon_source(root_dir, repo_data_base_url)
     addon_dirs = find_addon_dirs(root_dir)
 

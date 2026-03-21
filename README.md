@@ -1,11 +1,12 @@
-# Fen Light Kodi Repository
+# DutchTech Kodi Repository
 
-This directory is a static Kodi addon repository for hosting `plugin.video.fenlight` on GitHub Pages.
+This directory is a static Kodi add-on repository for hosting DutchTech packages on GitHub Pages.
 
 ## Layout
 
 - `plugin.video.fenlight/`: unpacked addon source extracted from the release zip
-- `repository.fenlight/`: generated Kodi repository addon source
+- `skin.arctic.horizon.2.1/`: unpacked skin source extracted from the release zip
+- `repository.dutchtech/`: generated Kodi repository add-on source
 - `zips/`: installable package archives for each addon id
 - `addons.xml`: repository metadata consumed by Kodi
 - `addons.xml.md5`: checksum for `addons.xml`
@@ -27,7 +28,7 @@ Kodi repository metadata defaults to `https://raw.githubusercontent.com/TechXXX/
 1. Push this directory to a GitHub repository.
 2. Enable GitHub Pages for the repository.
 3. Rebuild with your real GitHub Pages URL.
-4. Download `repository.fenlight-1.0.1.zip` from the site in a browser.
+4. Download `repository.dutchtech-1.0.0.zip` from the site in a browser.
 5. Install that local zip file in Kodi.
 
 The checked-in install page is configured for `https://TechXXX.github.io/kodirepo/`.
@@ -40,6 +41,6 @@ That means Kodi will not show hosted zip files when you browse a GitHub Pages so
 
 Use this flow instead:
 
-1. Download `repository.fenlight-1.0.1.zip` directly from the site.
+1. Download `repository.dutchtech-1.0.0.zip` directly from the site.
 2. In Kodi, install that local zip file.
-3. Then use `Install from repository` for `Fen Light`.
+3. Then use `Install from repository` for `DutchTech`.
