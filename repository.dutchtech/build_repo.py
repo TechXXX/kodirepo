@@ -1,9 +1,28 @@
+def update_index_html(repo_zip_name):
+    index_path = os.path.join(ROOT_DIR, "index.html")
+
+    if not os.path.exists(index_path):
+        print("index.html not found, skipping update")
+        return
+
+    with open(index_path, "r") as f:
+        content = f.read()
+
+    # Replace only the repo zip version string
+    import re
+    content_new = re.sub(r"repository\.dutchtech-\d+\.\d+\.\d+\.zip", repo_zip_name, content)
+
+    with open(index_path, "w") as f:
+        f.write(content_new)
+
+    print("index.html version updated")
 #!/usr/bin/env python3
 
 import os
 import hashlib
 import zipfile
 import xml.etree.ElementTree as ET
+import re
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,19 +31,12 @@ if os.path.basename(CURRENT_DIR) == "repository.dutchtech":
     ROOT_DIR = os.path.dirname(CURRENT_DIR)
 else:
     ROOT_DIR = CURRENT_DIR
-ZIPS_DIR = os.path.join(ROOT_DIR, "zips")
 
+ZIPS_DIR = os.path.join(ROOT_DIR, "zips")
 REPO_FOLDER = os.path.join(ROOT_DIR, "repository.dutchtech")
 REPO_ZIP_PREFIX = "repository.dutchtech-"
 
 
-def get_version_from_addon_xml(path):
-    tree = ET.parse(path)
-    root = tree.getroot()
-    return root.attrib.get("version")
-
-
-# Bump last version component by 1
 def bump_version(version):
     parts = version.split(".")
     parts[-1] = str(int(parts[-1]) + 1)
@@ -72,7 +84,9 @@ def build_repo_zip():
 def generate_addons_xml():
     addons = ET.Element("addons")
 
-    # scan zips directory
+    if not os.path.exists(ZIPS_DIR):
+        os.makedirs(ZIPS_DIR)
+
     for file in sorted(os.listdir(ZIPS_DIR)):
         if not file.endswith(".zip"):
             continue
@@ -83,16 +97,17 @@ def generate_addons_xml():
             for name in z.namelist():
                 if name.endswith("addon.xml"):
                     data = z.read(name)
-                    addon_element = ET.fromstring(data)
-                    addons.append(addon_element)
+                    try:
+                        addon_element = ET.fromstring(data)
+                        addons.append(addon_element)
+                    except Exception as e:
+                        print(f"Skipping broken addon in {file}: {e}")
 
-    # add repository addon
     repo_addon_xml = os.path.join(REPO_FOLDER, "addon.xml")
     repo_tree = ET.parse(repo_addon_xml)
     addons.append(repo_tree.getroot())
 
     tree = ET.ElementTree(addons)
-
     output_path = os.path.join(ROOT_DIR, "addons.xml")
     tree.write(output_path, encoding="utf-8", xml_declaration=True)
 
@@ -113,12 +128,31 @@ def generate_md5():
     print("addons.xml.md5 generated")
 
 
+def update_index_html(repo_zip_name):
+    index_path = os.path.join(ROOT_DIR, "index.html")
+
+    if not os.path.exists(index_path):
+        print("index.html not found, skipping update")
+        return
+
+    with open(index_path, "r") as f:
+        content = f.read()
+
+    content_new = re.sub(r"repository\.dutchtech-\d+\.\d+\.\d+\.zip", repo_zip_name, content)
+
+    with open(index_path, "w") as f:
+        f.write(content_new)
+
+    print("index.html version updated")
+
+
 def main():
     print("=== Building Kodi Repo ===")
 
-    build_repo_zip()
+    repo_zip_name = build_repo_zip()
     generate_addons_xml()
     generate_md5()
+    update_index_html(repo_zip_name)
 
     print("=== Done ===")
 
