@@ -48,7 +48,7 @@
             <fanart>fanart.jpg</fanart>
         </assets>
     </extension>
-</addon><addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.8">
+</addon><addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.9">
     <extension point="xbmc.addon.repository" name="DutchTech Repository">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
