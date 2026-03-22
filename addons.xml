@@ -197,6 +197,24 @@
             <fanart>fanart.jpg</fanart>
         </assets>
     </extension>
+</addon><addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.29">
+    <extension point="xbmc.addon.repository" name="DutchTech Repository">
+        <dir>
+            <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/TechXXX/kodirepo/main/zips/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>Repository for DutchTech Kodi add-ons.</summary>
+        <description>Install this repository to receive DutchTech Kodi add-on updates from a GitHub Pages-hosted source.</description>
+        <disclaimer />
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
 </addon><addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.07">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
@@ -269,7 +287,7 @@
             <fanart>fanart.jpg</fanart>
         </assets>
     </extension>
-</addon><addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.28">
+</addon><addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.29">
     <extension point="xbmc.addon.repository" name="DutchTech Repository">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
