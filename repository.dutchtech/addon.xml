@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.24">
+<addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.25">
     <extension point="xbmc.addon.repository" name="DutchTech Repository">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
