@@ -1,21 +1,3 @@
-def update_index_html(repo_zip_name):
-    index_path = os.path.join(ROOT_DIR, "index.html")
-
-    if not os.path.exists(index_path):
-        print("index.html not found, skipping update")
-        return
-
-    with open(index_path, "r") as f:
-        content = f.read()
-
-    # Replace only the repo zip version string
-    import re
-    content_new = re.sub(r"repository\.dutchtech-\d+\.\d+\.\d+\.zip", repo_zip_name, content)
-
-    with open(index_path, "w") as f:
-        f.write(content_new)
-
-    print("index.html version updated")
 #!/usr/bin/env python3
 
 import os
@@ -66,17 +48,29 @@ def build_repo_zip():
     root.attrib["version"] = new_version
     tree.write(addon_xml_path, encoding="utf-8", xml_declaration=True)
 
-    # clean old repo zips
-    for f in os.listdir(ROOT_DIR):
-        if f.startswith(REPO_ZIP_PREFIX) and f.endswith(".zip"):
-            os.remove(os.path.join(ROOT_DIR, f))
-
     zip_name = f"{REPO_ZIP_PREFIX}{new_version}.zip"
-    zip_path = os.path.join(ROOT_DIR, zip_name)
+
+    repo_zip_dir = os.path.join(ZIPS_DIR, "repository.dutchtech")
+    if not os.path.exists(repo_zip_dir):
+        os.makedirs(repo_zip_dir)
+
+    zip_path = os.path.join(repo_zip_dir, zip_name)
 
     print(f"Building repo zip: {zip_name}")
 
     zip_folder(REPO_FOLDER, zip_path)
+
+    # copy to root (only keep latest in root)
+    for f in os.listdir(ROOT_DIR):
+        if f.startswith(REPO_ZIP_PREFIX) and f.endswith(".zip"):
+            os.remove(os.path.join(ROOT_DIR, f))
+
+    root_copy_path = os.path.join(ROOT_DIR, zip_name)
+    with open(zip_path, "rb") as src:
+        with open(root_copy_path, "wb") as dst:
+            dst.write(src.read())
+
+    print("Copied latest repo zip to root (old ones removed)")
 
     return zip_name
 
@@ -87,21 +81,22 @@ def generate_addons_xml():
     if not os.path.exists(ZIPS_DIR):
         os.makedirs(ZIPS_DIR)
 
-    for file in sorted(os.listdir(ZIPS_DIR)):
-        if not file.endswith(".zip"):
-            continue
+    for root_dir, _, files in os.walk(ZIPS_DIR):
+        for file in sorted(files):
+            if not file.endswith(".zip"):
+                continue
 
-        zip_path = os.path.join(ZIPS_DIR, file)
+            zip_path = os.path.join(root_dir, file)
 
-        with zipfile.ZipFile(zip_path, "r") as z:
-            for name in z.namelist():
-                if name.endswith("addon.xml"):
-                    data = z.read(name)
-                    try:
-                        addon_element = ET.fromstring(data)
-                        addons.append(addon_element)
-                    except Exception as e:
-                        print(f"Skipping broken addon in {file}: {e}")
+            with zipfile.ZipFile(zip_path, "r") as z:
+                for name in z.namelist():
+                    if name.endswith("addon.xml"):
+                        data = z.read(name)
+                        try:
+                            addon_element = ET.fromstring(data)
+                            addons.append(addon_element)
+                        except Exception as e:
+                            print(f"Skipping broken addon in {file}: {e}")
 
     repo_addon_xml = os.path.join(REPO_FOLDER, "addon.xml")
     repo_tree = ET.parse(repo_addon_xml)
