@@ -18,7 +18,6 @@ DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo
 REPO_ADDON_ID = "repository.dutchtech"
 REPO_ADDON_NAME = "DutchTech Repository"
 REPO_PROVIDER = "DutchTech"
-REPO_VERSION = "1.0.29"
 REPO_SUMMARY = "Repository for DutchTech Kodi add-ons."
 REPO_DESCRIPTION = (
     "Install this repository to receive DutchTech Kodi add-on updates "
@@ -87,13 +86,27 @@ def get_addon_info(addon_xml: Path) -> tuple[str, str]:
     return root.attrib["id"], root.attrib["version"]
 
 
-def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
+def bump_version(version: str) -> str:
+    parts = version.split(".")
+    parts[-1] = str(int(parts[-1]) + 1)
+    return ".".join(parts)
+
+
+def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> tuple[Path, str]:
     repo_dir = root_dir / REPO_ADDON_ID
     repo_dir.mkdir(parents=True, exist_ok=True)
+    addon_xml_path = repo_dir / "addon.xml"
+
+    current_version = "1.0.0"
+    if addon_xml_path.exists():
+        current_root = ET.parse(addon_xml_path).getroot()
+        current_version = current_root.attrib.get("version", current_version)
+    repo_version = bump_version(current_version)
+
     addon_xml = textwrap.dedent(
         f"""\
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <addon id="{REPO_ADDON_ID}" name="{REPO_ADDON_NAME}" provider-name="{REPO_PROVIDER}" version="{REPO_VERSION}">
+        <addon id="{REPO_ADDON_ID}" name="{REPO_ADDON_NAME}" provider-name="{REPO_PROVIDER}" version="{repo_version}">
             <extension point="xbmc.addon.repository" name="{REPO_ADDON_NAME}">
                 <dir>
                     <info compressed="false">{repo_data_base_url}addons.xml</info>
@@ -114,7 +127,7 @@ def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
         </addon>
         """
     )
-    write_text(repo_dir / "addon.xml", addon_xml)
+    write_text(addon_xml_path, addon_xml)
 
     icon_path = repo_dir / "icon.png"
     fanart_path = repo_dir / "fanart.jpg"
@@ -128,7 +141,7 @@ def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
             root_dir / "plugin.video.fenlight" / "resources" / "media" / "fenlight_fanart2.jpg",
             fanart_path,
         )
-    return repo_dir
+    return repo_dir, repo_version
 
 
 def get_source_dirs(root_dir: Path) -> list[Path]:
@@ -142,12 +155,30 @@ def get_source_dirs(root_dir: Path) -> list[Path]:
     return source_dirs
 
 
-def reset_generated_outputs(root_dir: Path) -> None:
+def reset_generated_outputs(root_dir: Path, repo_version: str) -> None:
     for path in root_dir.glob("repository.dutchtech-*.zip"):
-        remove_path(path)
+        if path.name != f"{REPO_ADDON_ID}-{repo_version}.zip":
+            remove_path(path)
     remove_path(root_dir / "addons.xml")
     remove_path(root_dir / "addons.xml.md5")
     remove_path(root_dir / "zips")
+
+
+def update_index_html(root_dir: Path, repo_version: str) -> None:
+    index_path = root_dir / "index.html"
+    if not index_path.exists():
+        return
+    lines = [
+        "<!DOCTYPE html>",
+        f'<a href="{REPO_ADDON_ID}-{repo_version}.zip">{REPO_ADDON_ID}-{repo_version}.zip</a>',
+        "<br>",
+        '<a href="zips/plugin.video.fenlight/plugin.video.fenlight-2.0.07.zip">plugin.video.fenlight-2.0.07.zip</a>',
+        "<br>",
+        '<a href="zips/skin.arctic.horizon.2.1/skin.arctic.horizon.2.1-0.0.1.zip">skin.arctic.horizon.2.1-0.0.1.zip</a>',
+        "<br>",
+        '<a href="addons.xml">addons.xml</a>',
+    ]
+    write_text(index_path, "\n".join(lines) + "\n")
 
 
 def should_skip_file(addon_id: str, file_path: Path) -> bool:
@@ -209,10 +240,10 @@ def main() -> None:
     base_url = normalize_base_url(args.base_url)
     repo_data_base_url = normalize_base_url(args.repo_data_base_url)
 
-    ensure_repo_addon_source(root_dir, repo_data_base_url)
+    _repo_dir, repo_version = ensure_repo_addon_source(root_dir, repo_data_base_url)
     source_dirs = get_source_dirs(root_dir)
 
-    reset_generated_outputs(root_dir)
+    reset_generated_outputs(root_dir, repo_version)
     (root_dir / "zips").mkdir(parents=True, exist_ok=True)
 
     package_paths: dict[str, Path] = {}
@@ -224,11 +255,13 @@ def main() -> None:
 
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
+    update_index_html(root_dir, repo_version)
 
     repo_zip = package_paths[REPO_ADDON_ID]
     shutil.copy2(repo_zip, root_dir / repo_zip.name)
 
     print(f"Built Kodi repo metadata for {len(source_dirs)} addons")
+    print(f"Repository version: {repo_version}")
     print(f"Site URL: {base_url}")
     print(f"Repo data URL: {repo_data_base_url}")
 
