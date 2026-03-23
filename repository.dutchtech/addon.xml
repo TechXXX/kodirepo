@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.29">
     <extension point="xbmc.addon.repository" name="DutchTech Repository">
         <dir>
@@ -10,7 +10,7 @@
     <extension point="xbmc.addon.metadata">
         <summary>Repository for DutchTech Kodi add-ons.</summary>
         <description>Install this repository to receive DutchTech Kodi add-on updates from a GitHub Pages-hosted source.</description>
-        <disclaimer />
+        <disclaimer></disclaimer>
         <platform>all</platform>
         <assets>
             <icon>icon.png</icon>

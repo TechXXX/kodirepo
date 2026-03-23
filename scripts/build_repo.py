@@ -18,12 +18,18 @@ DEFAULT_REPO_DATA_BASE_URL = "https://raw.githubusercontent.com/TechXXX/kodirepo
 REPO_ADDON_ID = "repository.dutchtech"
 REPO_ADDON_NAME = "DutchTech Repository"
 REPO_PROVIDER = "DutchTech"
-REPO_VERSION = "1.0.1"
+REPO_VERSION = "1.0.29"
 REPO_SUMMARY = "Repository for DutchTech Kodi add-ons."
 REPO_DESCRIPTION = (
     "Install this repository to receive DutchTech Kodi add-on updates "
     "from a GitHub Pages-hosted source."
 )
+SOURCE_DIR_NAMES = [
+    "plugin.video.fenlight",
+    "skin.arctic.horizon.2.1",
+    REPO_ADDON_ID,
+]
+REPO_ALLOWED_FILES = {"addon.xml", "icon.png", "fanart.jpg"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,6 +57,18 @@ def normalize_base_url(value: str) -> str:
     return value.rstrip("/") + "/"
 
 
+def remove_path(path: Path) -> None:
+    if path.is_dir():
+        shutil.rmtree(path)
+    elif path.exists():
+        path.unlink()
+
+
+def write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
 def indent_xml(elem: ET.Element, level: int = 0) -> None:
     indent = "\n" + level * "    "
     if len(elem):
@@ -64,26 +82,12 @@ def indent_xml(elem: ET.Element, level: int = 0) -> None:
         elem.tail = indent
 
 
-def write_text(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
-
-
-def remove_path(path: Path) -> None:
-    if path.is_dir():
-        shutil.rmtree(path)
-    elif path.exists():
-        path.unlink()
-
-
 def get_addon_info(addon_xml: Path) -> tuple[str, str]:
     root = ET.parse(addon_xml).getroot()
-    addon_id = root.attrib["id"]
-    version = root.attrib["version"]
-    return addon_id, version
+    return root.attrib["id"], root.attrib["version"]
 
 
-def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
+def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     repo_dir = root_dir / REPO_ADDON_ID
     repo_dir.mkdir(parents=True, exist_ok=True)
     addon_xml = textwrap.dedent(
@@ -112,7 +116,6 @@ def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     )
     write_text(repo_dir / "addon.xml", addon_xml)
 
-    # Keep existing custom repository artwork if present; otherwise seed defaults.
     icon_path = repo_dir / "icon.png"
     fanart_path = repo_dir / "fanart.jpg"
     if not icon_path.exists():
@@ -128,40 +131,43 @@ def create_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> Path:
     return repo_dir
 
 
-def find_addon_dirs(root_dir: Path) -> list[Path]:
-    addon_dirs = []
-    for path in root_dir.iterdir():
-        if not path.is_dir():
-            continue
-        if path.name in {"zips", "scripts", ".git"}:
-            continue
-        if (path / "addon.xml").exists():
-            addon_dirs.append(path)
-    return sorted(addon_dirs, key=lambda item: item.name)
+def get_source_dirs(root_dir: Path) -> list[Path]:
+    source_dirs = []
+    for dir_name in SOURCE_DIR_NAMES:
+        path = root_dir / dir_name
+        addon_xml = path / "addon.xml"
+        if not addon_xml.exists():
+            raise SystemExit(f"Missing addon source: {addon_xml}")
+        source_dirs.append(path)
+    return source_dirs
 
 
-def cleanup_old_repo_artifacts(root_dir: Path) -> None:
-    for path in root_dir.glob("repository.*.zip"):
-        if path.name != f"{REPO_ADDON_ID}-{REPO_VERSION}.zip":
-            remove_path(path)
-    for path in (root_dir / "zips").glob("repository.*"):
-        if path.name != REPO_ADDON_ID:
-            remove_path(path)
-    for path in root_dir.glob("repository.*"):
-        if path.is_dir() and path.name != REPO_ADDON_ID:
-            remove_path(path)
+def reset_generated_outputs(root_dir: Path) -> None:
+    for path in root_dir.glob("repository.dutchtech-*.zip"):
+        remove_path(path)
+    remove_path(root_dir / "addons.xml")
+    remove_path(root_dir / "addons.xml.md5")
+    remove_path(root_dir / "zips")
+
+
+def should_skip_file(addon_id: str, file_path: Path) -> bool:
+    parts = file_path.parts
+    if any(part.startswith(".") for part in parts):
+        return True
+    if "__MACOSX" in parts:
+        return True
+    if addon_id == REPO_ADDON_ID and file_path.name not in REPO_ALLOWED_FILES:
+        return True
+    return False
 
 
 def package_addon(addon_dir: Path, output_dir: Path) -> Path:
     addon_id, version = get_addon_info(addon_dir / "addon.xml")
     output_dir.mkdir(parents=True, exist_ok=True)
     archive_path = output_dir / f"{addon_id}-{version}.zip"
-    allowed_repo_files = {"addon.xml", "icon.png", "fanart.jpg"}
     with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for file_path in sorted(addon_dir.rglob("*")):
-            if file_path.is_dir():
-                continue
-            if addon_id == REPO_ADDON_ID and file_path.name not in allowed_repo_files:
+            if file_path.is_dir() or should_skip_file(addon_id, file_path):
                 continue
             arcname = str(Path(addon_dir.name) / file_path.relative_to(addon_dir))
             zf.write(file_path, arcname)
@@ -171,11 +177,14 @@ def package_addon(addon_dir: Path, output_dir: Path) -> Path:
 def build_addons_xml(addon_dirs: list[Path], output_path: Path) -> None:
     addons = ET.Element("addons")
     for addon_dir in addon_dirs:
-        root = ET.parse(addon_dir / "addon.xml").getroot()
-        addons.append(root)
+        addons.append(ET.parse(addon_dir / "addon.xml").getroot())
     indent_xml(addons)
     xml_payload = ET.tostring(addons, encoding="utf-8")
-    output_path.write_bytes(b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + xml_payload + b"\n")
+    output_path.write_bytes(
+        b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+        + xml_payload
+        + b"\n"
+    )
 
 
 def write_md5(file_path: Path) -> None:
@@ -189,35 +198,24 @@ def main() -> None:
     base_url = normalize_base_url(args.base_url)
     repo_data_base_url = normalize_base_url(args.repo_data_base_url)
 
-    plugin_addon_xml = root_dir / "plugin.video.fenlight" / "addon.xml"
-    if not plugin_addon_xml.exists():
-        raise SystemExit(f"Missing addon source: {plugin_addon_xml}")
+    ensure_repo_addon_source(root_dir, repo_data_base_url)
+    source_dirs = get_source_dirs(root_dir)
 
-    cleanup_old_repo_artifacts(root_dir)
-    create_repo_addon_source(root_dir, repo_data_base_url)
-    addon_dirs = find_addon_dirs(root_dir)
+    reset_generated_outputs(root_dir)
+    (root_dir / "zips").mkdir(parents=True, exist_ok=True)
 
-    for addon_dir in addon_dirs:
+    package_paths: dict[str, Path] = {}
+    for addon_dir in source_dirs:
         addon_id, _version = get_addon_info(addon_dir / "addon.xml")
-        package_dir = root_dir / "zips" / addon_id
-        package_addon(addon_dir, package_dir)
+        package_paths[addon_id] = package_addon(addon_dir, root_dir / "zips" / addon_id)
 
-    build_addons_xml(addon_dirs, root_dir / "addons.xml")
+    build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
 
-    # Keep root copies for direct browser downloads on static hosts.
-    plugin_id, plugin_version = get_addon_info(plugin_addon_xml)
-    plugin_source_zip = root_dir / "zips" / plugin_id / f"{plugin_id}-{plugin_version}.zip"
-    plugin_root_zip = root_dir / f"{plugin_id}-{plugin_version}.zip"
-    if plugin_source_zip != plugin_root_zip:
-        shutil.copy2(plugin_source_zip, plugin_root_zip)
+    repo_zip = package_paths[REPO_ADDON_ID]
+    shutil.copy2(repo_zip, root_dir / repo_zip.name)
 
-    repo_source_zip = root_dir / "zips" / REPO_ADDON_ID / f"{REPO_ADDON_ID}-{REPO_VERSION}.zip"
-    repo_root_zip = root_dir / f"{REPO_ADDON_ID}-{REPO_VERSION}.zip"
-    if repo_source_zip != repo_root_zip:
-        shutil.copy2(repo_source_zip, repo_root_zip)
-
-    print(f"Built Kodi repo metadata for {len(addon_dirs)} addons")
+    print(f"Built Kodi repo metadata for {len(source_dirs)} addons")
     print(f"Site URL: {base_url}")
     print(f"Repo data URL: {repo_data_base_url}")
 
