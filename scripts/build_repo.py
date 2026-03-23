@@ -161,6 +161,17 @@ def should_skip_file(addon_id: str, file_path: Path) -> bool:
     return False
 
 
+def mirror_addon_source(addon_dir: Path, output_dir: Path) -> None:
+    addon_id = addon_dir.name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for file_path in sorted(addon_dir.rglob("*")):
+        if file_path.is_dir() or should_skip_file(addon_id, file_path):
+            continue
+        destination = output_dir / file_path.relative_to(addon_dir)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(file_path, destination)
+
+
 def package_addon(addon_dir: Path, output_dir: Path) -> Path:
     addon_id, version = get_addon_info(addon_dir / "addon.xml")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -207,7 +218,9 @@ def main() -> None:
     package_paths: dict[str, Path] = {}
     for addon_dir in source_dirs:
         addon_id, _version = get_addon_info(addon_dir / "addon.xml")
-        package_paths[addon_id] = package_addon(addon_dir, root_dir / "zips" / addon_id)
+        output_dir = root_dir / "zips" / addon_id
+        mirror_addon_source(addon_dir, output_dir)
+        package_paths[addon_id] = package_addon(addon_dir, output_dir)
 
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
