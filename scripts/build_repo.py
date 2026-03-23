@@ -8,6 +8,7 @@ import hashlib
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import textwrap
 import xml.etree.ElementTree as ET
 import zipfile
@@ -29,6 +30,14 @@ SOURCE_DIR_NAMES = [
     REPO_ADDON_ID,
 ]
 REPO_ALLOWED_FILES = {"addon.xml", "icon.png", "fanart.jpg"}
+PUBLISH_PATHS = [
+    "addons.xml",
+    "addons.xml.md5",
+    "index.html",
+    f"{REPO_ADDON_ID}/addon.xml",
+    "scripts/build_repo.py",
+    f"zips/{REPO_ADDON_ID}/addon.xml",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -234,6 +243,53 @@ def write_md5(file_path: Path) -> None:
     file_path.with_suffix(file_path.suffix + ".md5").write_text(digest, encoding="utf-8")
 
 
+def git_output(root_dir: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=root_dir,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout
+
+
+def ensure_publish_ready(root_dir: Path) -> None:
+    status = git_output(root_dir, "status", "--porcelain").splitlines()
+    allowed_prefixes = tuple(PUBLISH_PATHS)
+    allowed_patterns = ("repository.dutchtech-", "zips/repository.dutchtech/repository.dutchtech-")
+    unexpected = []
+    for line in status:
+        path = line[3:]
+        if " -> " in path:
+            _old, path = path.split(" -> ", 1)
+        if path.startswith(allowed_prefixes) or path.startswith(allowed_patterns):
+            continue
+        unexpected.append(line)
+    if unexpected:
+        raise SystemExit(
+            "Refusing to publish with unrelated worktree changes:\n" + "\n".join(unexpected)
+        )
+
+
+def publish_changes(root_dir: Path, repo_version: str) -> None:
+    ensure_publish_ready(root_dir)
+    subprocess.run(
+        ["git", "add", "--all", "."],
+        cwd=root_dir,
+        check=True,
+    )
+    if not git_output(root_dir, "diff", "--cached", "--name-only").strip():
+        print("No publishable changes to commit")
+        return
+    subprocess.run(
+        ["git", "commit", "-m", f"Publish Kodi repo {repo_version}"],
+        cwd=root_dir,
+        check=True,
+    )
+    subprocess.run(["git", "push", "origin", "main"], cwd=root_dir, check=True)
+
+
 def main() -> None:
     args = parse_args()
     root_dir = args.root.resolve()
@@ -264,6 +320,7 @@ def main() -> None:
     print(f"Repository version: {repo_version}")
     print(f"Site URL: {base_url}")
     print(f"Repo data URL: {repo_data_base_url}")
+    publish_changes(root_dir, repo_version)
 
 
 if __name__ == "__main__":
