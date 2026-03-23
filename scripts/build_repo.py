@@ -180,12 +180,6 @@ def update_index_html(root_dir: Path, repo_version: str) -> None:
     lines = [
         "<!DOCTYPE html>",
         f'<a href="{REPO_ADDON_ID}-{repo_version}.zip">{REPO_ADDON_ID}-{repo_version}.zip</a>',
-        "<br>",
-        '<a href="zips/plugin.video.fenlight/plugin.video.fenlight-2.0.07.zip">plugin.video.fenlight-2.0.07.zip</a>',
-        "<br>",
-        '<a href="zips/skin.arctic.horizon.2.1/skin.arctic.horizon.2.1-0.0.1.zip">skin.arctic.horizon.2.1-0.0.1.zip</a>',
-        "<br>",
-        '<a href="addons.xml">addons.xml</a>',
     ]
     write_text(index_path, "\n".join(lines) + "\n")
 
