@@ -193,7 +193,7 @@ def reload_skin():
     if not callable(execute_builtin):
         return False
     try:
-        execute_builtin("ReloadSkin()")
+        execute_builtin("ReloadSkin")
         return True
     except Exception:  # pragma: no cover
         return False

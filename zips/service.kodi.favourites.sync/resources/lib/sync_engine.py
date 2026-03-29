@@ -264,8 +264,13 @@ def perform_sync(addon=None, reason="manual"):
                 timestamp = remote_meta["modified_time"].timestamp()
                 os.utime(local_path, (timestamp, timestamp))
             local_meta = _local_metadata(local_path)
-            refreshed = reload_skin()
-            log("Post-download UI refresh attempted: reload_skin=%s" % refreshed, addon=addon)
+            try:
+                refreshed = reload_skin()
+            except Exception as exc:  # pragma: no cover
+                refreshed = False
+                log("Post-download UI refresh failed: %s" % exc, level="warning", addon=addon)
+            else:
+                log("Post-download UI refresh attempted: reload_skin=%s" % refreshed, addon=addon)
             result = _sync_result("ok", "download", "Downloaded newer remote favourites.xml", local_meta, remote_meta)
             persist_result(addon_profile, state, result, remote_meta)
             return result
