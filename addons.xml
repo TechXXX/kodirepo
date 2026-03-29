@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.9" provider-name="Codex">
+    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.10" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -42,7 +42,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://example.invalid/service.kodi.favourites.sync</source>
-            <news>v0.2.9
+            <news>v0.2.10
+- Bundle a local skin texture for the pairing dialog so the modal background does not depend on Kodi skin assets
+
+v0.2.9
 - Make the pairing QR dialog fully opaque so it reads as a proper modal over Kodi settings
 
 v0.2.8
