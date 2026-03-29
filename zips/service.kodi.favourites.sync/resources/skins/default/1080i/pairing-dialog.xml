@@ -27,7 +27,14 @@
       <top>0</top>
       <width>1150</width>
       <height>450</height>
-      <texture border="2">dialog-bg.png</texture>
+      <texture colordiffuse="F01A1E24" border="2">white.png</texture>
+    </control>
+    <control type="image">
+      <left>10</left>
+      <top>10</top>
+      <width>1130</width>
+      <height>430</height>
+      <texture colordiffuse="F0262C34" border="2">white.png</texture>
     </control>
     <control type="image">
       <left>0</left>
