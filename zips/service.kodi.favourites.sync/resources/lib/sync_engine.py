@@ -209,6 +209,7 @@ def perform_sync(addon=None, reason="manual"):
     oauth_access_token = get_setting_string(addon, "oauth_access_token", "")
     oauth_scope = get_setting_string(addon, "oauth_scope", "")
     oauth_bridge_url = get_setting_string(addon, "oauth_bridge_url", "")
+    log("Setting check: upload_local_changes=%s" % upload_local_changes, addon=addon)
 
     if not oauth_refresh_token and not oauth_access_token:
         if oauth_bridge_url:
