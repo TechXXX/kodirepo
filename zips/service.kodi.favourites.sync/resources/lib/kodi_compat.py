@@ -71,6 +71,9 @@ def get_monitor():
 
 
 def set_setting_string(addon, key, value):
+    if hasattr(addon, "setSettingString"):
+        addon.setSettingString(key, "" if value is None else str(value))
+        return
     if hasattr(addon, "setSetting"):
         addon.setSetting(key, "" if value is None else str(value))
 
@@ -184,7 +187,10 @@ def notify(addon, heading, message, icon=""):
 
 
 def get_setting_string(addon, key, default=""):
-    value = addon.getSetting(key)
+    if hasattr(addon, "getSettingString"):
+        value = addon.getSettingString(key)
+    else:
+        value = addon.getSetting(key)
     return value if value != "" else default
 
 
