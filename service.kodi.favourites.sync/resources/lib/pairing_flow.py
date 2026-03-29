@@ -24,6 +24,17 @@ def pair_google_drive(addon=None):
 
     try:
         pairing = client.create_pairing()
+        log(
+            "Pairing created: pairing_id_present=%s poll_token_present=%s code=%s expires_in=%s interval=%s"
+            % (
+                bool(pairing.get("pairing_id")),
+                bool(pairing.get("poll_token")),
+                pairing.get("user_code", ""),
+                pairing.get("expires_in", ""),
+                pairing.get("interval", ""),
+            ),
+            addon=addon,
+        )
     except Exception as exc:  # pylint: disable=broad-except
         message = "Could not start browser pairing: %s" % exc
         log(message, level="error", addon=addon)
@@ -60,9 +71,32 @@ def pair_google_drive(addon=None):
 
             status = client.pairing_status(pairing_id, poll_token)
             state = status.get("status")
+            log(
+                "Pairing poll: elapsed=%ss remaining=%ss state=%s authorized_at_present=%s last_error_present=%s"
+                % (
+                    elapsed,
+                    remaining,
+                    state or "",
+                    bool(status.get("authorized_at")),
+                    bool(status.get("last_error")),
+                ),
+                addon=addon,
+            )
             if state == "authorized":
+                log("Pairing authorized; claiming tokens from bridge", addon=addon)
                 tokens = client.claim_pairing(pairing_id, poll_token)
+                log(
+                    "Claim returned: refresh_token_present=%s access_token_present=%s expires_in=%s scope_present=%s"
+                    % (
+                        bool(tokens.get("refresh_token")),
+                        bool(tokens.get("access_token")),
+                        tokens.get("expires_in", ""),
+                        bool(tokens.get("scope")),
+                    ),
+                    addon=addon,
+                )
                 persist_oauth_tokens(addon, tokens)
+                log("Token persistence returned successfully", addon=addon)
                 notify(addon, "Kodi Favourites Sync", "Google Drive connected successfully")
                 return True
             if state == "failed":

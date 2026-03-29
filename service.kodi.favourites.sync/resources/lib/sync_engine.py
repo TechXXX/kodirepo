@@ -142,16 +142,50 @@ def persist_oauth_tokens(addon, token_payload):
     access_token = token_payload.get("access_token")
     expires_in = token_payload.get("expires_in")
     granted_scope = token_payload.get("scope")
+    log(
+        "Persisting OAuth tokens: refresh_token_present=%s access_token_present=%s expires_in=%s scope_present=%s"
+        % (
+            bool(refresh_token),
+            bool(access_token),
+            expires_in if expires_in is not None else "",
+            bool(granted_scope),
+        ),
+        addon=addon,
+    )
 
     if refresh_token:
         set_setting_string(addon, "oauth_refresh_token", refresh_token)
+        stored_refresh_token = get_setting_string(addon, "oauth_refresh_token", "")
+        log(
+            "Stored oauth_refresh_token: persisted=%s length=%s"
+            % (bool(stored_refresh_token), len(stored_refresh_token)),
+            addon=addon,
+        )
     if access_token:
         set_setting_string(addon, "oauth_access_token", access_token)
+        stored_access_token = get_setting_string(addon, "oauth_access_token", "")
+        log(
+            "Stored oauth_access_token: persisted=%s length=%s"
+            % (bool(stored_access_token), len(stored_access_token)),
+            addon=addon,
+        )
     if expires_in:
         expires_at = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in))
         set_setting_string(addon, "oauth_access_token_expires_at", expires_at.isoformat())
+        stored_expiry = get_setting_string(addon, "oauth_access_token_expires_at", "")
+        log(
+            "Stored oauth_access_token_expires_at: persisted=%s value=%s"
+            % (bool(stored_expiry), stored_expiry),
+            addon=addon,
+        )
     if granted_scope:
         set_setting_string(addon, "oauth_scope", granted_scope)
+        stored_scope = get_setting_string(addon, "oauth_scope", "")
+        log(
+            "Stored oauth_scope: persisted=%s length=%s"
+            % (bool(stored_scope), len(stored_scope)),
+            addon=addon,
+        )
 
 
 def perform_sync(addon=None, reason="manual"):
