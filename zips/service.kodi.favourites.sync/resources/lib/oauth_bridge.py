@@ -33,7 +33,12 @@ class OAuthBridgeClient:
 
     def create_pairing(self):
         self.validate()
-        return _request_json("%s/api/pairings" % self.base_url, method="POST", body=b"{}")
+        return _request_json(
+            "%s/api/pairings" % self.base_url,
+            method="POST",
+            headers={"Content-Type": "application/json"},
+            body=b"{}",
+        )
 
     def pairing_status(self, pairing_id, poll_token):
         self.validate()

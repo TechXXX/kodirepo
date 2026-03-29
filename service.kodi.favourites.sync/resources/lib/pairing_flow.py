@@ -5,12 +5,15 @@ from resources.lib.kodi_compat import (
     get_setting_string,
     log,
     notify,
-    open_browser,
-    progress_dialog,
     show_ok_dialog,
 )
 from resources.lib.oauth_bridge import OAuthBridgeClient
+from resources.lib.pairing_dialog import create_pairing_dialog
 from resources.lib.sync_engine import persist_oauth_tokens
+
+
+def _update_pairing_dialog(dialog, percent, line1, line2="", line3=""):
+    dialog.update(percent, line1, line2, line3)
 
 
 def pair_google_drive(addon=None):
@@ -34,16 +37,22 @@ def pair_google_drive(addon=None):
     interval = max(2, int(pairing.get("interval", 5)))
     expires_in = max(interval, int(pairing.get("expires_in", 600)))
 
-    opened = open_browser(verification_uri)
-    dialog = progress_dialog("Kodi Favourites Sync", "Open the browser and approve Google Drive access.")
+    dialog = create_pairing_dialog(
+        addon,
+        "Kodi Favourites Sync",
+        verification_uri,
+        user_code,
+    )
     try:
         for elapsed in range(0, expires_in + interval, interval):
             percent = min(100, int((elapsed * 100) / max(1, expires_in)))
-            dialog.update(
+            remaining = max(0, expires_in - elapsed)
+            _update_pairing_dialog(
+                dialog,
                 percent,
-                "Code: %s" % user_code,
+                "Scan the QR code with your phone and approve Google Drive access.",
                 "URL: %s" % verification_uri,
-                "Browser opened automatically." if opened else "Open the URL on another device if needed.",
+                "Code: %s | %ss remaining" % (user_code or "-", remaining),
             )
             if dialog.iscanceled():
                 notify(addon, "Kodi Favourites Sync", "Google Drive pairing cancelled")
