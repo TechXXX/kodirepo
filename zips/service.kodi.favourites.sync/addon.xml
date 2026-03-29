@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.kodi.favourites.sync"
        name="Kodi Favourites Sync"
-       version="0.2.24"
+       version="0.2.27"
        provider-name="Codex">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,8 +20,38 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://example.invalid/service.kodi.favourites.sync</source>
-    <news>v0.2.24
-- Repackage the exact 0.2.15 payload as a newer update so Kodi can install the last known-good Android build without code changes
+    <news>v0.2.27
+- Move Pair Google Drive to the top of the General settings section for faster setup
+
+v0.2.26
+- Remove the visible Remote Storage settings category so normal users stay on the supported appdata sync path
+
+v0.2.25
+- Replace blank placeholder artwork with a real add-on icon and fanart for Kodi UI
+
+v0.2.23
+- Repackage the last known-good Android behavior from the 0.2.15 code path as a newer update so Kodi can install the stable rollback cleanly
+
+v0.2.22
+- Roll back to the pre-experiment sync behavior used before the post-download UI refresh tests on Android
+
+v0.2.21
+- Roll back the post-download UI refresh experiment and restore the previously stable sync behavior on Android
+
+v0.2.20
+- Harden the download path on Android so a non-callable timestamp or local metadata refresh issue cannot abort a successful remote favourites download
+
+v0.2.19
+- Make the post-download skin reload fully non-blocking and switch to the simpler `ReloadSkin` builtin form so download syncs still succeed even if UI refresh is unsupported
+
+v0.2.18
+- Retry the post-download skin reload with a defensive builtin check so Android builds that expose no callable builtin API fall back safely
+
+v0.2.17
+- Revert the experimental post-download skin reload after it caused a runtime error on Android
+
+v0.2.16
+- Try a best-effort Kodi skin reload after downloading a newer remote favourites.xml so favourites may refresh without a second reboot
 
 v0.2.15
 - Log the effective upload toggle at sync start so Kodi UI/state mismatches are visible in the log
