@@ -114,6 +114,12 @@ def selected_scopes(remote_mode):
     return scopes
 
 
+def _scope_contains(granted_scope, expected_scope):
+    if not granted_scope or not expected_scope:
+        return False
+    return expected_scope in granted_scope.split()
+
+
 def parse_expiry(raw_value):
     if not raw_value:
         return None
@@ -201,6 +207,7 @@ def perform_sync(addon=None, reason="manual"):
     upload_local_changes = get_setting_bool(addon, "upload_local_changes", True)
     oauth_refresh_token = get_setting_string(addon, "oauth_refresh_token", "")
     oauth_access_token = get_setting_string(addon, "oauth_access_token", "")
+    oauth_scope = get_setting_string(addon, "oauth_scope", "")
     oauth_bridge_url = get_setting_string(addon, "oauth_bridge_url", "")
 
     if not oauth_refresh_token and not oauth_access_token:
@@ -221,6 +228,16 @@ def perform_sync(addon=None, reason="manual"):
         return result
 
     client, remote_mode = build_drive_client(addon)
+    log(
+        "OAuth scope check: remote_mode=%s appdata_granted=%s drive_file_granted=%s scope=%s"
+        % (
+            remote_mode,
+            _scope_contains(oauth_scope, APPDATA_SCOPE),
+            _scope_contains(oauth_scope, DRIVE_FILE_SCOPE),
+            oauth_scope or "",
+        ),
+        addon=addon,
+    )
 
     try:
         remote_meta = client.resolve_remote(drive_file_id, drive_folder_id, remote_filename, remote_mode=remote_mode)
