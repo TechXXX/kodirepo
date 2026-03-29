@@ -187,15 +187,21 @@ def notify(addon, heading, message, icon=""):
 
 
 def get_setting_string(addon, key, default=""):
-    if hasattr(addon, "getSettingString"):
-        value = addon.getSettingString(key)
-    else:
-        value = addon.getSetting(key)
+    try:
+        if hasattr(addon, "getSettingString"):
+            value = addon.getSettingString(key)
+        else:
+            value = addon.getSetting(key)
+    except Exception:  # pragma: no cover
+        return default
     return value if value != "" else default
 
 
 def get_setting_bool(addon, key, default=False):
-    raw = addon.getSetting(key)
+    try:
+        raw = addon.getSetting(key)
+    except Exception:  # pragma: no cover
+        return default
     if raw == "":
         return default
     return str(raw).lower() in ("1", "true", "yes", "on")

@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.29" provider-name="Codex">
+    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.30" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -42,7 +42,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://example.invalid/service.kodi.favourites.sync</source>
-            <news>v0.2.29
+            <news>v0.2.30
+- Restore hidden internal settings and harden setting reads so Android startup sync does not crash after UI cleanup
+
+v0.2.29
 - Simplify the General settings page to only Pair Google Drive now and Sync on Kodi startup
 
 v0.2.28
