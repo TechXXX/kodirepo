@@ -1,58 +1,65 @@
 # Kodi Favourites Sync
 
-Kodi service add-on that syncs `favourites.xml` with Google Drive using OAuth refresh tokens instead of a service account.
+Kodi service add-on that syncs `favourites.xml` across devices using Google Drive and an OAuth browser pairing flow.
 
-This repository now also includes a secure browser-side auth bridge for Vercel in [auth-bridge](/Users/kalter/Documents/CODEX/kodifavsyncOauth/auth-bridge).
+This add-on is designed to stay simple in Kodi:
+- Pair once with Google Drive
+- Sync automatically on Kodi startup
+- Store the remote backup in hidden Google Drive app data
 
-## What changed from the service-account version
+## User Setup
 
-- Keeps the working Kodi packaging and startup service behavior.
-- Keeps the old-style `resources/settings.xml` schema that showed up correctly in Kodi.
-- Keeps `xbmcvfs.translatePath` and plain `addon.getSetting(...)` compatibility choices.
-- Switches Google auth to OAuth refresh tokens.
-- Defaults remote storage to Google Drive `appDataFolder`, which avoids the service-account upload quota problem and fits a TV-hostile login flow better.
+1. Install the add-on.
+2. Open add-on settings.
+3. Select `Pair Google Drive now`.
+4. Complete the sign-in flow in your browser or on your phone.
+5. Leave `Sync on Kodi startup` enabled.
 
-## Recommended OAuth model
+After pairing, the add-on will sync `favourites.xml` each time Kodi starts.
 
-The add-on itself stays non-interactive during startup sync. Initial sign-in happens through the browser auth bridge, and Kodi receives the token automatically after the user finishes the browser flow.
+## How It Works
 
-## Remote modes
+- The add-on syncs on Kodi startup only.
+- Remote storage uses Google Drive app data by default.
+- The backup is not intended to be visible in the normal Drive file list.
+- Sync behavior is last-write-wins.
 
-- `appdata`
-  Stores the backup in the app's hidden Google Drive app-data space. Best first choice for reliable backup/sync.
-- `drive_file`
-  Looks up a visible Drive file by name, optionally within `drive_folder_id`.
-- `file_id`
-  Uses `drive_file_id` directly.
+This means the newest `favourites.xml` seen during sync becomes the remote version.
 
-For a first working OAuth version, `appdata` is the safest mode.
+If a device downloads a newer favourites file during startup, Kodi may not always reflect the change in the UI until favourites are reopened or Kodi is restarted again.
 
-## Kodi settings
+## Settings
 
-Set these in the add-on settings:
+Visible settings are intentionally minimal:
+- `Pair Google Drive now`
+- `Sync on Kodi startup`
 
-- `oauth_bridge_url`
-- `remote_mode`
-- `drive_file_id` if using `file_id`
-- `drive_folder_id` if using `drive_file`
-- `remote_filename`
+The add-on also keeps internal OAuth and storage settings for compatibility, but normal users do not need to manage them directly.
 
-Then run the add-on script `pair_google_drive.py` from Kodi to start browser pairing.
+## OAuth Bridge
 
-## Build the add-on zip
+Browser sign-in is handled through the Vercel auth bridge in [auth-bridge](/Users/kalter/Documents/CODEX/kodifavsyncOauth/auth-bridge).
+
+Current bridge URL:
+- `https://auth-bridge-rho.vercel.app`
+
+Security notes for the bridge are documented in [SECURITY_MODEL.md](/Users/kalter/Documents/CODEX/kodifavsyncOauth/SECURITY_MODEL.md).
+
+## Build
 
 ```sh
 chmod +x build_addon.sh
 ./build_addon.sh
 ```
 
-That produces a zip with the required Kodi structure:
+The build output is a Kodi-ready zip with a single top-level folder:
 
 ```text
-service.kodi.favourites.sync-0.2.0.zip
+service.kodi.favourites.sync-<version>.zip
   service.kodi.favourites.sync/
     addon.xml
     service.py
+    plugin.py
     sync_now.py
     pair_google_drive.py
     README.md
@@ -63,32 +70,47 @@ service.kodi.favourites.sync-0.2.0.zip
       lib/
 ```
 
-## Test loop
+## Publish
 
-After each install/update in Kodi:
+Build the zip in:
+- `/Users/kalter/Documents/CODEX/kodifavsyncOauth`
 
-1. Bump the add-on version in `addon.xml`.
-2. Rebuild the zip so Kodi sees it as a new version.
-3. Install the zip in Kodi.
-4. Inspect the Kodi log:
+Then copy the zip into:
+- `/Users/kalter/Documents/CODEX/kodirepo/`
+
+Then run:
 
 ```sh
-rg -n "service.kodi.favourites.sync|Kodi Favourites Sync|Starting sync|Sync failed|Downloaded newer|Uploaded newer|already in sync" ~/Library/Logs/kodi.log
+PYTHONDONTWRITEBYTECODE=1 python3 /Users/kalter/Documents/CODEX/kodirepo/scripts/publish_addon_update.py
 ```
 
-Kodi log path on macOS:
+Do not use the full repo builder unless explicitly needed.
+
+## Logs
+
+macOS Kodi log:
 
 ```text
 /Users/kalter/Library/Logs/kodi.log
 ```
 
-## Browser auth bridge
+Android / Fire TV style Kodi log:
 
-If you want automatic browser sign-in without copy-paste, use the Vercel bridge in `[auth-bridge](/Users/kalter/Documents/CODEX/kodifavsyncOauth/auth-bridge)`. The bridge design and hardening notes are summarized in `[SECURITY_MODEL.md](/Users/kalter/Documents/CODEX/kodifavsyncOauth/SECURITY_MODEL.md)`.
+```text
+/Volumes/internal/Android/data/net.kodinerds.maven.kodi21/files/.kodi/temp/kodi.log
+```
 
-The intended flow is:
+Useful log filter:
 
-1. Deploy the bridge on Vercel and set `oauth_bridge_url` in Kodi.
-2. In Kodi, run `pair_google_drive.py`.
-3. Kodi requests a pairing code, opens the browser when possible, and polls the bridge.
-4. After browser approval, Kodi stores the refresh token automatically.
+```sh
+rg -n "service.kodi.favourites.sync|Kodi Favourites Sync|Starting sync|Sync failed|download|upload|pair|oauth|bridge" ~/Library/Logs/kodi.log
+```
+
+## Notes For Development
+
+- Add-on type remains `xbmc.service`
+- Startup entry point is `service.py`
+- Settings schema uses old-style `resources/settings.xml`
+- Kodi paths should use `xbmcvfs.translatePath`
+- Settings access should go through the compat layer
+- Bump the add-on version on every rebuild you want Kodi to install

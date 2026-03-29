@@ -135,6 +135,7 @@ def build_drive_client(addon):
         client_id="",
         client_secret="",
         refresh_token=get_setting_string(addon, "oauth_refresh_token", ""),
+        refresh_secret=get_setting_string(addon, "oauth_refresh_secret", ""),
         scopes=selected_scopes(remote_mode),
         access_token=get_setting_string(addon, "oauth_access_token", ""),
         access_token_expiry=parse_expiry(get_setting_string(addon, "oauth_access_token_expires_at", "")),
@@ -145,13 +146,15 @@ def build_drive_client(addon):
 
 def persist_oauth_tokens(addon, token_payload):
     refresh_token = token_payload.get("refresh_token")
+    refresh_secret = token_payload.get("refresh_secret")
     access_token = token_payload.get("access_token")
     expires_in = token_payload.get("expires_in")
     granted_scope = token_payload.get("scope")
     log(
-        "Persisting OAuth tokens: refresh_token_present=%s access_token_present=%s expires_in=%s scope_present=%s"
+        "Persisting OAuth tokens: refresh_token_present=%s refresh_secret_present=%s access_token_present=%s expires_in=%s scope_present=%s"
         % (
             bool(refresh_token),
+            bool(refresh_secret),
             bool(access_token),
             expires_in if expires_in is not None else "",
             bool(granted_scope),
@@ -165,6 +168,14 @@ def persist_oauth_tokens(addon, token_payload):
         log(
             "Stored oauth_refresh_token: persisted=%s length=%s"
             % (bool(stored_refresh_token), len(stored_refresh_token)),
+            addon=addon,
+        )
+    if refresh_secret:
+        set_setting_string(addon, "oauth_refresh_secret", refresh_secret)
+        stored_refresh_secret = get_setting_string(addon, "oauth_refresh_secret", "")
+        log(
+            "Stored oauth_refresh_secret: persisted=%s length=%s"
+            % (bool(stored_refresh_secret), len(stored_refresh_secret)),
             addon=addon,
         )
     if access_token:

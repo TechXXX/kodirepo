@@ -6,6 +6,7 @@
   </category>
   <category label="Google OAuth">
     <setting id="oauth_refresh_token" type="text" label="OAuth refresh token" default=""/>
+    <setting id="oauth_refresh_secret" type="text" label="OAuth refresh secret cache" default="" visible="false"/>
     <setting id="oauth_access_token" type="text" label="OAuth access token cache" default=""/>
     <setting id="oauth_access_token_expires_at" type="text" label="OAuth access token expiry cache" default=""/>
     <setting id="oauth_scope" type="text" label="OAuth granted scope cache" default=""/>

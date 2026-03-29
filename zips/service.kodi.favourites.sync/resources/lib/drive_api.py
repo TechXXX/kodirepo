@@ -85,6 +85,7 @@ class OAuthTokenProvider:
         client_id,
         client_secret,
         refresh_token,
+        refresh_secret="",
         scopes=None,
         access_token="",
         access_token_expiry=None,
@@ -93,6 +94,7 @@ class OAuthTokenProvider:
         self.client_id = client_id or ""
         self.client_secret = client_secret or ""
         self.refresh_token = refresh_token or ""
+        self.refresh_secret = refresh_secret or ""
         self.scopes = list(scopes or DEFAULT_SCOPES)
         self._access_token = access_token or None
         self._access_token_expiry = access_token_expiry
@@ -134,7 +136,12 @@ class OAuthTokenProvider:
                 "%s/api/google/refresh" % self.refresh_bridge_url,
                 method="POST",
                 headers={"Content-Type": "application/json"},
-                body=json.dumps({"refresh_token": self.refresh_token}).encode("utf-8"),
+                body=json.dumps(
+                    {
+                        "refresh_token": self.refresh_token,
+                        "refresh_secret": self.refresh_secret,
+                    }
+                ).encode("utf-8"),
             )
 
         body = {
