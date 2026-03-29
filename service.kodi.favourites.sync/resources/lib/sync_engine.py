@@ -261,9 +261,25 @@ def perform_sync(addon=None, reason="manual"):
             content = remote_bytes if remote_bytes is not None else client.download_file(remote_meta["id"])
             _write_file_bytes(local_path, content)
             if remote_meta["modified_time"] is not None:
-                timestamp = remote_meta["modified_time"].timestamp()
-                os.utime(local_path, (timestamp, timestamp))
-            local_meta = _local_metadata(local_path)
+                try:
+                    modified_time = remote_meta["modified_time"]
+                    timestamp_fn = getattr(modified_time, "timestamp", None)
+                    if callable(timestamp_fn):
+                        file_timestamp = timestamp_fn()
+                        os.utime(local_path, (file_timestamp, file_timestamp))
+                    else:
+                        log(
+                            "Skipping local mtime preservation because remote modified_time has no callable timestamp()",
+                            level="warning",
+                            addon=addon,
+                        )
+                except Exception as exc:  # pragma: no cover
+                    log("Could not preserve local mtime from remote file: %s" % exc, level="warning", addon=addon)
+            try:
+                local_meta = _local_metadata(local_path)
+            except Exception as exc:  # pragma: no cover
+                local_meta = None
+                log("Could not recompute local metadata after download: %s" % exc, level="warning", addon=addon)
             try:
                 refreshed = reload_skin()
             except Exception as exc:  # pragma: no cover
