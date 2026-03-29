@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="service.kodi.favourites.sync"
+       name="Kodi Favourites Sync"
+       version="0.2.4"
+       provider-name="Codex">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.service" library="service.py" start="startup"/>
+  <extension point="xbmc.python.script" library="sync_now.py"/>
+  <extension point="xbmc.python.script" library="pair_google_drive.py"/>
+  <extension point="xbmc.python.pluginsource" library="plugin.py"/>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Sync Kodi favourites.xml with Google Drive</summary>
+    <description lang="en_GB">A minimal background service add-on that syncs Kodi favourites.xml with Google Drive using OAuth refresh tokens.</description>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
+    <platform>all</platform>
+    <license>MIT</license>
+    <source>https://example.invalid/service.kodi.favourites.sync</source>
+    <news>v0.2.4
+- Route the Google Drive pairing action through RunPlugin for better compatibility on Kodi/macOS
+- Add a startup fallback toggle to launch pairing on the next Kodi start if direct triggering is unavailable
+
+v0.2.3
+- Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI
+
+v0.2.2
+- Preconfigure the production OAuth bridge URL in add-on settings
+
+v0.2.1
+- Fix bridge-based OAuth startup so local client ID is no longer required before pairing
+- Return a clean no-op before first pairing instead of logging a hard OAuth config error
+
+v0.2.0
+- Switch Google Drive auth from service accounts to OAuth refresh tokens
+- Default remote storage to appDataFolder for TV-friendly backup sync
+- Add secure Vercel bridge support for browser pairing without copy/paste</news>
+  </extension>
+</addon>

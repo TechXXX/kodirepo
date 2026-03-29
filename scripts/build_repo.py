@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
 import textwrap
 import xml.etree.ElementTree as ET
 import zipfile
@@ -24,20 +25,14 @@ REPO_DESCRIPTION = (
     "Install this repository to receive DutchTech Kodi add-on updates "
     "from a GitHub Pages-hosted source."
 )
-SOURCE_DIR_NAMES = [
-    "plugin.video.fenlight",
-    "skin.arctic.horizon.2.1",
-    REPO_ADDON_ID,
-]
 REPO_ALLOWED_FILES = {"addon.xml", "icon.png", "fanart.jpg"}
-PUBLISH_PATHS = [
+STATIC_PUBLISH_PATHS = [
     "addons.xml",
     "addons.xml.md5",
     "index.html",
-    f"{REPO_ADDON_ID}/addon.xml",
     "scripts/build_repo.py",
-    f"zips/{REPO_ADDON_ID}/addon.xml",
 ]
+EXCLUDED_SOURCE_DIRS = {"scripts", "zips", "__pycache__"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -153,14 +148,45 @@ def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> tuple[P
     return repo_dir, repo_version
 
 
+def import_root_addon_zips(root_dir: Path) -> list[str]:
+    imported_ids: list[str] = []
+    for zip_path in sorted(root_dir.glob("*.zip")):
+        if zip_path.name.startswith(f"{REPO_ADDON_ID}-"):
+            continue
+        with zipfile.ZipFile(zip_path) as zf:
+            addon_xml_members = [name for name in zf.namelist() if name.endswith("addon.xml")]
+            if len(addon_xml_members) != 1:
+                raise SystemExit(f"Expected one addon.xml in {zip_path.name}, found {len(addon_xml_members)}")
+            addon_xml_member = addon_xml_members[0]
+            addon_root = ET.fromstring(zf.read(addon_xml_member))
+            addon_id = addon_root.attrib["id"]
+            member_parts = Path(addon_xml_member).parts
+            top_level_dir = member_parts[0] if len(member_parts) > 1 else ""
+            with tempfile.TemporaryDirectory() as temp_dir_name:
+                temp_dir = Path(temp_dir_name)
+                zf.extractall(temp_dir)
+                extracted_dir = temp_dir / top_level_dir if top_level_dir else temp_dir
+                target_dir = root_dir / addon_id
+                remove_path(target_dir)
+                shutil.copytree(extracted_dir, target_dir)
+        zip_path.unlink()
+        imported_ids.append(addon_id)
+    return imported_ids
+
+
 def get_source_dirs(root_dir: Path) -> list[Path]:
     source_dirs = []
-    for dir_name in SOURCE_DIR_NAMES:
-        path = root_dir / dir_name
+    for path in sorted(root_dir.iterdir()):
+        if not path.is_dir():
+            continue
+        if path.name.startswith(".") or path.name in EXCLUDED_SOURCE_DIRS:
+            continue
         addon_xml = path / "addon.xml"
-        if not addon_xml.exists():
-            raise SystemExit(f"Missing addon source: {addon_xml}")
-        source_dirs.append(path)
+        if addon_xml.exists():
+            source_dirs.append(path)
+    source_dirs.sort(key=lambda path: (path.name == REPO_ADDON_ID, path.name))
+    if not any(path.name == REPO_ADDON_ID for path in source_dirs):
+        raise SystemExit(f"Missing addon source: {root_dir / REPO_ADDON_ID / 'addon.xml'}")
     return source_dirs
 
 
@@ -248,10 +274,17 @@ def git_output(root_dir: Path, *args: str) -> str:
     return result.stdout
 
 
-def ensure_publish_ready(root_dir: Path) -> None:
+def publish_prefixes(source_dirs: list[Path]) -> tuple[str, ...]:
+    prefixes = list(STATIC_PUBLISH_PATHS)
+    prefixes.extend(addon_dir.name for addon_dir in source_dirs)
+    prefixes.extend(f"zips/{addon_dir.name}" for addon_dir in source_dirs)
+    return tuple(prefixes)
+
+
+def ensure_publish_ready(root_dir: Path, source_dirs: list[Path]) -> None:
     status = git_output(root_dir, "status", "--porcelain").splitlines()
-    allowed_prefixes = tuple(PUBLISH_PATHS)
-    allowed_patterns = ("repository.dutchtech-", "zips/repository.dutchtech/repository.dutchtech-")
+    allowed_prefixes = publish_prefixes(source_dirs)
+    allowed_patterns = (f"{REPO_ADDON_ID}-",)
     unexpected = []
     for line in status:
         path = line[3:]
@@ -266,8 +299,8 @@ def ensure_publish_ready(root_dir: Path) -> None:
         )
 
 
-def publish_changes(root_dir: Path, repo_version: str) -> None:
-    ensure_publish_ready(root_dir)
+def publish_changes(root_dir: Path, repo_version: str, source_dirs: list[Path]) -> None:
+    ensure_publish_ready(root_dir, source_dirs)
     subprocess.run(
         ["git", "add", "--all", "."],
         cwd=root_dir,
@@ -290,6 +323,7 @@ def main() -> None:
     base_url = normalize_base_url(args.base_url)
     repo_data_base_url = normalize_base_url(args.repo_data_base_url)
 
+    imported_ids = import_root_addon_zips(root_dir)
     _repo_dir, repo_version = ensure_repo_addon_source(root_dir, repo_data_base_url)
     source_dirs = get_source_dirs(root_dir)
 
@@ -314,7 +348,9 @@ def main() -> None:
     print(f"Repository version: {repo_version}")
     print(f"Site URL: {base_url}")
     print(f"Repo data URL: {repo_data_base_url}")
-    publish_changes(root_dir, repo_version)
+    if imported_ids:
+        print(f"Imported root zips: {', '.join(imported_ids)}")
+    publish_changes(root_dir, repo_version, source_dirs)
 
 
 if __name__ == "__main__":
