@@ -52,7 +52,8 @@
       <font>font30_title</font>
       <align>left</align>
       <aligny>center</aligny>
-      <shadowcolor>FF000000</shadowcolor>
+      <textcolor>FFFFFFFF</textcolor>
+      <shadowcolor>CC000000</shadowcolor>
       <label>Kodi Favourites Sync</label>
     </control>
     <control type="image" id="1001">
@@ -64,21 +65,23 @@
     </control>
     <control type="textbox" id="1002">
       <left>380</left>
-      <top>90</top>
-      <width>770</width>
+      <top>100</top>
+      <width>720</width>
       <height>340</height>
-      <font>font12_title</font>
+      <font>font16</font>
       <align>left</align>
       <aligny>top</aligny>
-      <shadowcolor>FF000000</shadowcolor>
+      <textcolor>FFF3F7FA</textcolor>
+      <shadowcolor>CC000000</shadowcolor>
     </control>
     <control type="button" id="1005">
-      <left>850</left>
-      <top>350</top>
-      <width>300</width>
-      <height>100</height>
+      <left>820</left>
+      <top>352</top>
+      <width>260</width>
+      <height>72</height>
       <font>font12_title</font>
       <textcolor>FFFFFFFF</textcolor>
+      <focusedcolor>FFFFFFFF</focusedcolor>
       <label>222</label>
       <align>center</align>
       <aligny>center</aligny>

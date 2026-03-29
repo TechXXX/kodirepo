@@ -1,4 +1,5 @@
 import os
+import textwrap
 from urllib.parse import quote
 from urllib.request import urlopen
 
@@ -101,15 +102,25 @@ class _KodiQRPairingDialog(xbmcgui.WindowXMLDialog):
         self._render_status()
 
     def _render_status(self):
+        wrapped_url = ""
+        detail_lines = []
+        for part in (self._pending.get("line1", ""), self._pending.get("line2", "")):
+            if part:
+                detail_lines.append(part)
+
+        raw_line3 = self._pending.get("line3", "")
+        if raw_line3.startswith("URL: "):
+            wrapped_url = "\n".join(textwrap.wrap(raw_line3[5:], width=34))
+        elif raw_line3:
+            detail_lines.append(raw_line3)
+
+        detail_lines.append("Code: %s" % (self.user_code or "-"))
         message = "[B]%s%%[/B]\n%s" % (
             int(max(0, min(100, self._pending.get("percent", 0)))),
-            "\n".join(part for part in (
-                self._pending.get("line1", ""),
-                self._pending.get("line2", ""),
-                self._pending.get("line3", ""),
-                "Code: %s" % (self.user_code or "-"),
-            ) if part),
+            "\n".join(detail_lines),
         )
+        if wrapped_url:
+            message += "\nURL:\n%s" % wrapped_url
         self._set_label(self._STATUS, message)
 
     def _set_label(self, control_id, value):
