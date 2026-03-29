@@ -186,6 +186,16 @@ def notify(addon, heading, message, icon=""):
     )
 
 
+def reload_skin():
+    if xbmc is None:
+        return False
+    try:
+        xbmc.executebuiltin("ReloadSkin()")
+        return True
+    except Exception:  # pragma: no cover
+        return False
+
+
 def get_setting_string(addon, key, default=""):
     if hasattr(addon, "getSettingString"):
         value = addon.getSettingString(key)

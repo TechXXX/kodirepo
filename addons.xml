@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.15" provider-name="Codex">
+    <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.16" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -42,7 +42,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://example.invalid/service.kodi.favourites.sync</source>
-            <news>v0.2.15
+            <news>v0.2.16
+- Try a best-effort Kodi skin reload after downloading a newer remote favourites.xml so favourites may refresh without a second reboot
+
+v0.2.15
 - Log the effective upload toggle at sync start so Kodi UI/state mismatches are visible in the log
 
 v0.2.14
