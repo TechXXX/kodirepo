@@ -1,5 +1,6 @@
 import hashlib
 import os
+import traceback
 from datetime import datetime, timedelta, timezone
 
 from resources.lib.drive_api import (
@@ -295,6 +296,7 @@ def perform_sync(addon=None, reason="manual"):
         return result
     except Exception as exc:  # pylint: disable=broad-except
         log("Sync failed: %s" % exc, level="error", addon=addon)
+        log("Sync traceback:\n%s" % traceback.format_exc(), level="error", addon=addon)
         result = _sync_result("error", "noop", str(exc))
         persist_result(addon_profile, state, result, None)
         return result
