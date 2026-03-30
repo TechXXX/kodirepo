@@ -24,20 +24,6 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="script.reloadfavourites" name="Reload Favourites" version="1.0.0" provider-name="Bas">
-        <requires>
-            <import addon="xbmc.python" version="3.0.0" />
-        </requires>
-        <extension point="xbmc.python.script" library="default.py">
-            <provides>executable</provides>
-        </extension>
-        <extension point="xbmc.addon.metadata">
-            <summary lang="en_GB">Reload the Master user profile.</summary>
-            <description lang="en_GB">A minimal program addon that runs the Kodi builtin to load the Master user profile.</description>
-            <platform>all</platform>
-            <license>MIT</license>
-        </extension>
-    </addon>
     <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.36" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
