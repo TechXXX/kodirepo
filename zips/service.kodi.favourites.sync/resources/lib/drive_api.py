@@ -58,11 +58,8 @@ def parse_google_timestamp(value):
     if not value:
         return None
     if value.endswith("Z"):
-        try:
-            return datetime.strptime(value, ISO8601_Z).replace(tzinfo=timezone.utc)
-        except ValueError:
-            trimmed = value.replace("Z", "+00:00")
-            return datetime.fromisoformat(trimmed)
+        trimmed = value.replace("Z", "+00:00")
+        return datetime.fromisoformat(trimmed)
     return datetime.fromisoformat(value)
 
 
