@@ -24,6 +24,30 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.20">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.requests" version="2.19.1" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.service" library="resources/lib/service.py" />
+        <extension point="xbmc.python.module" library="resources/lib/" />
+        <extension point="xbmc.addon.metadata">
+            <reuselanguageinvoker>true</reuselanguageinvoker>
+            <summary lang="en">Access your content from Easynews and Debrid Clouds.</summary>
+            <description lang="en">This add-on is intended for advanced Kodi users only. You must own the content of any media you play through this addon. This is an English language only add-on.</description>
+            <platform>all</platform>
+            <disclaimer lang="en">The author of this addon does not host any of the content which is found and has no affiliation with any of the content providers.</disclaimer>
+            <license />
+            <assets>
+                <icon>resources/media/fenlight_icon.png</icon>
+                <fanart>resources/media/fenlight_fanart2.jpg</fanart>
+            </assets>
+            <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+        </extension>
+    </addon>
     <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.36" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
@@ -145,6 +169,53 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.14" provider-name="Unknown">
+        <requires>
+            <import addon="script.module.requests" />
+            <import addon="vfs.libarchive" optional="true" />
+        </requires>
+        <extension point="xbmc.subtitle.module" library="main.py" />
+        <extension point="xbmc.service" library="main_service.py" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en">a4kSubtitles Patched - Multi-Source Subtitles Addon</summary>
+            <description>
+Multi-source subtitles addon optimized for Seren and a4kScrapers.
+Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
+        </description>
+            <platform>all</platform>
+            <reuselanguageinvoker>true</reuselanguageinvoker>
+            <license>MIT License</license>
+            <website>https://github.com/newt-sc/a4kSubtitles</website>
+            <source>https://github.com/newt-sc/a4kSubtitles</source>
+            <assets>
+                <icon>icon.png</icon>
+                <screenshot>screenshot-01.png</screenshot>
+                <screenshot>screenshot-02.png</screenshot>
+                <screenshot>screenshot-03.png</screenshot>
+            </assets>
+            <news>
+[v3.23.13]:
+  * Fix comment-fallback ranking crash in final subtitle selection.
+
+[v3.23.12]:
+  * Use OpenSubtitles uploader comments as a fallback-only compatibility signal after direct filename matching.
+
+[v3.23.11]:
+  * Demote AI and machine-translated subtitle results during final ranking so they only win as fallback.
+
+[v3.23.10]:
+  * Move full release history into CHANGELOG.md so repository metadata stays compact.
+
+[v3.23.9]:
+  * Fix OpenSubtitles download retries and cleanup after failed downloads.
+  * Improve subtitle ranking for prerelease and release-family mismatches.
+  * Add resilient OpenSubtitles movie fallback search when year metadata is wrong.
+  * Show a notification when an AI or machine translated subtitle is selected.
+
+Full release history is now tracked in CHANGELOG.md.
+        </news>
+        </extension>
+    </addon>
     <addon id="skin.arctic.horizon.2.1" name="Arctic Horizon 2.1" provider-name="DeFiNiek" version="0.0.1">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
@@ -172,7 +243,7 @@ v0.2.3
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.38">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.39">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
