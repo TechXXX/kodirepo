@@ -3,3 +3,5 @@ skin.arctic.horizon.2.1-0.0.1.zip
 .DS_Store
 .history/
 *_old.*
+__pycache__/
+*.pyc

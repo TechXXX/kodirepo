@@ -214,6 +214,10 @@ def should_skip_file(addon_id: str, file_path: Path) -> bool:
     parts = file_path.parts
     if any(part.startswith(".") for part in parts):
         return True
+    if "__pycache__" in parts:
+        return True
+    if file_path.suffix == ".pyc":
+        return True
     if "__MACOSX" in parts:
         return True
     if addon_id == REPO_ADDON_ID and file_path.name not in REPO_ALLOWED_FILES:
