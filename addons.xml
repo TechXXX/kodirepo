@@ -169,7 +169,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.14" provider-name="Unknown">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.15" provider-name="Unknown">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -243,7 +243,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.40">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.41">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
