@@ -1,5 +1,8 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.21[/B][/COLOR]
+- Restored direct player playback for resolved sources to avoid playback failures on some Kodi/macOS installs.
+
 [COLOR dodgerblue][B]Version 2.0.07[/B][/COLOR]
 - Added support for Season and Episode items included in Trakt list contents (My Lists, Liked Lists).
 - Updated Trakt icon.
