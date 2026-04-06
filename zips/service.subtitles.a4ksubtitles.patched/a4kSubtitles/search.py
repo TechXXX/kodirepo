@@ -20,6 +20,38 @@ def __comment_candidate_names(core, comments):
             names.append(line)
     return names
 
+def __release_group_candidates(core, text, regexsplitwords, ignored_tokens):
+    if not text:
+        return []
+
+    raw_tokens = [token.strip().lower() for token in core.re.split(regexsplitwords, core.utils.unquote(text)) if token and token.strip()]
+    tokens = [token for token in raw_tokens if not token.isdigit() and token not in ignored_tokens]
+    if not tokens:
+        return []
+
+    tail = tokens[-3:]
+    candidates = []
+    if len(tail[-1]) >= 4:
+        candidates.append(tail[-1])
+    for size in (2, 3):
+        if len(tail) >= size:
+            candidate = ' '.join(tail[-size:])
+            if candidate not in candidates:
+                candidates.append(candidate)
+    return candidates
+
+def __comments_reference_release_group(core, comments, candidates, regexsplitwords):
+    if not comments or not candidates:
+        return False
+
+    normalized_comments = core.re.sub(regexsplitwords, ' ', core.utils.unquote(comments).lower())
+    normalized_comments = ' ' + core.re.sub(r'\s+', ' ', normalized_comments).strip() + ' '
+    for candidate in candidates:
+        normalized_candidate = ' ' + candidate.strip().lower() + ' '
+        if normalized_candidate in normalized_comments:
+            return True
+    return False
+
 def __sample_result_names(results, limit=3):
     sample_names = []
     for result in results:
@@ -235,10 +267,14 @@ def __prepare_results(core, meta, results):
         color.extend(group)
 
     extra = ['extended', 'cut', 'remastered', 'proper']
+    ignored_release_group_tokens = set(release + quality + service + codec + audio + color + extra + ['multi', 'multiple', 'sub', 'subs', 'subtitle'])
 
+    source_filename = core.utils.unquote(getattr(meta, 'filename', '') or '').lower()
     filename = core.utils.unquote(meta.filename_without_ext).lower()
+    source_match_text = source_filename or filename
     regexsplitwords = r'[\s\.\:\;\(\)\[\]\{\}\\\/\&\€\'\`\#\@\=\$\?\!\%\+\-\_\*\^]'
-    meta_nameparts = core.re.split(regexsplitwords, filename)
+    meta_nameparts = core.re.split(regexsplitwords, source_match_text)
+    source_release_candidates = __release_group_candidates(core, source_match_text, regexsplitwords, ignored_release_group_tokens)
 
     release_list = [i for i in meta_nameparts if i in release]
     quality_list = [i for i in meta_nameparts if i in quality]
@@ -370,18 +406,29 @@ def __prepare_results(core, meta, results):
         subtitle_is_prerelease = subtitle_release_group is prerelease_group or any(token in cleaned_nameparts for token in prerelease_group)
         prerelease_rank = 0 if source_is_prerelease else int(subtitle_is_prerelease)
         direct_name_score = _name_match_score(name, cleaned_file_nameparts, source_release_group)
+        direct_release_candidates = __release_group_candidates(core, name, regexsplitwords, ignored_release_group_tokens)
+        direct_release_group_hit = bool(set(source_release_candidates).intersection(direct_release_candidates))
+        if direct_release_group_hit:
+            direct_name_score = max(direct_name_score, 1.08)
         comment_name_score = 0
+        comment_release_group_hit = False
         comment_only_rank = 0
         comments = x.get('comments', '')
-        if comments and direct_name_score < 0.9:
+        if comments and not direct_release_group_hit and direct_name_score < 0.9:
             comment_name_score = max((_name_match_score(candidate, cleaned_file_nameparts, source_release_group) for candidate in __comment_candidate_names(core, comments)), default=0)
-            if comment_name_score > direct_name_score:
+            comment_release_group_hit = __comments_reference_release_group(core, comments, source_release_candidates, regexsplitwords)
+            if comment_release_group_hit:
+                comment_name_score = max(comment_name_score, direct_name_score + 0.25, 1.15)
+                comment_only_rank = 0
+            elif comment_name_score > direct_name_score:
                 comment_only_rank = 1
-        effective_name_score = direct_name_score if comment_only_rank == 0 else comment_name_score - 0.02
+        effective_name_score = direct_name_score if direct_release_group_hit or (comment_only_rank == 0 and not comment_release_group_hit) else comment_name_score - (0.0 if comment_release_group_hit else 0.02)
 
         return (
             prerelease_rank,
             translated_fallback_rank,
+            not direct_release_group_hit,
+            not comment_release_group_hit,
             comment_only_rank,
             not x['lang'] == meta.preferredlanguage,
             meta.languages.index(x['lang']),
