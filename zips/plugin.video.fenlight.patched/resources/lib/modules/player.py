@@ -4,7 +4,7 @@ from threading import Thread
 from apis.trakt_api import make_trakt_slug
 from caches.settings_cache import get_setting
 from modules import kodi_utils as ku, settings as st, watched_status as ws
-# logger = ku.logger
+logger = ku.logger
 
 set_property, clear_property, get_visibility, hide_busy_dialog, xbmc_actor = ku.set_property, ku.clear_property, ku.get_visibility, ku.hide_busy_dialog, ku.xbmc_actor
 xbmc_player, execute_builtin, sleep = ku.xbmc_player, ku.execute_builtin, ku.sleep
@@ -25,8 +25,12 @@ class FenLightPlayer(xbmc_player):
 		hide_busy_dialog()
 		self.clear_playback_properties()
 		if not url: return self.run_error()
-		try: return self.play_video(url, obj)
-		except: return self.run_error()
+		try:
+			logger('Fen Light Patched', 'Player.run starting | url=%s' % url)
+			return self.play_video(url, obj)
+		except:
+			logger('Fen Light Patched', 'Player.run exception')
+			return self.run_error()
 
 	def run_resolved(self, url=None, obj=None):
 		hide_busy_dialog()
@@ -52,10 +56,17 @@ class FenLightPlayer(xbmc_player):
 	def play_video(self, url, obj):
 		self.set_constants(url, obj)
 		volume_checker()
-		self.play(self.url, self.make_listing())
+		listing = self.make_listing()
+		self._hybrid_resolve_handoff(listing)
+		if not self.isPlayingVideo():
+			self.play(self.url, listing)
 		if not self.is_generic:
 			self.check_playback_start()
-			if self.playback_successful: self.monitor()
+			logger('Fen Light Patched', 'Player.play_video post-check | started=%s | successful=%s | cancelled=%s | url=%s' % (
+				self.playback_started, self.playback_successful, self.cancel_all_playback, self.url))
+			if self.playback_successful or self.playback_started:
+				self.playback_successful = True
+				self.monitor()
 			else:
 				self.sources_object.playback_successful = self.playback_successful
 				self.sources_object.cancel_all_playback = self.cancel_all_playback
@@ -76,8 +87,12 @@ class FenLightPlayer(xbmc_player):
 				execute_builtin('SendClick(okdialog, 11)')
 				self.playback_successful = False
 			elif self.isPlayingVideo():
+				self.playback_started = True
 				try:
-					if self.getTotalTime() not in total_time_errors and get_visibility(video_fullscreen_check): self.playback_successful = True
+					total_time = self.getTotalTime()
+					fullscreen = get_visibility(video_fullscreen_check)
+					logger('Fen Light Patched', 'Player.check_playback_start playing | total_time=%s | fullscreen=%s | url=%s' % (total_time, fullscreen, self.url))
+					if total_time not in total_time_errors and fullscreen: self.playback_successful = True
 				except: pass
 			resolve_percent = round(resolve_percent + 26.0/100, 1)
 			self.sources_object.progress_dialog.update_resolver(percent=resolve_percent)
@@ -122,11 +137,14 @@ class FenLightPlayer(xbmc_player):
 						if round(self.total_time - self.curr_time) <= self.start_prep: self.run_next_ep(); break
 				except: pass
 			hide_busy_dialog()
+			logger('Fen Light Patched', 'Player.monitor exit | current_point=%s | media_marked=%s | url=%s' % (
+				getattr(self, 'current_point', None), self.media_marked, self.url))
 			if not self.media_marked: self.media_watched_marker()
 			self.clear_playback_properties()
 			self.clear_playing_item()
 		except:
 			hide_busy_dialog()
+			logger('Fen Light Patched', 'Player.monitor exception | url=%s' % getattr(self, 'url', ''))
 			self.sources_object.playback_successful = False
 			self.sources_object.cancel_all_playback = True
 			return self.kill_dialog()
@@ -175,6 +193,18 @@ class FenLightPlayer(xbmc_player):
 			self.set_resume_point(listitem)
 			self.set_playback_properties()
 		return listitem
+
+	def _hybrid_resolve_handoff(self, listitem):
+		try:
+			set_resolved_url(listitem)
+			logger('Fen Light Patched', 'Player.hybrid_resolve_handoff succeeded | url=%s' % self.url)
+			for _ in range(10):
+				if self.isPlayingVideo():
+					logger('Fen Light Patched', 'Player.hybrid_resolve_handoff playback already active | url=%s' % self.url)
+					return
+				sleep(50)
+		except:
+			logger('Fen Light Patched', 'Player.hybrid_resolve_handoff failed | url=%s' % getattr(self, 'url', ''))
 
 	def media_watched_marker(self, force_watched=False):
 		self.media_marked = True
@@ -244,6 +274,7 @@ class FenLightPlayer(xbmc_player):
 			self.meta_get, self.kodi_monitor, self.playback_percent = self.meta.get, xbmc_monitor(), self.sources_object.playback_percent or 0.0
 			self.playing_filename = self.sources_object.playing_filename
 			self.media_marked, self.nextep_info_gathered = False, False
+			self.playback_started = False
 			self.playback_successful, self.cancel_all_playback = None, False
 			self.playing_item = self.sources_object.playing_item
 
@@ -270,6 +301,7 @@ class FenLightPlayer(xbmc_player):
 	def run_error(self):
 		try: self.sources_object.playback_successful = False
 		except: pass
+		logger('Fen Light Patched', 'Player.run_error | url=%s' % getattr(self, 'url', ''))
 		self.clear_playback_properties()
 		notification('Playback Failed', 3500)
 		return False
