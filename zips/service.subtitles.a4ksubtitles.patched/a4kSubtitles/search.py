@@ -128,6 +128,17 @@ def __add_results(core, results, meta):  # pragma: no cover
 def __has_results(service_name, results):
     return any(map(lambda r: r['service_name'] == service_name, results))
 
+def __opensubtitles_results_missing_translation_flags(results):
+    for result in results:
+        if result.get('service_name') != 'opensubtitles':
+            continue
+
+        action_args = result.get('action_args') or {}
+        if 'ai_translated' not in action_args or 'machine_translated' not in action_args:
+            return True
+
+    return False
+
 def __save_results(core, meta, results):
     try:
         if len(results) == 0:
@@ -160,6 +171,12 @@ def __get_last_results(core, meta):
         if has_bsplayer_results and has_bsplayer_results_expired:
             last_results['results'] = list(filter(lambda r: r['service_name'] != 'bsplayer', last_results['results']))
             force_search.append('bsplayer')
+
+        has_stale_opensubtitles_translation_cache = __opensubtitles_results_missing_translation_flags(last_results['results'])
+        if has_stale_opensubtitles_translation_cache:
+            last_results['results'] = list(filter(lambda r: r['service_name'] != 'opensubtitles', last_results['results']))
+            force_search.append('opensubtitles')
+            core.logger.debug('opensubtitles cache missing translation flags, forcing refresh')
 
         return (last_results['results'], force_search)
     except: pass

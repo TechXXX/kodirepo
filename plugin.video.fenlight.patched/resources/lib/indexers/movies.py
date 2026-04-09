@@ -197,8 +197,11 @@ class Movies:
 			listitem.setLabel(title)
 			listitem.addContextMenuItems(cm)
 			listitem.setArt({'poster': poster, 'fanart': fanart, 'icon': poster, 'clearlogo': clearlogo, 'landscape': landscape, 'thumb': thumb})
-			set_properties({'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params,
-							'belongs_to_collection': belongs_to_movieset, 'fenlight.more_like_this_params': more_like_this_params})
+			properties = {'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params,
+							'belongs_to_collection': belongs_to_movieset, 'fenlight.more_like_this_params': more_like_this_params}
+			if url_params == play_params:
+				properties['IsPlayable'] = 'true'
+			set_properties(properties)
 			self.append(((url_params, listitem, False), _position))
 		except: pass
 

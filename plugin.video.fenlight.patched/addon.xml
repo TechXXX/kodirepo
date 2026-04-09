@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.22">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.23">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,6 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+        <news>[v2.0.23]:
+  * Bundle the subtitle selector inside the add-on instead of depending on an external dev repo path.
+  * Build the autoplay retry pool from one title-level subtitle gather and local selector ranking.
+
+INFO: For latest changes see Changelog within Tools of add-on.</news>
     </extension>
 </addon>

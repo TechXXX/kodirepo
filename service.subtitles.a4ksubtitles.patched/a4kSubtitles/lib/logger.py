@@ -35,3 +35,6 @@ def error(message):
 
 def debug(message):
     __log(message, notice_type)
+
+def info(message):
+    __log(message, notice_type)

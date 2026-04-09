@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-import re
+import sys
 import time
 import traceback
 from threading import Thread
@@ -47,8 +47,8 @@ main_line = '%s[CR]%s[CR]%s'
 int_window_prop = 'fenlight.internal_results.%s'
 scraper_timeout = 25
 a4k_subtitles_addon_path = 'special://home/addons/service.subtitles.a4ksubtitles.patched'
-subtitle_autoplay_probe_limit = 50
-release_group_stopwords = {'proper', 'repack', 'rerip', 'internal', 'multi', 'dubbed', 'subbed', 'readnfo', 'limited', 'extended', 'remux', 'hybrid', 'hdr', 'dv', 'uhd'}
+subtitle_fallback_candidate_limit = 5
+subtitle_selector_results_limit = 100
 filter_keys = {'hevc': '[B]HEVC[/B]', '3d': '[B]3D[/B]', 'hdr': '[B]HDR[/B]', 'dv': '[B]D/VISION[/B]', 'av1': '[B]AV1[/B]', 'enhanced_upscaled': '[B]AI ENHANCED/UPSCALED[/B]'}
 preference_values = {0:100, 1:50, 2:20, 3:10, 4:5, 5:2}
 
@@ -64,7 +64,8 @@ class Sources():
 		self.ext_name, self.ext_folder, self.provider_defaults, self.ext_sources = '', '', [], None
 		self.progress_dialog, self.progress_thread = None, None
 		self.playing_filename = ''
-		self.a4k_subtitles_api, self.a4k_subtitles_checked, self.subtitle_probe_cache = None, False, {}
+		self.a4k_subtitles_api, self.a4k_subtitles_checked, self.subtitle_search_cache = None, False, {}
+		self.subtitle_selector_integration, self.subtitle_selector_checked = None, False
 		self.count_tuple = (('sources_4k', '4K', self._quality_length), ('sources_1080p', '1080p', self._quality_length), ('sources_720p', '720p', self._quality_length),
 							('sources_sd', '', self._quality_length_sd), ('sources_total', '', self._quality_length_final))
 
@@ -276,29 +277,45 @@ class Sources():
 		if not self.autoplay or not results: return results
 		search_params = self._a4k_search_params()
 		if not search_params:
-			logger('Fen Light Patched', 'Subtitle probe skipped: no subtitle language settings available')
+			logger('Fen Light Patched', 'Subtitle retry pool skipped: no subtitle language settings available')
 			return results
 		a4k_api = self._get_a4k_subtitles_api()
 		if not a4k_api:
-			logger('Fen Light Patched', 'Subtitle probe skipped: a4kSubtitles Patched API unavailable')
+			logger('Fen Light Patched', 'Subtitle retry pool skipped: a4kSubtitles Patched API unavailable')
+			return results
+		selector_integration = self._get_subtitle_selector_integration()
+		if not selector_integration:
+			logger('Fen Light Patched', 'Subtitle retry pool skipped: bundled selector integration unavailable')
 			return results
 		try:
-			probe_limit = min(len(results), subtitle_autoplay_probe_limit)
-			logger('Fen Light Patched', 'Subtitle probe starting for %s of %s autoplay results' % (probe_limit, len(results)))
-			probed_results = []
-			for item in results[:probe_limit]:
-				subtitle_hit, subtitle_names, subtitle_match_score = self._a4k_result_available(a4k_api, search_params, item)
-				item = dict(item, **{'subtitle_hit': subtitle_hit, 'subtitle_names': subtitle_names, 'subtitle_match_score': subtitle_match_score})
-				probed_results.append(item)
-			subtitle_matches = [i for i in probed_results if i.get('subtitle_hit')]
-			if not subtitle_matches:
-				logger('Fen Light Patched', 'Subtitle probe found no subtitle-backed autoplay sources')
+			subtitle_results = self._gather_a4k_subtitles_once(a4k_api, search_params)
+			if not subtitle_results:
+				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle results from single gather')
 				return results
-			subtitle_matches.sort(key=lambda k: k.get('subtitle_match_score', 0), reverse=True)
-			logger('Fen Light Patched', 'Subtitle probe promoted %s source(s). First promoted source: %s' % (len(subtitle_matches), subtitle_matches[0].get('name', subtitle_matches[0].get('display_name', 'UNKNOWN'))))
-			no_subtitle_matches = [i for i in probed_results if not i.get('subtitle_hit')]
-			return subtitle_matches + no_subtitle_matches + results[probe_limit:]
-		except: return results
+			ranked_results = selector_integration.rank_kodi_sources_by_subtitles(results, subtitle_results)
+			subtitle_matches = [item for item in ranked_results if item.get('matched_subtitle') is not None]
+			if not subtitle_matches:
+				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle-backed autoplay sources | subtitle_results=%s' % len(subtitle_results))
+				return results
+			promoted_matches = subtitle_matches[:subtitle_fallback_candidate_limit]
+			promoted_source_ids = {id(item.get('source')) for item in promoted_matches}
+			remaining_results = [item for item in results if not id(item) in promoted_source_ids]
+			pool_summary = []
+			for item in promoted_matches:
+				source = item.get('source') or {}
+				matched_subtitle = item.get('matched_subtitle') or {}
+				matched_subtitle_name = matched_subtitle.get('name') or (matched_subtitle.get('action_args') or {}).get('filename') or matched_subtitle.get('filename')
+				summary = '%s(score=%s reason=%s' % (source.get('name', source.get('display_name', 'UNKNOWN')), item.get('score', 0), item.get('match_reason', 'unknown'))
+				if item.get('matched_subtitle_translation_kind'): summary += ' translated=%s' % item.get('matched_subtitle_translation_kind')
+				if matched_subtitle_name: summary += ' subtitle=%s' % matched_subtitle_name
+				summary += ')'
+				pool_summary.append(summary)
+			logger('Fen Light Patched', 'Subtitle retry pool promoted %s/%s source(s) before raw order fallback | pool=%s' % (
+				len(promoted_matches), len(subtitle_matches), ' | '.join(pool_summary) or 'None'))
+			return [item.get('source') for item in promoted_matches] + remaining_results
+		except:
+			logger('Fen Light Patched', 'Subtitle retry pool exception | error=%s' % traceback.format_exc().replace('\n', ' | '))
+			return results
 
 	def _get_a4k_subtitles_api(self):
 		if self.a4k_subtitles_checked: return self.a4k_subtitles_api
@@ -306,9 +323,26 @@ class Sources():
 		try:
 			append_module_to_syspath(a4k_subtitles_addon_path)
 			self.a4k_subtitles_api = manual_function_import('a4kSubtitles.api', 'A4kSubtitlesApi')()
-			logger('Fen Light Patched', 'Subtitle probe connected to a4kSubtitles Patched API')
+			logger('Fen Light Patched', 'Subtitle retry pool connected to a4kSubtitles Patched API')
 		except: self.a4k_subtitles_api = None
 		return self.a4k_subtitles_api
+
+	def _get_subtitle_selector_integration(self):
+		if self.subtitle_selector_checked: return self.subtitle_selector_integration
+		self.subtitle_selector_checked = True
+		try:
+			module_names = ('fenlightsubs.integration', 'fenlightsubs.subtitle_selector', 'fenlightsubs')
+			for module_name in module_names:
+				sys.modules.pop(module_name, None)
+			self.subtitle_selector_integration = manual_module_import('fenlightsubs.integration')
+			subtitle_selector_module = manual_module_import('fenlightsubs.subtitle_selector')
+			logger('Fen Light Patched', 'Subtitle retry pool connected to bundled selector integration | module=%s | selector=%s' % (
+				getattr(self.subtitle_selector_integration, '__file__', 'unknown'),
+				getattr(subtitle_selector_module, '__file__', 'unknown')))
+		except:
+			self.subtitle_selector_integration = None
+			logger('Fen Light Patched', 'Subtitle retry pool failed to connect to bundled selector integration | error=%s' % traceback.format_exc().replace('\n', ' | '))
+		return self.subtitle_selector_integration
 
 	def _a4k_search_params(self):
 		try:
@@ -322,41 +356,30 @@ class Sources():
 			return {'action': 'search', 'languages': ','.join(languages), 'preferredlanguage': preferred_language}
 		except: return None
 
-	def _a4k_result_available(self, a4k_api, search_params, item):
-		cache_key = '%s|%s|%s|%s|%s' % (self.media_type, self.meta.get('imdb_id', ''), self.meta.get('season', ''), self.meta.get('episode', ''), item.get('name', item.get('display_name', '')))
-		if cache_key in self.subtitle_probe_cache:
-			cached_hit, cached_names, cached_score = self.subtitle_probe_cache[cache_key]
-			logger('Fen Light Patched', 'Subtitle probe cache hit for %s | match=%s | score=%s | subtitles=%s' % (item.get('name', item.get('display_name', 'UNKNOWN')), cached_hit, cached_score, ' | '.join(cached_names[:3]) or 'None'))
-			return self.subtitle_probe_cache[cache_key]
-		try:
-			results = a4k_api.search(search_params, video_meta=self._a4k_video_meta(item))
-			subtitle_names, subtitle_match_score = self._match_a4k_results_to_source(results, item)
-			has_result = subtitle_match_score > 0
-			logger('Fen Light Patched', 'Subtitle probe checked source=%s | match=%s | score=%s | results=%s | subtitles=%s' % (
-				item.get('name', item.get('display_name', 'UNKNOWN')), has_result, subtitle_match_score, self._a4k_results_debug_summary(results), ' | '.join(subtitle_names[:3]) or 'None'))
-		except:
-			has_result, subtitle_names, subtitle_match_score = False, [], 0
-			logger('Fen Light Patched', 'Subtitle probe failed for source=%s | error=%s' % (item.get('name', item.get('display_name', 'UNKNOWN')), traceback.format_exc().replace('\n', ' | ')))
-		self.subtitle_probe_cache[cache_key] = (has_result, subtitle_names, subtitle_match_score)
-		return self.subtitle_probe_cache[cache_key]
+	def _gather_a4k_subtitles_once(self, a4k_api, search_params):
+		cache_key = self._subtitle_search_cache_key(search_params)
+		if cache_key in self.subtitle_search_cache:
+			cached_results = self.subtitle_search_cache[cache_key]
+			logger('Fen Light Patched', 'Subtitle retry pool cache hit | results=%s' % self._a4k_results_debug_summary(cached_results))
+			return cached_results
+		video_meta = self._a4k_search_video_meta()
+		search_settings = {'general.results_limit': str(subtitle_selector_results_limit)}
+		results = a4k_api.search(search_params, settings=search_settings, video_meta=video_meta)
+		if not isinstance(results, list): results = []
+		logger('Fen Light Patched', 'Subtitle retry pool gathered subtitles once | filename=%s | results=%s' % (
+			video_meta.get('filename', ''), self._a4k_results_debug_summary(results)))
+		self.subtitle_search_cache[cache_key] = results
+		return results
 
-	def _match_a4k_results_to_source(self, results, item):
-		source_name = item.get('name', '') or item.get('display_name', '') or ''
-		source_norm = self._normalize_release_name(source_name)
-		source_group = self._extract_release_group(source_name)
-		best_score, matched_names = 0, []
-		for result in results:
-			candidate_names = self._a4k_result_names(result)
-			for candidate_name in candidate_names:
-				score = self._subtitle_source_match_score(source_norm, source_group, candidate_name)
-				if score <= 0: continue
-				if score > best_score:
-					best_score = score
-					matched_names = [candidate_name]
-				elif score == best_score and not candidate_name in matched_names:
-					matched_names.append(candidate_name)
-		if matched_names: return matched_names, best_score
-		return [i for i in list(itertools.chain.from_iterable(self._a4k_result_names(result) for result in results)) if i][:3], 0
+	def _subtitle_search_cache_key(self, search_params):
+		return '%s|%s|%s|%s|%s|%s' % (
+			self.media_type,
+			self.meta.get('imdb_id', '') or '',
+			self.meta.get('season', '') or '',
+			self.meta.get('episode', '') or '',
+			search_params.get('languages', '') or '',
+			search_params.get('preferredlanguage', '') or '',
+		)
 
 	def _a4k_result_names(self, result):
 		names = []
@@ -386,49 +409,11 @@ class Sources():
 		except:
 			return 'debug_error=%s' % traceback.format_exc().replace('\n', ' | ')
 
-	def _subtitle_source_match_score(self, source_norm, source_group, subtitle_name):
-		subtitle_norm = self._normalize_release_name(subtitle_name)
-		if not source_norm or not subtitle_norm: return 0
-		if source_norm == subtitle_norm: return 100
-		if subtitle_norm in source_norm or source_norm in subtitle_norm: return 80
-		subtitle_group = self._extract_release_group(subtitle_name)
-		if source_group and subtitle_group and source_group == subtitle_group:
-			source_tokens = self._release_name_tokens(source_norm, source_group)
-			subtitle_tokens = self._release_name_tokens(subtitle_norm, subtitle_group)
-			if len(source_tokens.intersection(subtitle_tokens)) >= 3: return 85
-			return 60
-		return 0
-
-	def _release_name_tokens(self, normalized_name, release_group=''):
-		tokens = {i for i in normalized_name.split('.') if i and not i.isdigit() and i not in release_group_stopwords}
-		if release_group: tokens.discard(release_group)
-		return tokens
-
-	def _normalize_release_name(self, name):
-		if not name: return ''
-		name = clean_file_name(name).lower()
-		name = re.sub(r'\[[^\]]+\]', '', name)
-		name = re.sub(r'\.(mkv|mp4|avi|ts|m2ts|srt|sub|ass|ssa)$', '', name)
-		name = re.sub(r'[^a-z0-9]+', '.', name).strip('.')
-		return name
-
-	def _extract_release_group(self, name):
-		name = self._normalize_release_name(name)
-		if not name: return ''
-		parts = [i for i in name.split('.') if i]
-		for token in reversed(parts):
-			if token in release_group_stopwords: continue
-			if token.isdigit(): continue
-			if len(token) < 2: continue
-			return token
-		return ''
-
-	def _a4k_video_meta(self, item):
-		release_name = item.get('name', '') or item.get('display_name', '') or ''
-		if '.' not in release_name: release_name = '%s.mkv' % release_name
+	def _a4k_search_video_meta(self):
+		release_name = self._subtitle_search_filename()
 		meta = {'version': kodi_utils.get_infolabel('System.BuildVersionCode') or '20.0.0', 'year': str(self.meta.get('year', '') or ''),
 				'season': str(self.meta.get('season', '') or ''), 'episode': str(self.meta.get('episode', '') or ''), 'tvshow': '', 'title': '', '_title': '',
-				'imdb_id': self.meta.get('imdb_id', '') or '', 'url': item.get('url', '') or '', 'filename': release_name, 'filesize': '', 'filehash': ''}
+				'imdb_id': self.meta.get('imdb_id', '') or '', 'url': '', 'filename': release_name, 'filesize': '', 'filehash': ''}
 		if self.media_type == 'movie':
 			title = self.meta.get('original_title') or self.meta.get('title') or ''
 			meta.update({'title': title, '_title': title})
@@ -436,6 +421,25 @@ class Sources():
 			meta.update({'tvshow': self.meta.get('title') or '', 'title': self.meta.get('original_title') or self.meta.get('ep_name') or '',
 						'_title': self.meta.get('ep_name') or self.meta.get('title') or ''})
 		return meta
+
+	def _subtitle_search_filename(self):
+		def clean_part(value):
+			cleaned = clean_file_name(safe_string(remove_accents(value or '')))
+			return '.'.join([part for part in cleaned.split() if part])
+		if self.media_type == 'movie':
+			title = clean_part(self.meta.get('original_title') or self.meta.get('title') or '')
+			year = str(self.meta.get('year', '') or '').strip()
+			filename_parts = [part for part in (title, year) if part]
+		else:
+			show_title = clean_part(self.meta.get('title') or '')
+			episode_title = clean_part(self.meta.get('original_title') or self.meta.get('ep_name') or '')
+			try: season_episode = 'S%02dE%02d' % (int(self.meta.get('season') or 0), int(self.meta.get('episode') or 0))
+			except: season_episode = ''
+			filename_parts = [part for part in (show_title, season_episode, episode_title) if part]
+		filename = '.'.join(filename_parts).strip('.')
+		if not filename: filename = str(self.meta.get('imdb_id', '') or self.meta.get('title', '') or 'subtitle_search')
+		if '.' not in filename: filename = '%s.mkv' % filename
+		return filename
 
 	def prepare_internal_scrapers(self):
 		if self.active_external and len(self.active_internal_scrapers) == 1: return

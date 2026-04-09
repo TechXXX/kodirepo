@@ -136,18 +136,31 @@ class A4kSubtitlesApi(object):
         return restore
 
     def mock_settings(self, settings):
-        default = self.core.kodi.addon.getSetting
+        default_get_setting = self.core.kodi.get_setting
+        default_get_int_setting = self.core.kodi.get_int_setting
+        default_get_bool_setting = self.core.kodi.get_bool_setting
 
-        def get_setting(id):
-            setting = settings.get(id, None)
-            if not setting:
-                setting = default(id)
-            return setting
+        def get_setting(group, id=None):
+            key = '%s.%s' % (group, id) if id else group
+            setting = settings.get(key, None)
+            if setting is None:
+                return default_get_setting(group, id)
+            return str(setting).strip()
 
-        self.core.kodi.addon.getSetting = get_setting
+        def get_int_setting(group, id=None):
+            return int(get_setting(group, id))
+
+        def get_bool_setting(group, id=None):
+            return get_setting(group, id).lower() == 'true'
+
+        self.core.kodi.get_setting = get_setting
+        self.core.kodi.get_int_setting = get_int_setting
+        self.core.kodi.get_bool_setting = get_bool_setting
 
         def restore():
-            self.core.kodi.addon.getSetting = default
+            self.core.kodi.get_setting = default_get_setting
+            self.core.kodi.get_int_setting = default_get_int_setting
+            self.core.kodi.get_bool_setting = default_get_bool_setting
         return restore
 
     def search(self, params, settings=None, video_meta=None):

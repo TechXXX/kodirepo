@@ -44,7 +44,7 @@
                     <top>22</top>
                     <left>0</left>
                     <height>20</height>
-                    <font>font12</font> <!-- FENLIGHT_26 -->
+                    <font>font_mini</font> <!-- FENLIGHT_26 -->
                     <textcolor>FFCCCCCC</textcolor>
                     <align>center</align>
                     <aligny>center</aligny>
@@ -74,7 +74,7 @@
                         <width>390</width>
                         <height>85</height>
                         <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                        <font>font12</font> <!-- FENLIGHT_26 -->
+                        <font>font_mini</font> <!-- FENLIGHT_26 -->
                         <textcolor>FFCCCCCC</textcolor>
                         <aligny>center</aligny>
                     </control>
@@ -91,7 +91,7 @@
                         <width>390</width>
                         <height>85</height>
                         <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                        <font>font12</font> <!-- FENLIGHT_26 -->
+                        <font>font_mini</font> <!-- FENLIGHT_26 -->
                         <textcolor>FF1F2020</textcolor>
                         <aligny>center</aligny>
                         <scroll>Control.HasFocus(2000)</scroll>
@@ -147,7 +147,7 @@
                             <width>630</width>
                             <height>85</height>
                             <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FFCCCCCC</textcolor>
                             <aligny>center</aligny>
                             <align>center</align>
@@ -176,7 +176,7 @@
                         <width>630</width>
                         <height>85</height>
                         <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                        <font>font12</font> <!-- FENLIGHT_26 -->
+                        <font>font_mini</font> <!-- FENLIGHT_26 -->
                         <textcolor>FFCCCCCC</textcolor>
                         <aligny>center</aligny>
                         <scroll>false</scroll>
@@ -215,7 +215,7 @@
                             <width>425</width>
                             <height>85</height>
                             <label>[B]...[/B]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FFCCCCCC</textcolor>
                             <align>right</align>
                             <aligny>center</aligny>
@@ -228,7 +228,7 @@
                             <width>425</width>
                             <height>85</height>
                             <label>[UPPERCASE][B]$INFO[ListItem.Property(setting_value)][/B][/UPPERCASE]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FFCCCCCC</textcolor>
                             <align>right</align>
                             <aligny>center</aligny>
@@ -252,7 +252,7 @@
                             <width>630</width>
                             <height>85</height>
                             <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FFCCCCCC</textcolor>
                             <aligny>center</aligny>
                             <align>center</align>
@@ -283,7 +283,7 @@
                             <width>630</width>
                             <height>85</height>
                             <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FF1F2020</textcolor>
                             <aligny>center</aligny>
                             <scroll>Control.HasFocus(2100)</scroll>
@@ -294,7 +294,7 @@
                             <width>630</width>
                             <height>85</height>
                             <label>[UPPERCASE]$INFO[ListItem.Property(setting_label)][/UPPERCASE]</label>
-                            <font>font12</font> <!-- FENLIGHT_26 -->
+                            <font>font_mini</font> <!-- FENLIGHT_26 -->
                             <textcolor>FFCCCCCC</textcolor>
                             <aligny>center</aligny>
                             <scroll>false</scroll>
@@ -362,7 +362,7 @@
                                 <width>425</width>
                                 <height>85</height>
                                 <label>[B]...[/B]</label>
-                                <font>font12</font> <!-- FENLIGHT_26 -->
+                                <font>font_mini</font> <!-- FENLIGHT_26 -->
                                 <textcolor>FF1F2020</textcolor>
                                 <align>right</align>
                                 <aligny>center</aligny>
@@ -374,7 +374,7 @@
                                 <width>425</width>
                                 <height>85</height>
                                 <label>[B]...[/B]</label>
-                                <font>font12</font> <!-- FENLIGHT_26 -->
+                                <font>font_mini</font> <!-- FENLIGHT_26 -->
                                 <textcolor>FFCCCCCC</textcolor>
                                 <align>right</align>
                                 <aligny>center</aligny>
@@ -390,7 +390,7 @@
                                 <width>425</width>
                                 <height>85</height>
                                 <label>[UPPERCASE][B]$INFO[ListItem.Property(setting_value)][/B][/UPPERCASE]</label>
-                                <font>font12</font> <!-- FENLIGHT_26 -->
+                                <font>font_mini</font> <!-- FENLIGHT_26 -->
                                 <textcolor>FF1F2020</textcolor>
                                 <align>right</align>
                                 <aligny>center</aligny>
@@ -402,7 +402,7 @@
                                 <width>425</width>
                                 <height>85</height>
                                 <label>[UPPERCASE][B]$INFO[ListItem.Property(setting_value)][/B][/UPPERCASE]</label>
-                                <font>font12</font> <!-- FENLIGHT_26 -->
+                                <font>font_mini</font> <!-- FENLIGHT_26 -->
                                 <textcolor>FFCCCCCC</textcolor>
                                 <align>right</align>
                                 <aligny>center</aligny>
@@ -2474,7 +2474,7 @@
                     <left>30</left>
                     <width>200</width>
                     <height>20</height>
-                    <font>font12</font> <!-- FENLIGHT_26 -->
+                    <font>font_mini</font> <!-- FENLIGHT_26 -->
                     <textcolor>FFCCCCCC</textcolor>
                     <label>[UPPERCASE][B]INFO: [/B][/UPPERCASE]</label>
                     <align>left</align>
@@ -2486,7 +2486,7 @@
                     <width>1530</width>
                     <height>70</height>
                     <control type="textbox">
-                        <font>font12</font> <!-- FENLIGHT_26 -->
+                        <font>font_mini</font> <!-- FENLIGHT_26 -->
                         <align>left</align>
                         <aligny>center</aligny>
                         <textcolor>FFCCCCCC</textcolor>
@@ -2495,7 +2495,7 @@
                         <visible>Control.HasFocus(2100)</visible>
                     </control>
                     <control type="textbox">
-                        <font>font12</font> <!-- FENLIGHT_26 -->
+                        <font>font_mini</font> <!-- FENLIGHT_26 -->
                         <align>left</align>
                         <aligny>center</aligny>
                         <textcolor>FFCCCCCC</textcolor>

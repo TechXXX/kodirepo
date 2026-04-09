@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.22">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.23">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -45,7 +45,11 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+            <news>[v2.0.23]:
+  * Bundle the subtitle selector inside the add-on instead of depending on an external dev repo path.
+  * Build the autoplay retry pool from one title-level subtitle gather and local selector ranking.
+
+INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
     <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.36" provider-name="Codex">
@@ -169,7 +173,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.16" provider-name="Unknown">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.17" provider-name="Unknown">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -194,6 +198,11 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.17]:
+  * Prefer full OpenSubtitles release names for selector matching.
+  * Keep API-mode settings overrides compatible with Kodi's read-only Addon object.
+  * Refresh cached rows missing translation flags before selector ranking.
+
 [v3.23.13]:
   * Fix comment-fallback ranking crash in final subtitle selection.
 

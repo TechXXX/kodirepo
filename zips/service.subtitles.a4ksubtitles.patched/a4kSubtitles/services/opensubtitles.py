@@ -186,7 +186,7 @@ def parse_search_response(core, service_name, meta, response):
         if meta.is_tvshow and imdb_id is not None and not imdb_matches and not (meta.season and meta.episode):
             return None
 
-        filename = result['files'][0]['file_name']
+        filename = result.get('release') or result['files'][0]['file_name']
         language = core.utils.get_lang_id(result['language'], core.kodi.xbmc.ENGLISH_NAME)
 
         return {
@@ -204,6 +204,7 @@ def parse_search_response(core, service_name, meta, response):
                 'url': result['files'][0]['file_id'],
                 'lang': language,
                 'filename': filename,
+                'release_name': result.get('release'),
                 'gzip': True,
                 'ai_translated': result.get('ai_translated', False),
                 'machine_translated': result.get('machine_translated', False),
