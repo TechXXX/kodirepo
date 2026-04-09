@@ -130,16 +130,33 @@ def parse_language(language):  # pragma: no cover
     else:
         return language
 
+def _translated_subtitle_flags(item):
+    action_args = item.get('action_args') or {}
+    return (
+        bool(item.get('ai_translated') or action_args.get('ai_translated')),
+        bool(item.get('machine_translated') or action_args.get('machine_translated')),
+    )
+
+def _translated_subtitle_badge(item):
+    is_ai_translated, is_machine_translated = _translated_subtitle_flags(item)
+    if is_ai_translated:
+        return '[COLOR FFC58A1F][B][AI][/B][/COLOR] '
+    if is_machine_translated:
+        return '[COLOR FF6F8FAF][B][MT][/B][/COLOR] '
+    return ''
+
 def create_listitem(item):  # pragma: no cover
     (item_name, item_ext) = os.path.splitext(item['name'])
     item_name = item_name.replace('.', ' ')
     item_ext = item_ext.upper()[1:]
     item_service = item['service']
     item_color = item.get('color', 'white')
+    item_badge = _translated_subtitle_badge(item)
+    is_ai_translated, is_machine_translated = _translated_subtitle_flags(item)
 
     args = {
         'label': item['lang'],
-        'label2': '%s ([B]%s[/B]) ([B][COLOR %s]%s[/COLOR][/B])' % (item_name, item_ext, item_color, item_service),
+        'label2': '%s%s ([B]%s[/B]) ([B][COLOR %s]%s[/COLOR][/B])' % (item_badge, item_name, item_ext, item_color, item_service),
         'offscreen': True,
     }
 
@@ -150,6 +167,8 @@ def create_listitem(item):  # pragma: no cover
     })
     listitem.setProperty('sync', item['sync'])
     listitem.setProperty('hearing_imp', item['impaired'])
+    listitem.setProperty('ai_translated', 'true' if is_ai_translated else '')
+    listitem.setProperty('machine_translated', 'true' if is_machine_translated else '')
 
     return listitem
 

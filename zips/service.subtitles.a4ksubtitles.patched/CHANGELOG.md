@@ -1,3 +1,6 @@
+* [v3.23.18](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.18):
+  * Add universal [AI]/[MT] badges to manual search subtitle rows so translated results are clearly marked across skins.
+
 * [v3.23.10](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.10):
   * Move full release history into CHANGELOG.md so repository metadata stays compact.
 
