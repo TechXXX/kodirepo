@@ -103,6 +103,7 @@ PRERELEASE_TYPES = {
 
 AI_TRANSLATION_PENALTY = 20
 PRERELEASE_PENALTY = 20
+COMMENT_FALLBACK_MAX_SCORE = 79
 
 
 def rank_sources_by_subtitle_match(
@@ -208,6 +209,9 @@ def _best_match_for_source(
             result = _score_candidate_match(prepared_source, candidate)
             if result["score"] == 0:
                 continue
+
+            if candidate_index > 0:
+                result["score"] = min(result["score"], COMMENT_FALLBACK_MAX_SCORE)
 
             ai_penalty_applied = 0
             if prepared_subtitle["is_ai_generated"]:
@@ -395,8 +399,20 @@ def _subtitle_release_name(subtitle: dict[str, Any]) -> str:
     for key in ("release_name", "filename", "name"):
         value = subtitle.get(key)
         if value:
-            return str(value)
+            return _clean_subtitle_release_name(str(value))
     return ""
+
+
+def _clean_subtitle_release_name(value: str) -> str:
+    cleaned = _strip_known_extension(value.strip())
+    cleanup_patterns = (
+        r"(?i)(?:[._ -](?:track|trk)\d+)(?:[._ -]*\[[^\]]+\])*$",
+        r"(?i)(?:[\s._-]*\[[a-z]{2,4}\])+$",
+        r"(?i)(?:[\s._-](?:sdh|hi|cc|forced))+$",
+    )
+    for pattern in cleanup_patterns:
+        cleaned = re.sub(pattern, "", cleaned)
+    return cleaned.strip(" .-_")
 
 
 def _normalize_release_name(value: str) -> str:
