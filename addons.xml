@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.24">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.25">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -45,7 +45,10 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.24]:
+            <news>[v2.0.25]:
+  * Refresh packaged branding and artwork so repo installs no longer reuse the old selector-test presentation.
+
+[v2.0.24]:
   * Prefer direct subtitle filename evidence over uploader comments when both are available.
   * Strip OpenSubtitles track and language suffixes before source/subtitle matching.
 
@@ -177,7 +180,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.18" provider-name="Unknown">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.19" provider-name="Unknown">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -202,6 +205,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.19]:
+  * Refresh packaged branding and artwork so repo installs no longer reuse the old selector-test presentation.
+
 [v3.23.18]:
   * Add universal [AI]/[MT] badges to manual search subtitle rows so translated results are clearly marked across skins.
 
