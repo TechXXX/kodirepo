@@ -72,6 +72,27 @@ def get_kodi_setting(setting, log_error=True):  # pragma: no cover
 def get_kodi_player_subtitles(log_error=True):  # pragma: no cover
     return json_rpc('Player.GetProperties', {"playerid": 1, "properties": ["subtitleenabled", "currentsubtitle", "subtitles"]}, log_error)
 
+def kodi_window():  # pragma: no cover
+    return xbmcgui.Window(10000)
+
+def get_property(prop):  # pragma: no cover
+    try:
+        return kodi_window().getProperty(prop)
+    except Exception:
+        return ''
+
+def set_property(prop, value):  # pragma: no cover
+    try:
+        return kodi_window().setProperty(prop, value)
+    except Exception:
+        return None
+
+def clear_property(prop):  # pragma: no cover
+    try:
+        return kodi_window().clearProperty(prop)
+    except Exception:
+        return None
+
 def notification(text, time=3000):  # pragma: no cover
     xbmc.executebuiltin('Notification(%s, %s, %d, %s)' % (addon_name, text, time, addon_icon))
 

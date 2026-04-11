@@ -278,13 +278,13 @@ class Sources():
 	def sort_subtitle_ready_autoplay(self, results):
 		if not self.autoplay or not results: return results
 		self._write_source_shadow_snapshot(results)
-		search_params = self._a4k_search_params()
-		if not search_params:
-			logger('Fen Light Patched', 'Subtitle retry pool skipped: no subtitle language settings available')
-			return results
 		a4k_api = self._get_a4k_subtitles_api()
 		if not a4k_api:
 			logger('Fen Light Patched', 'Subtitle retry pool skipped: a4kSubtitles Patched API unavailable')
+			return results
+		search_params = self._a4k_search_params(a4k_api)
+		if not search_params:
+			logger('Fen Light Patched', 'Subtitle retry pool skipped: no subtitle language settings available')
 			return results
 		selector_integration = self._get_subtitle_selector_integration()
 		if not selector_integration:
@@ -296,6 +296,7 @@ class Sources():
 				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle results from single gather')
 				return results
 			ranked_results = selector_integration.rank_kodi_sources_by_subtitles(results, subtitle_results)
+			self._apply_selector_playback_metadata(results, ranked_results, selector_integration)
 			subtitle_matches = [item for item in ranked_results if item.get('matched_subtitle') is not None]
 			if not subtitle_matches:
 				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle-backed autoplay sources | subtitle_results=%s' % len(subtitle_results))
@@ -347,7 +348,37 @@ class Sources():
 			logger('Fen Light Patched', 'Subtitle retry pool failed to connect to bundled selector integration | error=%s' % traceback.format_exc().replace('\n', ' | '))
 		return self.subtitle_selector_integration
 
-	def _a4k_search_params(self):
+	def _clear_selector_playback_metadata(self, source):
+		for key in (
+			'selector_source_key',
+			'selector_match_score',
+			'selector_match_reason',
+			'selector_used_comments_fallback',
+			'selector_matched_subtitle',
+			'selector_matched_subtitle_translation_kind',
+			'selector_should_notify_translated_subtitle_fallback',
+			'selector_translated_subtitle_notification',
+			'selector_subtitle_payload',
+		):
+			source.pop(key, None)
+
+	def _apply_selector_playback_metadata(self, results, ranked_results, selector_integration):
+		ranked_by_source_id = {id(item.get('source')): item for item in ranked_results}
+		for source in results:
+			self._clear_selector_playback_metadata(source)
+			source.update(selector_integration.build_kodi_selector_playback_metadata(source, ranked_by_source_id.get(id(source))))
+
+	def _a4k_runtime_uses_ai_search(self, a4k_api):
+		try:
+			core = getattr(a4k_api, 'core', None)
+			if not core or not core.kodi.get_bool_setting('general', 'use_ai'): return False
+			ai_api_key = core.kodi.get_setting('general', 'ai_api_key')
+			ai_model = core.kodi.get_setting('general', 'ai_model')
+			return bool(ai_api_key and ai_model)
+		except:
+			return False
+
+	def _a4k_search_params(self, a4k_api=None):
 		try:
 			languages = jsonrpc_get_system_setting('subtitles.languages', [])
 			preferred_language = jsonrpc_get_system_setting('locale.subtitlelanguage', 'default')
@@ -356,6 +387,10 @@ class Sources():
 			if not languages and preferred_language not in (None, '', 'none'): languages = [preferred_language]
 			if not languages: return None
 			if preferred_language in (None, '', 'none'): preferred_language = languages[0]
+			if a4k_api and self._a4k_runtime_uses_ai_search(a4k_api):
+				languages = ['English']
+				preferred_language = 'English'
+				logger('Fen Light Patched', 'Subtitle retry pool mirroring a4k AI runtime search | languages=%s | preferred=%s' % (languages, preferred_language))
 			return {'action': 'search', 'languages': ','.join(languages), 'preferredlanguage': preferred_language}
 		except: return None
 
@@ -902,7 +937,7 @@ class Sources():
 							resolve_percent = 0
 							self.progress_dialog.busy_spinner('false')
 							self.progress_dialog.update_resolver(percent=resolve_percent)
-							sleep(200)
+							sleep(50)
 							player.run(url, self)
 							logger('Fen Light Patched', 'play_file player returned | name=%s | successful=%s | cancelled=%s | url=%s' % (
 								item.get('name', item.get('display_name', 'UNKNOWN')), self.playback_successful, self.cancel_all_playback, url))

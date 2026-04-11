@@ -1,5 +1,50 @@
 # -*- coding: utf-8 -*-
 
+selector_source_key_prop = 'subs.selector_source_key'
+selector_payload_prop = 'subs.selector_payload'
+
+def _selector_matched_subtitle_name(result):
+    if not isinstance(result, dict):
+        return ''
+
+    action_args = result.get('action_args') or {}
+    return result.get('name') or action_args.get('filename') or result.get('filename') or ''
+
+def _selector_forced_subtitle_result(core):
+    payload_text = core.kodi.get_property(selector_payload_prop)
+    if not payload_text:
+        return (None, None)
+
+    current_source_key = core.kodi.get_property(selector_source_key_prop)
+    if not current_source_key:
+        return (None, None)
+
+    try:
+        payload = core.json.loads(payload_text)
+    except Exception as exc:
+        core.logger.debug('selector subtitle payload parse failed: %s' % exc)
+        return (None, None)
+
+    payload_source_key = payload.get('source_key', '')
+    if payload_source_key and payload_source_key != current_source_key:
+        core.logger.debug(
+            'selector subtitle payload ignored for stale source key | payload=%s | current=%s' % (
+                payload_source_key,
+                current_source_key,
+            )
+        )
+        return (None, payload)
+
+    matched_subtitle = payload.get('matched_subtitle')
+    if not isinstance(matched_subtitle, dict):
+        return (None, payload)
+
+    if not matched_subtitle.get('service_name') or not isinstance(matched_subtitle.get('action_args'), dict):
+        core.logger.debug('selector subtitle payload missing service/action_args')
+        return (None, payload)
+
+    return (matched_subtitle, payload)
+
 def start(api):
     core = api.core
     core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
@@ -8,9 +53,13 @@ def start(api):
 
     has_done_subs_check = False
     prev_playing_filename = ''
+    fast_selector_poll_until = 0.0
 
     ai_max_range = 60
     ai_step = ai_max_range / 2
+    fast_selector_poll_interval = 0.2
+    fast_selector_poll_window = 3.0
+    default_poll_interval = 1.0
 
     last_subfile = None
     subfile_translated = None
@@ -19,11 +68,13 @@ def start(api):
 
     def reset():
         nonlocal has_done_subs_check, prev_playing_filename, ai_last_timestamp, ai_tries
+        nonlocal fast_selector_poll_until
 
         has_done_subs_check = False
         prev_playing_filename = ''
         ai_last_timestamp = None
         ai_tries = 0
+        fast_selector_poll_until = 0.0
 
     def prepare_runtime_attach_subfile(subfile):
         try:
@@ -75,9 +126,57 @@ def start(api):
             core.logger.debug('Runtime subtitle basename rewrite skipped: %s' % e)
             return subfile
 
+    def download_and_attach_result(result, preferredlang, preferredlang_preai, use_ai, ai_provider, ai_api_key, ai_model):
+        nonlocal last_subfile, ai_last_timestamp, ai_tries, has_done_subs_check
+
+        subfile = api.download(result)
+        last_subfile = subfile
+
+        if not subfile:
+            core.logger.debug('No subtitle file found for %s' % result)
+            return False
+
+        if not use_ai or preferredlang == preferredlang_preai:
+            subfile = prepare_runtime_attach_subfile(subfile)
+            last_subfile = subfile
+            core.logger.debug('Setting subtitles: %s' % subfile)
+            core.kodi.xbmc.Player().setSubtitles(subfile)
+            return True
+
+        core.logger.debug('Using AI to translate subtitles: %s' % subfile)
+        subfile_translated = subfile + '.translated'
+
+        moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
+        target_language = core.utils.get_lang_id(preferredlang_preai, core.kodi.xbmc.ISO_639_2)
+
+        core.logger.debug('Translating subtitles with AI provider: %s, model: %s' % (ai_provider, ai_model))
+        core.logger.debug('Moviename: %s, target_language: %s' % (moviename, target_language))
+
+        ai_last_timestamp = core.kodi.xbmc.Player().getTime()
+
+        core.utils.gptsubtrans.translate(
+            input_file=subfile,
+            target_language=target_language,
+            output_file=subfile_translated,
+            moviename=moviename,
+            provider=ai_provider,
+            api_key=ai_api_key,
+            model=ai_model,
+            begin_seconds=ai_last_timestamp,
+            end_seconds=ai_last_timestamp + ai_max_range,
+            log=core.logger.debug
+        )
+
+        core.kodi.xbmc.Player().setSubtitles(subfile_translated)
+        ai_tries = 0
+        has_done_subs_check = False
+        return True
+
+    poll_interval = default_poll_interval
     while not monitor.abortRequested():
-        if monitor.waitForAbort(1):
+        if monitor.waitForAbort(poll_interval):
             break
+        poll_interval = default_poll_interval
 
         if not core.kodi.get_bool_setting('general', 'auto_search'):
             continue
@@ -101,6 +200,15 @@ def start(api):
             if prev_playing_filename != playing_filename:
                 reset()
                 prev_playing_filename = playing_filename
+                if core.kodi.get_property(selector_payload_prop):
+                    fast_selector_poll_until = core.time.time() + fast_selector_poll_window
+
+        if (
+            not has_done_subs_check
+            and core.kodi.get_property(selector_payload_prop)
+            and core.time.time() < fast_selector_poll_until
+        ):
+            poll_interval = fast_selector_poll_interval
 
         if not has_video or not has_video_duration or has_done_subs_check:
             if use_ai:
@@ -288,10 +396,6 @@ def start(api):
         if has_subtitles:
             continue
 
-        has_imdb = core.kodi.xbmc.getInfoLabel('VideoPlayer.IMDBNumber')
-        if not has_imdb:
-            continue
-
         if not core.kodi.get_bool_setting('general', 'auto_download'):
             core.kodi.xbmc.executebuiltin('ActivateWindow(SubtitleSearch)')
             continue
@@ -303,6 +407,35 @@ def start(api):
             languages = ['English']
             preferredlang = 'English'
 
+        forced_result, forced_payload = _selector_forced_subtitle_result(core)
+        if forced_result:
+            try:
+                core.logger.debug(
+                    'Using selector-matched runtime subtitle | source_key=%s | score=%s | reason=%s | subtitle=%s' % (
+                        forced_payload.get('source_key', ''),
+                        forced_payload.get('match_score'),
+                        forced_payload.get('match_reason'),
+                        _selector_matched_subtitle_name(forced_result),
+                    )
+                )
+                if download_and_attach_result(
+                    forced_result,
+                    preferredlang,
+                    preferredlang_preai,
+                    use_ai,
+                    ai_provider if use_ai else '',
+                    ai_api_key if use_ai else '',
+                    ai_model if use_ai else '',
+                ):
+                    continue
+            except:
+                import traceback
+                core.logger.error('Error applying selector-matched subtitle: %s' % traceback.format_exc())
+
+        has_imdb = core.kodi.xbmc.getInfoLabel('VideoPlayer.IMDBNumber')
+        if not has_imdb:
+            continue
+
         params = {
             'action': 'search',
             'languages': ','.join(languages),
@@ -312,47 +445,16 @@ def start(api):
         results = api.search(params)
         for result in results:
             try:
-                subfile = api.download(result)
-                last_subfile = subfile
-
-                if not subfile:
-                    core.logger.debug('No subtitle file found for %s' % result)
+                if not download_and_attach_result(
+                    result,
+                    preferredlang,
+                    preferredlang_preai,
+                    use_ai,
+                    ai_provider if use_ai else '',
+                    ai_api_key if use_ai else '',
+                    ai_model if use_ai else '',
+                ):
                     continue
-
-                if not use_ai or preferredlang == preferredlang_preai:
-                    subfile = prepare_runtime_attach_subfile(subfile)
-                    last_subfile = subfile
-                    core.logger.debug('Setting subtitles: %s' % subfile)
-                    core.kodi.xbmc.Player().setSubtitles(subfile)
-                else:
-                    core.logger.debug('Using AI to translate subtitles: %s' % subfile)
-                    subfile_translated = subfile + '.translated'
-
-                    moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
-                    target_language = core.utils.get_lang_id(preferredlang_preai, core.kodi.xbmc.ISO_639_2)
-
-                    core.logger.debug('Translating subtitles with AI provider: %s, model: %s' % (ai_provider, ai_model))
-                    core.logger.debug('Moviename: %s, target_language: %s' % (moviename, target_language))
-
-                    ai_last_timestamp = core.kodi.xbmc.Player().getTime()
-
-                    core.utils.gptsubtrans.translate(
-                        input_file=subfile,
-                        target_language=target_language,
-                        output_file=subfile_translated,
-                        moviename=moviename,
-                        provider=ai_provider,
-                        api_key=ai_api_key,
-                        model=ai_model,
-                        begin_seconds=ai_last_timestamp,
-                        end_seconds=ai_last_timestamp + ai_max_range,
-                        log=core.logger.debug
-                    )
-
-                    core.kodi.xbmc.Player().setSubtitles(subfile_translated)
-                    ai_tries = 0
-                    has_done_subs_check = False
-
                 break
             except:
                 import traceback

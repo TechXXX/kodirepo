@@ -16,6 +16,8 @@ set_bookmark, mark_movie, mark_episode = ws.set_bookmark, ws.mark_movie, ws.mark
 total_time_errors = ('0.0', '', 0.0, None)
 set_resume, set_watched = 5, 90
 video_fullscreen_check = 'Window.IsActive(fullscreenvideo)'
+dialog_close_settle_ms = 75
+post_fullscreen_settle_ms = 250
 
 class FenLightPlayer(xbmc_player):
 	def __init__ (self):
@@ -95,13 +97,14 @@ class FenLightPlayer(xbmc_player):
 					if total_time not in total_time_errors and fullscreen: self.playback_successful = True
 				except: pass
 			resolve_percent = round(resolve_percent + 26.0/100, 1)
-			self.sources_object.progress_dialog.update_resolver(percent=resolve_percent)
+			if self.sources_object.progress_dialog:
+				self.sources_object.progress_dialog.update_resolver(percent=resolve_percent)
 			sleep(50)
 
 	def playback_close_dialogs(self):
 		self.sources_object.playback_successful = True
 		self.kill_dialog()
-		sleep(200)
+		sleep(dialog_close_settle_ms)
 		close_all_dialog()
 
 	def monitor(self):
@@ -119,7 +122,7 @@ class FenLightPlayer(xbmc_player):
 				sleep(100)
 				total_check_time += 0.10
 			hide_busy_dialog()
-			sleep(1000)
+			sleep(post_fullscreen_settle_ms)
 			while self.isPlayingVideo():
 				try:
 					try: self.total_time, self.curr_time = self.getTotalTime(), self.getTime()
@@ -284,12 +287,21 @@ class FenLightPlayer(xbmc_player):
 			if self.media_type == 'episode': trakt_ids['tvdb'] = self.tvdb_id
 			set_property('script.trakt.ids', json.dumps(trakt_ids))
 			if self.playing_filename: set_property('subs.player_filename', self.playing_filename)
+			playing_item = getattr(self, 'playing_item', {}) or {}
+			selector_source_key = playing_item.get('selector_source_key')
+			selector_payload = playing_item.get('selector_subtitle_payload')
+			if selector_source_key: set_property('subs.selector_source_key', selector_source_key)
+			else: clear_property('subs.selector_source_key')
+			if selector_payload: set_property('subs.selector_payload', json.dumps(selector_payload))
+			else: clear_property('subs.selector_payload')
 		except: pass
 
 	def clear_playback_properties(self):
 		clear_property('fenlight.window_stack')
 		clear_property('script.trakt.ids')
 		clear_property('subs.player_filename')
+		clear_property('subs.selector_source_key')
+		clear_property('subs.selector_payload')
 
 	def clear_playing_item(self):
 		if self.playing_item['cache_provider'] == 'Offcloud':

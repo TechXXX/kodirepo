@@ -1,10 +1,30 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* [v3.23.24](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.24):
+  * Promote selector-keyed runtime subtitle attachment to the main repo so autoplay tries the exact selector-matched subtitle for the active playback source before falling back to a fresh runtime search.
+  * Keep built-in subtitle preference intact while making selector-forced external subtitle attempts follow the active retry source across autoplay retries.
+  * Speed up selector-backed startup attachment by fast-polling during the first playback seconds before the IMDb-gated fallback runtime search path takes over.
+  * Shift OpenSubtitles movie retrieval toward IMDb-first searches, then use lighter title and year variants plus filename-year correction fallback when metadata is wrong.
+  * On OpenSubtitles download `401`, clear cached auth state, re-login once, and retry the same candidate automatically.
+
 * Session note (2026-04-11):
+  * Consume Fenlight's selector-provided subtitle payload at runtime, keyed to the active playback source, so autoplay now tries the exact source/subtitle pairing chosen by the centralized selector before falling back to a fresh runtime search.
+  * Keep built-in subtitle stream preference intact while making selector-forced external subtitle attempts source-specific, so retrying from source 1 to source 2 carries the second source's matched subtitle instead of reusing stale runtime ranking.
+  * Speed up selector-backed startup attachment by fast-polling during the first few playback seconds and trying the forced selector subtitle before waiting on the IMDb metadata gate used by the fallback runtime search path.
+  * Session validation on `Avatar: Fire and Ash` confirmed the live runtime path now logs `Using selector-matched runtime subtitle` and attaches the exact selector-backed LAMA subtitle for the played LAMA source.
   * Shift OpenSubtitles movie retrieval toward IMDb-first API searches, then use lighter title and year variants only as fallback, after manual API checks proved the simpler query shape returned valid results for titles the older constrained path missed.
   * Add filename-year correction for movie OpenSubtitles searches so bad metadata years no longer suppress valid subtitle hits in cases like `Good Luck, Have Fun, Don't Die`.
   * Session validation confirmed the new movie search path recovers automatic Dutch subtitle downloads for titles like `The Bride!` after Kodi reloads the long-running a4k service.
+  * On OpenSubtitles download `401`, clear the cached auth state, re-login once, and retry the same download candidate so stale token failures recover instead of forcing an unnecessary provider fallback.
+  * Session validation on `Glengarry Glen Ross` confirmed the new recovery path: `401 -> login 200 -> retry download 200 -> subtitle attached`.
+
+* [v3.23.23](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.23):
+  * Consume Fenlight's selector-provided subtitle payload at runtime, keyed to the active playback source, so autoplay tries the exact source/subtitle pairing chosen by the selector before falling back to a fresh runtime search.
+  * Keep built-in subtitle stream preference intact while making selector-forced external subtitle attempts source-specific across autoplay retries.
+  * Speed up selector-backed startup attachment by fast-polling during the first playback seconds and trying the forced selector subtitle before the IMDb-gated fallback runtime search.
+  * Shift OpenSubtitles movie retrieval toward IMDb-first searches, then use lighter title and year variants plus filename-year correction fallback when metadata is wrong.
+  * On OpenSubtitles download `401`, clear cached auth state, re-login once, and retry the same candidate so stale token failures recover automatically.
 
 * [v3.23.22](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.22):
   * Refresh stale cached OpenSubtitles rows when translation markers are missing so shadow snapshots and downstream selectors do not silently lose `ai_translated` and `machine_translated` state.

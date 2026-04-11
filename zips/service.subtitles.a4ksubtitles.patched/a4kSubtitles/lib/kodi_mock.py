@@ -82,6 +82,13 @@ __listitem = lambda: None
 __listitem.setProperty = lambda _, __: None
 def __create_listitem(*args, **kwargs): return __listitem
 xbmcgui.ListItem = __create_listitem
+__window_properties = {}
+__window = lambda: None
+__window.getProperty = lambda key: __window_properties.get(key, '')
+__window.setProperty = lambda key, value: __window_properties.__setitem__(key, value)
+__window.clearProperty = lambda key: __window_properties.pop(key, None)
+__window.clearProperties = lambda: __window_properties.clear()
+xbmcgui.Window = lambda *_: __window
 
 # xbmcvfs
 xbmcvfs = lambda: None

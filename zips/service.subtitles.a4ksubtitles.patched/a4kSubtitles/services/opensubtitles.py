@@ -94,6 +94,27 @@ def parse_auth_response(core, service_name, response):
     cache[service_name] = token_cache
     core.cache.save_tokens_cache(cache)
 
+def __clear_auth_cache(core, service_name):
+    cache = core.cache.get_tokens_cache()
+    cache.pop(service_name, None)
+    core.cache.save_tokens_cache(cache)
+
+def __refresh_auth(core, service_name):
+    __clear_auth_cache(core, service_name)
+
+    auth_request = build_auth_request(core, service_name)
+    if not auth_request:
+        return False
+
+    response = core.request.execute(core, auth_request, progress=False)
+    if response is None:
+        return False
+
+    parse_auth_response(core, service_name, response)
+
+    token_cache = core.cache.get_tokens_cache().get(service_name, None)
+    return bool(token_cache and token_cache.get('token'))
+
 def build_search_requests(core, service_name, meta):
     cache = core.cache.get_tokens_cache()
     token_cache = cache.get(service_name, None)
@@ -213,7 +234,7 @@ def parse_search_response(core, service_name, meta, response):
 
     return [item for item in map(map_result, results['data']) if item]
 
-def build_download_request(core, service_name, args):
+def build_download_request(core, service_name, args, retry=0, reauthed=False):
     def download_request(response):
         result = core.json.loads(response.text)
 
@@ -227,6 +248,29 @@ def build_download_request(core, service_name, args):
             'stream': True
         }
 
+    def validate_download_response(response):
+        if response.status_code == 401 and not reauthed:
+            core.logger.info('%s - download returned 401, clearing token cache and retrying once' % service_name)
+            if __refresh_auth(core, service_name):
+                return build_download_request(core, service_name, args, retry=retry, reauthed=True)
+
+            core.logger.error('%s - download returned 401 and auth refresh failed' % service_name)
+            return None
+
+        if retry > 5:
+            return None
+
+        if response.status_code in [502, 503, 429, 409, 403]:
+            next_retry = retry + 1
+            if response.status_code in [503, 403]:
+                next_retry = 6
+            else:
+                core.time.sleep(3)
+
+            return build_download_request(core, service_name, args, retry=next_retry, reauthed=reauthed)
+
+        return None
+
     file_id = args['url']
     request = {
         'method': 'POST',
@@ -235,6 +279,7 @@ def build_download_request(core, service_name, args):
             'file_id': file_id,
         }),
         'next': lambda r: download_request(r),
+        'validate': validate_download_response,
     }
 
     __set_api_headers(core, service_name, request)

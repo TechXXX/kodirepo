@@ -1,5 +1,22 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.29[/B][/COLOR]
+- Promote the selector runtime handoff build to the main repo with smoother autoplay dialog closing and direct source-specific subtitle attachment.
+- Keep fullscreen-first resolver cleanup so playback start no longer flashes back to the skin start screen during successful autoplay.
+- Preserve selector-chosen source/subtitle pairings into runtime playback instead of falling back to a generic runtime subtitle search.
+
+[COLOR dodgerblue][B]Session Note (2026-04-11, startup smoothing + selector runtime fix)[/B][/COLOR]
+- Keep the smoother autoplay handoff that waits for fullscreen before closing the resolver window, avoiding the flash back to the skin start screen while still shortening the settle around fullscreen.
+- Trim the successful pre-player settle before `player.run(...)` from `200 ms` to `50 ms` to shave a little startup latency without touching retry timing.
+- Bridge selector playback metadata into Kodi properties at playback start so patched a4k can consume the exact selector-chosen subtitle for the active source instead of falling back to a generic runtime search.
+- Live validation on `Glengarry Glen Ross` confirmed the previous generic-subtitle failure is fixed: the runtime path now logs `Using selector-matched runtime subtitle` and attaches `Glengarry Glen Ross (1992) BluRay 4K-Remastered 1080p DTS-HD AC3 x264 NL-RetailSub REMUX.nld.srt`.
+- Follow-up autoplay checks on `Hoppers`, `Good Luck, Have Fun, Don't Die`, `Interstellar`, `Predator: Badlands`, `Cold Storage`, `Nobody 2`, and `Top Gun: Maverick` also used selector-matched runtime subtitles, so the remaining edge cases are ranking-policy questions rather than a missing playback handoff.
+
+[COLOR dodgerblue][B]Version 2.0.28[/B][/COLOR]
+- Keep the smoother autoplay handoff that waits for fullscreen before closing the resolver window, reducing the flash back to the skin start screen while still shortening the settle around fullscreen.
+- Trim the successful pre-player settle before `player.run(...)` from `200 ms` to `50 ms` to shave a little startup latency without touching retry timing.
+- Bridge selector playback metadata into Kodi properties at playback start so patched a4k can consume the exact selector-chosen subtitle for the active source instead of falling back to a generic runtime search.
+
 [COLOR dodgerblue][B]Session Note (2026-04-11)[/B][/COLOR]
 - Guard external scraper worker threads so a crashing provider is logged and skipped instead of interrupting autoplay and dumping playback back to the manual sources list.
 - Session validation with `The Super Mario Bros. Movie` confirmed the practical goal: a broken cocoscrapers provider can still misbehave, but Fen Light Patched should keep going with the remaining providers.

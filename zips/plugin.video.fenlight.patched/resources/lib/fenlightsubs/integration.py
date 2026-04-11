@@ -52,6 +52,71 @@ def build_subtitle_fallback_candidates(
     return [item for item in ranked if item["matched_subtitle"] is not None][:limit]
 
 
+def build_kodi_selector_playback_metadata(
+    source: dict[str, Any],
+    ranked_item: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Return source-attached selector metadata for runtime playback handoff."""
+
+    source_key = build_kodi_playback_source_key(source)
+    metadata: dict[str, Any] = {
+        "selector_source_key": source_key,
+    }
+
+    if not ranked_item or ranked_item.get("matched_subtitle") is None:
+        return metadata
+
+    matched_subtitle = ranked_item["matched_subtitle"]
+    metadata.update(
+        {
+            "selector_match_score": ranked_item["score"],
+            "selector_match_reason": ranked_item["match_reason"],
+            "selector_used_comments_fallback": ranked_item["used_comments_fallback"],
+            "selector_matched_subtitle": matched_subtitle,
+            "selector_matched_subtitle_translation_kind": ranked_item[
+                "matched_subtitle_translation_kind"
+            ],
+            "selector_should_notify_translated_subtitle_fallback": ranked_item[
+                "should_notify_translated_subtitle_fallback"
+            ],
+            "selector_translated_subtitle_notification": ranked_item[
+                "translated_subtitle_notification"
+            ],
+            "selector_subtitle_payload": {
+                "version": 1,
+                "source_key": source_key,
+                "match_score": ranked_item["score"],
+                "match_reason": ranked_item["match_reason"],
+                "used_comments_fallback": ranked_item["used_comments_fallback"],
+                "matched_subtitle_translation_kind": ranked_item[
+                    "matched_subtitle_translation_kind"
+                ],
+                "translated_subtitle_notification": ranked_item[
+                    "translated_subtitle_notification"
+                ],
+                "matched_subtitle": matched_subtitle,
+            },
+        }
+    )
+    return metadata
+
+
+def build_kodi_playback_source_key(source: dict[str, Any]) -> str:
+    """Return a stable-enough identity key for one playback attempt."""
+
+    parts = [
+        source.get("name"),
+        source.get("display_name"),
+        source.get("scrape_provider"),
+        source.get("debrid"),
+        source.get("quality"),
+        source.get("size"),
+        source.get("hash"),
+        source.get("id"),
+    ]
+    return "|".join("" if part is None else str(part) for part in parts)
+
+
 def build_shadow_run_trace(
     fenlight_sources: list[dict[str, Any]],
     a4k_results: list[dict[str, Any]],
