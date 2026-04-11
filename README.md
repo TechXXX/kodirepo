@@ -1,84 +1,135 @@
 # DutchTech Kodi Repository
 
-This directory is a static Kodi add-on repository for hosting DutchTech packages on GitHub Pages.
+This repository is the main GitHub Pages distribution channel for DutchTech
+Kodi packages.
 
-## Add-ons in this repo
+For subtitle-selector migration work, this repo matters because it is the
+production-facing package source for the patched Fenlight and patched a4k
+addons.
 
-- `plugin.video.fenlight` (`Fen Light`) - version `2.0.07`
-- `service.kodi.favourites.sync` (`Kodi Favourites Sync`) - version `0.2.34`
-- `skin.arctic.horizon.2.1` (`Arctic Horizon 2.1`) - version `0.0.1`
-- `repository.dutchtech` (`DutchTech Repository`) - version `1.0.38`
+## Addons In This Repo
+
+Current source-tree roles when this document was updated:
+
+- `plugin.video.fenlight`
+  Baseline Fenlight package.
+- `plugin.video.fenlight.patched`
+  Main patched Fenlight build that bundles the selector locally and uses the
+  centralized subtitle-aware retry-pool architecture.
+- `service.subtitles.a4ksubtitles.patched`
+  Main patched a4k build used with selector-aware Fenlight.
+- `service.kodi.favourites.sync`
+  Separate Google Drive favourites sync addon.
+- `skin.arctic.horizon.2.1`
+  Forked skin package shipped by this repo.
+- `repository.dutchtech`
+  The repository addon Kodi installs first.
 
 ## Layout
 
-- `plugin.video.fenlight/`: unpacked addon source extracted from the release zip
-- `service.kodi.favourites.sync/`: unpacked service source extracted from the release zip
-- `skin.arctic.horizon.2.1/`: unpacked skin source extracted from the release zip
-- `repository.dutchtech/`: generated Kodi repository add-on source
-- `zips/`: installable package archives for each addon id
-- `addons.xml`: repository metadata consumed by Kodi
-- `addons.xml.md5`: checksum for `addons.xml`
-- `scripts/build_repo.py`: full repo publish, including repository version bump
-- `scripts/publish_addon_update.py`: minimal addon update publish without repo version bump
+- `plugin.video.fenlight.patched/`
+  Unpacked patched Fenlight source.
+- `service.subtitles.a4ksubtitles.patched/`
+  Unpacked patched a4k source.
+- `plugin.video.fenlight/`
+  Baseline Fenlight source kept for comparison or non-patched shipping.
+- `service.kodi.favourites.sync/`
+  Favourites sync service source.
+- `skin.arctic.horizon.2.1/`
+  Forked skin source.
+- `scripts/`
+  Repo build and publish helpers.
+- `zips/`
+  Generated installable addon packages. Do not hand-edit these.
+- `addons.xml`
+  Kodi metadata for every addon in the repo.
+- `addons.xml.md5`
+  Checksum for `addons.xml`.
 
-## Publish workflows
+## Docs To Read First
 
-### Full repo publish
+For selector or packaging work in this repo, read:
 
-```bash
-python3 scripts/build_repo.py --base-url https://TechXXX.github.io/kodirepo/
-```
+1. `README.md`
+2. `scripts/README.md`
+3. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+4. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+5. `service.subtitles.a4ksubtitles.patched/README.md`
+6. `skin.arctic.horizon.2.1/Readme.md`
 
-Use this when you change the repository itself, for example:
+## Selector-Relevant Addon Responsibilities
 
-- repository metadata or structure
-- repository artwork
-- repository install flow
+### `plugin.video.fenlight.patched`
 
-This script:
+This addon now owns:
 
-- rebuilds packages and metadata for the whole repo
-- bumps `repository.dutchtech`
-- commits and pushes to `main`
+- source scraping and filtering
+- one-shot subtitle gather orchestration
+- selector-backed retry-pool promotion
+- playback resolution and player handoff
 
-You can also set `KODI_REPO_BASE_URL` instead of passing `--base-url`. Kodi repository metadata defaults to `https://raw.githubusercontent.com/TechXXX/kodirepo/main/`.
+It should not own the detailed subtitle policy rules. Those belong in the
+selector package and its vendored copy.
 
-### Add-on update publish
+### `service.subtitles.a4ksubtitles.patched`
 
-Drop a new addon zip in the repo root and run:
+This addon now owns:
 
-```bash
-python3 scripts/publish_addon_update.py
-```
+- subtitle provider queries
+- OpenSubtitles translation-flag capture
+- addon-side subtitle ordering and download handling
+- manual-search UI badges like `[AI]` and `[MT]`
+- built-in subtitle preference before external download
 
-Use this when you only have a new version of an add-on, service, or skin and do not want to bump `repository.dutchtech`.
+It should not own Fenlight playback logic.
 
-This script:
+### `skin.arctic.horizon.2.1`
 
-- imports the new addon zip from the repo root
-- replaces the matching unpacked addon source directory
-- rebuilds only that addon package under `zips/<addon-id>/`
-- regenerates `addons.xml` and `addons.xml.md5`
-- commits and pushes to `main`
+This addon owns Kodi-side rendering, not subtitle policy.
 
-## Publish
+That distinction matters because:
 
-1. Push this directory to a GitHub repository.
-2. Enable GitHub Pages for the repository.
-3. Rebuild with your real GitHub Pages URL.
-4. Download the current `repository.dutchtech-<version>.zip` from the site in a browser.
-5. Install that local zip file in Kodi.
+- addon-only text changes show everywhere
+- extra badge or icon slots in dialogs require skin layout support
 
-The checked-in install page is configured for `https://TechXXX.github.io/kodirepo/`.
-The repository addon itself is configured to fetch metadata and zips from `https://raw.githubusercontent.com/TechXXX/kodirepo/main/`.
+## Script Workflows
 
-## Important note about GitHub Pages
+The scripts are documented in `scripts/README.md`.
 
-GitHub Pages serves direct files but does not expose a browsable directory listing for `zips/`.
-That means Kodi will not show hosted zip files when you browse a GitHub Pages source in `Install from zip file`.
+Short version:
 
-Use this flow instead:
+- use `scripts/build_repo.py` when the repository addon itself or the repo-wide
+  metadata needs a full rebuild
+- use `scripts/publish_addon_update.py` when publishing an addon update without
+  bumping the repository addon version
 
-1. Download the current `repository.dutchtech-<version>.zip` directly from the site.
-2. In Kodi, install that local zip file.
-3. Then use `Install from repository` for `DutchTech`.
+Important future-agent nuance:
+
+- the `publish_addon_update.py` command-line flow is built around the "drop a
+  new addon zip in the repo root" workflow
+- if you already edited the unpacked source tree in place, you may need to call
+  that script's helper functions or regenerate `zips/<addon-id>/` manually
+  instead of relying on the CLI import step
+
+## Generated Output Rules
+
+- treat `zips/` as generated output
+- if addon-local docs change, regenerate the matching package mirror under
+  `zips/`
+- keep addon `addon.xml` files focused on Kodi metadata, not release-history
+  storage
+- do not turn addon `addon.xml` `<news>` blocks into multi-version changelogs;
+  use dedicated changelog files such as `CHANGELOG.md` or addon-owned changelog
+  text files instead
+- if `addon.xml` changes, also regenerate `addons.xml`
+- do not edit `addons.xml.md5` by hand
+
+## Scope Guard Rails
+
+- subtitle-selector migration work belongs primarily in:
+  - `plugin.video.fenlight.patched`
+  - `service.subtitles.a4ksubtitles.patched`
+- baseline Fenlight is a reference point, not the main landing zone for new
+  selector behavior
+- unrelated addons and the skin should only be touched when the user-facing
+  behavior truly depends on them

@@ -1,17 +1,83 @@
+# Arctic Horizon 2.1 Maintainer Notes
 
-# Arctic Horizon 2.1 [![License](https://img.shields.io/badge/License-GPLv3-blue)](https://github.com/DeFiNiek/skin.arctic.horizon.2/blob/main/LICENSE.txt) [![License](https://img.shields.io/badge/license-CC--NC--SA%204.0-green)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
+This directory is the forked skin package shipped in the main DutchTech Kodi
+repo.
 
-This work is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/
-or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+Future agents usually do not need to touch it for selector work, but it becomes
+important whenever a user asks for subtitle-dialog visuals or any other Kodi UI
+change that cannot be delivered by addon text alone.
 
-# Jurial Munkey
+## Why This Skin Matters For Addon Work
 
-He is the creator of the skin, I'm just optimizing and mainting the awesome skin that was sadly archived in 2024.
+Kodi addons supply data such as labels, thumbs, icons, and properties. The
+skin decides what actually appears on screen.
 
-Icon images from iconmonstr.com see website for license terms
+That distinction matters for subtitle UI:
 
-Classification icons sourced from wyrm65's classification icon pack
-https://github.com/wyrm65/resource.images.classificationicons.colour
+- addon-only text changes show on every skin
+- extra icon or badge slots require skin layout support
+- existing flag, `SYNC`, and `CC` visuals come from skin layout code, not from
+  a4k drawing arbitrary artwork directly
 
-Language flags sourced from im85288's language flag icon pack
-https://github.com/im85288/resource.images.languageflags.colour
+## Important Files
+
+- `addon.xml`
+  Skin metadata and versioning.
+- `1080i/DialogSubtitles.xml`
+  The subtitle dialog window shell and list wiring.
+- `1080i/Includes_Layouts.xml`
+  Contains `Layout_DialogSubtitles`, which renders each subtitle row.
+- `1080i/Font.xml`
+  Font definitions that affect text rendering and badge readability.
+- `1080i/Includes_Colors.xml`
+  Shared color definitions used across dialogs.
+
+## Subtitle Dialog Notes
+
+Current subtitle-row rendering in `Layout_DialogSubtitles` uses:
+
+- `ListItem.Thumb` for the language flag
+- `ListItem.Label` for the language name
+- `ListItem.Label2` for the subtitle title line
+- `ListItem.ActualIcon` for the star-rating block
+- `ListItem.Property(sync)` for the `SYNC` badge
+- `ListItem.Property(hearing_imp)` for the `CC` badge
+
+That is why a4k can add universal `[AI]` and `[MT]` text badges without skin
+changes, but a true extra robot icon would need a new placeholder here.
+
+## When To Edit This Skin
+
+Edit this skin only when:
+
+- the user explicitly wants a skin-specific visual improvement
+- the default/shared Kodi field set is not enough
+- a dialog layout bug is clearly caused by this skin
+
+Prefer addon-only changes when the goal is cross-skin compatibility.
+
+## Future-Agent Guard Rails
+
+- Do not assume a4k can create new visual slots without skin work.
+- If you add a skin-only affordance, document the addon-side data contract in
+  the relevant addon README too.
+- Keep upstream attribution and license notes intact.
+- Re-test subtitle dialogs after layout changes because small spacing tweaks can
+  affect list readability.
+
+## Attribution
+
+Original skin by Jurial Munkey.
+
+This fork is maintained in the DutchTech repo as a packaged skin copy.
+
+Icon images from iconmonstr.com. Classification icons are sourced from
+wyrm65's classification icon pack. Language flags are sourced from im85288's
+language flag icon pack.
+
+License references:
+
+- GPLv3:
+  `https://github.com/DeFiNiek/skin.arctic.horizon.2/blob/main/LICENSE.txt`
+- CC BY-NC-SA 4.0:
+  `http://creativecommons.org/licenses/by-nc-sa/4.0/`
