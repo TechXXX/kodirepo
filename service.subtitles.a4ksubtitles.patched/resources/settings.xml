@@ -1,43 +1,215 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings>
-    <!-- General -->
-    <category label="33001">
-        <setting id="general.timeout"        label="33101" type="slider" default="15" option="int" range="5,20"/>
-        <setting id="general.results_limit"  label="33102" type="slider" default="20" option="int" range="10,100"/>
-        <setting id="general.auto_search"    label="33103" type="bool"   default="false" />
-        <setting id="general.auto_download"  label="33104" type="bool"   default="false"  enable="eq(-1,true)" />
-        <setting id="general.use_chardet"    label="33105" type="bool"   default="true"  />
-        <setting id="general.auto_select"    label="33106" type="bool"   default="true"  />
-        <setting id="general.prefer_sdh"     label="33107" type="bool"   default="false"  enable="eq(-1,true)" />
-        <setting id="general.prefer_forced"  label="33108" type="bool"   default="true"   enable="eq(-1,false)+eq(-2,true)" />
-        <setting id="general.use_ai"         label="33109" type="bool"   default="false"  />
-        <setting id="general.ai_provider"    label="33110" type="select" default="OpenAI" enable="eq(-1,true)" lvalues="43110|43111" />
-        <setting id="general.ai_api_key"     label="33111" type="text"   default=""       enable="eq(-2,true)" />
-        <setting id="general.ai_model"       label="33112" type="text"   default="gpt-4.1-2025-04-14" enable="eq(-3,true)" />
-    </category>
-    <!-- Services -->
-    <category label="33002">
-        <setting id="addic7ed.enabled"      label="33206" type="bool" default="true"/>
-        <setting id="bsplayer.enabled"      label="33202" type="bool" default="true"/>
-        <setting id="opensubtitles.enabled" label="33201" type="bool" default="true"/>
-        <setting id="podnadpisi.enabled"    label="33203" type="bool" default="true"/>
-        <setting id="subdl.enabled"         label="33205" type="bool" default="true"/>
-        <setting id="subsource.enabled"     label="33207" type="bool" default="true"/>
-    </category>
-    <!-- Accounts -->
-    <category label="33003">
-        <!-- OpenSubtitles -->
-        <setting type="lsep" label="33201"/>
-        <setting type="sep"/>
-        <setting id="opensubtitles.username" label="33301" type="text" default=""/>
-        <setting id="opensubtitles.password" label="33302" type="text" default="" option="hidden"/>
-        <!-- SubDL -->
-        <setting type="lsep" label="33205"/>
-        <setting type="sep"/>
-        <setting id="subdl.apikey" label="33303" type="text" default=""/>
-        <!-- Subsource -->
-        <setting type="lsep" label="33207"/>
-        <setting type="sep"/>
-        <setting id="subsource.apikey" label="33304" type="text" default=""/>
-    </category>
+<settings version="1">
+    <section id="service.subtitles.a4ksubtitles.patched">
+        <category id="general" label="33001" help="">
+            <group id="1">
+                <setting id="general.timeout" type="integer" label="33101" help="">
+                    <level>0</level>
+                    <default>15</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>1</step>
+                        <maximum>20</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="general.results_limit" type="integer" label="33102" help="">
+                    <level>0</level>
+                    <default>20</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>1</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="general.auto_search" type="boolean" label="33103" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.auto_download" type="boolean" label="33104" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="general.auto_search">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.use_chardet" type="boolean" label="33105" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.auto_select" type="boolean" label="33106" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.prefer_sdh" type="boolean" label="33107" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="general.auto_select">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.prefer_forced" type="boolean" label="33108" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <and>
+                                <condition operator="is" setting="general.auto_select">true</condition>
+                                <condition operator="is" setting="general.prefer_sdh">false</condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.use_ai" type="boolean" label="33109" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="general.ai_provider" type="integer" label="33110" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="43110">0</option>
+                            <option label="43111">1</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="general.use_ai">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="spinner" format="string"/>
+                </setting>
+                <setting id="general.ai_api_key" type="string" label="33111" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="general.use_ai">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>33111</heading>
+                    </control>
+                </setting>
+                <setting id="general.ai_model" type="string" label="33112" help="">
+                    <level>0</level>
+                    <default>gpt-4.1-2025-04-14</default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="is" setting="general.use_ai">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>33112</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="services" label="33002" help="">
+            <group id="1">
+                <setting id="addic7ed.enabled" type="boolean" label="33206" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="bsplayer.enabled" type="boolean" label="33202" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="opensubtitles.enabled" type="boolean" label="33201" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="podnadpisi.enabled" type="boolean" label="33203" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="subdl.enabled" type="boolean" label="33205" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="subsource.enabled" type="boolean" label="33207" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="accounts" label="33003" help="">
+            <group id="1" label="33201">
+                <setting id="opensubtitles.username" type="string" label="33301" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>33301</heading>
+                    </control>
+                </setting>
+                <setting id="opensubtitles.password" type="string" label="33302" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>33302</heading>
+                        <hidden>true</hidden>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="33205">
+                <setting id="subdl.apikey" type="string" label="33303" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>33303</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="3" label="33207">
+                <setting id="subsource.apikey" type="string" label="33304" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>33304</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
 </settings>

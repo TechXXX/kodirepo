@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.19"
+       version="3.23.22"
        provider-name="Unknown">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,6 +27,21 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
+[v3.23.22]:
+  * Refresh stale cached OpenSubtitles rows when translation markers are missing so shadow snapshots and downstream selectors keep ai_translated and machine_translated state.
+  * Make API-mode Fenlight probing survive live Kodi builds where xbmc.Player().getPlayingFile is read-only by falling back to mocked a4k video metadata helpers.
+  * Add a backward-compatible logger.info(...) alias in the Kodi logger shim so shadow subtitle snapshot logging no longer throws an attribute error.
+  * Record the Hoppers follow-up: direct OpenSubtitles API reproduction returns the Dutch SyncUP subtitle with ai_translated=true, while the active live Kodi runtime path still serializes it as false/false and needs more tracing.
+
+[v3.23.21]:
+  * Prevent autoplay subtitle preparation from crashing when uploader comments contain Unicode digit separators such as ².
+  * Rewrite matching-stem runtime subtitle temp filenames before attach so Kodi shows a readable external subtitle name instead of collapsing to generic (External).
+
+[v3.23.20]:
+  * Migrate the Kodi settings dialog to the current schema so provider toggles and account fields no longer reset while switching categories.
+  * Restore selector shadow snapshots for multi-provider runs, including paired Fenlight source snapshots and history-only runtime/manual subtitle snapshots.
+  * Make manual subtitle picks attach the real downloaded file directly so Kodi shows the chosen release name instead of TempSubtitle, without the old false failed-download notice.
+
 [v3.23.19]:
   * Refresh packaged branding and artwork so repo installs no longer reuse the old selector-test presentation.
 

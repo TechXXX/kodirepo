@@ -1,60 +1,129 @@
-<img align="left" width="115px" height="115px" src="icon.png">
-
 # a4kSubtitles Patched
-[![Kodi version](https://img.shields.io/badge/kodi%20versions-20--21-blue)](https://kodi.tv/)
 
-### General Status
-[![Background Service](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-service.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-service.yml)
-[![API](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-api.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-api.yml)
-[![Search](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-search.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-search.yml)
-[![TVShows](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-tvshow.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-tvshow.yml)
+This directory is the unpacked main-repo source for the patched a4k subtitle
+addon shipped to users alongside `plugin.video.fenlight.patched`.
 
-### Providers Status
-[![Addic7ed](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-addic7ed.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-addic7ed.yml)
-[![BSPlayer](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-bsplayer.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-bsplayer.yml)
-[![OpenSubtitles](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-opensubtitles.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-opensubtitles.yml)
-[![Podnadpisi.NET](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-podnadpisi.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-podnadpisi.yml)
-<!-- [![SubDL](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-subdl.yml/badge.svg)](https://github.com/a4k-openproject/a4kSubtitles Patched/actions/workflows/cron-tests-subdl.yml) -->
+Future agents should read this file before changing subtitle gathering, manual
+subtitle UI, or OpenSubtitles translation handling.
 
-## Description
+## Why This Addon Exists
 
-Subtitle addon for KODI with support for multiple subtitle services:
-* Addic7ed
-* BSPlayer
-* OpenSubtitles
-* Podnadpisi.NET
-* SubDL
-* SubSource
+This patched build keeps subtitle retrieval inside a4k while making it usable
+from Fenlight before playback starts.
 
-## Configuration
-![configuration](https://media.giphy.com/media/kewuE4BgfOnFin0vEC/source.gif)
+Current important behavior:
 
-## Installation
+- supports normal Kodi subtitle search and download flows
+- exposes API mode so patched Fenlight can gather subtitles once per title/run
+- preserves OpenSubtitles translation flags for ranking and notifications
+- prefers built-in subtitle streams before downloading an external file
+- shows universal `[AI]` and `[MT]` badges in manual subtitle search rows
 
-Steps to install a4kSubtitles Patched:
-1. Go to the KODI **File manager**.
-2. Click on **Add source**.
-3. The path for the source is https://a4k-openproject.github.io/a4kSubtitles Patched/packages/
-4. (Optional) Name it **a4kSubtitles Patched-repo**.
-5. Head to **Addons**.
-6. Select **Install from zip file**.
-7. When it asks for the location select **a4kSubtitles Patched-repo** and install `a4kSubtitles Patched-repository.zip`.
-8. Go back to **Addons** and select **Install from repository**
-9. Select the **a4kSubtitles Patched** menu item
+## Execution Model
 
-## Preview
-![usage](https://media.giphy.com/media/QTmhgEJTpTPTPxByfj/source.gif)
+There are three main entry patterns:
 
-## Contribution
+1. `main.py`
+   Standard Kodi subtitle-addon entrypoint. Clears API mode and calls
+   `a4kSubtitles.core.main(...)`.
+2. `main_service.py`
+   Starts the long-running subtitle service loop through
+   `a4kSubtitles.service.start(...)`.
+3. `a4kSubtitles/api.py`
+   Lets other code, especially patched Fenlight, instantiate
+   `A4kSubtitlesApi()` and call `search(...)`, `download(...)`, or
+   `auto_load_enabled(...)` without driving the normal Kodi UI flow.
 
-Configure hooks for auto update of `addons.xml`:
-```sh
-git config core.hooksPath .githooks
-```
-## License
+## File Map
 
-MIT
+- `addon.xml`
+  Kodi metadata and addon version.
+- `main.py`
+  Regular plugin entrypoint for search/download actions.
+- `main_service.py`
+  Service entrypoint for auto-search/auto-download behavior.
+- `a4kSubtitles/api.py`
+  API-mode bridge used by patched Fenlight. It mocks Kodi/video metadata for
+  pre-play subtitle gathering.
+- `a4kSubtitles/core.py`
+  Central router for plugin actions like `search` and `download`.
+- `a4kSubtitles/search.py`
+  Provider orchestration, result normalization, caching, filtering, and addon
+  side ordering.
+- `a4kSubtitles/download.py`
+  Subtitle download, archive extraction, and final subtitle-file placement.
+- `a4kSubtitles/service.py`
+  Background loop that reacts to playback, prefers built-in subtitles when
+  available, and only falls back to external download when needed.
+- `a4kSubtitles/services/opensubtitles.py`
+  OpenSubtitles auth/search/download request builder and parser. This is where
+  translation flags are preserved in result payloads.
+- `a4kSubtitles/lib/kodi.py`
+  Kodi wrappers, settings access, listitem creation, notifications, and the
+  manual-search `[AI]` / `[MT]` badges.
+- `resources/settings.xml`
+  User-facing addon settings.
+- `CHANGELOG.md`
+  Release history only. Read this README first for architecture.
 
-## Icon
+## Current Patched Behaviors That Matter
 
-Logo `quill` by Ramy Wafaa ([RoundIcons](https://roundicons.com))
+### API Mode For Fenlight
+
+`A4kSubtitlesApi` is the reason this addon can support the current autoplay
+architecture:
+
+- Fenlight connects once
+- subtitle search happens once per title/run
+- results are returned as data instead of immediate UI output
+- the selector ranks the full source list against the full subtitle list
+
+This is the replacement for the older per-source probing experiment.
+
+### Translation-Aware Results
+
+OpenSubtitles rows can carry:
+
+- `ai_translated`
+- `machine_translated`
+
+Those flags matter in three places:
+
+- selector policy demotion
+- translated-subtitle notifications on actual use
+- manual-search row badges
+
+### Manual Search UI
+
+Manual search rows are created in `a4kSubtitles/lib/kodi.py`.
+
+Important current behavior:
+
+- translated rows prepend colored `[AI]` or `[MT]`
+- the badges live in `label2`, so they work on any Kodi skin
+- a4k also sets row properties, but skins only render extra visuals if they
+  already have slots for them
+
+### Built-In Subtitle Preference
+
+`a4kSubtitles/service.py` first tries to switch to an already available
+preferred-language subtitle stream in the player.
+
+Only if no suitable built-in subtitle stream is found does the service continue
+into external subtitle download or subtitle search UI.
+
+That behavior must stay aligned with patched Fenlight's goal:
+
+- built-in subtitles should beat external download when the stream already has
+  the preferred language
+
+## Future-Agent Guard Rails
+
+- Do not move playback logic into this addon.
+- Do not reintroduce per-source subtitle probing for Fenlight autoplay.
+- Keep translation flags intact all the way from provider parsing to UI and
+  selector consumers.
+- Prefer skin-agnostic text markers for universal subtitle-row UI changes.
+- If ranking behavior changes, fix selector policy in the selector package
+  first, not by adding ad hoc sort rules here unless addon-side ordering truly
+  needs it.

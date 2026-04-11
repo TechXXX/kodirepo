@@ -45,6 +45,7 @@ py3 = not py2
 temp_dir = os.path.join(kodi.addon_profile, 'temp')
 data_dir = os.path.join(kodi.addon_profile, 'data')
 suspend_service_file = os.path.join(kodi.addon_profile, 'suspend_service')
+manual_subtitles_dir = os.path.join(kodi.addon_profile, 'manual_subtitles')
 
 class DictAsObject(dict):
     def __getattr__(self, name):
@@ -111,6 +112,33 @@ def get_subfile_from_temp_dir():
         if file != 'sub.zip' and not file.endswith('.translated'):
             return os.path.join(temp_dir, file.strip())
     return None
+
+def persist_manual_subtitle(filepath):
+    if not filepath or not os.path.exists(filepath):
+        return filepath
+
+    try:
+        if not os.path.exists(manual_subtitles_dir):
+            os.makedirs(manual_subtitles_dir)
+    except:
+        pass
+
+    try:
+        for entry in os.listdir(manual_subtitles_dir):
+            target = os.path.join(manual_subtitles_dir, entry)
+            if os.path.isdir(target):
+                shutil.rmtree(target, ignore_errors=True)
+            else:
+                os.remove(target)
+    except:
+        pass
+
+    queued_path = os.path.join(manual_subtitles_dir, os.path.basename(filepath))
+    if os.path.abspath(filepath) != os.path.abspath(queued_path):
+        if not kodi.xbmcvfs.copy(filepath, queued_path):
+            shutil.copyfile(filepath, queued_path)
+
+    return queued_path if os.path.exists(queued_path) else filepath
 
 def wait_threads(threads):
     for thread in threads:

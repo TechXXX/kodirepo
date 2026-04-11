@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import sys
 import time
 import traceback
@@ -47,6 +48,7 @@ main_line = '%s[CR]%s[CR]%s'
 int_window_prop = 'fenlight.internal_results.%s'
 scraper_timeout = 25
 a4k_subtitles_addon_path = 'special://home/addons/service.subtitles.a4ksubtitles.patched'
+subtitle_selector_shadow_dir = 'special://profile/addon_data/plugin.video.fenlight/subtitle_selector_shadow'
 subtitle_fallback_candidate_limit = 5
 subtitle_selector_results_limit = 100
 filter_keys = {'hevc': '[B]HEVC[/B]', '3d': '[B]3D[/B]', 'hdr': '[B]HDR[/B]', 'dv': '[B]D/VISION[/B]', 'av1': '[B]AV1[/B]', 'enhanced_upscaled': '[B]AI ENHANCED/UPSCALED[/B]'}
@@ -275,6 +277,7 @@ class Sources():
 
 	def sort_subtitle_ready_autoplay(self, results):
 		if not self.autoplay or not results: return results
+		self._write_source_shadow_snapshot(results)
 		search_params = self._a4k_search_params()
 		if not search_params:
 			logger('Fen Light Patched', 'Subtitle retry pool skipped: no subtitle language settings available')
@@ -440,6 +443,78 @@ class Sources():
 		if not filename: filename = str(self.meta.get('imdb_id', '') or self.meta.get('title', '') or 'subtitle_search')
 		if '.' not in filename: filename = '%s.mkv' % filename
 		return filename
+
+	def _shadow_snapshot_dir(self):
+		return kodi_utils.translatePath(subtitle_selector_shadow_dir)
+
+	def _shadow_snapshot_match_key(self):
+		season = self.meta.get('season')
+		episode = self.meta.get('episode')
+		if season in (None, '', -1, '-1'): season = ''
+		if episode in (None, '', -1, '-1'): episode = ''
+		return '%s|%s|%s|%s|%s' % (
+			self.media_type,
+			self.meta.get('imdb_id', '') or '',
+			season,
+			episode,
+			self.meta.get('title') or '',
+		)
+
+	def _shadow_snapshot_safe_name(self, value):
+		return ''.join(i if i.isalnum() else '_' for i in value).strip('_') or 'latest'
+
+	def _shadow_snapshot_meta(self):
+		return {
+			'media_type': self.media_type,
+			'title': self.meta.get('title') or '',
+			'english_title': self.meta.get('english_title') or '',
+			'year': str(self.meta.get('year') or ''),
+			'imdb_id': self.meta.get('imdb_id') or '',
+			'tmdb_id': self.meta.get('tmdb_id') or self.tmdb_id,
+			'season': self.meta.get('season'),
+			'episode': self.meta.get('episode'),
+			'ep_name': self.meta.get('ep_name'),
+		}
+
+	def _shadow_snapshot_result(self, result):
+		return {
+			'name': result.get('name'),
+			'display_name': result.get('display_name'),
+			'quality': result.get('quality'),
+			'size': result.get('size'),
+			'size_label': result.get('size_label'),
+			'extraInfo': result.get('extraInfo'),
+			'scrape_provider': result.get('scrape_provider'),
+			'source': result.get('source'),
+			'provider': result.get('provider'),
+			'debrid': result.get('debrid'),
+			'cache_provider': result.get('cache_provider'),
+		}
+
+	def _write_source_shadow_snapshot(self, results):
+		try:
+			directory = self._shadow_snapshot_dir()
+			os.makedirs(directory, exist_ok=True)
+			timestamp = int(time.time() * 1000)
+			match_key = self._shadow_snapshot_match_key()
+			serialized_results = [self._shadow_snapshot_result(item) for item in results]
+			payload = {
+				'snapshot_type': 'fenlight_sources',
+				'timestamp': timestamp,
+				'match_key': match_key,
+				'meta': self._shadow_snapshot_meta(),
+				'results': serialized_results,
+			}
+			json_data = json.dumps(payload, indent=2)
+			history_path = os.path.join(directory, 'sources_%s.json' % timestamp)
+			latest_path = os.path.join(directory, 'latest_sources.json')
+			match_latest_path = os.path.join(directory, 'latest_sources_%s.json' % self._shadow_snapshot_safe_name(match_key))
+			for target in (history_path, latest_path, match_latest_path):
+				with open(target, 'w') as file_handle:
+					file_handle.write(json_data)
+			logger('Fen Light Patched', 'Source shadow snapshot saved | path=%s | count=%s' % (history_path, len(serialized_results)))
+		except:
+			logger('Fen Light Patched', 'Source shadow snapshot write failed | error=%s' % traceback.format_exc().replace('\n', ' | '))
 
 	def prepare_internal_scrapers(self):
 		if self.active_external and len(self.active_internal_scrapers) == 1: return

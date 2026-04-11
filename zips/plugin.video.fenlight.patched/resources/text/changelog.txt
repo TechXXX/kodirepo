@@ -1,5 +1,31 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Session Note (2026-04-11)[/B][/COLOR]
+- Guard external scraper worker threads so a crashing provider is logged and skipped instead of interrupting autoplay and dumping playback back to the manual sources list.
+- Session validation with `The Super Mario Bros. Movie` confirmed the practical goal: a broken cocoscrapers provider can still misbehave, but Fen Light Patched should keep going with the remaining providers.
+- No other Fen Light runtime policy was changed in this session beyond the scraper-failure guard.
+
+[COLOR dodgerblue][B]Version 2.0.27[/B][/COLOR]
+- Keep the known-good direct `player.run(...)` foreground playback path on macOS Kodi installs. Session validation showed skipped sources are normal resolve retries and should not be "fixed" by routing playback back through a resolver handoff.
+- Clarify maintainer expectations around subtitle-aware retries: future fallback work should preserve the current direct playback path and prefer the next best subtitle-backed source candidates before dropping to unrelated source order.
+- Keep the selector shadow-validation workflow focused on subtitle-backed ranking versus the actually played source so runs like Hoppers can be compared without moving playback policy into the standalone selector.
+
+[COLOR dodgerblue][B]Version 2.0.26[/B][/COLOR]
+- Ship Fen Light Patched with reuse language invoker disabled by default so updates stop re-enabling it for installs that expect it off.
+- Restore live source shadow snapshots so fresh selector trace inputs are written again during pre-play runs.
+- Keep paired latest source/subtitle shadow aliases rebuildable again by working with the new history-only runtime/manual subtitle snapshot flow in patched a4k.
+
+[COLOR dodgerblue][B]Version 2.0.25[/B][/COLOR]
+- Refresh packaged branding and artwork so repo installs stop reusing the old selector-test presentation from stale Kodi package caches.
+
+[COLOR dodgerblue][B]Version 2.0.24[/B][/COLOR]
+- Prefer direct subtitle filename evidence over uploader comments when both are available so real exact release matches beat comment-derived fallback guesses.
+- Strip OpenSubtitles track and language suffixes before source/subtitle matching so clean 1080p/720p release names keep the right match strength.
+
+[COLOR dodgerblue][B]Version 2.0.23[/B][/COLOR]
+- Bundle the subtitle selector inside the add-on instead of depending on an external dev repo path.
+- Gather subtitles once per title and build the autoplay retry pool from centralized selector ranking instead of probing subtitles source-by-source.
+
 [COLOR dodgerblue][B]Version 2.0.21[/B][/COLOR]
 - Restored direct player playback for resolved sources to avoid playback failures on some Kodi/macOS installs.
 

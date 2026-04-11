@@ -25,6 +25,56 @@ def start(api):
         ai_last_timestamp = None
         ai_tries = 0
 
+    def prepare_runtime_attach_subfile(subfile):
+        try:
+            video_filename = core.kodi.xbmc.getInfoLabel('Player.Filename')
+            if not video_filename:
+                return subfile
+
+            video_stem = core.os.path.splitext(core.os.path.basename(video_filename))[0]
+            sub_basename = core.os.path.basename(subfile)
+            sub_root, sub_ext = core.os.path.splitext(sub_basename)
+
+            lang_code = ''
+            subtitle_stem = sub_root
+            stem_parts = sub_root.rsplit(".", 1)
+            if len(stem_parts) == 2 and stem_parts[1].isalpha() and len(stem_parts[1]) <= 3:
+                subtitle_stem = stem_parts[0]
+                lang_code = stem_parts[1]
+
+            if subtitle_stem.lower() != video_stem.lower():
+                return subfile
+
+            humanized_stem = subtitle_stem.replace('.', ' ').replace('_', ' ').replace('-', ' ')
+            humanized_stem = ' '.join(humanized_stem.split())
+            rewritten_root = 'subtitle %s' % humanized_stem
+            if lang_code:
+                rewritten_root = '%s.%s' % (rewritten_root, lang_code)
+
+            rewritten_path = core.os.path.join(core.utils.temp_dir, rewritten_root + sub_ext)
+
+            if rewritten_path == subfile:
+                return subfile
+
+            try:
+                core.os.remove(rewritten_path)
+            except:
+                pass
+
+            core.os.rename(subfile, rewritten_path)
+            core.logger.debug(
+                'Rewrote matching-stem runtime subtitle basename | '
+                'video=%s | original=%s | rewritten=%s' % (
+                    video_filename,
+                    subfile,
+                    rewritten_path
+                )
+            )
+            return rewritten_path
+        except Exception as e:
+            core.logger.debug('Runtime subtitle basename rewrite skipped: %s' % e)
+            return subfile
+
     while not monitor.abortRequested():
         if monitor.waitForAbort(1):
             break
@@ -270,6 +320,8 @@ def start(api):
                     continue
 
                 if not use_ai or preferredlang == preferredlang_preai:
+                    subfile = prepare_runtime_attach_subfile(subfile)
+                    last_subfile = subfile
                     core.logger.debug('Setting subtitles: %s' % subfile)
                     core.kodi.xbmc.Player().setSubtitles(subfile)
                 else:

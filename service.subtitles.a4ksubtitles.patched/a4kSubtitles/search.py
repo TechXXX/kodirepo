@@ -1,9 +1,141 @@
 # -*- coding: utf-8 -*-
+import os
+
+shadow_snapshot_dir = 'special://profile/addon_data/plugin.video.fenlight/subtitle_selector_shadow'
+
+def __replace_non_ascii_digits(text):
+    if not text:
+        return text
+    return ''.join(' ' if char.isdigit() and char not in '0123456789' else char for char in text)
+
+def __is_ascii_digit_token(token):
+    return bool(token) and all(char in '0123456789' for char in token)
+
+def __shadow_translate_path(core, path):
+    try:
+        return core.kodi.xbmcvfs.translatePath(path)
+    except:
+        return core.kodi.xbmc.translatePath(path)
+
+def __shadow_match_key(meta):
+    media_type = 'episode' if getattr(meta, 'is_tvshow', False) else 'movie'
+    title = getattr(meta, 'tvshow', None) or getattr(meta, 'title', None) or ''
+    season = getattr(meta, 'season', '') or ''
+    episode = getattr(meta, 'episode', '') or ''
+    if season == '-1':
+        season = ''
+    if episode == '-1':
+        episode = ''
+    return '%s|%s|%s|%s|%s' % (
+        media_type,
+        getattr(meta, 'imdb_id', '') or '',
+        season,
+        episode,
+        title,
+    )
+
+def __shadow_serialized_meta(meta):
+    return {
+        'media_type': 'episode' if getattr(meta, 'is_tvshow', False) else 'movie',
+        'title': getattr(meta, 'title', None),
+        'tvshow': getattr(meta, 'tvshow', None),
+        'year': getattr(meta, 'year', None),
+        'imdb_id': getattr(meta, 'imdb_id', None),
+        'season': getattr(meta, 'season', None),
+        'episode': getattr(meta, 'episode', None),
+        'filename_without_ext': getattr(meta, 'filename_without_ext', None),
+        'languages': getattr(meta, 'languages', None),
+        'preferredlanguage': getattr(meta, 'preferredlanguage', None),
+    }
+
+def __shadow_serialized_action_args(core, action_args):
+    if not isinstance(action_args, dict):
+        return {}
+
+    serialized = {}
+    for key, value in action_args.items():
+        try:
+            core.json.dumps(value)
+            serialized[key] = value
+        except Exception:
+            serialized[key] = str(value)
+    return serialized
+
+def __shadow_serialized_result(core, result):
+    action_args = result.get('action_args', {})
+    return {
+        'service_name': result.get('service_name'),
+        'service': result.get('service'),
+        'lang': result.get('lang'),
+        'lang_code': result.get('lang_code'),
+        'name': result.get('name'),
+        'rating': result.get('rating'),
+        'sync': result.get('sync'),
+        'impaired': result.get('impaired'),
+        'color': result.get('color'),
+        'comment': result.get('comment'),
+        'comments': result.get('comments'),
+        'ai_translated': bool(result.get('ai_translated') or action_args.get('ai_translated')),
+        'machine_translated': bool(result.get('machine_translated') or action_args.get('machine_translated')),
+        'action_args': __shadow_serialized_action_args(core, action_args),
+    }
+
+def __shadow_safe_name(value):
+    return ''.join(i if i.isalnum() else '_' for i in value).strip('_') or 'latest'
+
+def __write_stage_debug(core, filename, results):
+    try:
+        directory = __shadow_translate_path(core, shadow_snapshot_dir)
+        os.makedirs(directory, exist_ok=True)
+        serialized_results = [__shadow_serialized_result(core, item) for item in results]
+        with open(os.path.join(directory, filename), 'w') as file_handle:
+            file_handle.write(core.json.dumps(serialized_results, indent=2))
+    except Exception as exc:
+        core.logger.error('stage debug write failed for %s: %s' % (filename, exc))
+
+def __write_shadow_subtitle_snapshot(core, meta, results):
+    try:
+        directory = __shadow_translate_path(core, shadow_snapshot_dir)
+        os.makedirs(directory, exist_ok=True)
+        timestamp = int(core.time.time() * 1000)
+        match_key = __shadow_match_key(meta)
+        alias_mode = getattr(core, 'shadow_snapshot_alias_mode', None)
+        if alias_mode is None:
+            alias_mode = 'pairable' if core.api_mode_enabled else 'history_only'
+        serialized_results = [__shadow_serialized_result(core, item) for item in results]
+        payload = {
+            'snapshot_type': 'a4k_subtitles',
+            'timestamp': timestamp,
+            'match_key': match_key,
+            'alias_mode': alias_mode,
+            'meta': __shadow_serialized_meta(meta),
+            'results': serialized_results,
+        }
+        json_data = core.json.dumps(payload, indent=2)
+        history_path = os.path.join(directory, 'subtitles_%s.json' % timestamp)
+        latest_path = os.path.join(directory, 'latest_subtitles.json')
+        match_latest_path = os.path.join(directory, 'latest_subtitles_%s.json' % __shadow_safe_name(match_key))
+        targets = [history_path]
+        if alias_mode != 'history_only':
+            targets.extend((latest_path, match_latest_path))
+        for target in targets:
+            with open(target, 'w') as file_handle:
+                file_handle.write(json_data)
+        with open(os.path.join(directory, 'shadow_serialized_debug.json'), 'w') as file_handle:
+            file_handle.write(core.json.dumps(serialized_results, indent=2))
+        core.logger.info('shadow serialized subtitle results: %s' % core.json.dumps(serialized_results, indent=2))
+        if alias_mode == 'history_only':
+            core.logger.debug(lambda: 'shadow snapshot saved (history only): %s' % history_path)
+        else:
+            core.logger.debug(lambda: 'shadow snapshot saved: %s' % history_path)
+    except Exception as exc:
+        core.logger.error('shadow snapshot write failed: %s' % exc)
 
 def __comment_candidate_names(core, comments):
     if not comments:
         return []
 
+    comments = __replace_non_ascii_digits(core.utils.unquote(comments))
     names = []
     lines = [line.strip() for line in core.re.split(r'[\r\n]+', comments) if line and line.strip()]
     for line in lines:
@@ -24,8 +156,9 @@ def __release_group_candidates(core, text, regexsplitwords, ignored_tokens):
     if not text:
         return []
 
-    raw_tokens = [token.strip().lower() for token in core.re.split(regexsplitwords, core.utils.unquote(text)) if token and token.strip()]
-    tokens = [token for token in raw_tokens if not token.isdigit() and token not in ignored_tokens]
+    normalized_text = __replace_non_ascii_digits(core.utils.unquote(text))
+    raw_tokens = [token.strip().lower() for token in core.re.split(regexsplitwords, normalized_text) if token and token.strip()]
+    tokens = [token for token in raw_tokens if not __is_ascii_digit_token(token) and token not in ignored_tokens]
     if not tokens:
         return []
 
@@ -44,7 +177,7 @@ def __comments_reference_release_group(core, comments, candidates, regexsplitwor
     if not comments or not candidates:
         return False
 
-    normalized_comments = core.re.sub(regexsplitwords, ' ', core.utils.unquote(comments).lower())
+    normalized_comments = core.re.sub(regexsplitwords, ' ', __replace_non_ascii_digits(core.utils.unquote(comments)).lower())
     normalized_comments = ' ' + core.re.sub(r'\s+', ' ', normalized_comments).strip() + ' '
     for candidate in candidates:
         normalized_candidate = ' ' + candidate.strip().lower() + ' '
@@ -100,7 +233,9 @@ def __query_service(core, service_name, meta, request, results):
             service_results = []
 
         __log_results_summary(core, '%s.raw' % service_name, service_results)
+        __write_stage_debug(core, 'stage_parse_%s.json' % service_name, service_results)
         results.extend(service_results)
+        __write_stage_debug(core, 'stage_query_results_%s.json' % service_name, results)
 
         core.logger.debug(lambda: core.json.dumps({
             'url': request['url'],
@@ -184,13 +319,16 @@ def __get_last_results(core, meta):
     return ([], [])
 
 def __sanitize_results(core, meta, results):
+    __write_stage_debug(core, 'stage_before_sanitize.json', results)
     temp_dict = {}
 
     for result in results:
         temp_dict[result['action_args']['url']] = result
         result['name'] = core.utils.unquote(result['name'])
 
-    return list(temp_dict.values())
+    sanitized = list(temp_dict.values())
+    __write_stage_debug(core, 'stage_after_sanitize.json', sanitized)
+    return sanitized
 
 def __apply_language_filter(meta, results):
     return list(filter(lambda x: x and x['lang'] in meta.languages, results))
@@ -216,6 +354,7 @@ def __prepare_results(core, meta, results):
     __log_results_summary(core, 'prepare.language_filter', results)
     results = __sanitize_results(core, meta, results)
     __log_results_summary(core, 'prepare.sanitized', results)
+    __write_stage_debug(core, 'stage_pre_sort.json', results)
 
     release_groups = [
         ['bluray', 'bd', 'bdrip', 'brrip', 'bdmv', 'bdscr', 'remux', 'bdremux', 'uhdremux', 'uhdbdremux', 'uhdbluray'],
@@ -341,8 +480,11 @@ def __prepare_results(core, meta, results):
         name_diff_ignore = media_exts + quality + codec + audio + color
         name_diff_ignore += ["multi", 'multiple', 'sub', 'subs', 'subtitle']
 
-        if x.isdigit():
+        x = __replace_non_ascii_digits(x).strip()
+        if __is_ascii_digit_token(x):
             x = str(int(x)).zfill(3)
+        elif x.isdigit():
+            x = ''
         elif x.lower() in name_diff_ignore:
             x = ''
         return x.lower()
@@ -350,8 +492,8 @@ def __prepare_results(core, meta, results):
     def _match_numbers(a, b):
         offset = 0
         for s in b:
-            s = core.re.sub(r'v[1-4]', "", s)
-            if not s.isdigit():
+            s = __replace_non_ascii_digits(core.re.sub(r'v[1-4]', "", s)).strip()
+            if not __is_ascii_digit_token(s):
                 continue
             elif meta.episode and s.zfill(3) == meta.episode.zfill(3):
                 offset += 0.4
@@ -496,6 +638,7 @@ def __wait_threads(core, request_threads):
 
 def __complete_search(core, results, meta):
     __log_results_summary(core, 'complete', results)
+    __write_shadow_subtitle_snapshot(core, meta, results)
     if core.api_mode_enabled:
         return results
 

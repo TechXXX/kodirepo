@@ -166,6 +166,7 @@ class A4kSubtitlesApi(object):
     def search(self, params, settings=None, video_meta=None):
         restore_settings = None
         restore_video_meta = None
+        restore_shadow_snapshot_alias_mode = getattr(self.core, 'shadow_snapshot_alias_mode', 'pairable')
 
         try:
             if settings is not None:
@@ -173,9 +174,13 @@ class A4kSubtitlesApi(object):
 
             if video_meta is not None:
                 restore_video_meta = self.__mock_video_meta(video_meta)
+                self.core.shadow_snapshot_alias_mode = 'pairable'
+            else:
+                self.core.shadow_snapshot_alias_mode = 'history_only'
 
             return self.core.search(self.core, params)
         finally:
+            self.core.shadow_snapshot_alias_mode = restore_shadow_snapshot_alias_mode
             if restore_settings:
                 restore_settings()
             if restore_video_meta:

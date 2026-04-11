@@ -194,7 +194,10 @@ def download(core, params):
             __copy_sub_local(core, filepath)
             return filepath
 
-        listitem = core.kodi.xbmcgui.ListItem(label=filepath, offscreen=True)
-        core.kodi.xbmcplugin.addDirectoryItem(handle=core.handle, url=filepath, listitem=listitem, isFolder=False)
+        manual_subtitle = core.utils.persist_manual_subtitle(filepath)
+        core.logger.debug('Setting manually selected subtitles: %s' % manual_subtitle)
+        core.kodi.xbmc.Player().setSubtitles(manual_subtitle)
+        core.kodi.xbmc.executebuiltin('Dialog.Close(SubtitleSearch)')
+        return manual_subtitle
     finally:
         core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)

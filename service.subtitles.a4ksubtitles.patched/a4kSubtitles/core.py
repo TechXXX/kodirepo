@@ -45,6 +45,7 @@ from .data import data
 def main(handle, paramstring):  # pragma: no cover
     core.api_mode_enabled = False
     core.handle = handle
+    should_end_directory = True
 
     params = dict(utils.parse_qsl(paramstring))
     if params['action'] == 'manualsearch':
@@ -62,5 +63,7 @@ def main(handle, paramstring):  # pragma: no cover
     elif params['action'] == 'download':
         params['action_args'] = json.loads(params['action_args'])
         download(core, params)
+        should_end_directory = False
 
-    kodi.xbmcplugin.endOfDirectory(handle)
+    if should_end_directory:
+        kodi.xbmcplugin.endOfDirectory(handle)

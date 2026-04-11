@@ -1,31 +1,84 @@
-## sources.py notes
+# `sources.py` Notes
 
-- This module does much more than scraping. It also filters, ranks, promotes, resolves, and starts playback.
-- It is one of the highest-risk files for regressions because source ranking, subtitle matching, and playback handoff all meet here.
+This file is the orchestration hub for patched Fenlight autoplay.
 
-## Current playback rule
+It is high-risk because scraping, filtering, selector integration, fallback
+promotion, resolution, and playback entry all touch this file.
 
-- For resolved playback attempts, use `player.run(url, self)`.
-- Do not route foreground resolved playback through `player.run_resolved()` unless the target environment has been verified.
-- This direct playback path fixed a real macOS Kodi playback issue where resolved Real-Debrid links were valid but Kodi failed when Fenlight used the resolver handoff path.
+## High-Level Flow
 
-## Subtitle-aware ranking
+Relevant path for autoplay:
 
-- Subtitle probing and source promotion logic lives here.
-- The intent is to prefer the source whose release name best matches the top-ranked a4k subtitle result.
-- Release-name normalization, release-group extraction, and feature-alignment scoring are all part of that behavior.
-- Changes in this area can improve subtitle matching, but can also reshuffle autoplay order or preferred source selection.
+1. `playback_prep(...)`
+2. `get_sources()`
+3. source collection and filtering
+4. `sort_subtitle_ready_autoplay(...)`
+5. `play_source(...)` / `play_file(...)`
 
-## Debugging guidance
+## Subtitle-Aware Autoplay Design
 
-- If subtitles look correct but the wrong source is promoted, inspect the subtitle match score helpers first.
-- If Real-Debrid resolves successfully but playback fails, inspect the playback call site before assuming resolution is broken.
-- When debugging Kodi logs, separate:
-  - subtitle search/probe success
-  - source resolution success
-  - actual player start success
+The current patched design is:
 
-## Caution
+- collect sources first
+- connect to patched a4k API mode once
+- gather subtitle results once per title/run
+- import the bundled selector integration once
+- rank the full source list against the subtitle list
+- promote the best subtitle-backed top-5 retry pool
+- append the remaining raw source order behind that promoted pool
 
-- Future cleanup work may be tempted to remove the direct playback call because `run_resolved()` looks more explicit. Do not change that casually.
-- Small edits here can affect autoplay, manual source choice, resolver retries, subtitle promotion, and debrid playback behavior at the same time.
+This is the important change from the older experiment:
+
+- no per-source subtitle probing
+
+## Key Selector Hooks
+
+The selector-related methods worth knowing are:
+
+- `sort_subtitle_ready_autoplay(...)`
+- `_get_a4k_subtitles_api(...)`
+- `_get_subtitle_selector_integration(...)`
+- `_gather_a4k_subtitles_once(...)`
+- `_a4k_search_video_meta(...)`
+- `_subtitle_search_filename(...)`
+
+## Responsibilities
+
+This file should own:
+
+- source collection
+- source filtering
+- selector integration wiring
+- retry-pool promotion order
+- final handoff to playback
+
+This file should not own:
+
+- the detailed subtitle scoring rules
+- the actual player lifecycle
+
+## Current Behavioral Rules
+
+- subtitle policy comes from the selector, not from ad hoc logic here
+- only one subtitle gather should happen per autoplay run/title
+- promoted subtitle-backed matches are limited to the best 5
+- raw source order is still kept behind the promoted pool as fallback
+
+## Future-Agent Guard Rails
+
+- Do not reintroduce per-source subtitle probing.
+- Do not move playback logic into the selector integration.
+- Do not duplicate subtitle policy here if the selector can own it cleanly.
+- If ranking looks wrong, inspect the selector package before adding more local
+  heuristics in this file.
+
+## Debug Checklist
+
+If subtitle-backed autoplay looks wrong:
+
+- confirm a4k API connection succeeded
+- confirm the selector integration module loaded
+- confirm only one subtitle gather happened
+- inspect the promoted retry-pool log summary
+- compare the promoted pool with a shadow trace
+- only after that inspect playback resolution and player start behavior
