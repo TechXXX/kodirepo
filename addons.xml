@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.29">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.31">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -45,10 +45,11 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.29]:
-  * Promote the selector runtime handoff build to the main repo with smoother autoplay dialog closing and direct source-specific subtitle attachment.
-  * Keep fullscreen-first resolver cleanup so playback start no longer flashes back to the skin start screen during successful autoplay.
-  * Preserve selector-chosen source/subtitle pairings into runtime playback instead of falling back to a generic runtime subtitle search.
+            <news>[v2.0.31]:
+  * Promote the targeted local-bookmark cleanup to the main repo so erase-bookmark actions clear the active plugin playback URL rows instead of relying on the old broad filename match.
+
+[v2.0.30]:
+  * Clear local Kodi bookmark rows using the real plugin:// playback URLs so erase-bookmark actions target the active movie or episode instead of relying on the old broad filename match.
 
 [v2.0.28]:
   * Keep the smoother autoplay handoff that waits for fullscreen before closing the resolver window, reducing the flash back to the skin start screen.
@@ -193,7 +194,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.25" provider-name="Unknown">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.27" provider-name="Unknown">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -218,14 +219,11 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
-[v3.23.25]:
-  * Bypass the persisted subtitle-results cache during API-mode searches so Fenlight pre-play subtitle gathers always use a fresh result set instead of stale runtime cache state.
+[v3.23.27]:
+  * Promote the API-mode subtitle cache bypass to the main repo so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
 
-[v3.23.24]:
-  * Promote selector-keyed runtime subtitle attachment to the main repo so autoplay tries the exact selector-matched subtitle for the active source first.
-  * Keep the faster selector startup polling and built-in subtitle preference while making forced external subtitle attempts follow the active retry source.
-  * On OpenSubtitles download 401, clear cached auth state, re-login once, and retry the same candidate automatically.
-  * Keep the IMDb-first movie search path with filename-year correction fallback so wrong metadata years no longer suppress valid hits.
+[v3.23.26]:
+  * Bypass the persisted subtitle-results cache during API-mode searches so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
 
 [v3.23.23]:
   * Consume Fenlight's selector-provided subtitle payload at runtime, keyed to the active playback source, before falling back to a fresh runtime search.

@@ -1,9 +1,10 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
-[COLOR dodgerblue][B]Version 2.0.29[/B][/COLOR]
-- Promote the selector runtime handoff build to the main repo with smoother autoplay dialog closing and direct source-specific subtitle attachment.
-- Keep fullscreen-first resolver cleanup so playback start no longer flashes back to the skin start screen during successful autoplay.
-- Preserve selector-chosen source/subtitle pairings into runtime playback instead of falling back to a generic runtime subtitle search.
+[COLOR dodgerblue][B]Version 2.0.31[/B][/COLOR]
+- Promote the targeted local-bookmark cleanup to the main repo so erase-bookmark actions clear the active plugin playback URL rows instead of relying on the old broad filename match.
+
+[COLOR dodgerblue][B]Version 2.0.30[/B][/COLOR]
+- Clear local Kodi bookmark rows using the real `plugin://plugin.video.fenlight.patched/...` playback URLs so erase-bookmark actions target the active movie or episode instead of relying on the old broad filename match.
 
 [COLOR dodgerblue][B]Session Note (2026-04-11, startup smoothing + selector runtime fix)[/B][/COLOR]
 - Keep the smoother autoplay handoff that waits for fullscreen before closing the resolver window, avoiding the flash back to the skin start screen while still shortening the settle around fullscreen.

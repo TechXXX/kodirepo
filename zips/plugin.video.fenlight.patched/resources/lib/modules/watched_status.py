@@ -199,12 +199,26 @@ def get_progress_status_all_episode(progress_info, season, episode):
 def clear_local_bookmarks():
 	try:
 		dbcon = database.connect(get_video_database_path())
-		file_ids = dbcon.execute("SELECT idFile FROM files WHERE strFilename LIKE 'plugin.video.fenlight.patched%'").fetchall()
+		file_ids = dbcon.execute("SELECT idFile FROM files WHERE strFilename LIKE 'plugin://plugin.video.fenlight.patched/%'").fetchall()
 		for i in ('bookmark', 'streamdetails', 'files'): dbcon.executemany("DELETE FROM %s WHERE idFile=?" % i, file_ids)
+	except: pass
+
+def clear_local_bookmark(media_type, media_id, season='', episode=''):
+	try:
+		media_type, media_id = str(media_type), str(media_id)
+		season, episode = str(season), str(episode)
+		if media_type == 'movie': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=movie&tmdb_id=%s%%' % media_id
+		elif media_type == 'episode': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=episode&tmdb_id=%s&season=%s&episode=%s%%' % (media_id, season, episode)
+		else: return
+		dbcon = database.connect(get_video_database_path())
+		file_ids = dbcon.execute('SELECT idFile FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
+		if not file_ids: return
+		dbcon.executemany('DELETE FROM bookmark WHERE idFile=?', file_ids)
 	except: pass
 
 def erase_bookmark(media_type, media_id, season='', episode='', refresh='false'):
 	try:
+		clear_local_bookmark(media_type, media_id, season, episode)
 		watched_indicators = watched_indicators_function()
 		watched_db = get_database(watched_indicators)
 		if watched_indicators == 1:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.25"
+       version="3.23.27"
        provider-name="Unknown">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,14 +27,11 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
-[v3.23.25]:
-  * Bypass the persisted subtitle-results cache during API-mode searches so Fenlight pre-play subtitle gathers always use a fresh result set instead of stale runtime cache state.
+[v3.23.27]:
+  * Promote the API-mode subtitle cache bypass to the main repo so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
 
-[v3.23.24]:
-  * Promote selector-keyed runtime subtitle attachment to the main repo so autoplay tries the exact selector-matched subtitle for the active source first.
-  * Keep the faster selector startup polling and built-in subtitle preference while making forced external subtitle attempts follow the active retry source.
-  * On OpenSubtitles download 401, clear cached auth state, re-login once, and retry the same candidate automatically.
-  * Keep the IMDb-first movie search path with filename-year correction fallback so wrong metadata years no longer suppress valid hits.
+[v3.23.26]:
+  * Bypass the persisted subtitle-results cache during API-mode searches so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
 
 [v3.23.23]:
   * Consume Fenlight's selector-provided subtitle payload at runtime, keyed to the active playback source, before falling back to a fresh runtime search.

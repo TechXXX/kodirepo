@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.29">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.31">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,10 +19,11 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.29]:
-  * Promote the selector runtime handoff build to the main repo with smoother autoplay dialog closing and direct source-specific subtitle attachment.
-  * Keep fullscreen-first resolver cleanup so playback start no longer flashes back to the skin start screen during successful autoplay.
-  * Preserve selector-chosen source/subtitle pairings into runtime playback instead of falling back to a generic runtime subtitle search.
+        <news>[v2.0.31]:
+  * Promote the targeted local-bookmark cleanup to the main repo so erase-bookmark actions clear the active plugin playback URL rows instead of relying on the old broad filename match.
+
+[v2.0.30]:
+  * Clear local Kodi bookmark rows using the real plugin:// playback URLs so erase-bookmark actions target the active movie or episode instead of relying on the old broad filename match.
 
 [v2.0.28]:
   * Keep the smoother autoplay handoff that waits for fullscreen before closing the resolver window, reducing the flash back to the skin start screen.
