@@ -293,6 +293,10 @@ def __save_results(core, meta, results):
 def __get_last_results(core, meta):
     force_search = []
 
+    if core.api_mode_enabled:
+        core.logger.debug('api_mode search bypassing persisted subtitle cache')
+        return ([], force_search)
+
     try:
         with open(core.cache.results_filepath, 'r') as f:
             last_results = core.json.loads(f.read())
