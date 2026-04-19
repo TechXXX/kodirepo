@@ -24,6 +24,30 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
+    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.2">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.requests" version="2.19.1" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.service" library="resources/lib/service.py" />
+        <extension point="xbmc.python.module" library="resources/lib/" />
+        <extension point="xbmc.addon.metadata">
+            <reuselanguageinvoker>false</reuselanguageinvoker>
+            <summary lang="en">AI-search-enabled Fenlight fork with TMDb-backed results.</summary>
+            <description lang="en">A standalone Fenlight fork that adds Gemini-powered natural-language search while keeping TMDb as the source of truth for displayed results.</description>
+            <platform>all</platform>
+            <disclaimer lang="en">The author of this addon does not host any of the content which is found and has no affiliation with any of the content providers.</disclaimer>
+            <license />
+            <assets>
+                <icon>resources/media/fenlight_icon.png</icon>
+                <fanart>resources/media/fenlight_fanart2.jpg</fanart>
+            </assets>
+            <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+        </extension>
+    </addon>
     <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.31">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
