@@ -100,6 +100,9 @@ def routing(sys):
 		if mode == 'search.clear_all':
 			from modules.search import clear_all
 			return clear_all(_get('setting_id'), _get('refresh', 'false'))
+	if 'ai_search.' in mode:
+		from modules import ai_search
+		return exec('ai_search.%s(params)' % mode.split('.')[1])
 	if 'real_debrid' in mode:
 		if mode == 'real_debrid.rd_cloud':
 			from indexers.real_debrid import rd_cloud

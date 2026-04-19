@@ -17,7 +17,7 @@ notification, build_url, kodi_dialog = kodi_utils.notification, kodi_utils.build
 execute_builtin, close_all_dialog = kodi_utils.execute_builtin, kodi_utils.close_all_dialog
 external = kodi_utils.external
 empty_setting_check = (None, '', 'empty_setting')
-results_cache_prefix = 'ai_search_results_v1_'
+results_cache_prefix = 'ai_search_results_v3_'
 results_cache_expiration = 24
 
 genre_aliases = {
@@ -147,8 +147,9 @@ def _render_empty_results(params=None, media_type=None, prompt=None):
 
 def _build_discover_url(media_type, intent):
 	genre_ids = _resolve_genre_ids(media_type, intent.get('genres', []))
-	keyword_ids = _resolve_keyword_ids(intent.get('keywords', []) + intent.get('tone_descriptors', []))
-	if not any((genre_ids, keyword_ids)): return None
+	keyword_ids = _resolve_keyword_ids(_intent_keyword_terms(intent))
+	cast_ids = _resolve_cast_ids(media_type, intent.get('people', []))
+	if not any((genre_ids, keyword_ids, cast_ids)): return None
 	base_type = 'movie' if media_type == 'movie' else 'tv'
 	current_date = str(date.today())
 	url = 'https://api.themoviedb.org/3/discover/%s?language=en-US&region=US&sort_by=popularity.desc' % base_type
@@ -163,6 +164,7 @@ def _build_discover_url(media_type, intent):
 		else: url += '&first_air_date.lte=%s-12-31' % end_year
 	if genre_ids: url += '&with_genres=%s' % '|'.join(genre_ids[:4])
 	if keyword_ids: url += '&with_keywords=%s' % '|'.join(keyword_ids[:5])
+	if cast_ids: url += '&with_cast=%s' % '|'.join(cast_ids[:3])
 	return url
 
 def _discover_has_results(media_type, discover_url):
@@ -202,7 +204,7 @@ def _keyword_fallback_results(media_type, intent):
 	result_ids = []
 	append = result_ids.append
 	keyword_function = tmdb_api.tmdb_movie_keyword_results_direct if media_type == 'movie' else tmdb_api.tmdb_tv_keyword_results_direct
-	for keyword in intent.get('keywords', [])[:3] + intent.get('tone_descriptors', [])[:2]:
+	for keyword in _intent_keyword_terms(intent)[:5]:
 		try: data = keyword_function(keyword, 1)
 		except: continue
 		if not data: continue
@@ -239,11 +241,34 @@ def _resolve_keyword_ids(keyword_list):
 		if match_id and match_id not in keyword_ids: append(match_id)
 	return keyword_ids
 
+def _resolve_cast_ids(media_type, people_list):
+	if media_type != 'movie': return []
+	cast_ids = []
+	append = cast_ids.append
+	for person in _clean_list(people_list, 4):
+		try: results = tmdb_api.tmdb_people_info(person, 1).get('results', [])
+		except: continue
+		if not results: continue
+		match = _best_person_match(person, results)
+		match_id = str(match.get('id'))
+		if match_id and match_id not in cast_ids: append(match_id)
+	return cast_ids
+
 def _best_keyword_match(keyword, results):
 	normalized_keyword = _normalize(keyword)
 	for item in results:
 		if _normalize(item.get('name', '')) == normalized_keyword: return item
 	return results[0]
+
+def _best_person_match(person, results):
+	normalized_person = _normalize(person)
+	for item in results:
+		if _normalize(item.get('name', '')) == normalized_person: return item
+	return results[0]
+
+def _intent_keyword_terms(intent):
+	people_terms = {_normalize(item) for item in intent.get('people', []) if item}
+	return [item for item in intent.get('keywords', []) + intent.get('tone_descriptors', []) if _normalize(item) not in people_terms]
 
 def _filter_results(results, media_type, intent):
 	start_year, end_year = _year_range(intent)

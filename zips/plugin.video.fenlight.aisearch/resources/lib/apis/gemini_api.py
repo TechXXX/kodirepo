@@ -9,7 +9,7 @@ base_url = 'https://generativelanguage.googleapis.com/v1beta'
 model = 'gemini-2.5-flash'
 timeout = 20.0
 cache_expiration = 168
-cache_prefix = 'ai_search_gemini_intent_v1_'
+cache_prefix = 'ai_search_gemini_intent_v3_'
 empty_setting_check = (None, '', 'empty_setting')
 session = make_session(base_url)
 
@@ -30,6 +30,11 @@ response_schema = {
 			'type': 'array',
 			'items': {'type': 'string'},
 			'description': 'Concrete searchable themes, concepts, or motifs.'
+		},
+		'people': {
+			'type': 'array',
+			'items': {'type': 'string'},
+			'description': 'Named actors, performers, directors, or creators explicitly implied by the request.'
 		},
 		'tone_descriptors': {
 			'type': 'array',
@@ -56,7 +61,7 @@ response_schema = {
 			'description': 'Titles, genres, or terms the user wants to avoid.'
 		}
 	},
-	'required': ['media_type', 'genres', 'keywords', 'tone_descriptors', 'example_titles', 'year_range', 'exclude_terms']
+	'required': ['media_type', 'genres', 'keywords', 'people', 'tone_descriptors', 'example_titles', 'year_range', 'exclude_terms']
 }
 
 prompt_template = '''Interpret this natural-language movie or TV discovery request for a Kodi addon.
@@ -65,10 +70,18 @@ Return only JSON matching the provided schema.
 Rules:
 - Choose exactly one media_type: "movie" or "tvshow".
 - Do not return anime as a separate type.
+- The request is always about movies or TV shows. Do not interpret it as a generic non-screen-media topic.
+- If the request is short, title-like, or looks like a franchise name, treat it as likely referring to an existing movie or TV title/franchise.
+- For short title-like prompts, preserve the literal intent of the prompt and prefer direct title/franchise matches in example_titles.
+- Do not over-generalize short prompts into broad themes if a well-known title or franchise match is plausible.
 - genres should be short canonical labels, not sentences.
 - keywords should focus on themes, hooks, settings, or motifs.
+- If the request mentions a specific actor, comedian, performer, director, or creator, put that person in people.
+- Use canonical person spellings when you know them.
+- Do not treat a named person as just a loose keyword when they are clearly intended as cast or creator guidance.
 - tone_descriptors should be short mood descriptors.
 - example_titles should contain at most 3 titles.
+- If the prompt is a likely title or franchise, use example_titles to include the most likely matching known titles.
 - Use null for unknown year_range values.
 - exclude_terms should contain explicit avoid terms only.
 - Do not explain your reasoning.
@@ -164,6 +177,7 @@ class GeminiAPI:
 			'media_type': media_type,
 			'genres': clean_list(data.get('genres'), 5),
 			'keywords': clean_list(data.get('keywords'), 5),
+			'people': clean_list(data.get('people'), 4),
 			'tone_descriptors': clean_list(data.get('tone_descriptors'), 5),
 			'example_titles': clean_list(data.get('example_titles'), 3),
 			'year_range': {'start': start_year, 'end': end_year},

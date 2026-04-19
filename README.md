@@ -3,30 +3,37 @@
 This repository is the main GitHub Pages distribution channel for DutchTech
 Kodi packages.
 
-For subtitle-selector migration work, this repo matters because it is the
-production-facing package source for the patched Fenlight and patched a4k
-addons.
+For subtitle-selector and AI-search promotion work, this repo matters because
+it is the production-facing package source for the patched Fenlight, the
+standalone Fen Light AIsearch fork, and the patched a4k addon.
 
 ## Addons In This Repo
 
-Current source-tree roles when this document was updated:
+Current source-tree versions when this document was updated:
 
-- `plugin.video.fenlight`
+- `plugin.video.fenlight` `2.0.07`
   Baseline Fenlight package.
-- `plugin.video.fenlight.patched`
+- `plugin.video.fenlight.aisearch` `1.0.4`
+  Standalone AI-search fork with its own addon id, profile, artwork, and repo
+  package. The production build keeps its built-in updater pointed at
+  `kodirepo`.
+- `plugin.video.fenlight.patched` `2.0.35`
   Main patched Fenlight build that bundles the selector locally and uses the
-  centralized subtitle-aware retry-pool architecture.
-- `service.subtitles.a4ksubtitles.patched`
+  centralized subtitle-aware retry-pool architecture. It now also includes the
+  Gemini-backed AI Search entrypoint from the tested repo channel.
+- `service.subtitles.a4ksubtitles.patched` `3.23.27`
   Main patched a4k build used with selector-aware Fenlight.
-- `service.kodi.favourites.sync`
+- `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `skin.arctic.horizon.2.1`
+- `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
-- `repository.dutchtech`
+- `repository.dutchtech` `1.0.42`
   The repository addon Kodi installs first.
 
 ## Layout
 
+- `plugin.video.fenlight.aisearch/`
+  Standalone Fen Light AIsearch source.
 - `plugin.video.fenlight.patched/`
   Unpacked patched Fenlight source.
 - `service.subtitles.a4ksubtitles.patched/`
@@ -48,14 +55,15 @@ Current source-tree roles when this document was updated:
 
 ## Docs To Read First
 
-For selector or packaging work in this repo, read:
+For selector, AI-search, or packaging work in this repo, read:
 
 1. `README.md`
 2. `scripts/README.md`
-3. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
-4. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
-5. `service.subtitles.a4ksubtitles.patched/README.md`
-6. `skin.arctic.horizon.2.1/Readme.md`
+3. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
+4. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+5. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+6. `service.subtitles.a4ksubtitles.patched/README.md`
+7. `skin.arctic.horizon.2.1/Readme.md`
 
 ## Selector-Relevant Addon Responsibilities
 
@@ -66,10 +74,24 @@ This addon now owns:
 - source scraping and filtering
 - one-shot subtitle gather orchestration
 - selector-backed retry-pool promotion
+- TMDb-backed AI Search result building from Gemini prompt interpretation
 - playback resolution and player handoff
 
 It should not own the detailed subtitle policy rules. Those belong in the
-selector package and its vendored copy.
+selector package and its vendored copy. AI prompt interpretation and result
+building also belong in `modules/ai_search.py`, not in `sources.py` or
+`player.py`.
+
+### `plugin.video.fenlight.aisearch`
+
+This addon now owns:
+
+- standalone Gemini-backed AI Search flows
+- TMDb-backed result rendering from structured intent
+- its own updater path and settings surface
+
+It should stay aligned with the tested search behavior in the test repo, while
+keeping production updater defaults pointed at `kodirepo`.
 
 ### `service.subtitles.a4ksubtitles.patched`
 
@@ -129,6 +151,9 @@ Important future-agent nuance:
 - subtitle-selector migration work belongs primarily in:
   - `plugin.video.fenlight.patched`
   - `service.subtitles.a4ksubtitles.patched`
+- standalone AI-search promotion work belongs primarily in:
+  - `plugin.video.fenlight.aisearch`
+  - `plugin.video.fenlight.patched/resources/lib/modules/ai_search.py`
 - baseline Fenlight is a reference point, not the main landing zone for new
   selector behavior
 - unrelated addons and the skin should only be touched when the user-facing

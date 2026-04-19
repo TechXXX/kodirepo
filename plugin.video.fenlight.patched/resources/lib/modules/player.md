@@ -52,6 +52,8 @@ This file should own:
 
 This file should not own:
 
+- AI-search prompt interpretation
+- TMDb result building for AI-search flows
 - subtitle ranking policy
 - subtitle/source compatibility heuristics
 - subtitle search orchestration
@@ -59,6 +61,7 @@ This file should not own:
 ## Future-Agent Guard Rails
 
 - Do not move selector logic into this file.
+- Do not move AI-search discovery logic into this file.
 - Do not casually switch everything back to `run_resolved()`.
 - Do not remove `_hybrid_resolve_handoff(...)` without re-testing the old stop
   regression on the target Kodi machine.

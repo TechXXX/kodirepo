@@ -1,7 +1,22 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.35[/B][/COLOR]
+- Taught Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery.
+- Tightened short-prompt interpretation so likely title or franchise searches stay closer to the literal request instead of drifting into overly broad themes.
+
+[COLOR dodgerblue][B]Version 2.0.34[/B][/COLOR]
+- Preserve meaningful technical bracket segments during bundled subtitle-selector normalization so release matching keeps cues like `[1080p]`, codec tags, and year-style bracket tokens instead of discarding them as noise.
+
+[COLOR dodgerblue][B]Version 2.0.33[/B][/COLOR]
+- Added TMDb collection-search support for movie searches so matching collection results can open directly into the related movie-set listing.
+
+[COLOR dodgerblue][B]Version 2.0.32[/B][/COLOR]
+- Republished the same Gemini-backed AI Search test build under a higher test-only version so Kodi updates cleanly from the currently shipped production `2.0.31` release.
+
 [COLOR dodgerblue][B]Version 2.0.31[/B][/COLOR]
-- Promote the targeted local-bookmark cleanup to the main repo so erase-bookmark actions clear the active plugin playback URL rows instead of relying on the old broad filename match.
+- Added Gemini-backed AI Search inside Fen Light Patched so natural-language prompts can build TMDb-backed movie and TV result lists without leaving the patched addon.
+- Added a Gemini API key field to the existing settings manager Accounts section.
+- Added local AI Search history alongside the existing movie, TV, anime, people, keyword, Easynews, and Trakt search histories.
 
 [COLOR dodgerblue][B]Version 2.0.30[/B][/COLOR]
 - Clear local Kodi bookmark rows using the real `plugin://plugin.video.fenlight.patched/...` playback URLs so erase-bookmark actions target the active movie or episode instead of relying on the old broad filename match.

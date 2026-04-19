@@ -55,6 +55,7 @@ This file should own:
 This file should not own:
 
 - the detailed subtitle scoring rules
+- AI prompt interpretation or TMDb AI-search intent building
 - the actual player lifecycle
 
 ## Current Behavioral Rules
@@ -63,12 +64,17 @@ This file should not own:
 - only one subtitle gather should happen per autoplay run/title
 - promoted subtitle-backed matches are limited to the best 5
 - raw source order is still kept behind the promoted pool as fallback
+- bundled selector normalization may preserve meaningful bracketed technical
+  segments like quality, codec, and year tokens when they help release-name
+  matching
 
 ## Future-Agent Guard Rails
 
 - Do not reintroduce per-source subtitle probing.
 - Do not move playback logic into the selector integration.
 - Do not duplicate subtitle policy here if the selector can own it cleanly.
+- Do not move AI-search prompt handling into this file. AI discovery belongs in
+  `ai_search.py` before `sources.py` ever runs.
 - If ranking looks wrong, inspect the selector package before adding more local
   heuristics in this file.
 

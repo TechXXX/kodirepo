@@ -80,6 +80,35 @@ QUALITY_RANKS = {
     "sd": 1,
 }
 
+BRACKET_TECH_TOKENS = {
+    "2160p",
+    "1080p",
+    "720p",
+    "480p",
+    "4k",
+    "web",
+    "webrip",
+    "webdl",
+    "bluray",
+    "bdrip",
+    "brrip",
+    "hdrip",
+    "dvdrip",
+    "remux",
+    "x264",
+    "x265",
+    "h264",
+    "h265",
+    "hevc",
+    "aac",
+    "ddp",
+    "dts",
+    "ac3",
+    "flac",
+    "truehd",
+    "atmos",
+}
+
 RELEASE_FAMILY_MAP = {
     "webrip": "web",
     "webdl": "web",
@@ -417,11 +446,42 @@ def _clean_subtitle_release_name(value: str) -> str:
 
 def _normalize_release_name(value: str) -> str:
     base = _strip_known_extension(value.strip()).lower()
-    base = re.sub(r"\[[^\]]*\]", " ", base)
+    base = re.sub(r"\[([^\]]*)\]", _normalize_bracketed_segment, base)
     base = base.replace("&", " and ")
     base = re.sub(r"[^a-z0-9]+", " ", base)
     base = re.sub(r"\s+", " ", base).strip()
     return base
+
+
+def _normalize_bracketed_segment(match: re.Match[str]) -> str:
+    content = match.group(1).strip()
+    if _should_preserve_bracket_content(content):
+        return f" {content} "
+    return " "
+
+
+def _should_preserve_bracket_content(content: str) -> bool:
+    normalized = _strip_known_extension(content.strip()).lower()
+    if not normalized:
+        return False
+
+    tokens = [token for token in re.split(r"[^a-z0-9]+", normalized) if token]
+    if not tokens:
+        return False
+
+    if all(token.isalpha() and len(token) <= 4 for token in tokens):
+        return False
+
+    if any(token in BRACKET_TECH_TOKENS for token in tokens):
+        return True
+
+    if any(re.fullmatch(r"\d{4}", token) for token in tokens):
+        return True
+
+    if any(re.search(r"\d", token) for token in tokens) and len(tokens) > 1:
+        return True
+
+    return False
 
 
 def _extract_release_group(value: str) -> str | None:

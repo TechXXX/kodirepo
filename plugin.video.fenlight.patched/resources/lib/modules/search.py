@@ -12,6 +12,7 @@ build_url, kodi_dialog, execute_builtin, select_dialog = kodi_utils.build_url, k
 notification, kodi_refresh = kodi_utils.notification, kodi_utils.kodi_refresh
 clear_history_list = [('Clear Movie Search History', 'movie_queries'),
 					('Clear TV Show Search History', 'tvshow_queries'),
+					('Clear AI Search History', 'ai_search_queries'),
 					('Clear Anime Search History', 'anime_queries'),
 					('Clear People Search History', 'people_queries'),
 					('Clear Keywords Movie Search History', 'keyword_tmdb_movie_queries'),
@@ -82,5 +83,3 @@ def clear_all(setting_id, refresh='false'):
 	main_cache.set(setting_id, '', expiration=365)
 	notification('Success', 2500)
 	if refresh == 'true': kodi_refresh()
-
-	

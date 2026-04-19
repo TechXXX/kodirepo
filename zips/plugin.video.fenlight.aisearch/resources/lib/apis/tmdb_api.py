@@ -285,6 +285,14 @@ def tmdb_movies_search(query, page_no):
 	url = '%s/search/movie?api_key=%s&language=en-US&include_adult=%s&query=%s&page=%s' % (base_url, api_key, meta_filter, query, page_no)
 	return lists_cache_object(get_data, string, url)
 
+def tmdb_movies_search_sets(query, page_no):
+	api_key = tmdb_api_key()
+	if api_key in empty_setting_check: return no_api_key()
+	meta_filter = get_meta_filter()
+	string = 'tmdb_movies_search_sets_%s_%s_%s' % (query, meta_filter, page_no)
+	url = '%s/search/collection?api_key=%s&language=en-US&include_adult=%s&query=%s&page=%s' % (base_url, api_key, meta_filter, query, page_no)
+	return lists_cache_object(get_data, string, url)
+
 def tmdb_movies_companies(company_id, page_no):
 	api_key = tmdb_api_key()
 	if api_key in empty_setting_check: return no_api_key()

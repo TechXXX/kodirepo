@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.2">
+    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.4">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -45,10 +45,13 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+            <news>[v1.0.4]:
+  * Teach Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery and better literal title/franchise handling.
+
+INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.31">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.35">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -69,8 +72,21 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.31]:
-  * Promote the targeted local-bookmark cleanup to the main repo so erase-bookmark actions clear the active plugin playback URL rows instead of relying on the old broad filename match.
+            <news>[v2.0.35]:
+  * Teach Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery and better title-like prompt handling.
+
+[v2.0.34]:
+  * Preserve meaningful technical bracket segments during bundled subtitle-selector normalization so release matching keeps cues like [1080p], codec tags, and year-style bracket tokens instead of discarding them as noise.
+
+[v2.0.33]:
+  * Add TMDb collection-search support for movie searches so matching collection results can open directly into the related movie-set listing.
+
+[v2.0.32]:
+  * Republish the same Gemini-backed AI Search test build under a higher test-only version so Kodi updates cleanly from the current production 2.0.31 release.
+
+[v2.0.31]:
+  * Add Gemini-backed AI Search inside Fen Light Patched so natural-language discovery can build TMDb-backed movie and TV result lists without leaving the patched addon.
+  * Store AI Search history locally and expose a Gemini API key field in the existing settings manager.
 
 [v2.0.30]:
   * Clear local Kodi bookmark rows using the real plugin:// playback URLs so erase-bookmark actions target the active movie or episode instead of relying on the old broad filename match.

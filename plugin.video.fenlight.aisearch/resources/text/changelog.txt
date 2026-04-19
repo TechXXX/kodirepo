@@ -1,7 +1,11 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
-[COLOR dodgerblue][B]Version 1.0.2[/B][/COLOR]
-- Added the main-repo release with production-channel updater defaults.
+[COLOR dodgerblue][B]Version 1.0.4[/B][/COLOR]
+- Taught Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery.
+- Tightened short-prompt interpretation so likely title or franchise searches stay closer to the literal request instead of drifting into overly broad themes.
+
+[COLOR dodgerblue][B]Version 1.0.3[/B][/COLOR]
+- Added TMDb collection-search support for movie searches so matching collection results can open directly into the related movie-set listing.
 
 [COLOR dodgerblue][B]Version 1.0.1[/B][/COLOR]
 - Renamed the add-on display title to "Fen Light AIsearch" so Kodi shows the cleaner product name in repo and addon listings.

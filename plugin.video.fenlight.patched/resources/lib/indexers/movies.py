@@ -17,10 +17,11 @@ watched_indicators, widget_hide_next_page = settings.watched_indicators, setting
 widget_hide_watched, media_open_action, page_limit, paginate = settings.widget_hide_watched, settings.media_open_action, settings.page_limit, settings.paginate
 tmdb_api_key, mpaa_region = settings.tmdb_api_key, settings.mpaa_region
 run_plugin = 'RunPlugin(%s)'
+tmdb_image_url = 'https://image.tmdb.org/t/p/%s%s'
 main = ('tmdb_movies_popular', 'tmdb_movies_popular_today','tmdb_movies_blockbusters','tmdb_movies_in_theaters', 'tmdb_movies_upcoming', 'tmdb_movies_latest_releases',
 'tmdb_movies_premieres', 'tmdb_movies_oscar_winners')
 special = ('tmdb_movies_languages', 'tmdb_movies_providers', 'tmdb_movies_year', 'tmdb_movies_decade', 'tmdb_movies_certifications', 'tmdb_movies_recommendations',
-'tmdb_movies_genres', 'tmdb_movies_search', 'tmdb_movie_keyword_results', 'tmdb_movie_keyword_results_direct')
+'tmdb_movies_genres', 'tmdb_movies_search', 'tmdb_movies_search_sets', 'tmdb_movie_keyword_results', 'tmdb_movie_keyword_results_direct')
 personal = {'favorites_movies': ('modules.favorites', 'get_favorites'), 'in_progress_movies': ('modules.watched_status', 'get_in_progress_movies'),
 'watched_movies': ('modules.watched_status', 'get_watched_items'), 'recent_watched_movies': ('modules.watched_status', 'get_recently_watched')}
 trakt_main = ('trakt_movies_trending', 'trakt_movies_trending_recent', 'trakt_movies_most_watched', 'trakt_movies_most_favorited', 'trakt_movies_top10_boxoffice')
@@ -42,6 +43,7 @@ class Movies:
 		self.paginate_start = int(self.params_get('paginate_start', '0'))
 		self.append = self.items.append
 		self.movieset_list_active = False
+		self.collection_search_active = False
 
 	def fetch_list(self):
 		handle = int(sys.argv[1])
@@ -57,6 +59,13 @@ class Movies:
 				data = function(page_no)
 				self.list = [i['id'] for i in data['results']]
 				if data['total_pages'] > page_no: self.new_page = {'new_page': string(data['page'] + 1)}
+			elif self.action == 'tmdb_movies_search_sets':
+				key_id = self.params_get('key_id') or self.params_get('query')
+				if not key_id: return
+				self.collection_search_active = True
+				data = function(key_id, page_no)
+				self.list = data.get('results', [])
+				if data['total_pages'] > page_no: self.new_page = {'new_page': string(data['page'] + 1), 'key_id': key_id}
 			elif self.action in special:
 				key_id = self.params_get('key_id') or self.params_get('query')
 				if not key_id: return
@@ -205,6 +214,27 @@ class Movies:
 			self.append(((url_params, listitem, False), _position))
 		except: pass
 
+	def build_collection_content(self, _position, data):
+		try:
+			collection_id = data.get('id')
+			title = data.get('name')
+			if not collection_id or not title: return
+			overview = data.get('overview') or title
+			poster_path, fanart_path = data.get('poster_path'), data.get('backdrop_path')
+			poster = tmdb_image_url % ('w780', poster_path) if poster_path else poster_empty
+			fanart = tmdb_image_url % ('w1280', fanart_path) if fanart_path else fanart_empty
+			thumb = poster or fanart
+			url_params = build_url({'mode': 'build_movie_list', 'action': 'tmdb_movies_sets', 'key_id': collection_id, 'name': title})
+			listitem = make_listitem()
+			info_tag = listitem.getVideoInfoTag()
+			info_tag.setMediaType('video')
+			info_tag.setTitle(title)
+			info_tag.setPlot(overview)
+			listitem.setLabel(title)
+			listitem.setArt({'poster': poster, 'fanart': fanart, 'icon': poster, 'thumb': thumb, 'landscape': fanart})
+			self.append(((url_params, listitem, True), _position))
+		except: pass
+
 	def worker(self):
 		self.current_date, self.current_time, self.watched_indicators = get_datetime(), get_current_timestamp(), watched_indicators()
 		self.tmdb_api_key, self.mpaa_region = tmdb_api_key(), mpaa_region()
@@ -215,7 +245,12 @@ class Movies:
 		open_action = media_open_action('movie')
 		self.open_movieset = open_action in (2, 3) and not self.movieset_list_active
 		self.open_extras = open_action in (1, 3)
-		if self.custom_order:
+		if self.collection_search_active:
+			threads = list(make_thread_list_enumerate(self.build_collection_content, self.list))
+			[i.join() for i in threads]
+			self.items.sort(key=lambda k: k[1])
+			self.items = [i[0] for i in self.items]
+		elif self.custom_order:
 			threads = list(make_thread_list_multi_arg(self.build_movie_content, self.list))
 			[i.join() for i in threads]
 		else:

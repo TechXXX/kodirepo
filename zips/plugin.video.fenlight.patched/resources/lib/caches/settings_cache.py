@@ -297,6 +297,8 @@ default_settings = [
 {'setting_id': 'trakt.secret', 'setting_type': 'string', 'setting_default': trakt_default_secret},
 #==================== TMDb
 {'setting_id': 'tmdb_api', 'setting_type': 'string', 'setting_default': tmdb_default_api},
+#==================== Gemini
+{'setting_id': 'gemini_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== OMDb
 {'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== External
