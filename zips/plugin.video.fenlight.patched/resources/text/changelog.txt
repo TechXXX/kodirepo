@@ -1,5 +1,10 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.41[/B][/COLOR]
+- Demote bare generic movie-title subtitles to low-confidence fallbacks so structured release-specific matches can win when available.
+- Demote low-information source containment hits against structured DVDRip-style subtitles so malformed or ambiguous source names stop outranking stronger higher-quality matches.
+- Return clearer Trakt expiry notifications instead of treating auth and rate-limit responses like generic request failures.
+
 [COLOR dodgerblue][B]Version 2.0.39[/B][/COLOR]
 - Added TMDb metadata language and fallback-language settings so Fen Light Patched can request movie, TV show, collection, season, episode, and people details in the user-selected language.
 - Fill missing summaries and labels from the configured TMDb fallback language instead of relying on English-only detail requests.

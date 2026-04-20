@@ -3,6 +3,7 @@ from tmdbhelper.lib.api.request import NoCacheRequestAPI
 from tmdbhelper.lib.api.api_keys.trakt import CLIENT_ID, CLIENT_SECRET, USER_TOKEN
 from tmdbhelper.lib.api.trakt.authenticator import TraktAuthenticator
 from tmdbhelper.lib.api.trakt.profile import TraktProfile
+from tmdbhelper.lib.addon.plugin import get_setting, set_setting
 
 
 API_URL = 'https://api.trakt.tv'
@@ -103,16 +104,39 @@ class TraktAPI(NoCacheRequestAPI):
     def is_authorized(self):
         return self.authorize(forced=True)
 
+    def get_account_username(self):
+        if not self.access_token:
+            return ''
+        meta = self.get_response_json('users/me') or {}
+        ids = meta.get('ids') or {}
+        return meta.get('username') or ids.get('slug') or meta.get('name') or ''
+
+    def sync_account_settings(self, force=False):
+        username = get_setting('trakt_username', 'str')
+        if not self.access_token:
+            if force or username:
+                set_setting('trakt_username', '', 'str')
+            return ''
+        if username and not force:
+            return username
+        username = self.get_account_username()
+        set_setting('trakt_username', username or '', 'str')
+        return username
+
     def authorize(self, forced=False):
-        return self.authenticator.authorize(forced or self.login_if_required)
+        authorized = self.authenticator.authorize(forced or self.login_if_required)
+        self.sync_account_settings() if authorized else self.sync_account_settings(force=True)
+        return authorized
 
     def logout(self):
         self.refresh_authenticator()
         self.authenticator.logout()
+        self.sync_account_settings(force=True)
 
     def login(self):
         self.refresh_authenticator()
         self.authenticator.login()
+        self.sync_account_settings(force=True)
 
     @cached_property
     def profile(self):

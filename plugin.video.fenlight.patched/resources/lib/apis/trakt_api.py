@@ -63,8 +63,13 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 				resp = requests.post(API_ENDPOINT % path, json=data, headers=headers, timeout=timeout)
 			elif is_delete: resp = requests.delete(API_ENDPOINT % path, headers=headers, timeout=timeout)
 			else: resp = requests.get(API_ENDPOINT % path, params=params, headers=headers, timeout=timeout)
-			resp.raise_for_status()
 		except Exception as e: return logger('Trakt Error', str(e))
+		if resp.status_code in (401, 429):
+			return resp
+		try: resp.raise_for_status()
+		except Exception as e:
+			logger('Trakt Error', str(e))
+			return None
 		return resp
 	CLIENT_ID = trakt_client()
 	if CLIENT_ID in empty_setting_check: return no_client_key()
@@ -77,8 +82,12 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 		if xbmc_player().isPlaying() == False:
 			if with_auth and confirm_dialog(heading='Authorize Trakt', text='You must authenticate with Trakt. Do you want to authenticate now?') and trakt_authenticate():
 				response = send_query()
-			else: pass
-		else: return
+			else:
+				notification('Trakt authorization expired', 3500)
+				return None
+		else:
+			notification('Trakt authorization expired', 3500)
+			return None
 	elif status_code == 429:
 		headers = response.headers
 		if 'Retry-After' in headers:

@@ -548,6 +548,20 @@
                         <close>true</close>
                     </control>
                 </setting>
+                <setting id="trakt_username" type="string" label="Authenticated Trakt username" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints><allowempty>true</allowempty></constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="!is" setting="trakt_token"/>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>Authenticated Trakt username</heading>
+                    </control>
+                    <enable>false</enable>
+                </setting>
                 <setting id="trakt_token_access" type="boolean" label="32483" help="" parent="authenticate_trakt">
                     <level>0</level>
                     <default>false</default>
@@ -854,17 +868,17 @@
             <group id="5" label="25000">
                 <setting id="startup_notifications" type="boolean" label="32468" help="">
                     <level>0</level>
-                    <default>True</default>
+                    <default>False</default>
                     <control type="toggle"/>
                 </setting>
                 <setting id="sync_notifications" type="boolean" label="32534" help="">
                     <level>0</level>
-                    <default>True</default>
+                    <default>False</default>
                     <control type="toggle"/>
                 </setting>
                 <setting id="connection_notifications" type="boolean" label="32471" help="">
                     <level>0</level>
-                    <default>True</default>
+                    <default>False</default>
                     <control type="toggle"/>
                 </setting>
             </group>

@@ -114,6 +114,7 @@ RELEASE_FAMILY_MAP = {
     "webrip": "web",
     "webdl": "web",
     "web": "web",
+    "dvdrip": "disc",
     "bluray": "disc",
     "bdrip": "disc",
     "brrip": "disc",
@@ -138,6 +139,8 @@ COMMENT_ALIAS_UPGRADE_REASONS = {
     "exact_normalized_match",
     "release_group_and_token_overlap",
 }
+GENERIC_TITLE_ONLY_FALLBACK_SCORE = 25
+LOW_INFORMATION_SOURCE_CONTAINMENT_SCORE = 40
 
 
 def rank_sources_by_subtitle_match(
@@ -244,6 +247,10 @@ def _best_match_for_source(
                 subtitle_index,
                 cap_comment_score=False,
                 used_comments_fallback=False,
+            )
+            direct_result = _demote_bare_generic_containment_match(direct_result, direct_candidate)
+            direct_result = _demote_low_information_source_containment_match(
+                direct_result, prepared_source, direct_candidate
             )
             subtitle_best = _choose_better_match(subtitle_best, direct_result)
 
@@ -406,10 +413,12 @@ def _score_candidate_match(
             "token_overlap": token_overlap,
         }
 
-    if stable_release_family and same_source_type and token_overlap >= 4:
+    if stable_release_family and same_quality and token_overlap >= 2 and not (
+        source_group and subtitle_group and source_group != subtitle_group
+    ):
         return {
-            "score": 70,
-            "reason": "source_type_and_token_overlap",
+            "score": 68,
+            "reason": "source_family_and_quality_title_overlap",
             "token_overlap": token_overlap,
         }
 
@@ -465,6 +474,42 @@ def _choose_better_match(current_best: dict[str, Any], candidate: dict[str, Any]
     return candidate if candidate.get("_subtitle_index", 0) < current_best.get("_subtitle_index", 0) else current_best
 
 
+def _demote_bare_generic_containment_match(
+    result: dict[str, Any],
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    if result["reason"] != "containment_match" or result["score"] <= 0:
+        return result
+
+    if not _is_bare_generic_subtitle_candidate(candidate):
+        return result
+
+    adjusted = dict(result)
+    adjusted["score"] = GENERIC_TITLE_ONLY_FALLBACK_SCORE
+    adjusted["reason"] = "generic_title_only_fallback"
+    return adjusted
+
+
+def _demote_low_information_source_containment_match(
+    result: dict[str, Any],
+    prepared_source: dict[str, Any],
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    if result["reason"] != "containment_match" or result["score"] <= 0:
+        return result
+
+    if not _is_low_information_source(prepared_source):
+        return result
+
+    if not _is_structured_release_candidate(candidate):
+        return result
+
+    adjusted = dict(result)
+    adjusted["score"] = LOW_INFORMATION_SOURCE_CONTAINMENT_SCORE
+    adjusted["reason"] = "low_information_source_containment_fallback"
+    return adjusted
+
+
 def _prepare_subtitle(subtitle: dict[str, Any]) -> dict[str, Any]:
     direct_release_name = _subtitle_release_name(subtitle)
     comment_releases = [_prepare_release_text(value) for value in _extract_comment_release_candidates(subtitle)]
@@ -495,6 +540,32 @@ def _prepare_release_text(value: str | None) -> dict[str, Any]:
         "quality_rank": quality_rank,
         "is_prerelease": source_type in PRERELEASE_TYPES,
     }
+
+
+def _is_bare_generic_subtitle_candidate(candidate: dict[str, Any]) -> bool:
+    return (
+        len(candidate["meaningful_tokens"]) <= 2
+        and not candidate["release_group"]
+        and not candidate["source_type"]
+        and not candidate["quality_rank"]
+    )
+
+
+def _is_low_information_source(prepared_source: dict[str, Any]) -> bool:
+    return (
+        len(prepared_source["meaningful_tokens"]) <= 2
+        and not prepared_source["release_group"]
+        and not prepared_source["source_type"]
+    )
+
+
+def _is_structured_release_candidate(candidate: dict[str, Any]) -> bool:
+    return bool(
+        candidate["release_group"]
+        or candidate["source_type"]
+        or candidate["quality_rank"]
+        or len(candidate["meaningful_tokens"]) >= 3
+    )
 
 
 def _source_release_name(source: dict[str, Any]) -> str:
@@ -678,6 +749,7 @@ def _release_source_type(normalized_value: str) -> str | None:
         ("cam", r"\b(?:camrip|hdcam|cam)\b"),
         ("telecine", r"\btelecine\b"),
         ("screener", r"\b(?:screener|dvdscr|r5)\b"),
+        ("dvdrip", r"\bdvdrip\b"),
         ("webrip", r"\bwebrip\b"),
         ("webdl", r"\bweb\s+dl\b"),
         ("bluray", r"\bbluray\b"),

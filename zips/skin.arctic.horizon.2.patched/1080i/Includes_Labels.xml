@@ -86,6 +86,7 @@
     <variable name="Label_OSD_CastMember_Bio">
         <value condition="!String.IsEmpty(Container(6501).ListItem.Property(biography))">$INFO[Container(6501).ListItem.Property(biography)]</value>
         <value condition="!String.IsEmpty(Container(6502).ListItem.Property(biography)) + String.IsEqual(Container(6501).ListItem.Label,Container(6502).ListItem.Label)">$INFO[Container(6502).ListItem.Property(biography)]</value>
+        <value condition="String.IsEqual(Container(6501).ListItem.Label,Container(6502).ListItem.Label) + [!String.IsEmpty(Container(6502).ListItem.Property(gender)) | !String.IsEmpty(Container(6502).ListItem.Property(age)) | !String.IsEmpty(Container(6502).ListItem.Property(department)) | !String.IsEmpty(Container(6502).ListItem.Property(born)) | !String.IsEmpty(Container(6502).ListItem.Property(birthday))]">$INFO[Container(6502).ListItem.Property(gender)]$INFO[Container(6502).ListItem.Property(age), • ,]$INFO[Container(6502).ListItem.Property(department), • ,]$INFO[Container(6502).ListItem.Property(born),[CR],]$INFO[Container(6502).ListItem.Property(birthday),[CR],]</value>
         <value condition="Container(6502).IsUpdating">$LOCALIZE[31299]...</value>
         <value>$LOCALIZE[19055]</value>
     </variable>

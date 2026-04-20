@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.39">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.41">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,12 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.39]:
+        <news>[v2.0.41]:
+  * Demote bare generic movie-title subtitles to low-confidence fallbacks so structured release-specific matches can win when available.
+  * Demote low-information source containment hits against structured DVDRip-style subtitles so malformed or ambiguous source names stop outranking stronger higher-quality matches.
+  * Return clearer Trakt expiry notifications instead of treating auth and rate-limit responses like generic request failures.
+
+[v2.0.39]:
   * Add TMDb metadata language and fallback-language settings for movie, TV, collection, episode, and people details.
   * Fill missing summaries from the configured fallback language instead of dropping back to English-only metadata requests.
 
