@@ -3,7 +3,7 @@ import hashlib
 import json
 from caches.main_cache import main_cache
 from modules.kodi_utils import make_session
-from modules.settings import gemini_api_key
+from modules.settings import gemini_api_keys
 
 base_url = 'https://generativelanguage.googleapis.com/v1beta'
 model = 'gemini-2.5-flash'
@@ -101,10 +101,10 @@ media_type_aliases = {
 
 class GeminiAPI:
 	def __init__(self):
-		self.api_key = gemini_api_key()
+		self.api_keys = gemini_api_keys()
 
 	def interpret_prompt(self, prompt):
-		if self.api_key in empty_setting_check or not prompt: return None
+		if not self.api_keys or not prompt: return None
 		cache_key = cache_prefix + hashlib.md5(prompt.encode('utf-8')).hexdigest()
 		cached_result = main_cache.get(cache_key)
 		if cached_result is not None: return cached_result
@@ -117,7 +117,6 @@ class GeminiAPI:
 
 	def _request(self, prompt):
 		url = '%s/models/%s:generateContent' % (base_url, model)
-		headers = {'x-goog-api-key': self.api_key, 'Content-Type': 'application/json'}
 		payload = {
 			'contents': [{'parts': [{'text': prompt_template % prompt}]}],
 			'generationConfig': {
@@ -126,11 +125,37 @@ class GeminiAPI:
 				'responseJsonSchema': response_schema
 			}
 		}
+		for api_key in self.api_keys:
+			response, error_details = self._request_with_key(url, payload, api_key)
+			if response is not None: return response
+			if not self._should_try_next_key(error_details): return None
+		return None
+
+	def _request_with_key(self, url, payload, api_key):
+		headers = {'x-goog-api-key': api_key, 'Content-Type': 'application/json'}
 		try:
 			response = session.post(url, headers=headers, data=json.dumps(payload), timeout=timeout)
-			if not response.ok: return None
-			return response.json()
-		except: return None
+			if response.ok: return response.json(), None
+			return None, self._error_details(response)
+		except:
+			return None, None
+
+	def _error_details(self, response):
+		status = ''
+		message = ''
+		try:
+			data = response.json()
+			error = data.get('error') or {}
+			status = error.get('status') or ''
+			message = error.get('message') or ''
+		except:
+			pass
+		return {'status_code': response.status_code, 'status': status, 'message': message}
+
+	def _should_try_next_key(self, error_details):
+		if not error_details: return False
+		if error_details.get('status_code') == 429: return True
+		return error_details.get('status') == 'RESOURCE_EXHAUSTED'
 
 	def _parse_response(self, response):
 		try:

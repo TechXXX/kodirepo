@@ -13,14 +13,17 @@ Current source-tree versions when this document was updated:
 
 - `plugin.video.fenlight` `2.0.07`
   Baseline Fenlight package.
-- `plugin.video.fenlight.aisearch` `1.0.4`
+- `plugin.video.fenlight.aisearch` `1.0.5`
   Standalone AI-search fork with its own addon id, profile, artwork, and repo
   package. The production build keeps its built-in updater pointed at
-  `kodirepo`.
-- `plugin.video.fenlight.patched` `2.0.35`
+  `kodirepo`, and it now supports up to three Gemini API keys with automatic
+  fallback on rate-limit or quota-exhaustion responses.
+- `plugin.video.fenlight.patched` `2.0.36`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
-  Gemini-backed AI Search entrypoint from the tested repo channel.
+  Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
+  Gemini fallback, a top-10 subtitle-backed retry pool, and selector comment
+  alias promotion for stronger same-item release matches.
 - `service.subtitles.a4ksubtitles.patched` `3.23.27`
   Main patched a4k build used with selector-aware Fenlight.
 - `service.kodi.favourites.sync` `0.2.36`
@@ -92,6 +95,9 @@ This addon now owns:
 
 It should stay aligned with the tested search behavior in the test repo, while
 keeping production updater defaults pointed at `kodirepo`.
+
+That production-specific updater default matters because the shipped main build
+should not pull users back onto the test channel.
 
 ### `service.subtitles.a4ksubtitles.patched`
 

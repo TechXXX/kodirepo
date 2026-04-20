@@ -1174,11 +1174,27 @@
                       </item>
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
-                          <property name="setting_label">API Key</property>
+                          <property name="setting_label">API Key 1</property>
                           <property name="setting_type">numeric</property>
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.gemini_api)]</property>
-                          <property name="setting_description">Enter here your Gemini API key for AI Search</property>
+                          <property name="setting_description">Primary Gemini API key for AI Search</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=gemini_api)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">API Key 2</property>
+                          <property name="setting_type">numeric</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.gemini_api_2)]</property>
+                          <property name="setting_description">Optional fallback Gemini API key from a separate Google project</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=gemini_api_2)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">API Key 3</property>
+                          <property name="setting_type">numeric</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.gemini_api_3)]</property>
+                          <property name="setting_description">Optional second fallback Gemini API key from a separate Google project</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=gemini_api_3)</onclick>
                       </item>
         <!-- OMDb -->
                       <item>

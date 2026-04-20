@@ -19,8 +19,18 @@ internal_scrapers_clouds_list = [('rd', 'provider.rd_cloud'), ('pm', 'provider.p
 def tmdb_api_key():
 	return get_setting('fenlight.tmdb_api', '')
 
+def gemini_api_keys():
+	keys = []
+	append = keys.append
+	for setting_id in ('fenlight.gemini_api', 'fenlight.gemini_api_2', 'fenlight.gemini_api_3'):
+		key = get_setting(setting_id, 'empty_setting')
+		if key in ('empty_setting', '', None) or key in keys: continue
+		append(key)
+	return keys
+
 def gemini_api_key():
-	return get_setting('fenlight.gemini_api', 'empty_setting')
+	keys = gemini_api_keys()
+	return keys[0] if keys else 'empty_setting'
 
 def trakt_client():
 	return get_setting('fenlight.trakt.client', '')

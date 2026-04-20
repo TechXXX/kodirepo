@@ -3,7 +3,8 @@
 This first version intentionally keeps the policy small and deterministic:
 
 - direct subtitle filename evidence is preferred over comments
-- comment parsing is fallback-only for a source with no direct useful match
+- comments remain secondary, except when they clearly upgrade the same subtitle item
+  to a stronger release alias for the source being evaluated
 - AI or machine-translated subtitles are demoted, but still remain candidates
 - when no direct release match exists, strong shared structure can still score as fallback
 - playback or stream resolution concerns are out of scope for this module
@@ -133,6 +134,10 @@ PRERELEASE_TYPES = {
 AI_TRANSLATION_PENALTY = 20
 PRERELEASE_PENALTY = 20
 COMMENT_FALLBACK_MAX_SCORE = 79
+COMMENT_ALIAS_UPGRADE_REASONS = {
+    "exact_normalized_match",
+    "release_group_and_token_overlap",
+}
 
 
 def rank_sources_by_subtitle_match(
@@ -227,50 +232,126 @@ def _best_match_for_source(
     best = _empty_match()
 
     for subtitle_index, prepared_subtitle in enumerate(prepared_subtitles):
-        candidates = [prepared_subtitle["direct_release"]]
-        if allow_comments:
-            candidates.extend(prepared_subtitle["comment_releases"])
+        direct_candidate = prepared_subtitle["direct_release"]
+        subtitle_best = _empty_match()
+        direct_result = _empty_match()
 
-        for candidate_index, candidate in enumerate(candidates):
-            if candidate is None:
-                continue
-
-            result = _score_candidate_match(prepared_source, candidate)
-            if result["score"] == 0:
-                continue
-
-            if candidate_index > 0:
-                result["score"] = min(result["score"], COMMENT_FALLBACK_MAX_SCORE)
-
-            ai_penalty_applied = 0
-            if prepared_subtitle["is_ai_generated"]:
-                ai_penalty_applied = AI_TRANSLATION_PENALTY
-                result["score"] = max(0, result["score"] - ai_penalty_applied)
-
-            prerelease_penalty_applied = 0
-            if prepared_source["is_prerelease"] or candidate["is_prerelease"]:
-                prerelease_penalty_applied = PRERELEASE_PENALTY
-                result["score"] = max(0, result["score"] - prerelease_penalty_applied)
-
-            result.update(
-                {
-                    "subtitle": prepared_subtitle["original"],
-                    "subtitle_release_name": candidate["raw"],
-                    "subtitle_release_group": candidate["release_group"],
-                    "subtitle_source_type": candidate["source_type"],
-                    "subtitle_is_prerelease": candidate["is_prerelease"],
-                    "used_comments_fallback": candidate_index > 0,
-                    "ai_penalty_applied": ai_penalty_applied,
-                    "prerelease_penalty_applied": prerelease_penalty_applied,
-                    "comment_candidate_count": len(prepared_subtitle["comment_releases"]),
-                    "matched_subtitle_is_translated": prepared_subtitle["is_ai_generated"],
-                    "_subtitle_index": subtitle_index,
-                }
+        if direct_candidate is not None:
+            direct_result = _evaluate_subtitle_candidate(
+                prepared_source,
+                prepared_subtitle,
+                direct_candidate,
+                subtitle_index,
+                cap_comment_score=False,
+                used_comments_fallback=False,
             )
+            subtitle_best = _choose_better_match(subtitle_best, direct_result)
 
-            best = _choose_better_match(best, result)
+        if direct_result["score"] > 0:
+            for comment_candidate in prepared_subtitle["comment_releases"]:
+                comment_result = _evaluate_subtitle_candidate(
+                    prepared_source,
+                    prepared_subtitle,
+                    comment_candidate,
+                    subtitle_index,
+                    cap_comment_score=False,
+                    used_comments_fallback=True,
+                )
+                if not _should_promote_comment_alias(
+                    prepared_source,
+                    direct_candidate,
+                    direct_result,
+                    comment_candidate,
+                    comment_result,
+                ):
+                    continue
+                subtitle_best = _choose_better_match(subtitle_best, comment_result)
+        elif allow_comments:
+            for comment_candidate in prepared_subtitle["comment_releases"]:
+                comment_result = _evaluate_subtitle_candidate(
+                    prepared_source,
+                    prepared_subtitle,
+                    comment_candidate,
+                    subtitle_index,
+                    cap_comment_score=True,
+                    used_comments_fallback=True,
+                )
+                subtitle_best = _choose_better_match(subtitle_best, comment_result)
+
+        best = _choose_better_match(best, subtitle_best)
 
     return best
+
+
+def _evaluate_subtitle_candidate(
+    prepared_source: dict[str, Any],
+    prepared_subtitle: dict[str, Any],
+    candidate: dict[str, Any],
+    subtitle_index: int,
+    *,
+    cap_comment_score: bool,
+    used_comments_fallback: bool,
+) -> dict[str, Any]:
+    result = _score_candidate_match(prepared_source, candidate)
+    if result["score"] == 0:
+        return _empty_match()
+
+    if cap_comment_score:
+        result["score"] = min(result["score"], COMMENT_FALLBACK_MAX_SCORE)
+
+    ai_penalty_applied = 0
+    if prepared_subtitle["is_ai_generated"]:
+        ai_penalty_applied = AI_TRANSLATION_PENALTY
+        result["score"] = max(0, result["score"] - ai_penalty_applied)
+
+    prerelease_penalty_applied = 0
+    if prepared_source["is_prerelease"] or candidate["is_prerelease"]:
+        prerelease_penalty_applied = PRERELEASE_PENALTY
+        result["score"] = max(0, result["score"] - prerelease_penalty_applied)
+
+    result.update(
+        {
+            "subtitle": prepared_subtitle["original"],
+            "subtitle_release_name": candidate["raw"],
+            "subtitle_release_group": candidate["release_group"],
+            "subtitle_source_type": candidate["source_type"],
+            "subtitle_is_prerelease": candidate["is_prerelease"],
+            "used_comments_fallback": used_comments_fallback,
+            "ai_penalty_applied": ai_penalty_applied,
+            "prerelease_penalty_applied": prerelease_penalty_applied,
+            "comment_candidate_count": len(prepared_subtitle["comment_releases"]),
+            "matched_subtitle_is_translated": prepared_subtitle["is_ai_generated"],
+            "_subtitle_index": subtitle_index,
+        }
+    )
+    return result
+
+
+def _should_promote_comment_alias(
+    prepared_source: dict[str, Any],
+    direct_candidate: dict[str, Any] | None,
+    direct_result: dict[str, Any],
+    comment_candidate: dict[str, Any],
+    comment_result: dict[str, Any],
+) -> bool:
+    if direct_result["score"] <= 0 or comment_result["score"] <= direct_result["score"]:
+        return False
+
+    if comment_result["reason"] not in COMMENT_ALIAS_UPGRADE_REASONS:
+        return False
+
+    source_quality_rank = prepared_source["quality_rank"]
+    if not source_quality_rank:
+        return False
+
+    if comment_candidate["quality_rank"] != source_quality_rank:
+        return False
+
+    direct_quality_rank = direct_candidate["quality_rank"] if direct_candidate is not None else 0
+    if direct_quality_rank == source_quality_rank:
+        return False
+
+    return True
 
 
 def _score_candidate_match(

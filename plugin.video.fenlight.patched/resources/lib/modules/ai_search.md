@@ -28,6 +28,8 @@ The current patched design is:
 - capture a free-form user prompt
 - store that prompt in local Fenlight search history
 - ask Gemini only for structured intent
+- support up to three Gemini API keys and retry the next key on rate-limit or
+  quota-exhaustion responses
 - keep named-person intent separate from generic theme keywords
 - keep TMDb as the source of truth for the displayed results
 - prefer TMDb discover when genre/keyword/cast intent is strong enough
@@ -45,6 +47,7 @@ This file should own:
 - prompt capture and prompt reuse
 - AI-search history integration
 - Gemini intent-to-structure translation handoff
+- Gemini key fallback sequencing when one key hits its request cap
 - TMDb discover/search payload construction
 - person-to-cast resolution for movie discovery
 - result-payload caching for repeat prompts
@@ -86,7 +89,11 @@ The main methods worth knowing are:
 If AI Search looks wrong:
 
 - confirm `fenlight.gemini_api` is populated
+- confirm any optional fallback keys such as `fenlight.gemini_api_2` and
+  `fenlight.gemini_api_3` are intentional and distinct
 - confirm `GeminiAPI().interpret_prompt(...)` returned structured data
+- inspect whether Gemini moved to a fallback key after a `429` or
+  `RESOURCE_EXHAUSTED` response
 - inspect whether discover mode or fallback mode was chosen
 - compare the resolved genres, keywords, and people/cast matches with TMDb
   responses

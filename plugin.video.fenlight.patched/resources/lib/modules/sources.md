@@ -24,7 +24,7 @@ The current patched design is:
 - gather subtitle results once per title/run
 - import the bundled selector integration once
 - rank the full source list against the subtitle list
-- promote the best subtitle-backed top-5 retry pool
+- promote the best subtitle-backed top-10 retry pool
 - append the remaining raw source order behind that promoted pool
 
 This is the important change from the older experiment:
@@ -62,11 +62,13 @@ This file should not own:
 
 - subtitle policy comes from the selector, not from ad hoc logic here
 - only one subtitle gather should happen per autoplay run/title
-- promoted subtitle-backed matches are limited to the best 5
+- promoted subtitle-backed matches are limited to the best 10
 - raw source order is still kept behind the promoted pool as fallback
 - bundled selector normalization may preserve meaningful bracketed technical
   segments like quality, codec, and year tokens when they help release-name
   matching
+- the selector may also let comment aliases upgrade the same subtitle item when
+  they provide a stronger release alias than the direct subtitle filename
 
 ## Future-Agent Guard Rails
 
@@ -86,5 +88,7 @@ If subtitle-backed autoplay looks wrong:
 - confirm the selector integration module loaded
 - confirm only one subtitle gather happened
 - inspect the promoted retry-pool log summary
+- inspect whether selector alias-upgrade behavior promoted a stronger subtitle
+  release name for the same subtitle item
 - compare the promoted pool with a shadow trace
 - only after that inspect playback resolution and player start behavior

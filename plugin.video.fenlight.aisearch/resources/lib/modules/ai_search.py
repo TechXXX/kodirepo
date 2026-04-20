@@ -44,7 +44,7 @@ def run(params):
 	prompt = _get_prompt(params, allow_input=True)
 	if not prompt: return
 	if gemini_api_key() in empty_setting_check:
-		return notification('Please set a Gemini API Key')
+		return notification('Please set at least one Gemini API Key')
 	add_to_search(prompt, 'ai_search_queries')
 	result_payload = _get_result_payload(prompt, params)
 	if not result_payload:
@@ -61,7 +61,7 @@ def widget(params):
 	result_payload = _cached_results(prompt) or _get_result_payload(prompt, params)
 	if not result_payload:
 		if not external():
-			if gemini_api_key() in empty_setting_check: notification('Please set a Gemini API Key')
+			if gemini_api_key() in empty_setting_check: notification('Please set at least one Gemini API Key')
 			else: notification('No AI Search results found.')
 		return _render_empty_results(params, fallback_type, prompt)
 	return _render_results(_apply_label_overrides(result_payload, params, prompt))

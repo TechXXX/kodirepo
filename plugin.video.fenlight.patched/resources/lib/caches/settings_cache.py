@@ -299,6 +299,8 @@ default_settings = [
 {'setting_id': 'tmdb_api', 'setting_type': 'string', 'setting_default': tmdb_default_api},
 #==================== Gemini
 {'setting_id': 'gemini_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'gemini_api_2', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'gemini_api_3', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== OMDb
 {'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== External

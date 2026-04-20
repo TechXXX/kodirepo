@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.4">
+<addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.5">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v1.0.4]:
+        <news>[v1.0.5]:
+  * Add support for up to three Gemini API keys with automatic fallback on rate-limit or quota-exhaustion responses so AI Search can keep working when one project hits its cap.
+
+[v1.0.4]:
   * Teach Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery and better literal title/franchise handling.
 
 INFO: For latest changes see Changelog within Tools of add-on.</news>

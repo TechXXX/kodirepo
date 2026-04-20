@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.35">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.36">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,11 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.35]:
+        <news>[v2.0.36]:
+  * Add support for up to three Gemini API keys with automatic fallback on rate-limit or quota-exhaustion responses.
+  * Expand the subtitle-backed retry pool to the best 10 selector-ranked candidates and let subtitle comments promote a stronger alias for the same subtitle item when they improve the release match.
+
+[v2.0.35]:
   * Teach Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery and better title-like prompt handling.
 
 [v2.0.34]:

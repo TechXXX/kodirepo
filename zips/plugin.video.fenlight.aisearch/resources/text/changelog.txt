@@ -1,5 +1,9 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 1.0.5[/B][/COLOR]
+- Added support for up to three Gemini API keys and automatic fallback on rate-limit or quota-exhaustion responses so AI Search can keep working when one project hits its cap.
+- Exposed `API Key 1`, `API Key 2`, and `API Key 3` in the settings manager so separate Google projects can be used as fallback keys.
+
 [COLOR dodgerblue][B]Version 1.0.4[/B][/COLOR]
 - Taught Gemini intent parsing to preserve named people separately from generic keywords so movie AI searches can feed TMDb cast-aware discovery.
 - Tightened short-prompt interpretation so likely title or franchise searches stay closer to the literal request instead of drifting into overly broad themes.
