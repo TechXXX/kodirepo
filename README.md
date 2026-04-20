@@ -26,10 +26,17 @@ Current source-tree versions when this document was updated:
   alias promotion for stronger same-item release matches. The current
   production build also adds TMDb metadata language and fallback-language
   controls for movie, TV, collection, season, episode, and people details.
+- `plugin.video.themoviedb.helper.patched` `6.15.2.3`
+  Patched TMDb Helper production build used by the patched Arctic Horizon 2
+  flow. The current production build includes the recommendations-window fixes
+  and debug logging previously validated in the test repo.
 - `service.subtitles.a4ksubtitles.patched` `3.23.27`
   Main patched a4k build used with selector-aware Fenlight.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
+- `skin.arctic.horizon.2.patched` `0.8.30.3`
+  Patched Arctic Horizon 2 production build intended to target
+  `plugin.video.themoviedb.helper.patched` from this repo.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
 - `repository.dutchtech` `1.0.42`
@@ -41,12 +48,17 @@ Current source-tree versions when this document was updated:
   Standalone Fen Light AIsearch source.
 - `plugin.video.fenlight.patched/`
   Unpacked patched Fenlight source.
+- `plugin.video.themoviedb.helper.patched/`
+  Unpacked patched TMDb Helper source.
 - `service.subtitles.a4ksubtitles.patched/`
   Unpacked patched a4k source.
 - `plugin.video.fenlight/`
   Baseline Fenlight source kept for comparison or non-patched shipping.
 - `service.kodi.favourites.sync/`
   Favourites sync service source.
+- `skin.arctic.horizon.2.patched/`
+  Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
+  id from this repo.
 - `skin.arctic.horizon.2.1/`
   Forked skin source.
 - `scripts/`
@@ -68,7 +80,9 @@ For selector, AI-search, or packaging work in this repo, read:
 4. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
 5. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
 6. `service.subtitles.a4ksubtitles.patched/README.md`
-7. `skin.arctic.horizon.2.1/Readme.md`
+7. `plugin.video.themoviedb.helper.patched/Readme.md`
+8. `skin.arctic.horizon.2.patched/Readme.md`
+9. `skin.arctic.horizon.2.1/Readme.md`
 
 ## Selector-Relevant Addon Responsibilities
 
@@ -112,6 +126,28 @@ This addon now owns:
 - built-in subtitle preference before external download
 
 It should not own Fenlight playback logic.
+
+### `plugin.video.themoviedb.helper.patched`
+
+This addon owns the patched recommendations-window flow used by the patched
+skin.
+
+That distinction matters because:
+
+- recommendation list item normalization lives here
+- keyword/info navigation fixes belong here
+- helper-side debug logging for recommendation routing belongs here
+
+### `skin.arctic.horizon.2.patched`
+
+This skin owns the patched Kodi-side rendering that targets
+`plugin.video.themoviedb.helper.patched`.
+
+That distinction matters because:
+
+- helper integration ids must match the patched helper addon
+- stale recommendation-window properties must be cleared from the skin side
+- visual recommendation-dialog behavior depends on skin XML, not helper Python
 
 ### `skin.arctic.horizon.2.1`
 
