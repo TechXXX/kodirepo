@@ -43,6 +43,10 @@ class SyncSettings:
 		logger('Fen Light Patched', 'SyncSettings Service Starting')
 		from caches.settings_cache import sync_settings
 		sync_settings()
+		try:
+			from apis.trakt_api import sync_trakt_auth_state
+			sync_trakt_auth_state()
+		except: pass
 		logger('Fen Light Patched', 'SyncSettings Service Finished')
 
 class CustomFonts:

@@ -54,7 +54,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.41">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.42">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +75,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.41]:
+            <news>[v2.0.42]:
+  * Add an explicit Trakt authorization status row to the settings window so expired or incomplete auth is visible even when a stale username is still stored.
+  * Only show Authorize when Trakt is not fully authorized and keep Revoke tied to a stored Trakt user instead of treating the username as the only auth signal.
+
+[v2.0.41]:
   * Demote bare generic movie-title subtitles to low-confidence fallbacks so structured release-specific matches can win when available.
   * Demote low-information source containment hits against structured DVDRip-style subtitles so malformed or ambiguous source names stop outranking stronger higher-quality matches.
   * Return clearer Trakt expiry notifications instead of treating auth and rate-limit responses like generic request failures.

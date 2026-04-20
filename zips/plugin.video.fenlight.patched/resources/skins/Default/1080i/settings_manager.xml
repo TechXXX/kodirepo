@@ -1099,7 +1099,15 @@
                       </item>
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
-                          <visible>String.IsEqual(Window(10000).Property(fenlight.trakt.user),empty_setting)</visible>
+                          <property name="setting_label">Authorization Status</property>
+                          <property name="setting_type">info</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.trakt.auth_state_display_name)]</property>
+                          <property name="setting_description">Shows whether Trakt is currently authorized, expired, incomplete, or not authorized on this install</property>
+                          <onclick>noop</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <visible>!String.IsEqual(Window(10000).Property(fenlight.trakt.auth_state),authorized)</visible>
                           <property name="setting_label">Authorize</property>
                           <property name="setting_type">action</property>
                           <property name="setting_value">...</property>
@@ -1108,6 +1116,7 @@
                       </item>
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
+                          <visible>!String.IsEqual(Window(10000).Property(fenlight.trakt.user),empty_setting)</visible>
                           <property name="setting_label">Revoke Authorization</property>
                           <property name="setting_type">action</property>
                           <property name="setting_value">...</property>
