@@ -1,5 +1,9 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.39[/B][/COLOR]
+- Added TMDb metadata language and fallback-language settings so Fen Light Patched can request movie, TV show, collection, season, episode, and people details in the user-selected language.
+- Fill missing summaries and labels from the configured TMDb fallback language instead of relying on English-only detail requests.
+
 [COLOR dodgerblue][B]Version 2.0.36[/B][/COLOR]
 - Added support for up to three Gemini API keys and automatic fallback on rate-limit or quota-exhaustion responses so AI Search can keep working when one project hits its cap.
 - Raised the subtitle-backed autoplay retry pool candidate limit from `5` to `10`.

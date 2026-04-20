@@ -18,12 +18,14 @@ Current source-tree versions when this document was updated:
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.36`
+- `plugin.video.fenlight.patched` `2.0.39`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
   Gemini fallback, a top-10 subtitle-backed retry pool, and selector comment
-  alias promotion for stronger same-item release matches.
+  alias promotion for stronger same-item release matches. The current
+  production build also adds TMDb metadata language and fallback-language
+  controls for movie, TV, collection, season, episode, and people details.
 - `service.subtitles.a4ksubtitles.patched` `3.23.27`
   Main patched a4k build used with selector-aware Fenlight.
 - `service.kodi.favourites.sync` `0.2.36`

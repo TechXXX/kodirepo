@@ -268,6 +268,15 @@ def routing(sys):
 	if mode == 'refresh_widgets':
 		from modules.kodi_utils import refresh_widgets
 		return refresh_widgets(_get('show_notification', 'false'))
+	if mode == 'mpaa_region_choice':
+		from indexers.dialogs import mpaa_region_choice
+		return mpaa_region_choice(params)
+	if mode == 'tmdb_language_choice':
+		from indexers.dialogs import tmdb_language_choice
+		return tmdb_language_choice(params)
+	if mode == 'tmdb_fallback_language_choice':
+		from indexers.dialogs import tmdb_fallback_language_choice
+		return tmdb_fallback_language_choice(params)
 	if mode == 'person_data_dialog':
 		from indexers.people import person_data_dialog
 		return person_data_dialog(params)

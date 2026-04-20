@@ -54,7 +54,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.36">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.39">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +75,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.36]:
+            <news>[v2.0.39]:
+  * Add TMDb metadata language and fallback-language settings for movie, TV, collection, episode, and people details.
+  * Fill missing summaries from the configured fallback language instead of dropping back to English-only metadata requests.
+
+[v2.0.36]:
   * Add support for up to three Gemini API keys with automatic fallback on rate-limit or quota-exhaustion responses.
   * Expand the subtitle-backed retry pool to the best 10 selector-ranked candidates and let subtitle comments promote a stronger alias for the same subtitle item when they improve the release match.
 

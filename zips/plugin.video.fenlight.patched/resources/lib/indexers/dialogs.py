@@ -14,7 +14,7 @@ from modules.utils import get_datetime, title_key, adjust_premiered_date, append
 ok_dialog, container_content, close_all_dialog, external = kodi_utils.ok_dialog, kodi_utils.container_content, kodi_utils.close_all_dialog, kodi_utils.external
 set_property, get_icon, kodi_dialog, open_settings = kodi_utils.set_property, kodi_utils.get_icon, kodi_utils.kodi_dialog, kodi_utils.open_settings
 show_busy_dialog, hide_busy_dialog, notification, confirm_dialog = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.notification, kodi_utils.confirm_dialog
-external_scraper_settings, kodi_refresh, autoscrape_next_episode = kodi_utils.external_scraper_settings, kodi_utils.kodi_refresh, settings.autoscrape_next_episode
+external_scraper_settings, kodi_refresh, refresh_widgets, autoscrape_next_episode = kodi_utils.external_scraper_settings, kodi_utils.kodi_refresh, kodi_utils.refresh_widgets, settings.autoscrape_next_episode
 select_dialog, autoplay_next_episode, quality_filter = kodi_utils.select_dialog, settings.autoplay_next_episode, settings.quality_filter
 numeric_input, container_update, activate_window, folder_path = kodi_utils.numeric_input, kodi_utils.container_update, kodi_utils.activate_window, kodi_utils.folder_path
 poster_empty, audio_filters, mpaa_region, preferred_autoplay = kodi_utils.empty_poster, settings.audio_filters, settings.mpaa_region, settings.preferred_autoplay
@@ -522,6 +522,34 @@ def mpaa_region_choice(params={}):
 	set_setting('mpaa_region', choice['id'])
 	set_setting('mpaa_region_display_name', choice['name'])
 	delete_meta_cache(silent=True)
+
+def tmdb_language_choice(params={}):
+	from apis.tmdb_api import tmdb_available_languages
+	languages = tmdb_available_languages()
+	if not languages: return None
+	list_items = [{'line1': i['name']} for i in languages]
+	kwargs = {'items': json.dumps(list_items), 'heading': 'Set TMDb Metadata Language', 'narrow_window': 'true'}
+	choice = select_dialog(languages, **kwargs)
+	if choice == None: return None
+	from caches.meta_cache import delete_meta_cache
+	set_setting('tmdb_language', choice['id'])
+	set_setting('tmdb_language_display_name', choice['name'])
+	delete_meta_cache(silent=True)
+	refresh_widgets('false')
+
+def tmdb_fallback_language_choice(params={}):
+	from apis.tmdb_api import tmdb_available_languages
+	languages = tmdb_available_languages()
+	if not languages: return None
+	list_items = [{'line1': i['name']} for i in languages]
+	kwargs = {'items': json.dumps(list_items), 'heading': 'Set TMDb Metadata Fallback Language', 'narrow_window': 'true'}
+	choice = select_dialog(languages, **kwargs)
+	if choice == None: return None
+	from caches.meta_cache import delete_meta_cache
+	set_setting('tmdb_fallback_language', choice['id'])
+	set_setting('tmdb_fallback_language_display_name', choice['name'])
+	delete_meta_cache(silent=True)
+	refresh_widgets('false')
 
 def options_menu_choice(params, meta=None):
 	params_get = params.get

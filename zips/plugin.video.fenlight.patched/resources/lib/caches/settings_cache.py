@@ -250,6 +250,8 @@ default_settings = [
 {'setting_id': 'recommend_seed', 'setting_type': 'action', 'setting_default': '5', 'settings_options': {'1': 'Last Watched Only', '2': 'Last 2 Watched',
 '3': 'Last 3 Watched', '4': 'Last 4 Watched', '5': 'Last 5 Watched'}},
 {'setting_id': 'mpaa_region', 'setting_type': 'string', 'setting_default': 'US'},
+{'setting_id': 'tmdb_language', 'setting_type': 'string', 'setting_default': 'en'},
+{'setting_id': 'tmdb_fallback_language', 'setting_type': 'string', 'setting_default': 'en'},
 {'setting_id': 'tv_progress_location', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'Watched', '1': 'In Progress', '2': 'Both'}},
 {'setting_id': 'show_specials', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'default_all_episodes', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'Never', '1': 'If Only One Season', '2': 'Always'}},
@@ -457,6 +459,8 @@ default_settings = [
 #=========================================================================================#
 {'setting_id': 'widget_refresh_timer_name', 'setting_type': 'string', 'setting_default': 'Off'},
 {'setting_id': 'mpaa_region_display_name', 'setting_type': 'string', 'setting_default': 'United States'},
+{'setting_id': 'tmdb_language_display_name', 'setting_type': 'string', 'setting_default': 'English'},
+{'setting_id': 'tmdb_fallback_language_display_name', 'setting_type': 'string', 'setting_default': 'English'},
 {'setting_id': 'external_scraper.module', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'trakt.next_daily_clear', 'setting_type': 'string', 'setting_default': '0'},
 {'setting_id': 'trakt.expires', 'setting_type': 'string', 'setting_default': '0'},

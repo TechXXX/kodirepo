@@ -299,6 +299,12 @@ def get_meta_filter():
 def mpaa_region():
 	return get_setting('fenlight.mpaa_region', 'US')
 
+def tmdb_language():
+	return get_setting('fenlight.tmdb_language', 'en')
+
+def tmdb_fallback_language():
+	return get_setting('fenlight.tmdb_fallback_language', 'en')
+
 def widget_hide_next_page():
 	return get_setting('fenlight.widget_hide_next_page', 'false') == 'true'
 

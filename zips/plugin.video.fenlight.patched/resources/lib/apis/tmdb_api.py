@@ -3,7 +3,7 @@ import datetime
 from caches.meta_cache import cache_function
 from caches.lists_cache import lists_cache_object
 from modules.meta_lists import oscar_winners, years_tvshows
-from modules.settings import get_meta_filter, tmdb_api_key
+from modules.settings import get_meta_filter, tmdb_api_key, tmdb_language, tmdb_fallback_language
 from modules.utils import make_thread_list_enumerate
 from modules.kodi_utils import make_session, tmdb_dict_removals, remove_keys, notification
 # from modules.kodi_utils import logger
@@ -16,20 +16,111 @@ empty_setting_check = (None, 'empty_setting', '')
 session = make_session(base_url)
 timeout = 20.0
 
+def metadata_language():
+	language = tmdb_language()
+	if language in empty_setting_check or language == 'None':
+		return 'en'
+	return language
+
+def metadata_fallback_language():
+	language = tmdb_fallback_language()
+	if language in empty_setting_check or language == 'None':
+		return 'en'
+	return language
+
+def metadata_languages():
+	values = []
+	for item in (metadata_language(), metadata_fallback_language()):
+		if item not in values:
+			values.append(item)
+	return values
+
+def image_languages():
+	values = []
+	for item in metadata_languages() + ['en', 'null']:
+		if item not in values:
+			values.append(item)
+	return ','.join(values)
+
+def _missing_metadata_value(value):
+	return value in empty_setting_check or value == 'None'
+
+def _merge_missing_values(primary_data, fallback_data, keys):
+	if not primary_data or not fallback_data: return primary_data
+	for key in keys:
+		if _missing_metadata_value(primary_data.get(key)) and not _missing_metadata_value(fallback_data.get(key)):
+			primary_data[key] = fallback_data.get(key)
+	return primary_data
+
+def _episode_fallback_needed(data):
+	for item in data.get('episodes', []):
+		if isinstance(item, dict) and (_missing_metadata_value(item.get('name')) or _missing_metadata_value(item.get('overview'))):
+			return True
+	return False
+
+def _merge_episode_fallback(primary_data, fallback_data):
+	fallback_map = {i.get('id'): i for i in fallback_data.get('episodes', []) if isinstance(i, dict) and i.get('id') is not None}
+	for item in primary_data.get('episodes', []):
+		if not isinstance(item, dict): continue
+		fallback_item = fallback_map.get(item.get('id'))
+		if fallback_item: _merge_missing_values(item, fallback_item, ('name', 'overview'))
+	return primary_data
+
+def _get_tmdb_json(url):
+	try:
+		response = get_tmdb(url)
+		if response: return response.json()
+	except: pass
+	return None
+
+def _should_apply_fallback(primary_data, fallback_keys=(), episode_keys=False):
+	if not primary_data: return False
+	if fallback_keys and any(_missing_metadata_value(primary_data.get(key)) for key in fallback_keys):
+		return True
+	if episode_keys and _episode_fallback_needed(primary_data):
+		return True
+	return False
+
+def _detail_with_fallback(url_builder, fallback_keys=(), episode_keys=False):
+	primary_language = metadata_language()
+	data = _get_tmdb_json(url_builder(primary_language))
+	fallback_language = metadata_fallback_language()
+	if not data or primary_language == fallback_language:
+		return data
+	if not _should_apply_fallback(data, fallback_keys, episode_keys):
+		return data
+	fallback_data = _get_tmdb_json(url_builder(fallback_language))
+	if not fallback_data:
+		return data
+	if fallback_keys:
+		data = _merge_missing_values(data, fallback_data, fallback_keys)
+	if episode_keys:
+		data = _merge_episode_fallback(data, fallback_data)
+	return data
+
+def _person_info_with_fallback(url_builder):
+	return _detail_with_fallback(url_builder, ('biography', 'name'))
+
 def no_api_key():
 	notification('Please set a valid TMDb API Key')
 	return []
 
 def movie_details(tmdb_id, api_key):
 	try:
-		url = '%s/movie/%s?api_key=%s&language=en&append_to_response=%s&include_image_language=en' % (base_url, tmdb_id, api_key, movies_append)
-		return get_tmdb(url).json()
+		def _url(language):
+			return '%s/movie/%s?api_key=%s&language=%s&append_to_response=%s&include_image_language=%s' % (
+				base_url, tmdb_id, api_key, language, movies_append, image_languages()
+			)
+		return _detail_with_fallback(_url, ('overview', 'tagline', 'title'))
 	except: return None
 
 def tvshow_details(tmdb_id, api_key):
 	try:
-		url = '%s/tv/%s?api_key=%s&language=en&append_to_response=%s&include_image_language=en' % (base_url, tmdb_id, api_key, tvshows_append)
-		return get_tmdb(url).json()
+		def _url(language):
+			return '%s/tv/%s?api_key=%s&language=%s&append_to_response=%s&include_image_language=%s' % (
+				base_url, tmdb_id, api_key, language, tvshows_append, image_languages()
+			)
+		return _detail_with_fallback(_url, ('overview', 'tagline', 'name'))
 	except: return None
 
 def episode_groups_data(tmdb_id):
@@ -48,9 +139,30 @@ def episode_group_details(group_id):
 
 def movie_set_details(collection_id, api_key):
 	try:
-		url = '%s/collection/%s?api_key=%s&language=en' % (base_url, collection_id, api_key)
-		return get_tmdb(url).json()
+		def _url(language):
+			return '%s/collection/%s?api_key=%s&language=%s' % (base_url, collection_id, api_key, language)
+		return _detail_with_fallback(_url, ('overview', 'name'))
 	except: return None
+
+def tmdb_available_languages():
+	api_key = tmdb_api_key()
+	if api_key in empty_setting_check: return no_api_key()
+	string = 'tmdb_available_languages'
+	url = '%s/configuration/languages?api_key=%s' % (base_url, api_key)
+	data = cache_function(get_tmdb, string, url, expiration=EXPIRY_1_WEEK)
+	results, used_ids = [], set()
+	for item in data or []:
+		language_id = item.get('iso_639_1')
+		if not language_id or language_id in used_ids: continue
+		english_name = item.get('english_name') or language_id
+		native_name = item.get('name') or ''
+		if native_name and native_name.lower() != english_name.lower():
+			name = '%s - %s' % (english_name, native_name)
+		else:
+			name = english_name
+		results.append({'id': language_id, 'name': name})
+		used_ids.add(language_id)
+	return sorted(results, key=lambda item: item['name'].lower())
 
 def movie_external_id(external_source, external_id, api_key):
 	try:
@@ -554,8 +666,11 @@ def tmdb_people_full_info(actor_id):
 	api_key = tmdb_api_key()
 	if api_key in empty_setting_check: return no_api_key()
 	string = 'tmdb_people_full_info_%s' % actor_id
-	url = '%s/person/%s?api_key=%s&language=en&append_to_response=external_ids,combined_credits,images,tagged_images' % (base_url, actor_id, api_key)
-	return cache_function(get_tmdb, string, url, expiration=EXPIRY_1_WEEK)
+	def _url(language):
+		return '%s/person/%s?api_key=%s&language=%s&append_to_response=external_ids,combined_credits,images,tagged_images' % (
+			base_url, actor_id, api_key, language
+		)
+	return cache_function(_person_info_with_fallback, string, _url, expiration=EXPIRY_1_WEEK, json=False)
 
 def tmdb_people_info(query, page_no=1):
 	api_key = tmdb_api_key()
@@ -569,8 +684,9 @@ def season_episodes_details(tmdb_id, season_no):
 	api_key = tmdb_api_key()
 	if api_key in empty_setting_check: return no_api_key()
 	try:
-		url = '%s/tv/%s/season/%s?api_key=%s&language=en&append_to_response=credits' % (base_url, tmdb_id, season_no, api_key)
-		return get_tmdb(url).json()
+		def _url(language):
+			return '%s/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=credits' % (base_url, tmdb_id, season_no, api_key, language)
+		return _detail_with_fallback(_url, ('name', 'overview'), episode_keys=True)
 	except: return None
 
 def get_dates(days, reverse=True):
