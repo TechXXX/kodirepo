@@ -456,8 +456,9 @@ class Sources():
 			title = self.meta.get('original_title') or self.meta.get('title') or ''
 			meta.update({'title': title, '_title': title})
 		else:
-			meta.update({'tvshow': self.meta.get('title') or '', 'title': self.meta.get('original_title') or self.meta.get('ep_name') or '',
-						'_title': self.meta.get('ep_name') or self.meta.get('title') or ''})
+			tvshow_title = self.meta.get('original_title') or self.meta.get('english_title') or self.meta.get('title') or ''
+			episode_title = self.meta.get('ep_name') or ''
+			meta.update({'tvshow': tvshow_title, 'title': episode_title, '_title': episode_title or tvshow_title})
 		return meta
 
 	def _subtitle_search_filename(self):
@@ -469,8 +470,8 @@ class Sources():
 			year = str(self.meta.get('year', '') or '').strip()
 			filename_parts = [part for part in (title, year) if part]
 		else:
-			show_title = clean_part(self.meta.get('title') or '')
-			episode_title = clean_part(self.meta.get('original_title') or self.meta.get('ep_name') or '')
+			show_title = clean_part(self.meta.get('original_title') or self.meta.get('english_title') or self.meta.get('title') or '')
+			episode_title = clean_part(self.meta.get('ep_name') or '')
 			try: season_episode = 'S%02dE%02d' % (int(self.meta.get('season') or 0), int(self.meta.get('episode') or 0))
 			except: season_episode = ''
 			filename_parts = [part for part in (show_title, season_episode, episode_title) if part]

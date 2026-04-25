@@ -50,6 +50,12 @@
     <variable name="Image_CropLogo">
         <value condition="!String.IsEmpty(Container(99950).ListItem.Art(cropimage))">$INFO[Container(99950).ListItem.Art(cropimage)]</value>
         <value condition="!String.IsEmpty(Container(99950).ListItem.Property(base_clearlogo))">$INFO[Container(99950).ListItem.Property(base_clearlogo)]</value>
+        <value condition="!String.IsEmpty(Container(99950).ListItem.Art(clearlogo))">$INFO[Container(99950).ListItem.Art(clearlogo)]</value>
+        <value condition="!String.IsEmpty(Container(99950).ListItem.Art(tvshow.clearlogo))">$INFO[Container(99950).ListItem.Art(tvshow.clearlogo)]</value>
+        <value condition="!String.IsEmpty(Container(99950).ListItem.Art(artist.clearlogo))">$INFO[Container(99950).ListItem.Art(artist.clearlogo)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(clearlogo))">$INFO[ListItem.Art(clearlogo)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(tvshow.clearlogo))">$INFO[ListItem.Art(tvshow.clearlogo)]</value>
+        <value condition="!String.IsEmpty(ListItem.Art(artist.clearlogo))">$INFO[ListItem.Art(artist.clearlogo)]</value>
     </variable>
 
     <variable name="Image_OSD_PosterImage">
@@ -77,6 +83,7 @@
     </variable>
 
     <variable name="Image_Foreground_FlixArt_Quick">
+        <value condition="$EXP[Exp_HomeWidget_NextPage]">common/null.png</value>
         <value condition="!String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.Art(fanart)]</value>
         <value condition="!String.IsEmpty(ListItem.Art(tvshow.fanart))">$INFO[ListItem.Art(tvshow.fanart)]</value>
         <value condition="!String.IsEmpty(ListItem.Art(artist.fanart))">$INFO[ListItem.Art(artist.fanart)]</value>
@@ -87,6 +94,7 @@
     <variable name="Image_Background_Fanart">
         <value condition="Window.IsVisible(script-tmdbhelper-wikipedia.xml) + !String.IsEmpty(Window(Home).Property(TMDbHelper.Wikipedia.Backdrop))">$INFO[Window(Home).Property(TMDbHelper.Wikipedia.Backdrop)]</value>
         <value condition="$EXP[Exp_IsPersonInfo] | Window.IsVisible(script-tmdbhelper-wikipedia.xml)">$VAR[Image_SimpleBackground]</value>
+        <value condition="$EXP[Exp_HomeWidget_NextPage]">$VAR[Image_SimpleBackground]</value>
         <value condition="$EXP[Exp_HasBackgroundFanart] + $EXP[Exp_HasExtraFanart] + !String.IsEmpty(Control.GetLabel(99998))">$INFO[Control.GetLabel(99998)]</value>
         <value condition="$EXP[Exp_HasBackgroundFanart] + !String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.Art(fanart)]</value>
         <value condition="!String.IsEmpty(Container(300).ListItem.Property(widgetPath)) + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),301) + $EXP[Exp_HasBackgroundFanart] + !String.IsEmpty(Container(301).ListItem.Art(fanart))">$INFO[Container(301).ListItem.Art(fanart)]</value>
@@ -133,6 +141,7 @@
     </variable>
 
     <variable name="Image_FullscreenWidget_Artwork">
+        <value condition="$EXP[Exp_HomeWidget_NextPage]">$VAR[Image_SimpleBackground]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem.Art(fanart))">$INFO[Container(301).ListItem.Art(fanart)]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem.PicturePath)">$INFO[Container(301).ListItem.PicturePath]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem.EPGEventIcon) + !Skin.HasSetting(PVR.DisableEPGEventIconFanart)">$INFO[Container(301).ListItem.EPGEventIcon]</value>
@@ -141,6 +150,7 @@
         <value condition="String.IsEqual(Container(301).ListItem.DBtype,tvshow) | String.IsEqual(Container(301).ListItem.DBtype,season) | String.IsEqual(Container(301).ListItem.DBtype,episode) | String.IsEqual(Container(301).ListItem.DBtype,video)">special://skin/extras/backgrounds/fallbacks/tv.jpg</value>
     </variable>
     <variable name="Image_FullscreenWidget_Artwork+1">
+        <value condition="[String.Contains(Container(301).ListItem(1).Art(icon),nextpage) | String.Contains(Container(301).ListItem(1).Art(landscape),nextpage) | String.StartsWith(Container(301).ListItem(1).Label,Next Page) | String.StartsWith(Container(301).ListItem(1).Label,Next page) | String.StartsWith(Container(301).ListItem(1).Title,Next Page) | String.StartsWith(Container(301).ListItem(1).Title,Next page)] + [String.IsEqual(Container(301).ListItem(1).Property(specialsort),bottom) | String.Contains(Container(301).ListItem(1).FolderPath,page=) | String.Contains(Container(301).ListItem(1).FileNameAndPath,page=) | String.Contains(Container(301).ListItem(1).Art(icon),nextpage) | String.Contains(Container(301).ListItem(1).Art(landscape),nextpage)]">$VAR[Image_SimpleBackground]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(1).Art(fanart))">$INFO[Container(301).ListItem(1).Art(fanart)]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(1).PicturePath)">$INFO[Container(301).ListItem(1).PicturePath]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(1).EPGEventIcon) + !Skin.HasSetting(PVR.DisableEPGEventIconFanart)">$INFO[Container(301).ListItem(1).EPGEventIcon]</value>
@@ -149,6 +159,7 @@
         <value condition="String.IsEqual(Container(301).ListItem(1).DBtype,tvshow) | String.IsEqual(Container(301).ListItem(1).DBtype,season) | String.IsEqual(Container(301).ListItem(1).DBtype,episode) | String.IsEqual(Container(301).ListItem(1).DBtype,video)">special://skin/extras/backgrounds/fallbacks/tv.jpg</value>
     </variable>
     <variable name="Image_FullscreenWidget_Artwork-1">
+        <value condition="[String.Contains(Container(301).ListItem(-1).Art(icon),nextpage) | String.Contains(Container(301).ListItem(-1).Art(landscape),nextpage) | String.StartsWith(Container(301).ListItem(-1).Label,Next Page) | String.StartsWith(Container(301).ListItem(-1).Label,Next page) | String.StartsWith(Container(301).ListItem(-1).Title,Next Page) | String.StartsWith(Container(301).ListItem(-1).Title,Next page)] + [String.IsEqual(Container(301).ListItem(-1).Property(specialsort),bottom) | String.Contains(Container(301).ListItem(-1).FolderPath,page=) | String.Contains(Container(301).ListItem(-1).FileNameAndPath,page=) | String.Contains(Container(301).ListItem(-1).Art(icon),nextpage) | String.Contains(Container(301).ListItem(-1).Art(landscape),nextpage)]">$VAR[Image_SimpleBackground]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(-1).Art(fanart))">$INFO[Container(301).ListItem(-1).Art(fanart)]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(-1).PicturePath)">$INFO[Container(301).ListItem(-1).PicturePath]</value>
         <value condition="!String.IsEmpty(Container(301).ListItem(-1).EPGEventIcon) + !Skin.HasSetting(PVR.DisableEPGEventIconFanart)">$INFO[Container(301).ListItem(-1).EPGEventIcon]</value>

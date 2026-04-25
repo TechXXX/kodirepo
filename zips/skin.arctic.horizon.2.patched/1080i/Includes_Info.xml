@@ -148,6 +148,7 @@
 
 
     <include name="Info_Title_Logo">
+        <param name="mainlogo_top" default="0" />
         <definition>
             <control type="group">
                 <height>120</height>
@@ -159,12 +160,15 @@
                 </include>
             </control>
             <control type="group">
+                <top>$PARAM[mainlogo_top]</top>
+                <height>120</height>
                 <animation effect="fade" start="0" end="100" time="200" delay="0" reversible="true">Visible</animation>
                 <animation effect="fade" start="100" end="0" delay="400" time="200" reversible="true">Hidden</animation>
                 <visible>$PARAM[mainlogo_visible]</visible>
                 <control type="image">
+                    <top>0</top>
                     <height>120</height>
-                    <aspectratio align="left">keep</aspectratio>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
                     <fadetime>200</fadetime>
                     <texture background="true">$PARAM[mainlogo_texture]</texture>
                 </control>
@@ -176,10 +180,13 @@
         <param name="colordiffuse" default="main_fg" />
         <param name="container" default="" />
         <param name="width" default="info_plot_w" />
-        <param name="mainlogo_visible">[!String.IsEmpty(Container(99950).ListItem.Art(cropimage)) | !String.IsEmpty(Container(99950).ListItem.Property(base_clearlogo))]</param>
+        <param name="top_offset" default="0" />
+        <param name="mainlogo_top" default="0" />
+        <param name="mainlogo_visible">[!String.IsEmpty(Container(99950).ListItem.Art(cropimage)) | !String.IsEmpty(Container(99950).ListItem.Property(base_clearlogo)) | !String.IsEmpty(Container(99950).ListItem.Art(clearlogo)) | !String.IsEmpty(Container(99950).ListItem.Art(tvshow.clearlogo)) | !String.IsEmpty(Container(99950).ListItem.Art(artist.clearlogo)) | !String.IsEmpty(ListItem.Art(clearlogo)) | !String.IsEmpty(ListItem.Art(tvshow.clearlogo)) | !String.IsEmpty(ListItem.Art(artist.clearlogo))]</param>
         <param name="mainlogo_texture">$VAR[Image_CropLogo]</param>
         <definition>
             <control type="group">
+                <top>$PARAM[top_offset]</top>
                 <height>120</height>
                 <width>$PARAM[width]</width>
                 <!-- Title Only -->
@@ -191,6 +198,7 @@
                     <param name="colordiffuse">$PARAM[colordiffuse]</param>
                     <param name="mainlogo_visible">$PARAM[mainlogo_visible]</param>
                     <param name="mainlogo_texture">$PARAM[mainlogo_texture]</param>
+                    <param name="mainlogo_top">$PARAM[mainlogo_top]</param>
                 </include>
             </control>
         </definition>
@@ -1814,9 +1822,13 @@
         <param name="plotbox" default="true" />
         <param name="plotheight" default="info_plot_h" />
         <param name="plotwidth" default="info_plot_w" />
+        <param name="panel_top" default="-20" />
+        <param name="title_top" default="0" />
+        <param name="title_logo_top" default="-12" />
         <param name="colordiffuse" default="main_fg" />
         <param name="ratings" default="true" />
         <param name="ratingsheight" default="80" />
+        <param name="ratings_top" default="40%" />
         <param name="details" default="true" />
         <param name="title" default="true" />
         <param name="infoline" default="true" />
@@ -1826,7 +1838,7 @@
             <control type="group">
                 <nested />
                 <control type="grouplist">
-                    <top>-20</top>
+                    <top>$PARAM[panel_top]</top>
                     <hitrect x="0" y="0" w="0" h="0" />
                     <orientation>vertical</orientation>
                     <itemgap>0</itemgap>
@@ -1836,6 +1848,8 @@
                     <include content="Info_Title" condition="$PARAM[title]">
                         <param name="colordiffuse" value="$PARAM[colordiffuse]" />
                         <param name="width" value="$PARAM[plotwidth]" />
+                        <param name="top_offset" value="$PARAM[title_top]" />
+                        <param name="mainlogo_top" value="$PARAM[title_logo_top]" />
                     </include>
                     <control type="group">
                         <height>40</height>
@@ -1865,7 +1879,7 @@
                             <param name="oscars">[![$PARAM[shortline]] | String.IsEqual($PARAM[container]ListItem.DBType,movie)]</param>
                             <param name="top250">[![$PARAM[shortline]] + [String.IsEqual($PARAM[container]ListItem.DBType,movie) | String.IsEqual($PARAM[container]ListItem.DBType,tvshow) | $EXP[Exp_PVRWindows]]]</param>
                             <param name="releasestatus">[[[![$PARAM[shortline]] + String.IsEqual($PARAM[container]ListItem.DBType,movie) + !Skin.HasSetting(Ratings.DisableMovieRelease)] | [[String.IsEqual($PARAM[container]ListItem.DBType,tvshow) | String.IsEqual($PARAM[container]ListItem.DBType,season) | String.IsEqual($PARAM[container]ListItem.DBType,episode)] + !Skin.HasSetting(Ratings.DisableTvRelease)]]]</param>
-                            <centertop>50%</centertop>
+                            <centertop>$PARAM[ratings_top]</centertop>
                             <visible>$PARAM[ratings]</visible>
                             <visible>[String.IsEqual($PARAM[container]ListItem.DBType,movie) | String.IsEqual($PARAM[container]ListItem.DBType,tvshow) | String.IsEqual($PARAM[container]ListItem.DBType,season) | String.IsEqual($PARAM[container]ListItem.DBType,episode) | [!String.IsEmpty($PARAM[container]ListItem.ChannelNumberLabel) + [String.IsEqual(Container(99950).ListItem.Property(TMDB_Type),movie) | String.IsEqual(Container(99950).ListItem.Property(TMDB_Type),tv)]]]</visible>
                         </include>
@@ -1873,7 +1887,7 @@
                         <include content="Info_MiscLine" condition="!Skin.HasSetting(Ratings.HideAll)">
                             <param name="container">$PARAM[container]</param>
                             <param name="colordiffuse" value="$PARAM[colordiffuse]" />
-                            <centertop>50%</centertop>
+                            <centertop>$PARAM[ratings_top]</centertop>
                             <visible>$PARAM[ratings]</visible>
                             <visible>[String.IsEqual($PARAM[container]ListItem.DBType,artist) | String.IsEqual($PARAM[container]ListItem.DBType,album) | String.IsEqual($PARAM[container]ListItem.DBType,song) | [String.IsEqual($PARAM[container]ListItem.DBType,video) + String.IsEqual($PARAM[container]ListItem.Property(TMDB_Type),person)]]</visible>
                         </include>
@@ -1893,8 +1907,8 @@
                                 <visible>$PARAM[details]</visible>
                                 <visible>$PARAM[plotbox]</visible>
                                 <visible>[[String.IsEqual($PARAM[container]ListItem.DBType,movie) | String.IsEqual($PARAM[container]ListItem.DBType,tvshow) | String.IsEqual($PARAM[container]ListItem.DBType,season) | String.IsEqual($PARAM[container]ListItem.DBType,episode) | [!String.IsEmpty($PARAM[container]ListItem.ChannelNumberLabel) + [String.IsEqual(Container(99950).ListItem.Property(TMDB_Type),movie) | String.IsEqual(Container(99950).ListItem.Property(TMDB_Type),tv)]]] | [String.IsEqual($PARAM[container]ListItem.DBType,artist) | String.IsEqual($PARAM[container]ListItem.DBType,album) | String.IsEqual($PARAM[container]ListItem.DBType,song) | [String.IsEqual($PARAM[container]ListItem.DBType,video) + String.IsEqual($PARAM[container]ListItem.Property(TMDB_Type),person)]]]</visible>
-                                <top>-3</top>
-                                <bottom>3</bottom>
+                                <top>-22</top>
+                                <bottom>22</bottom>
                             </include>
                             <!-- No Ratings + Plot -->
                             <include content="Object_Control">

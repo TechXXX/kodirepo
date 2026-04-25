@@ -106,6 +106,9 @@ The current production Fen Light Patched build also skips autoplay sources
 whose detected audio streams are Russian-only, Ukrainian-only, or Chinese-only
 unless the selected title metadata already expects that spoken language.
 
+It now also uses the show's original or English title plus the actual episode
+name when building TV subtitle-search metadata and filenames.
+
 ### `plugin.video.fenlight.aisearch`
 
 This addon now owns:
@@ -152,6 +155,9 @@ That distinction matters because:
 
 - helper integration ids must match the patched helper addon
 - stale recommendation-window properties must be cleared from the skin side
+
+The current production patched skin also ships the Inter font family with
+matching info-panel, rating, and hub-layout refinements.
 - visual recommendation-dialog behavior depends on skin XML, not helper Python
 
 ### `skin.arctic.horizon.2.1`

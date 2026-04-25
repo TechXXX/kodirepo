@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.44[/B][/COLOR]
+- Use the show's original or English title plus the actual episode name when building TV subtitle-search metadata and filenames, reducing mismatches on localized show labels.
+
 [COLOR dodgerblue][B]Version 2.0.43[/B][/COLOR]
 - Skip autoplay sources whose detected audio streams are Russian-only, Ukrainian-only, or Chinese-only unless the selected title metadata already expects that spoken language.
 

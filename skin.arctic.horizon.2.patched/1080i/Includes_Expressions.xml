@@ -75,6 +75,8 @@
 
     <expression name="Exp_FullscreenWidgetStandard">[!String.IsEmpty(Container(300).ListItem.Property(widgetPath)) + [String.IsEqual(Container(300).ListItem.Property(widgetStyle),Fullscreen) | String.IsEmpty(Container(300).ListItem.Property(widgetStyle))]]</expression>
 
+    <expression name="Exp_HomeWidget_NextPage">[[String.Contains(Container(301).ListItem.Art(icon),nextpage) | String.Contains(Container(301).ListItem.Art(landscape),nextpage) | String.StartsWith(Container(301).ListItem.Label,Next Page) | String.StartsWith(Container(301).ListItem.Label,Next page) | String.StartsWith(Container(301).ListItem.Title,Next Page) | String.StartsWith(Container(301).ListItem.Title,Next page)] + [String.IsEqual(Container(301).ListItem.Property(specialsort),bottom) | String.Contains(Container(301).ListItem.FolderPath,page=) | String.Contains(Container(301).ListItem.FileNameAndPath,page=) | String.Contains(Container(301).ListItem.Art(icon),nextpage) | String.Contains(Container(301).ListItem.Art(landscape),nextpage)]]</expression>
+
     <expression name="Exp_PVRWindows">[Window.IsVisible(MyPVRGuide.xml) | Window.IsVisible(MyPVRChannels.xml) | Window.IsVisible(MyPVRTimers.xml) | Window.IsVisible(MyPVRRecordings.xml) | Window.IsVisible(MyPVRSearch.xml)]</expression>
 
     <expression name="Exp_InfoDialogs">[Window.IsVisible(DialogVideoInfo.xml) | Window.IsVisible(DialogMusicInfo.xml) | Window.IsVisible(DialogAddonInfo.xml) | Window.IsVisible(DialogPVRInfo.xml) | Window.IsVisible(script-tmdbhelper-wikipedia.xml)]

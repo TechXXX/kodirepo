@@ -54,7 +54,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.43">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.44">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +75,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.43]:
+            <news>[v2.0.44]:
+  * Use the show's original or English title plus the actual episode name when building TV subtitle-search metadata and filenames, reducing mismatches on localized show labels.
+
+[v2.0.43]:
   * Skip autoplay sources whose detected audio streams are Russian-only, Ukrainian-only, or Chinese-only unless the selected title metadata already expects that spoken language.
 
 [v2.0.42]:
@@ -406,7 +409,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="skin.arctic.horizon.2.patched" name="Arctic Horizon 2 Patched" provider-name="DutchTech" version="0.8.30.5">
+    <addon id="skin.arctic.horizon.2.patched" name="Arctic Horizon 2 Patched" provider-name="DutchTech" version="0.8.30.6">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="script.skinshortcuts" version="0.4.0" />
