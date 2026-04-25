@@ -54,7 +54,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.42">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.43">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +75,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.42]:
+            <news>[v2.0.43]:
+  * Skip autoplay sources whose detected audio streams are Russian-only, Ukrainian-only, or Chinese-only unless the selected title metadata already expects that spoken language.
+
+[v2.0.42]:
   * Add an explicit Trakt authorization status row to the settings window so expired or incomplete auth is visible even when a stale username is still stored.
   * Only show Authorize when Trakt is not fully authorized and keep Revoke tied to a stored Trakt user instead of treating the username as the only auth signal.
 

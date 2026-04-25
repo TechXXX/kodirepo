@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import re
 from threading import Thread
 from apis.trakt_api import make_trakt_slug
 from caches.settings_cache import get_setting
@@ -11,6 +12,7 @@ xbmc_player, execute_builtin, sleep = ku.xbmc_player, ku.execute_builtin, ku.sle
 make_listitem, volume_checker, get_infolabel, xbmc_monitor = ku.make_listitem, ku.volume_checker, ku.get_infolabel, ku.xbmc_monitor
 close_all_dialog, notification, poster_empty, fanart_empty = ku.close_all_dialog, ku.notification, ku.empty_poster, ku.get_addon_fanart()
 set_resolved_url = ku.set_resolved_url
+get_jsonrpc = ku.get_jsonrpc
 auto_resume, auto_nextep_settings, store_resolved_to_cloud = st.auto_resume, st.auto_nextep_settings, st.store_resolved_to_cloud
 set_bookmark, mark_movie, mark_episode = ws.set_bookmark, ws.mark_movie, ws.mark_episode
 total_time_errors = ('0.0', '', 0.0, None)
@@ -18,6 +20,24 @@ set_resume, set_watched = 5, 90
 video_fullscreen_check = 'Window.IsActive(fullscreenvideo)'
 dialog_close_settle_ms = 75
 post_fullscreen_settle_ms = 250
+audio_language_check_attempts_max = 8
+audio_language_check_settle_ms = 150
+unwanted_audio_language_map = {
+	'ru': 'Russian',
+	'rus': 'Russian',
+	'russian': 'Russian',
+	'uk': 'Ukrainian',
+	'ukr': 'Ukrainian',
+	'ukrainian': 'Ukrainian',
+	'zh': 'Chinese',
+	'zho': 'Chinese',
+	'chi': 'Chinese',
+	'chinese': 'Chinese',
+	'mandarin': 'Chinese',
+	'cantonese': 'Chinese',
+	'cmn': 'Chinese',
+	'yue': 'Chinese',
+}
 
 class FenLightPlayer(xbmc_player):
 	def __init__ (self):
@@ -128,6 +148,9 @@ class FenLightPlayer(xbmc_player):
 					try: self.total_time, self.curr_time = self.getTotalTime(), self.getTime()
 					except: sleep(250); continue
 					if not ensure_dialog_dead:
+						audio_language_decision = self.check_unwanted_audio_language()
+						if audio_language_decision == 'retry': continue
+						if audio_language_decision == 'skip': return
 						ensure_dialog_dead = True
 						self.playback_close_dialogs()
 					sleep(1000)
@@ -151,6 +174,98 @@ class FenLightPlayer(xbmc_player):
 			self.sources_object.playback_successful = False
 			self.sources_object.cancel_all_playback = True
 			return self.kill_dialog()
+
+	def check_unwanted_audio_language(self):
+		if self.audio_language_checked: return 'pass'
+		should_skip, blocked_languages, stream_details = self._should_skip_unwanted_audio_language()
+		if should_skip is None:
+			self.audio_language_check_attempts += 1
+			if self.audio_language_check_attempts < audio_language_check_attempts_max:
+				sleep(audio_language_check_settle_ms)
+				return 'retry'
+			self.audio_language_checked = True
+			return 'pass'
+		self.audio_language_checked = True
+		if not should_skip: return 'pass'
+		self.audio_language_rejected = True
+		spoken_language = self.meta_get('spoken_language', '')
+		logger('Fen Light Patched', 'Player.unwanted_audio_language_reject | blocked=%s | spoken_language=%s | streams=%s | url=%s' % (
+			', '.join(blocked_languages), spoken_language, ' || '.join(stream_details), self.url))
+		notification('Skipping source with %s-only audio' % '/'.join(blocked_languages), 2500)
+		self.playback_successful, self.cancel_all_playback = False, False
+		self.sources_object.playback_successful, self.sources_object.cancel_all_playback = False, False
+		self.clear_playback_properties()
+		self.stop()
+		return 'skip'
+
+	def _should_skip_unwanted_audio_language(self):
+		spoken_language = self._normalize_unwanted_audio_language(self.meta_get('spoken_language', ''))
+		if spoken_language in set(unwanted_audio_language_map.values()):
+			return False, (), ()
+		streams = self._get_audio_streams()
+		if not streams: return None, (), ()
+		blocked_languages, stream_details, has_meaningful_stream_data = [], [], False
+		for stream in streams:
+			description = self._describe_audio_stream(stream)
+			if description:
+				has_meaningful_stream_data = True
+				stream_details.append(description)
+			blocked_language = self._detect_unwanted_audio_language(stream)
+			if blocked_language is None:
+				if description: return False, (), tuple(stream_details)
+				continue
+			blocked_languages.append(blocked_language)
+		if not has_meaningful_stream_data: return None, (), ()
+		if not blocked_languages: return False, (), tuple(stream_details)
+		return True, tuple(sorted(set(blocked_languages))), tuple(stream_details)
+
+	def _get_audio_streams(self):
+		streams = []
+		try:
+			command = {
+				'jsonrpc': '2.0',
+				'id': 1,
+				'method': 'Player.GetProperties',
+				'params': {
+					'playerid': 1,
+					'properties': ['currentaudiostream', 'audiostreams'],
+				},
+			}
+			result = get_jsonrpc(command) or {}
+			current_audio_stream = result.get('currentaudiostream')
+			if current_audio_stream: streams.append(current_audio_stream)
+			streams.extend(result.get('audiostreams') or [])
+		except: pass
+		if streams: return streams
+		try: return [{'language': i} for i in self.getAvailableAudioStreams() if i]
+		except: return []
+
+	def _describe_audio_stream(self, stream):
+		language = (stream.get('language') or '').strip()
+		name = (stream.get('name') or '').strip()
+		parts = []
+		if language: parts.append(language)
+		if name and name != language: parts.append(name)
+		return ' | '.join(parts)
+
+	def _detect_unwanted_audio_language(self, stream):
+		for value, allow_name in ((stream.get('language'), False), (stream.get('name'), True)):
+			result = self._normalize_unwanted_audio_language(value, allow_name=allow_name)
+			if result: return result
+		return None
+
+	def _normalize_unwanted_audio_language(self, value, allow_name=False):
+		text = (value or '').strip().lower()
+		if not text: return None
+		if allow_name and any(i in text for i in ('/', '\\', '&', '+', ',', '|', '(', ')', '[', ']')): return None
+		text = re.sub(r'[^a-z]+', ' ', text).strip()
+		if not text or text in ('unknown', 'und', 'undetermined', 'default', 'original'): return None
+		if text in unwanted_audio_language_map: return unwanted_audio_language_map[text]
+		tokens = text.split()
+		matches = {unwanted_audio_language_map[i] for i in tokens if i in unwanted_audio_language_map}
+		if len(matches) == 1 and (not allow_name or len(tokens) <= 2):
+			return next(iter(matches))
+		return None
 
 	def make_listing(self):
 		listitem = make_listitem()
@@ -277,6 +392,8 @@ class FenLightPlayer(xbmc_player):
 			self.meta_get, self.kodi_monitor, self.playback_percent = self.meta.get, xbmc_monitor(), self.sources_object.playback_percent or 0.0
 			self.playing_filename = self.sources_object.playing_filename
 			self.media_marked, self.nextep_info_gathered = False, False
+			self.audio_language_checked, self.audio_language_rejected = False, False
+			self.audio_language_check_attempts = 0
 			self.playback_started = False
 			self.playback_successful, self.cancel_all_playback = None, False
 			self.playing_item = self.sources_object.playing_item

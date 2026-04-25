@@ -102,6 +102,10 @@ selector package and its vendored copy. AI prompt interpretation and result
 building also belong in `modules/ai_search.py`, not in `sources.py` or
 `player.py`.
 
+The current production Fen Light Patched build also skips autoplay sources
+whose detected audio streams are Russian-only, Ukrainian-only, or Chinese-only
+unless the selected title metadata already expects that spoken language.
+
 ### `plugin.video.fenlight.aisearch`
 
 This addon now owns:
