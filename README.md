@@ -159,7 +159,9 @@ That distinction matters because:
 - stale recommendation-window properties must be cleared from the skin side
 
 The current production patched skin also ships the Inter font family with
-matching info-panel, rating, and hub-layout refinements.
+matching info-panel, rating, and hub-layout refinements. It now also gives
+Next Page placeholder items dedicated fallback artwork/background handling so
+they stop reusing stray media and plot text.
 - visual recommendation-dialog behavior depends on skin XML, not helper Python
 
 ### `skin.arctic.horizon.2.1`
