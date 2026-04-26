@@ -141,6 +141,8 @@ class RatingsDict(BaseList):
         if not data:
             return
 
+        data = self.backfill_cached_omdb_ratings(data[0])
+
         ratings_style = {
             'tmdb_rating': lambda v: f'{(v / 10):.1f}',
             'trakt_rating': lambda v: f'{(v / 10):.1f}',
@@ -151,11 +153,11 @@ class RatingsDict(BaseList):
 
         mapped_data = {}
 
-        for k in data[0].keys():
+        for k in data.keys():
             if k in ('id', 'expiry'):
                 continue
 
-            v = data[0][k]
+            v = data[k]
 
             if not v:
                 continue
@@ -178,7 +180,53 @@ class RatingsDict(BaseList):
             except KeyError:
                 mapped_data[k] = v
 
+        self.add_legacy_rating_aliases(mapped_data)
         return mapped_data
+
+    def add_legacy_rating_aliases(self, data):
+        aliases = {
+            'top250': 'Top250',
+            'tmdb_rating': 'TMDb_Rating',
+            'trakt_rating': 'Trakt_Rating',
+            'imdb_rating': 'IMDb_Rating',
+            'imdb_votes': 'IMDb_Votes',
+            'metacritic_rating': 'MetaCritic_Rating',
+            'rottentomatoes_rating': 'RottenTomatoes_Rating',
+            'rottentomatoes_usermeter': 'RottenTomatoes_UserMeter',
+            'oscar_wins': 'Oscar_Wins',
+            'goldenglobe_wins': 'GoldenGlobe_Wins',
+            'emmy_wins': 'Emmy_Wins',
+        }
+        for source, target in aliases.items():
+            if source not in data or target in data:
+                continue
+            data[target] = data[source]
+
+    def backfill_cached_omdb_ratings(self, data):
+        data = {k: data[k] for k in data.keys()}
+
+        if data.get('imdb_rating'):
+            return data
+        if not self.common_apis.omdb_api or not self.imdb_id:
+            return data
+
+        omdb_data = self.omdb_ratings or {}
+        if not omdb_data.get('imdb_rating'):
+            return data
+
+        data.update(omdb_data)
+
+        with self.connection.open():
+            self.connection.open_connection.execute('BEGIN')
+            self.set_cached_values(
+                self.table,
+                self.item_id,
+                self.keys,
+                self.configure_mapped_data(data)
+            )
+            self.connection.open_connection.execute('COMMIT')
+
+        return data
 
     def try_cached_data(self, return_data=False):
         if not self.parent_item_data:

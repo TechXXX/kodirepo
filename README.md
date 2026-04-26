@@ -27,10 +27,12 @@ Current source-tree versions when this document was updated:
   production build also adds TMDb metadata language and fallback-language
   controls for movie, TV, collection, season, episode, and people details, and
   now shows an explicit Trakt authorization status row in settings.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.5`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.6`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
-  and debug logging previously validated in the test repo.
+  and debug logging previously validated in the test repo. It now also switches
+  OMDb lookups to the JSON endpoint while backfilling missing cached IMDb and
+  OMDb ratings more reliably.
 - `service.subtitles.a4ksubtitles.patched` `3.23.27`
   Main patched a4k build used with selector-aware Fenlight.
 - `service.kodi.favourites.sync` `0.2.36`

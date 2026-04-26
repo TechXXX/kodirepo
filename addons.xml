@@ -139,7 +139,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.5" name="TMDb Helper Patched" provider-name="DutchTech">
+    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.6" name="TMDb Helper Patched" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
             <import addon="script.module.requests" version="2.9.1" />

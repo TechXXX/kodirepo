@@ -34,12 +34,16 @@ class OMDb(RequestAPI):
         super(OMDb, self).__init__(
             req_api_key=f'apikey={api_key}',
             req_api_name='OMDb',
-            req_api_url='https://www.omdbapi.com/')
+            req_api_url='http://www.omdbapi.com/',
+            timeout=30)
         self.translate_xml = translate_xml  # Temp monkey patch bandaid for broken ElementTree. Remove after upstream fix.
         self._error_notification = False  # Override user settings and always suppress OMDb error notifications since it times-out a lot.
         OMDb.api_key = api_key
 
     def get_request_item(self, imdb_id=None, title=None, year=None, tomatoes=True, fullplot=True, cache_only=False):
+        def normalize_key(key):
+            return f'{key[:1].lower()}{key[1:]}'
+
         kwparams = {}
         kwparams['i'] = imdb_id
         kwparams['t'] = title
@@ -47,13 +51,19 @@ class OMDb(RequestAPI):
         kwparams['plot'] = 'full' if fullplot else 'short'
         kwparams['tomatoes'] = 'True' if tomatoes else None
         kwparams = del_empty_keys(kwparams)
-        request = self.get_request_lc(is_xml=True, cache_only=cache_only, r='xml', **kwparams)
+        request = self.get_request_lc(cache_only=cache_only, r='json', **kwparams)
         try:
-            request = request['root']['movie'][0]
-        except (KeyError, TypeError, AttributeError):
+            request = {normalize_key(k): v for k, v in request.items()}
+        except AttributeError:
             request = {}
         return request
 
     def get_ratings_awards(self, imdb_id=None, title=None, year=None, cache_only=False):
-        request = self.get_request_item(imdb_id=imdb_id, title=title, year=year, cache_only=cache_only)
+        request = self.get_request_item(
+            imdb_id=imdb_id,
+            title=title,
+            year=year,
+            tomatoes=False,
+            fullplot=False,
+            cache_only=cache_only)
         return ItemMapper().get_info(request)
