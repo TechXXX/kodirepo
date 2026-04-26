@@ -199,12 +199,9 @@ class FenLightPlayer(xbmc_player):
 		return 'skip'
 
 	def _should_skip_unwanted_audio_language(self):
-		spoken_language = self._normalize_unwanted_audio_language(self.meta_get('spoken_language', ''))
-		if spoken_language in set(unwanted_audio_language_map.values()):
-			return False, (), ()
 		streams = self._get_audio_streams()
 		if not streams: return None, (), ()
-		blocked_languages, stream_details, has_meaningful_stream_data = [], [], False
+		blocked_languages, stream_details, has_meaningful_stream_data, allowed_stream_found = [], [], False, False
 		for stream in streams:
 			description = self._describe_audio_stream(stream)
 			if description:
@@ -212,11 +209,11 @@ class FenLightPlayer(xbmc_player):
 				stream_details.append(description)
 			blocked_language = self._detect_unwanted_audio_language(stream)
 			if blocked_language is None:
-				if description: return False, (), tuple(stream_details)
+				if description: allowed_stream_found = True
 				continue
 			blocked_languages.append(blocked_language)
 		if not has_meaningful_stream_data: return None, (), ()
-		if not blocked_languages: return False, (), tuple(stream_details)
+		if allowed_stream_found or not blocked_languages: return False, (), tuple(stream_details)
 		return True, tuple(sorted(set(blocked_languages))), tuple(stream_details)
 
 	def _get_audio_streams(self):

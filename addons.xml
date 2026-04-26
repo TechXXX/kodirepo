@@ -54,7 +54,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.44">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.46">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +75,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.44]:
+            <news>[v2.0.46]:
+  * Strip tracker suffix noise like .rartv. and .eztv before release-group matching so season-pack sources such as S01 BiRDHOUSE rank above weaker same-quality fallbacks when their episode subtitle release matches.
+  * Skip autoplay sources only when every detected audio stream is a blocked pirate-language track, so mixed-language sources with an acceptable track can still play.
+
+[v2.0.44]:
   * Use the show's original or English title plus the actual episode name when building TV subtitle-search metadata and filenames, reducing mismatches on localized show labels.
 
 [v2.0.43]:

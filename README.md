@@ -25,8 +25,11 @@ Current source-tree versions when this document was updated:
   Gemini fallback, a top-10 subtitle-backed retry pool, and selector comment
   alias promotion for stronger same-item release matches. The current
   production build also adds TMDb metadata language and fallback-language
-  controls for movie, TV, collection, season, episode, and people details, and
-  now shows an explicit Trakt authorization status row in settings.
+  controls for movie, TV, collection, season, episode, and people details, now
+  shows an explicit Trakt authorization status row in settings, strips tracker
+  suffix noise like `.rartv.` and `.eztv` before subtitle release-group
+  matching, and only skips blocked pirate-language sources when every detected
+  audio stream is Russian, Ukrainian, or Chinese.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.6`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes

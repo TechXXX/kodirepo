@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Version 2.0.46[/B][/COLOR]
+- Strip tracker suffix noise like `.rartv.` and `.eztv` before release-group matching so season-pack sources can keep their stronger subtitle release matches.
+- Skip autoplay sources only when every detected audio stream is Russian-only, Ukrainian-only, or Chinese-only, while still allowing mixed-language sources with an acceptable track.
+
 [COLOR dodgerblue][B]Version 2.0.44[/B][/COLOR]
 - Use the show's original or English title plus the actual episode name when building TV subtitle-search metadata and filenames, reducing mismatches on localized show labels.
 

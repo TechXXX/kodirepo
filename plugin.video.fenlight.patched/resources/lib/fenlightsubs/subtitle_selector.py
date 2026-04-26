@@ -248,9 +248,14 @@ def _best_match_for_source(
                 cap_comment_score=False,
                 used_comments_fallback=False,
             )
-            direct_result = _demote_bare_generic_containment_match(direct_result, direct_candidate)
+            direct_result = _demote_bare_generic_containment_match(
+                direct_result,
+                direct_candidate,
+            )
             direct_result = _demote_low_information_source_containment_match(
-                direct_result, prepared_source, direct_candidate
+                direct_result,
+                prepared_source,
+                direct_candidate,
             )
             subtitle_best = _choose_better_match(subtitle_best, direct_result)
 
@@ -406,6 +411,15 @@ def _score_candidate_match(
             "token_overlap": token_overlap,
         }
 
+    if stable_release_family and same_quality and token_overlap >= 2 and not (
+        source_group and subtitle_group and source_group != subtitle_group
+    ):
+        return {
+            "score": 68,
+            "reason": "source_family_and_quality_title_overlap",
+            "token_overlap": token_overlap,
+        }
+
     if _is_containment_match(source_normalized, subtitle_normalized):
         return {
             "score": 80,
@@ -413,12 +427,10 @@ def _score_candidate_match(
             "token_overlap": token_overlap,
         }
 
-    if stable_release_family and same_quality and token_overlap >= 2 and not (
-        source_group and subtitle_group and source_group != subtitle_group
-    ):
+    if stable_release_family and same_source_type and token_overlap >= 4:
         return {
-            "score": 68,
-            "reason": "source_family_and_quality_title_overlap",
+            "score": 70,
+            "reason": "source_type_and_token_overlap",
             "token_overlap": token_overlap,
         }
 
@@ -638,6 +650,8 @@ def _should_preserve_bracket_content(content: str) -> bool:
 
 def _extract_release_group(value: str) -> str | None:
     cleaned = _strip_known_extension(value.strip())
+    cleaned = re.sub(r"(?i)(?:[.\-_](?:rartv|eztv|tgx|ettv|publichd))+\.*$", "", cleaned)
+    cleaned = cleaned.rstrip(".-_ ")
     match = re.search(r"-([A-Za-z0-9]+)(?:\[[^\]]+\])?\s*$", cleaned)
     if not match:
         return None
