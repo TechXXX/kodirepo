@@ -33,8 +33,11 @@ Current source-tree versions when this document was updated:
   and debug logging previously validated in the test repo. It now also switches
   OMDb lookups to the JSON endpoint while backfilling missing cached IMDb and
   OMDb ratings more reliably.
-- `service.subtitles.a4ksubtitles.patched` `3.23.27`
-  Main patched a4k build used with selector-aware Fenlight.
+- `service.subtitles.a4ksubtitles.patched` `3.23.30`
+  Main patched a4k build used with selector-aware Fenlight. The current
+  production build searches OpenSubtitles TV episodes by parent show IMDb id
+  plus season/episode before text fallbacks, so numeric show titles like
+  `1923` return the full episode subtitle set for selector ranking.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `skin.arctic.horizon.2.patched` `0.8.30.5`

@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* [v3.23.30](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.30):
+  * Search OpenSubtitles TV episodes by parent show IMDb id plus season/episode before text fallbacks, so numeric show titles like `1923` return the full episode subtitle set and feed selector ranking with the correct release-specific candidates.
+
 * [v3.23.27](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.27):
   * Promote the API-mode subtitle cache bypass to the main repo so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
 

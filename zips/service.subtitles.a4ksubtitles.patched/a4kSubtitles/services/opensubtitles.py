@@ -145,18 +145,40 @@ def build_search_requests(core, service_name, meta):
         return request
 
     if meta.is_tvshow:
-        params = {
-            'query': '%s S%.2dE%.2d' % (meta.tvshow, int(meta.season), int(meta.episode)),
+        episode_query = '%s S%.2dE%.2d' % (meta.tvshow, int(meta.season), int(meta.episode))
+        base_params = {
             'languages': ','.join(lang_ids),
             'type': 'episode',
             'season_number': meta.season,
             'episode_number': meta.episode,
         }
 
-        if meta.filehash:
-            params['moviehash'] = meta.filehash
+        def normalize_imdb_id(imdb_id):
+            if not imdb_id:
+                return None
+            return imdb_id[2:] if imdb_id.startswith('tt') else imdb_id
 
-        return [build_request(params)]
+        # OpenSubtitles episode pages are keyed by the parent TV-show IMDb id plus
+        # season/episode. Adding query text to that request can hide valid rows.
+        parent_imdb_id = normalize_imdb_id(
+            getattr(meta, 'tv_show_imdb_id', '') or getattr(meta, 'imdb_id', '')
+        )
+
+        fallback_title = build_request(dict(base_params, query=meta.title)) if meta.title else None
+        fallback_episode_title = build_request(
+            dict(base_params, query='%s %s' % (episode_query, meta.title)),
+            next_request=fallback_title
+        ) if meta.title else None
+        fallback_episode_query = build_request(
+            dict(base_params, query=episode_query),
+            next_request=fallback_episode_title
+        )
+
+        if not parent_imdb_id:
+            return [fallback_episode_query]
+
+        primary_params = dict(base_params, parent_imdb_id=parent_imdb_id)
+        return [build_request(primary_params, next_request=fallback_episode_query)]
 
     base_params = {
         'languages': ','.join(lang_ids),
