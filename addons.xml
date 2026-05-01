@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-    <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.07">
+    <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.15">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -24,7 +24,7 @@
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.5">
+    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.7">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -45,7 +45,10 @@
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v1.0.5]:
+            <news>[v1.0.7]:
+  * Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
+
+[v1.0.5]:
   * Add support for up to three Gemini API keys with automatic fallback on rate-limit or quota-exhaustion responses so AI Search can keep working when one project hits its cap.
 
 [v1.0.4]:
@@ -54,7 +57,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.46">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.49">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -75,7 +78,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.46]:
+            <news>[v2.0.49]:
+  * Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
+
+[v2.0.46]:
   * Strip tracker suffix noise like .rartv. and .eztv before release-group matching so season-pack sources such as S01 BiRDHOUSE rank above weaker same-quality fallbacks when their episode subtitle release matches.
   * Skip autoplay sources only when every detected audio stream is a blocked pirate-language track, so mixed-language sources with an acceptable track can still play.
 

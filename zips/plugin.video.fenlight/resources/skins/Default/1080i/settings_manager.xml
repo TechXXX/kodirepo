@@ -1150,7 +1150,7 @@
                       </item>
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tmdb_api),b370b60447737762ca38457bd77579b3)</visible>
+                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tmdb_api),d9332419f9c747636df6c20464e7b897)</visible>
                           <property name="setting_label">    - Restore Default TMDb API Key</property>
                           <property name="setting_type">action</property>
                           <property name="setting_value">...</property>

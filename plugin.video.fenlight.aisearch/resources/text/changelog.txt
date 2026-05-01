@@ -1,5 +1,8 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 1.0.7[/B][/COLOR]
+- Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
+
 [COLOR dodgerblue][B]Version 1.0.5[/B][/COLOR]
 - Added support for up to three Gemini API keys and automatic fallback on rate-limit or quota-exhaustion responses so AI Search can keep working when one project hits its cap.
 - Exposed `API Key 1`, `API Key 2`, and `API Key 3` in the settings manager so separate Google projects can be used as fallback keys.

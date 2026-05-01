@@ -1,5 +1,8 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.15[/B][/COLOR]
+- Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
+
 [COLOR dodgerblue][B]Version 2.0.07[/B][/COLOR]
 - Added support for Season and Episode items included in Trakt list contents (My Lists, Liked Lists).
 - Updated Trakt icon.

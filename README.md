@@ -11,14 +11,14 @@ standalone Fen Light AIsearch fork, and the patched a4k addon.
 
 Current source-tree versions when this document was updated:
 
-- `plugin.video.fenlight` `2.0.07`
+- `plugin.video.fenlight` `2.0.15`
   Baseline Fenlight package.
-- `plugin.video.fenlight.aisearch` `1.0.5`
+- `plugin.video.fenlight.aisearch` `1.0.7`
   Standalone AI-search fork with its own addon id, profile, artwork, and repo
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.42`
+- `plugin.video.fenlight.patched` `2.0.49`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
