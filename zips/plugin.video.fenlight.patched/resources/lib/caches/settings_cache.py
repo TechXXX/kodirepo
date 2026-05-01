@@ -304,7 +304,7 @@ default_settings = [
 {'setting_id': 'gemini_api_2', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'gemini_api_3', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== OMDb
-{'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': '987d3ba9'},
 #==================== External
 {'setting_id': 'provider.external', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'external_scraper.name', 'setting_type': 'string', 'setting_default': 'empty_setting'},

@@ -18,7 +18,7 @@ Current source-tree versions when this document was updated:
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.49`
+- `plugin.video.fenlight.patched` `2.0.51`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -30,12 +30,13 @@ Current source-tree versions when this document was updated:
   suffix noise like `.rartv.` and `.eztv` before subtitle release-group
   matching, and only skips blocked pirate-language sources when every detected
   audio stream is Russian, Ukrainian, or Chinese.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.6`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.8`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
   OMDb lookups to the JSON endpoint while backfilling missing cached IMDb and
-  OMDb ratings more reliably.
+  OMDb ratings more reliably. It now also ships a bundled default OMDb API key
+  for repo installs.
 - `service.subtitles.a4ksubtitles.patched` `3.23.30`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build searches OpenSubtitles TV episodes by parent show IMDb id

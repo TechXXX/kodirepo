@@ -373,7 +373,7 @@
             <group id="1" label="32029">
                 <setting id="omdb_apikey" type="string" label="32001" help="">
                     <level>0</level>
-                    <default/>
+                    <default>987d3ba9</default>
                     <constraints>
                         <allowempty>true</allowempty>
                     </constraints>

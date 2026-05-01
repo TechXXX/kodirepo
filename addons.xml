@@ -57,7 +57,7 @@
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.49">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.51">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -78,7 +78,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.49]:
+            <news>[v2.0.51]:
+  * Add a bundled default OMDb API key so patched Fenlight ships with extra-ratings support enabled without manual OMDb key entry.
+
+[v2.0.49]:
   * Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
 
 [v2.0.46]:
@@ -149,7 +152,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.6" name="TMDb Helper Patched" provider-name="DutchTech">
+    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.8" name="TMDb Helper Patched" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
             <import addon="script.module.requests" version="2.9.1" />
