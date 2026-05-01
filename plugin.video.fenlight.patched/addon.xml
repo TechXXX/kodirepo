@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.51">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.53">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.51]:
+        <news>[v2.0.53]:
+  * Fix local resume bookmark cleanup after playback stop, including newer Kodi video-database detection and safer bookmark clearing around the patched playback flow.
+
+[v2.0.51]:
   * Add a bundled default OMDb API key so patched Fenlight ships with extra-ratings support enabled without manual OMDb key entry.
 
 [v2.0.49]:

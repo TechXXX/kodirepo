@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.53[/B][/COLOR]
+- Fix local resume bookmark cleanup after playback stop, including newer Kodi video-database detection and safer bookmark clearing around the patched playback flow.
+
 [COLOR dodgerblue][B]Version 2.0.51[/B][/COLOR]
 - Add a bundled default OMDb API key so patched Fenlight ships with extra-ratings support enabled without manual OMDb key entry.
 

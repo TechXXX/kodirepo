@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import re
+import traceback
 from threading import Thread
 from apis.trakt_api import make_trakt_slug
 from caches.settings_cache import get_setting
@@ -15,11 +16,15 @@ set_resolved_url = ku.set_resolved_url
 get_jsonrpc = ku.get_jsonrpc
 auto_resume, auto_nextep_settings, store_resolved_to_cloud = st.auto_resume, st.auto_nextep_settings, st.store_resolved_to_cloud
 set_bookmark, mark_movie, mark_episode = ws.set_bookmark, ws.mark_movie, ws.mark_episode
+clear_local_bookmark = ws.clear_local_bookmark
 total_time_errors = ('0.0', '', 0.0, None)
 set_resume, set_watched = 5, 90
 video_fullscreen_check = 'Window.IsActive(fullscreenvideo)'
 dialog_close_settle_ms = 75
 post_fullscreen_settle_ms = 250
+post_stop_bookmark_clear_delay_ms = 750
+post_stop_bookmark_clear_retry_ms = 500
+post_stop_bookmark_clear_attempts = 3
 audio_language_check_attempts_max = 8
 audio_language_check_settle_ms = 150
 unwanted_audio_language_map = {
@@ -166,11 +171,15 @@ class FenLightPlayer(xbmc_player):
 			logger('Fen Light Patched', 'Player.monitor exit | current_point=%s | media_marked=%s | url=%s' % (
 				getattr(self, 'current_point', None), self.media_marked, self.url))
 			if not self.media_marked: self.media_watched_marker()
+			logger('Fen Light Patched', 'Player.monitor cleanup starting | url=%s | tmdb_id=%s | media_type=%s' % (
+				self.url, getattr(self, 'tmdb_id', ''), getattr(self, 'media_type', '')))
+			self.schedule_local_bookmark_clear()
 			self.clear_playback_properties()
 			self.clear_playing_item()
 		except:
 			hide_busy_dialog()
-			logger('Fen Light Patched', 'Player.monitor exception | url=%s' % getattr(self, 'url', ''))
+			logger('Fen Light Patched', 'Player.monitor exception | url=%s | error=%s' % (
+				getattr(self, 'url', ''), traceback.format_exc().strip()))
 			self.sources_object.playback_successful = False
 			self.sources_object.cancel_all_playback = True
 			return self.kill_dialog()
@@ -342,6 +351,24 @@ class FenLightPlayer(xbmc_player):
 		try: function(params)
 		except: pass
 
+	def schedule_local_bookmark_clear(self):
+		if self.is_generic: return
+		logger('Fen Light Patched', 'Player.schedule_local_bookmark_clear | media_type=%s | tmdb_id=%s | season=%s | episode=%s | url=%s' % (
+			self.media_type, self.tmdb_id, self.season, self.episode, self.url))
+		Thread(target=self.clear_local_bookmark_after_stop, args=(self.media_type, self.tmdb_id, self.season, self.episode)).start()
+
+	def clear_local_bookmark_after_stop(self, media_type, tmdb_id, season, episode):
+		sleep(post_stop_bookmark_clear_delay_ms)
+		for count in range(post_stop_bookmark_clear_attempts):
+			try:
+				result = clear_local_bookmark(media_type, tmdb_id, season, episode)
+				logger('Fen Light Patched', 'Player.clear_local_bookmark_after_stop | attempt=%s/%s | media_type=%s | tmdb_id=%s | season=%s | episode=%s | cleared=%s' % (
+					count + 1, post_stop_bookmark_clear_attempts, media_type, tmdb_id, season, episode, result))
+			except:
+				logger('Fen Light Patched', 'Player.clear_local_bookmark_after_stop exception | attempt=%s/%s | media_type=%s | tmdb_id=%s | season=%s | episode=%s | error=%s' % (
+					count + 1, post_stop_bookmark_clear_attempts, media_type, tmdb_id, season, episode, traceback.format_exc().strip()))
+			if count < post_stop_bookmark_clear_attempts - 1: sleep(post_stop_bookmark_clear_retry_ms)
+
 	def run_next_ep(self):
 		from modules.episode_tools import EpisodeTools
 		if not self.media_marked: self.media_watched_marker(force_watched=True)
@@ -418,11 +445,15 @@ class FenLightPlayer(xbmc_player):
 		clear_property('subs.selector_payload')
 
 	def clear_playing_item(self):
-		if self.playing_item['cache_provider'] == 'Offcloud':
-			if self.playing_item.get('direct_debrid_link', False): return
-			if store_resolved_to_cloud('Offcloud', 'package' in self.playing_item): return
+		playing_item = getattr(self, 'playing_item', {}) or {}
+		cache_provider = playing_item.get('cache_provider')
+		logger('Fen Light Patched', 'Player.clear_playing_item | cache_provider=%s | keys=%s | url=%s' % (
+			cache_provider, ','.join(sorted(playing_item.keys())), getattr(self, 'url', '')))
+		if cache_provider == 'Offcloud':
+			if playing_item.get('direct_debrid_link', False): return
+			if store_resolved_to_cloud('Offcloud', 'package' in playing_item): return
 			from apis.offcloud_api import OffcloudAPI
-			OffcloudAPI().clear_played_torrent(self.playing_item)
+			OffcloudAPI().clear_played_torrent(playing_item)
 
 	def run_error(self):
 		try: self.sources_object.playback_successful = False

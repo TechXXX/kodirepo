@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# TRUMP WON
 import sys
+import os
 import xbmc, xbmcgui, xbmcplugin, xbmcvfs, xbmcaddon
 from os import path as osPath
 from urllib.parse import urlencode
@@ -241,7 +241,19 @@ def kodi_version():
 	return int(get_infolabel('System.BuildVersion')[0:2])
 
 def get_video_database_path():
-	return translate_path('special://profile/Database/MyVideos%s.db' % myvideos_db_paths[kodi_version()])
+	fallback = translate_path('special://profile/Database/MyVideos%s.db' % myvideos_db_paths.get(kodi_version(), '124'))
+	try:
+		database_dir = translate_path('special://profile/Database')
+		candidates = []
+		for item in os.listdir(database_dir):
+			if not item.startswith('MyVideos') or not item.endswith('.db'): continue
+			try: candidates.append((int(item[8:-3]), item))
+			except: pass
+		if candidates:
+			candidates.sort()
+			return osPath.join(database_dir, candidates[-1][1])
+	except: pass
+	return fallback
 
 def show_busy_dialog():
 	return execute_builtin('ActivateWindow(busydialognocancel)')

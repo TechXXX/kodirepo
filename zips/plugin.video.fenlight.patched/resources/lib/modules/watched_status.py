@@ -7,7 +7,7 @@ from caches.main_cache import main_cache, cache_object
 from caches.trakt_cache import clear_trakt_collection_watchlist_data
 from modules import kodi_utils, settings, metadata
 from modules.utils import get_datetime, adjust_premiered_date, sort_for_article, make_thread_list
-# logger = kodi_utils.logger
+logger = kodi_utils.logger
 
 watched_indicators_function, lists_sort_order, date_offset, nextep_method = settings.watched_indicators, settings.lists_sort_order, settings.date_offset, settings.nextep_method
 sleep, progressDialogBG, get_video_database_path = kodi_utils.sleep, kodi_utils.progressDialogBG, kodi_utils.get_video_database_path
@@ -197,24 +197,57 @@ def get_progress_status_all_episode(progress_info, season, episode):
 	return percent
 
 def clear_local_bookmarks():
+	dbcon = None
 	try:
-		dbcon = database.connect(get_video_database_path())
+		dbcon, video_database_path = connect_video_database()
 		file_ids = dbcon.execute("SELECT idFile FROM files WHERE strFilename LIKE 'plugin://plugin.video.fenlight.patched/%'").fetchall()
 		for i in ('bookmark', 'streamdetails', 'files'): dbcon.executemany("DELETE FROM %s WHERE idFile=?" % i, file_ids)
+		try: dbcon.commit()
+		except: pass
 	except: pass
+	finally:
+		try: dbcon.close()
+		except: pass
 
 def clear_local_bookmark(media_type, media_id, season='', episode=''):
+	dbcon = None
 	try:
 		media_type, media_id = str(media_type), str(media_id)
 		season, episode = str(season), str(episode)
 		if media_type == 'movie': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=movie&tmdb_id=%s%%' % media_id
 		elif media_type == 'episode': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=episode&tmdb_id=%s&season=%s&episode=%s%%' % (media_id, season, episode)
 		else: return
-		dbcon = database.connect(get_video_database_path())
+		dbcon, video_database_path = connect_video_database()
 		file_ids = dbcon.execute('SELECT idFile FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
-		if not file_ids: return
+		if not file_ids:
+			logger('Fen Light Patched', 'watched_status.clear_local_bookmark | media_type=%s | media_id=%s | season=%s | episode=%s | db=%s | matched_files=0' % (
+				media_type, media_id, season, episode, video_database_path))
+			return False
+		id_values = [i[0] for i in file_ids]
+		placeholders = ','.join('?' for _ in id_values)
+		before = dbcon.execute('SELECT COUNT(*) FROM bookmark WHERE idFile IN (%s)' % placeholders, id_values).fetchone()[0]
 		dbcon.executemany('DELETE FROM bookmark WHERE idFile=?', file_ids)
+		try: dbcon.commit()
+		except: pass
+		after = dbcon.execute('SELECT COUNT(*) FROM bookmark WHERE idFile IN (%s)' % placeholders, id_values).fetchone()[0]
+		cleared = after < before
+		logger('Fen Light Patched', 'watched_status.clear_local_bookmark | media_type=%s | media_id=%s | season=%s | episode=%s | db=%s | matched_files=%s | before=%s | after=%s | cleared=%s' % (
+			media_type, media_id, season, episode, video_database_path, len(file_ids), before, after, cleared))
+		return cleared
+	except Exception as exc:
+		logger('Fen Light Patched', 'watched_status.clear_local_bookmark exception | media_type=%s | media_id=%s | season=%s | episode=%s | error=%s' % (
+			media_type if 'media_type' in locals() else '', media_id if 'media_id' in locals() else '', season if 'season' in locals() else '', episode if 'episode' in locals() else '', repr(exc)))
+		return False
+	finally:
+		try: dbcon.close()
+		except: pass
+
+def connect_video_database():
+	video_database_path = get_video_database_path()
+	dbcon = database.connect(video_database_path, timeout=2.0, isolation_level=None, check_same_thread=False)
+	try: dbcon.execute('PRAGMA busy_timeout = 2000')
 	except: pass
+	return dbcon, video_database_path
 
 def erase_bookmark(media_type, media_id, season='', episode='', refresh='false'):
 	try:
