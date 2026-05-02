@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.55[/B][/COLOR]
+- Keep the safer next-episode chapter timing fallback, make source shadow snapshots opt-in behind a profile marker file, and trim noisy playback and bookmark debug logging.
+
 [COLOR dodgerblue][B]Version 2.0.53[/B][/COLOR]
 - Fix local resume bookmark cleanup after playback stop, including newer Kodi video-database detection and safer bookmark clearing around the patched playback flow.
 

@@ -49,6 +49,7 @@ int_window_prop = 'fenlight.internal_results.%s'
 scraper_timeout = 25
 a4k_subtitles_addon_path = 'special://home/addons/service.subtitles.a4ksubtitles.patched'
 subtitle_selector_shadow_dir = 'special://profile/addon_data/plugin.video.fenlight/subtitle_selector_shadow'
+subtitle_selector_shadow_enable_path = 'special://profile/addon_data/plugin.video.fenlight.patched/enable_selector_shadow'
 subtitle_fallback_candidate_limit = 10
 subtitle_selector_results_limit = 100
 filter_keys = {'hevc': '[B]HEVC[/B]', '3d': '[B]3D[/B]', 'hdr': '[B]HDR[/B]', 'dv': '[B]D/VISION[/B]', 'av1': '[B]AV1[/B]', 'enhanced_upscaled': '[B]AI ENHANCED/UPSCALED[/B]'}
@@ -483,6 +484,9 @@ class Sources():
 	def _shadow_snapshot_dir(self):
 		return kodi_utils.translatePath(subtitle_selector_shadow_dir)
 
+	def _shadow_snapshot_enabled(self):
+		return os.path.exists(kodi_utils.translatePath(subtitle_selector_shadow_enable_path))
+
 	def _shadow_snapshot_match_key(self):
 		season = self.meta.get('season')
 		episode = self.meta.get('episode')
@@ -528,6 +532,7 @@ class Sources():
 		}
 
 	def _write_source_shadow_snapshot(self, results):
+		if not self._shadow_snapshot_enabled(): return
 		try:
 			directory = self._shadow_snapshot_dir()
 			os.makedirs(directory, exist_ok=True)

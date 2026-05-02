@@ -53,7 +53,6 @@ class FenLightPlayer(xbmc_player):
 		self.clear_playback_properties()
 		if not url: return self.run_error()
 		try:
-			logger('Fen Light Patched', 'Player.run starting | url=%s' % url)
 			return self.play_video(url, obj)
 		except:
 			logger('Fen Light Patched', 'Player.run exception')
@@ -89,8 +88,6 @@ class FenLightPlayer(xbmc_player):
 			self.play(self.url, listing)
 		if not self.is_generic:
 			self.check_playback_start()
-			logger('Fen Light Patched', 'Player.play_video post-check | started=%s | successful=%s | cancelled=%s | url=%s' % (
-				self.playback_started, self.playback_successful, self.cancel_all_playback, self.url))
 			if self.playback_successful or self.playback_started:
 				self.playback_successful = True
 				self.monitor()
@@ -118,7 +115,6 @@ class FenLightPlayer(xbmc_player):
 				try:
 					total_time = self.getTotalTime()
 					fullscreen = get_visibility(video_fullscreen_check)
-					logger('Fen Light Patched', 'Player.check_playback_start playing | total_time=%s | fullscreen=%s | url=%s' % (total_time, fullscreen, self.url))
 					if total_time not in total_time_errors and fullscreen: self.playback_successful = True
 				except: pass
 			resolve_percent = round(resolve_percent + 26.0/100, 1)
@@ -168,11 +164,7 @@ class FenLightPlayer(xbmc_player):
 						if round(self.total_time - self.curr_time) <= self.start_prep: self.run_next_ep(); break
 				except: pass
 			hide_busy_dialog()
-			logger('Fen Light Patched', 'Player.monitor exit | current_point=%s | media_marked=%s | url=%s' % (
-				getattr(self, 'current_point', None), self.media_marked, self.url))
 			if not self.media_marked: self.media_watched_marker()
-			logger('Fen Light Patched', 'Player.monitor cleanup starting | url=%s | tmdb_id=%s | media_type=%s' % (
-				self.url, getattr(self, 'tmdb_id', ''), getattr(self, 'media_type', '')))
 			self.schedule_local_bookmark_clear()
 			self.clear_playback_properties()
 			self.clear_playing_item()
@@ -321,14 +313,11 @@ class FenLightPlayer(xbmc_player):
 	def _hybrid_resolve_handoff(self, listitem):
 		try:
 			set_resolved_url(listitem)
-			logger('Fen Light Patched', 'Player.hybrid_resolve_handoff succeeded | url=%s' % self.url)
 			for _ in range(10):
-				if self.isPlayingVideo():
-					logger('Fen Light Patched', 'Player.hybrid_resolve_handoff playback already active | url=%s' % self.url)
-					return
+				if self.isPlayingVideo(): return
 				sleep(50)
 		except:
-			logger('Fen Light Patched', 'Player.hybrid_resolve_handoff failed | url=%s' % getattr(self, 'url', ''))
+			pass
 
 	def media_watched_marker(self, force_watched=False):
 		self.media_marked = True
@@ -353,17 +342,13 @@ class FenLightPlayer(xbmc_player):
 
 	def schedule_local_bookmark_clear(self):
 		if self.is_generic: return
-		logger('Fen Light Patched', 'Player.schedule_local_bookmark_clear | media_type=%s | tmdb_id=%s | season=%s | episode=%s | url=%s' % (
-			self.media_type, self.tmdb_id, self.season, self.episode, self.url))
 		Thread(target=self.clear_local_bookmark_after_stop, args=(self.media_type, self.tmdb_id, self.season, self.episode)).start()
 
 	def clear_local_bookmark_after_stop(self, media_type, tmdb_id, season, episode):
 		sleep(post_stop_bookmark_clear_delay_ms)
 		for count in range(post_stop_bookmark_clear_attempts):
 			try:
-				result = clear_local_bookmark(media_type, tmdb_id, season, episode)
-				logger('Fen Light Patched', 'Player.clear_local_bookmark_after_stop | attempt=%s/%s | media_type=%s | tmdb_id=%s | season=%s | episode=%s | cleared=%s' % (
-					count + 1, post_stop_bookmark_clear_attempts, media_type, tmdb_id, season, episode, result))
+				clear_local_bookmark(media_type, tmdb_id, season, episode)
 			except:
 				logger('Fen Light Patched', 'Player.clear_local_bookmark_after_stop exception | attempt=%s/%s | media_type=%s | tmdb_id=%s | season=%s | episode=%s | error=%s' % (
 					count + 1, post_stop_bookmark_clear_attempts, media_type, tmdb_id, season, episode, traceback.format_exc().strip()))
@@ -384,22 +369,49 @@ class FenLightPlayer(xbmc_player):
 
 	def info_next_ep(self):
 		self.nextep_info_gathered = True
+		play_type = 'autoplay_nextep' if self.autoplay_nextep else 'autoscrape_nextep'
 		try:
-			play_type = 'autoplay_nextep' if self.autoplay_nextep else 'autoscrape_nextep'
 			nextep_settings = auto_nextep_settings(play_type)
-			final_chapter = self.final_chapter() if nextep_settings['use_chapters'] else None
-			percentage = 100 - final_chapter if final_chapter else nextep_settings['window_percentage']
-			window_time = round((percentage/100) * self.total_time)
 			use_window = nextep_settings['alert_method'] == 0
 			default_action = nextep_settings['default_action']
+			chapter_data = get_infolabel('Player.Chapters') if nextep_settings['use_chapters'] else ''
+			final_chapter = self.final_chapter(chapter_data) if nextep_settings['use_chapters'] else None
+			percentage = 100 - final_chapter if final_chapter is not None else nextep_settings['window_percentage']
+			window_time = max(0, round((percentage/100) * self.total_time))
 			self.start_prep = nextep_settings['scraper_time'] + window_time
 			self.nextep_settings = {'use_window': use_window, 'window_time': window_time, 'default_action': default_action, 'play_type': play_type}
-		except: pass
+		except:
+			self.start_prep = 0
+			self.nextep_settings = {'use_window': True, 'window_time': 0, 'default_action': 'cancel', 'play_type': play_type}
 
-	def final_chapter(self):
+	def final_chapter(self, chapter_data=None):
 		try:
-			final_chapter = float(get_infolabel('Player.Chapters').split(',')[-1])
-			if final_chapter >= 90: return final_chapter
+			if chapter_data is None: chapter_data = get_infolabel('Player.Chapters')
+			total_time = float(getattr(self, 'total_time', 0) or 0)
+			chapters = []
+			for item in chapter_data.split(','):
+				item = item.strip()
+				if not item: continue
+				try: chapters.append(float(item))
+				except: continue
+			if not chapters: return None
+			last_value = chapters[-1]
+			if last_value > 100:
+				previous_values = chapters[:-1]
+				max_previous = max(previous_values) if previous_values else None
+				# If Kodi's tail chapter percentage runs past 100, don't trust chapter timing for this file.
+				if total_time and last_value > total_time: return None
+				if max_previous is not None and max_previous <= 100: return None
+			fallback_value = None
+			for value in reversed(chapters):
+				if value == 100:
+					if fallback_value is None: fallback_value = 100.0
+					continue
+				if 90 <= value < 100: return value
+				if total_time and 0 < value <= total_time:
+					value = (value/total_time) * 100
+					if 90 <= value < 100: return round(value, 3)
+			return fallback_value
 		except: pass
 		return None
 
@@ -447,8 +459,6 @@ class FenLightPlayer(xbmc_player):
 	def clear_playing_item(self):
 		playing_item = getattr(self, 'playing_item', {}) or {}
 		cache_provider = playing_item.get('cache_provider')
-		logger('Fen Light Patched', 'Player.clear_playing_item | cache_provider=%s | keys=%s | url=%s' % (
-			cache_provider, ','.join(sorted(playing_item.keys())), getattr(self, 'url', '')))
 		if cache_provider == 'Offcloud':
 			if playing_item.get('direct_debrid_link', False): return
 			if store_resolved_to_cloud('Offcloud', 'package' in playing_item): return
@@ -458,7 +468,6 @@ class FenLightPlayer(xbmc_player):
 	def run_error(self):
 		try: self.sources_object.playback_successful = False
 		except: pass
-		logger('Fen Light Patched', 'Player.run_error | url=%s' % getattr(self, 'url', ''))
 		self.clear_playback_properties()
 		notification('Playback Failed', 3500)
 		return False

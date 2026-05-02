@@ -217,12 +217,9 @@ def clear_local_bookmark(media_type, media_id, season='', episode=''):
 		if media_type == 'movie': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=movie&tmdb_id=%s%%' % media_id
 		elif media_type == 'episode': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=episode&tmdb_id=%s&season=%s&episode=%s%%' % (media_id, season, episode)
 		else: return
-		dbcon, video_database_path = connect_video_database()
+		dbcon, _ = connect_video_database()
 		file_ids = dbcon.execute('SELECT idFile FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
-		if not file_ids:
-			logger('Fen Light Patched', 'watched_status.clear_local_bookmark | media_type=%s | media_id=%s | season=%s | episode=%s | db=%s | matched_files=0' % (
-				media_type, media_id, season, episode, video_database_path))
-			return False
+		if not file_ids: return False
 		id_values = [i[0] for i in file_ids]
 		placeholders = ','.join('?' for _ in id_values)
 		before = dbcon.execute('SELECT COUNT(*) FROM bookmark WHERE idFile IN (%s)' % placeholders, id_values).fetchone()[0]
@@ -231,12 +228,8 @@ def clear_local_bookmark(media_type, media_id, season='', episode=''):
 		except: pass
 		after = dbcon.execute('SELECT COUNT(*) FROM bookmark WHERE idFile IN (%s)' % placeholders, id_values).fetchone()[0]
 		cleared = after < before
-		logger('Fen Light Patched', 'watched_status.clear_local_bookmark | media_type=%s | media_id=%s | season=%s | episode=%s | db=%s | matched_files=%s | before=%s | after=%s | cleared=%s' % (
-			media_type, media_id, season, episode, video_database_path, len(file_ids), before, after, cleared))
 		return cleared
-	except Exception as exc:
-		logger('Fen Light Patched', 'watched_status.clear_local_bookmark exception | media_type=%s | media_id=%s | season=%s | episode=%s | error=%s' % (
-			media_type if 'media_type' in locals() else '', media_id if 'media_id' in locals() else '', season if 'season' in locals() else '', episode if 'episode' in locals() else '', repr(exc)))
+	except Exception:
 		return False
 	finally:
 		try: dbcon.close()
