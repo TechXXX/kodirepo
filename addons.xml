@@ -198,6 +198,263 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             </assets>
         </extension>
     </addon>
+    <addon id="resource.font.robotocjksc" name="Roboto CJKSC" version="0.0.3" provider-name="jurialmunkey">
+        <requires>
+            <import addon="kodi.resource" version="1.0.0" />
+        </requires>
+        <extension point="kodi.resource.font" compile="false" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Roboto CJKSC fonts</summary>
+            <description lang="en_GB" />
+            <language />
+            <platform>all</platform>
+            <license>Apache-2.0</license>
+            <forum />
+            <email />
+            <source />
+            <news />
+            <disclaimer />
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.addon.signals" name="Addon Signals" version="0.0.6+matrix.1" provider-name="Rick Phillips (ruuk)">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Inter-addon signalling</summary>
+            <description lang="en_GB">Provides signal/slot mechanism for inter-addon communication</description>
+            <platform>all</platform>
+            <license>LGPL-2.1-only</license>
+            <source>https://github.com/ruuk/script.module.addon.signals</source>
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.certifi" name="certifi" version="2023.5.7" provider-name="Certifi">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Certifi: Python SSL Certificates</summary>
+            <description lang="en_GB">Certifi is a carefully curated collection of Root Certificates for validating the trustworthiness of SSL certificates while verifying the identity of TLS hosts. It has been extracted from the Requests project.</description>
+            <license>MPL-2.0</license>
+            <website>https://github.com/certifi/python-certifi</website>
+            <source>https://github.com/certifi/python-certifi</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.chardet" name="chardet" version="5.1.0" provider-name="Character Encoding Detector">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">The Universal Character Encoding Detector</summary>
+            <description lang="en_GB">The Universal Character Encoding Detector</description>
+            <license>LGPL-2.1</license>
+            <platform>all</platform>
+            <website>https://chardet.readthedocs.io/</website>
+            <source>https://github.com/chardet/chardet</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.idna" name="idna" version="3.10.0" provider-name="Kim Davies">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Internationalized Domain Names for Python</summary>
+            <description lang="en_GB">Internationalized Domain Names for Python</description>
+            <license>BSD-3-Clause</license>
+            <platform>all</platform>
+            <website>https://github.com/kjd/idna</website>
+            <source>https://github.com/kjd/idna</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.infotagger" name="InfoTagger" provider-name="jurialmunkey" version="0.0.8">
+        <requires>
+            <import addon="xbmc.python" version="3.0.1" />
+        </requires>
+        <extension point="xbmc.python.module" library="resources/modules" />
+        <extension point="xbmc.addon.metadata">
+            <platform>all</platform>
+            <summary lang="en_GB">Python wrapper for setInfo on Nexus InfoTags</summary>
+            <description lang="en_GB">Python wrapper for setInfo on Nexus InfoTags</description>
+            <license>GPL-3.0-or-later</license>
+            <website>https://github.com/jurialmunkey/script.module.infotagger</website>
+            <source>https://github.com/jurialmunkey/script.module.infotagger</source>
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.jurialmunkey" name="jurialmunkey common" provider-name="jurialmunkey" version="0.2.35">
+        <requires>
+            <import addon="xbmc.python" version="3.0.1" />
+            <import addon="script.module.requests" version="2.9.1" />
+            <import addon="script.module.infotagger" version="0.0.5" />
+        </requires>
+        <extension point="xbmc.python.module" library="resources/modules" />
+        <extension point="xbmc.addon.metadata">
+            <description lang="en_GB">Common code required by TMDbHelper and other related jurialmunkey add-ons</description>
+            <description lang="zh_CN">TMDb 助手及其他相关 jurialmunkey 插件所需的通用代码</description>
+            <license>GPL-3.0-or-later</license>
+            <website>https://github.com/jurialmunkey/script.module.jurialmunkey</website>
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.pil" name="Python Image Library" version="5.1.0" provider-name="PythonWare">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <platform>all</platform>
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.qrcode" name="qrcode" version="6.1.0+matrix.3" provider-name="Lincoln Loop">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.six" version="1.14.0+matrix.1" />
+            <import addon="script.module.pil" version="1.1.7" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">QR Code image generator</summary>
+            <description lang="en_GB">This module uses image libraries, Python Imaging Library (PIL) by default, to generate QR Codes.</description>
+            <license>BSD-3-Clause</license>
+            <website>https://pypi.org/project/qrcode/</website>
+            <source>https://github.com/lincolnloop/python-qrcode</source>
+            <assets>
+                <icon>icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.requests" name="requests" version="2.31.0" provider-name="Python Software Foundation">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.certifi" version="2023.5.7" />
+            <import addon="script.module.chardet" version="5.1.0" />
+            <import addon="script.module.idna" version="3.4.0" />
+            <import addon="script.module.urllib3" version="1.26.16+matrix.1" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Requests is an elegant and simple HTTP library for Python, built for human beings.</summary>
+            <description lang="en_GB">Requests is an elegant and simple HTTP library for Python, built for human beings.</description>
+            <license>Apache-2.0</license>
+            <platform>all</platform>
+            <website>https://requests.readthedocs.io/</website>
+            <source>https://github.com/psf/requests</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.six" name="six" version="1.16.0+matrix.1" provider-name="Benjamin Peterson">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Python 2 and 3 compatibility utilities</summary>
+            <description lang="en_GB">Python 2 and 3 compatibility utilities</description>
+            <license>MIT</license>
+            <platform>all</platform>
+            <website>https://github.com/benjaminp/six</website>
+            <source>https://github.com/benjaminp/six</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.urllib3" name="urllib3" version="2.2.3" provider-name="urllib3">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">urllib3 is a powerful, user-friendly HTTP client for Python</summary>
+            <description lang="en_GB">urllib3 is a powerful, user-friendly HTTP client for Python. Much of the Python ecosystem already uses urllib3 and you should too. urllib3 brings many critical features that are missing from the Python standard libraries</description>
+            <license>MIT</license>
+            <platform>all</platform>
+            <website>https://urllib3.readthedocs.io/</website>
+            <source>https://github.com/urllib3/urllib3</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.skinvariables" version="2.2.1" name="Skin Variables" provider-name="jurialmunkey">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.jurialmunkey" version="0.2.28" />
+            <import addon="script.module.infotagger" version="0.0.5" />
+        </requires>
+        <extension point="xbmc.python.script" library="script.py" />
+        <extension point="xbmc.python.pluginsource" library="plugin.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Skin Variables helps skinners to construct variables and expressions for multiple containers and listitems using a template</summary>
+            <summary lang="zh_CN">Skin Variables 帮助皮肤设计者使用模板为多个容器和列表项构建变量及表达式</summary>
+            <summary lang="fr_FR">Skin Variables aide les skinners à créer des variables et des expressions pour plusieurs conteneurs et listes à l'aide d'un modèle</summary>
+            <summary lang="sv_SE">Skin Variables hjälper de som bygger skal att skapa variabler och uttryck för flera behållare och listobjekt med hjälp av en mall</summary>
+            <description lang="en_GB">Skin Variables helps skinners to construct variables and expressions for multiple containers and listitems using a template</description>
+            <description lang="zh_CN">Skin Variables 帮助皮肤设计者使用模板为多个容器和列表项构建变量及表达式</description>
+            <description lang="fr_FR">Skin Variables aide les skinners à créer des variables et des expressions pour plusieurs conteneurs et listes à l'aide d'un modèle</description>
+            <description lang="sv_SE">Skin Variables hjälper de som bygger skal att skapa variabler och uttryck för flera behållare och listobjekt med hjälp av en mall</description>
+            <disclaimer lang="en_GB">For skinners</disclaimer>
+            <disclaimer lang="zh_CN">适用于皮肤设计者</disclaimer>
+            <disclaimer lang="fr_FR">Pour les skinners</disclaimer>
+            <disclaimer lang="sv_SE">För de som bygger skal</disclaimer>
+            <license>GPL-3.0-or-later</license>
+            <assets>
+                <icon>icon.png</icon>
+                <fanart>fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="script.texturemaker" version="0.2.11" name="Texture Maker" provider-name="jurialmunkey">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.pil" version="1.1.7" />
+            <import addon="script.module.jurialmunkey" version="0.2.28" />
+        </requires>
+        <extension point="xbmc.python.script" library="script.py" />
+        <extension point="xbmc.python.pluginsource" library="plugin.py">
+            <provides>image</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Texture Maker helps skinners build gradient based textures</summary>
+            <description lang="en_GB">Texture Maker helps skinners build gradient based textures</description>
+            <disclaimer lang="en_GB">For skinners</disclaimer>
+            <license>GPL-3.0-or-later</license>
+            <assets>
+                <icon>icon.png</icon>
+                <fanart>fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
     <addon id="service.kodi.favourites.sync" name="Kodi Favourites Sync" version="0.2.36" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
@@ -455,7 +712,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.42">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.43">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
