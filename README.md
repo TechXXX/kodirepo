@@ -34,7 +34,7 @@ Current source-tree versions when this document was updated:
   behind a profile marker file, trims noisy playback and bookmark debug
   logging, and keeps the newer local resume bookmark cleanup on newer Kodi
   video databases.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.9`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.10`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
