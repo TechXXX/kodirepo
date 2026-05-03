@@ -45,12 +45,28 @@ from .data import data
 def main(handle, paramstring):  # pragma: no cover
     core.api_mode_enabled = False
     core.handle = handle
-    should_end_directory = True
-
     params = dict(utils.parse_qsl(paramstring))
-    if params['action'] == 'manualsearch':
+    action = params.get('action')
+    if action == 'search' or not action:
+        params.setdefault('languages', kodi.get_kodi_setting('subtitles.languages') or '')
+        params.setdefault('preferredlanguage', kodi.get_kodi_setting('locale.subtitlelanguage') or 'default')
+        if not action:
+            params['action'] = 'search'
+            action = 'search'
+    logger.debug(
+        'core.main invoked | handle=%s | paramstring=%s | action=%s | languages=%s | preferred=%s'
+        % (
+            handle,
+            paramstring,
+            action,
+            params.get('languages', ''),
+            params.get('preferredlanguage', ''),
+        )
+    )
+
+    if action == 'manualsearch':
         kodi.notification('Manual search is not supported')
-    elif params['action'] == 'search':
+    elif action == 'search':
         core.progress_text = ''
         core.progress_dialog = kodi.get_progress_dialog()
 
@@ -60,10 +76,8 @@ def main(handle, paramstring):  # pragma: no cover
             core.progress_dialog.close()
             core.progress_dialog = None
 
-    elif params['action'] == 'download':
+    elif action == 'download':
         params['action_args'] = json.loads(params['action_args'])
         download(core, params)
-        should_end_directory = False
 
-    if should_end_directory:
-        kodi.xbmcplugin.endOfDirectory(handle)
+    kodi.xbmcplugin.endOfDirectory(handle)

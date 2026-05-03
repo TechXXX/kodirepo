@@ -75,6 +75,7 @@ def __shadow_serialized_result(core, result):
         'color': result.get('color'),
         'comment': result.get('comment'),
         'comments': result.get('comments'),
+        'hd': bool(result.get('hd') or action_args.get('hd')),
         'ai_translated': bool(result.get('ai_translated') or action_args.get('ai_translated')),
         'machine_translated': bool(result.get('machine_translated') or action_args.get('machine_translated')),
         'action_args': __shadow_serialized_action_args(core, action_args),
@@ -269,7 +270,11 @@ def __opensubtitles_results_missing_translation_flags(results):
             continue
 
         action_args = result.get('action_args') or {}
-        if 'ai_translated' not in action_args or 'machine_translated' not in action_args:
+        if (
+            'ai_translated' not in action_args
+            or 'machine_translated' not in action_args
+            or 'hd' not in action_args
+        ):
             return True
 
     return False
@@ -315,7 +320,7 @@ def __get_last_results(core, meta):
         if has_stale_opensubtitles_translation_cache:
             last_results['results'] = list(filter(lambda r: r['service_name'] != 'opensubtitles', last_results['results']))
             force_search.append('opensubtitles')
-            core.logger.debug('opensubtitles cache missing translation flags, forcing refresh')
+            core.logger.debug('opensubtitles cache missing translation or hd flags, forcing refresh')
 
         return (last_results['results'], force_search)
     except: pass

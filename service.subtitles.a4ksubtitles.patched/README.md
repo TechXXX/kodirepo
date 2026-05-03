@@ -13,11 +13,13 @@ from Fenlight before playback starts.
 
 Current important behavior:
 
-- supports normal Kodi subtitle search and download flows
+- supports normal Kodi subtitle search and download flows, including repeated
+  in-play manual subtitle searches after a manual pick
 - exposes API mode so patched Fenlight can gather subtitles once per title/run
 - preserves OpenSubtitles translation flags for ranking and notifications
 - prefers built-in subtitle streams before downloading an external file
-- shows universal `[AI]` and `[MT]` badges in manual subtitle search rows
+- shows universal `[AI]`, `[MT]`, and OpenSubtitles-backed `[HD]` badges in
+  manual subtitle search rows
 
 ## Execution Model
 
@@ -60,7 +62,7 @@ There are three main entry patterns:
   translation flags are preserved in result payloads.
 - `a4kSubtitles/lib/kodi.py`
   Kodi wrappers, settings access, listitem creation, notifications, and the
-  manual-search `[AI]` / `[MT]` badges.
+  manual-search `[AI]` / `[MT]` / `[HD]` badges.
 - `resources/settings.xml`
   User-facing addon settings.
 - `CHANGELOG.md`
@@ -100,9 +102,22 @@ Manual search rows are created in `a4kSubtitles/lib/kodi.py`.
 Important current behavior:
 
 - translated rows prepend colored `[AI]` or `[MT]`
+- OpenSubtitles `hd` rows also prepend `[HD]`
 - the badges live in `label2`, so they work on any Kodi skin
 - a4k also sets row properties, but skins only render extra visuals if they
   already have slots for them
+
+### Manual Download Return Path
+
+Manual download still attaches the persisted subtitle file directly so Kodi
+shows the chosen release name, but it now also returns the selected file
+through Kodi's normal subtitle-service result path.
+
+That extra handoff matters for repeated in-play manual subtitle searches:
+
+- the first manual pick should not poison the next subtitle-search open
+- later subtitle-search opens should still reach `action=search` and rebuild
+  the subtitle list instead of silently refusing to show it
 
 ### Built-In Subtitle Preference
 

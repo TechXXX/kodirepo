@@ -166,14 +166,28 @@ def _translated_subtitle_badge(item):
         return '[COLOR FF6F8FAF][B][MT][/B][/COLOR] '
     return ''
 
+def _hd_subtitle_flag(item):
+    action_args = item.get('action_args') or {}
+    return bool(item.get('hd') or action_args.get('hd'))
+
+def _subtitle_badges(item):
+    badges = []
+    translated_badge = _translated_subtitle_badge(item).strip()
+    if translated_badge:
+        badges.append(translated_badge)
+    if _hd_subtitle_flag(item):
+        badges.append('[COLOR FF8E8E8E][B][HD][/B][/COLOR]')
+    return (' '.join(badges) + ' ') if badges else ''
+
 def create_listitem(item):  # pragma: no cover
     (item_name, item_ext) = os.path.splitext(item['name'])
     item_name = item_name.replace('.', ' ')
     item_ext = item_ext.upper()[1:]
     item_service = item['service']
     item_color = item.get('color', 'white')
-    item_badge = _translated_subtitle_badge(item)
+    item_badge = _subtitle_badges(item)
     is_ai_translated, is_machine_translated = _translated_subtitle_flags(item)
+    is_hd = _hd_subtitle_flag(item)
 
     args = {
         'label': item['lang'],
@@ -190,6 +204,7 @@ def create_listitem(item):  # pragma: no cover
     listitem.setProperty('hearing_imp', item['impaired'])
     listitem.setProperty('ai_translated', 'true' if is_ai_translated else '')
     listitem.setProperty('machine_translated', 'true' if is_machine_translated else '')
+    listitem.setProperty('hd', 'true' if is_hd else '')
 
     return listitem
 

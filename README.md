@@ -34,18 +34,23 @@ Current source-tree versions when this document was updated:
   behind a profile marker file, trims noisy playback and bookmark debug
   logging, and keeps the newer local resume bookmark cleanup on newer Kodi
   video databases.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.8`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.9`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
   OMDb lookups to the JSON endpoint while backfilling missing cached IMDb and
   OMDb ratings more reliably. It now also ships a bundled default OMDb API key
-  for repo installs.
-- `service.subtitles.a4ksubtitles.patched` `3.23.30`
+  for repo installs and includes bundled Fen Light / Fen Light Patched TMDb
+  player definitions for default installs.
+- `service.subtitles.a4ksubtitles.patched` `3.23.31`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build searches OpenSubtitles TV episodes by parent show IMDb id
   plus season/episode before text fallbacks, so numeric show titles like
-  `1923` return the full episode subtitle set for selector ranking.
+  `1923` return the full episode subtitle set for selector ranking. It also
+  keeps repeated in-play manual subtitle search working after a manual pick by
+  returning the chosen subtitle through Kodi's normal subtitle-service result
+  path, while manual subtitle rows now show `[AI]`, `[MT]`, and
+  OpenSubtitles-backed `[HD]` badges.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `skin.arctic.horizon.2.patched` `0.8.30.5`
@@ -143,7 +148,7 @@ This addon now owns:
 - subtitle provider queries
 - OpenSubtitles translation-flag capture
 - addon-side subtitle ordering and download handling
-- manual-search UI badges like `[AI]` and `[MT]`
+- manual-search UI badges like `[AI]`, `[MT]`, and `[HD]`
 - built-in subtitle preference before external download
 
 It should not own Fenlight playback logic.

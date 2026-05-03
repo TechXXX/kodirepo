@@ -242,6 +242,7 @@ def parse_search_response(core, service_name, meta, response):
             'lang_code': core.utils.get_lang_id(language, core.kodi.xbmc.ISO_639_1),
             'sync': 'true' if result.get('moviehash_match', False) else 'false',
             'impaired': 'true' if result['hearing_impaired'] else 'false',
+            'hd': bool(result.get('hd', False)),
             'color': 'springgreen',
             'action_args': {
                 'url': result['files'][0]['file_id'],
@@ -251,6 +252,7 @@ def parse_search_response(core, service_name, meta, response):
                 'gzip': True,
                 'ai_translated': result.get('ai_translated', False),
                 'machine_translated': result.get('machine_translated', False),
+                'hd': bool(result.get('hd', False)),
             }
         }
 

@@ -197,6 +197,13 @@ def download(core, params):
         manual_subtitle = core.utils.persist_manual_subtitle(filepath)
         core.logger.debug('Setting manually selected subtitles: %s' % manual_subtitle)
         core.kodi.xbmc.Player().setSubtitles(manual_subtitle)
+        listitem = core.kodi.xbmcgui.ListItem(label=manual_subtitle, offscreen=True)
+        core.kodi.xbmcplugin.addDirectoryItem(
+            handle=core.handle,
+            url=manual_subtitle,
+            listitem=listitem,
+            isFolder=False,
+        )
         core.kodi.xbmc.executebuiltin('Dialog.Close(SubtitleSearch)')
         return manual_subtitle
     finally:
