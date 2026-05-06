@@ -103,7 +103,7 @@
                         <onclick condition="String.IsEqual(VideoPlayer.PlaylistPosition,VideoPlayer.PlaylistLength) | Skin.HasSetting(OSD.AlwaysDisplayStop)">PlayerControl(Stop)</onclick>
                         <onup>8200</onup>
                     </include>
-                    <include content="OSD_Button" condition="!VideoPlayer.Content(livetv) + VideoPlayer.Content(episodes) + String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode) + !String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id))">
+                    <include content="OSD_Button" condition="!VideoPlayer.Content(livetv) + VideoPlayer.Content(episodes) + String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode) + !String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id)) + !String.IsEqual(Window(Home).Property(fenlight.current_has_next_episode),false)">
                         <param name="autoclose" value="true" />
                         <param name="visible" value="true" />
                         <param name="icon" value="special://skin/extras/icons/forward-step.png" />

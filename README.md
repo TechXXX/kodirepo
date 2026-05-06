@@ -57,12 +57,13 @@ Current source-tree versions when this document was updated:
   OpenSubtitles-backed `[HD]` badges.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `skin.arctic.horizon.2.patched` `0.8.30.9`
+- `skin.arctic.horizon.2.patched` `0.8.30.11`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
   production build now also pairs with patched Fenlight playback state so
   episode playback can show a dedicated next-episode OSD action while
-  preserving stop behavior.
+  preserving stop behavior, and now hides that action when Fenlight reports
+  there is no next aired episode.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
 - `repository.dutchtech` `1.0.44`
