@@ -95,11 +95,22 @@
                     <include content="OSD_Button">
                         <param name="autoclose" value="true" />
                         <param name="visible" value="true" />
-                        <param name="icon" value="$VAR[Image_OSD_NextStop]" />
+                        <param name="icon" value="$VAR[Image_OSD_FenlightStopNextStop]" />
                         <param name="id" value="6400" />
                         <param name="groupid" value="6499" />
-                        <onclick condition="!String.IsEqual(VideoPlayer.PlaylistPosition,VideoPlayer.PlaylistLength) + !Skin.HasSetting(OSD.AlwaysDisplayStop)">PlayerControl(Next)</onclick>
+                        <onclick condition="[!String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode) | String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id)) | !VideoPlayer.Content(episodes)] + !String.IsEqual(VideoPlayer.PlaylistPosition,VideoPlayer.PlaylistLength) + !Skin.HasSetting(OSD.AlwaysDisplayStop)">PlayerControl(Next)</onclick>
+                        <onclick condition="!String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id)) + String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode)">PlayerControl(Stop)</onclick>
                         <onclick condition="String.IsEqual(VideoPlayer.PlaylistPosition,VideoPlayer.PlaylistLength) | Skin.HasSetting(OSD.AlwaysDisplayStop)">PlayerControl(Stop)</onclick>
+                        <onup>8200</onup>
+                    </include>
+                    <include content="OSD_Button" condition="!VideoPlayer.Content(livetv) + VideoPlayer.Content(episodes) + String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode) + !String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id))">
+                        <param name="autoclose" value="true" />
+                        <param name="visible" value="true" />
+                        <param name="icon" value="special://skin/extras/icons/forward-step.png" />
+                        <param name="id" value="6350" />
+                        <param name="groupid" value="6359" />
+                        <onclick>Close</onclick>
+                        <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=playback.play_nextep_current)</onclick>
                         <onup>8200</onup>
                     </include>
 

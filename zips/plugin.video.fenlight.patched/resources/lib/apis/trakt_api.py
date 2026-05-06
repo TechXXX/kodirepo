@@ -98,10 +98,17 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 	try: status_code = response.status_code
 	except: return None
 	if status_code == 401:
+		if with_auth and get_setting('fenlight.trakt.refresh') not in empty_setting_check and trakt_refresh_token():
+			response = send_query()
+			try: status_code = response.status_code
+			except: return None
+	if status_code == 401:
 		_set_trakt_auth_state('authorization_expired', 'Authorization Expired')
 		if xbmc_player().isPlaying() == False:
 			if with_auth and confirm_dialog(heading='Authorize Trakt', text='You must authenticate with Trakt. Do you want to authenticate now?') and trakt_authenticate():
 				response = send_query()
+				try: status_code = response.status_code
+				except: return None
 			else:
 				notification('Trakt authorization expired', 3500)
 				return None
@@ -172,15 +179,21 @@ def trakt_refresh_token():
 	if CLIENT_ID in empty_setting_check: return no_client_key()
 	CLIENT_SECRET = trakt_secret()
 	if CLIENT_SECRET in empty_setting_check: return no_secret_key()
-	data = {        
+	data = {
 		'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET, 'redirect_uri': 'urn:ietf:wg:oauth:2.0:oob',
 		'grant_type': 'refresh_token', 'refresh_token': get_setting('fenlight.trakt.refresh')}
 	response = call_trakt("oauth/token", data=data, with_auth=False)
 	if response:
-		set_setting('trakt.token', response["access_token"])
-		set_setting('trakt.refresh', response["refresh_token"])
-		set_setting('trakt.expires', str(time.time() + 7776000))
-		sync_trakt_auth_state()
+		try:
+			set_setting('trakt.token', response["access_token"])
+			set_setting('trakt.refresh', response["refresh_token"])
+			set_setting('trakt.expires', str(time.time() + 7776000))
+			sync_trakt_auth_state()
+			return True
+		except Exception as e:
+			logger('Trakt Error', 'Token refresh response missing expected data: %s' % str(e))
+	sync_trakt_auth_state()
+	return False
 
 def trakt_authenticate(dummy=''):
 	code = trakt_get_device_code()
@@ -824,9 +837,10 @@ def trakt_sync_activities(force_update=False):
 	elif _check_daily_expiry():
 		clear_daily_cache()
 		set_setting('trakt.next_daily_clear', str(int(time.time()) + (24*3600)))
-	if not trakt_user_active and not force_update: return 'no account'
+	if not trakt_user_active() and not force_update: return 'no account'
 	try: latest = trakt_get_activity()
 	except: return 'failed'
+	if not isinstance(latest, dict): return 'failed'
 	cached = reset_activity(latest)
 	if not _compare(latest['all'], cached['all']): return 'not needed'
 	lists_actions, refresh_movies_progress, refresh_shows_progress, clear_tvshow_watched_cache = [], False, False, False

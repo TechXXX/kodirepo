@@ -88,10 +88,13 @@ def cache_trakt_object(function, string, url):
 
 def reset_activity(latest_activities):
 	string = 'trakt_get_activity'
+	if not isinstance(latest_activities, dict): return default_activities()
 	try:
 		dbcon = connect_database('trakt_db')
 		data = dbcon.execute(TC_BASE_GET, (string,)).fetchone()
-		if data: cached_data = eval(data[0])
+		if data:
+			cached_data = eval(data[0])
+			if not isinstance(cached_data, dict): cached_data = default_activities()
 		else: cached_data = default_activities()
 		dbcon.execute(DELETE, (string,))
 		trakt_cache.set(string, latest_activities)
@@ -256,4 +259,3 @@ def default_activities():
 				'updated_at': '2020-01-01T00:00:01.000Z'
 				}
 			}
-	

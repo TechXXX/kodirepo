@@ -1,6 +1,11 @@
 [COLOR dodgerblue][B]Version 2.0.55[/B][/COLOR]
 - Keep the safer next-episode chapter timing fallback, make source shadow snapshots opt-in behind a profile marker file, and trim noisy playback and bookmark debug logging.
 
+[COLOR dodgerblue][B]Session Note (2026-05-06, Trakt token refresh hardening)[/B][/COLOR]
+- Refresh a stale Trakt access token once with the stored refresh token before showing the re-authentication prompt.
+- Do not cache invalid Trakt activity responses or let a missing activity payload crash the Trakt monitor.
+- Fix the Trakt monitor account check so it calls `trakt_user_active()` instead of treating the function object as an always-true account state.
+
 [COLOR dodgerblue][B]Version 2.0.53[/B][/COLOR]
 - Fix local resume bookmark cleanup after playback stop, including newer Kodi video-database detection and safer bookmark clearing around the patched playback flow.
 

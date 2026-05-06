@@ -22,6 +22,9 @@ def routing(sys):
 		if mode == 'playback.media':
 			from modules.sources import Sources
 			return Sources().playback_prep(params)
+		if mode == 'playback.play_nextep_current':
+			from modules.episode_tools import play_next_from_playback
+			return play_next_from_playback()
 		if mode == 'playback.video':
 			from modules.player import FenLightPlayer
 			return FenLightPlayer().run(_get('url', None), _get('obj', None))

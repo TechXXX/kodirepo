@@ -18,7 +18,7 @@ Current source-tree versions when this document was updated:
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.56`
+- `plugin.video.fenlight.patched` `2.0.58`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -33,7 +33,10 @@ Current source-tree versions when this document was updated:
   next-episode chapter timing fallback, makes source shadow snapshots opt-in
   behind a profile marker file, trims noisy playback and bookmark debug
   logging, and keeps the newer local resume bookmark cleanup on newer Kodi
-  video databases.
+  video databases. It now also refreshes stale Trakt access tokens before
+  asking for re-auth, guards the Trakt monitor against invalid activity
+  payloads, and restores a direct OSD next-episode jump during episode
+  playback.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.10`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -53,12 +56,15 @@ Current source-tree versions when this document was updated:
   OpenSubtitles-backed `[HD]` badges.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `skin.arctic.horizon.2.patched` `0.8.30.5`
+- `skin.arctic.horizon.2.patched` `0.8.30.9`
   Patched Arctic Horizon 2 production build intended to target
-  `plugin.video.themoviedb.helper.patched` from this repo.
+  `plugin.video.themoviedb.helper.patched` from this repo. The current
+  production build now also pairs with patched Fenlight playback state so
+  episode playback can show a dedicated next-episode OSD action while
+  preserving stop behavior.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
-- `repository.dutchtech` `1.0.42`
+- `repository.dutchtech` `1.0.44`
   The repository addon Kodi installs first.
 
 ## Layout

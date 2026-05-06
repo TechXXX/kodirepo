@@ -2,18 +2,20 @@
 import sys
 import json
 import random
+import traceback
 from datetime import date
 from modules import kodi_utils, settings
 from modules.sources import Sources
-from modules.metadata import episodes_meta, all_episodes_meta
+from modules.metadata import episodes_meta, all_episodes_meta, tvshow_meta
 from modules.watched_status import get_next_episodes, get_hidden_progress_items, watched_info_episode, get_next
 from modules.utils import adjust_premiered_date, get_datetime, make_thread_list, title_key
-# logger = kodi_utils.logger
+logger = kodi_utils.logger
 
 get_property, set_property, add_items = kodi_utils.get_property, kodi_utils.set_property, kodi_utils.add_items
 make_listitem, set_content, end_directory, set_view_mode = kodi_utils.make_listitem, kodi_utils.set_content, kodi_utils.end_directory, kodi_utils.set_view_mode
 get_icon, addon_fanart = kodi_utils.get_icon, kodi_utils.get_addon_fanart()
-build_url, notification = kodi_utils.build_url, kodi_utils.notification 
+build_url, notification, ok_dialog = kodi_utils.build_url, kodi_utils.notification, kodi_utils.ok_dialog
+xbmc_player, sleep = kodi_utils.xbmc_player, kodi_utils.sleep
 watched_indicators, date_offset = settings.watched_indicators, settings.date_offset
 window_prop = 'fenlight.random_episode_history'
 
@@ -107,6 +109,40 @@ class EpisodeTools:
 		if url_params == 'error': return notification('Next Episode Error', 3000)
 		elif url_params == 'no_next_episode': return
 		return Sources().playback_prep(url_params)
+
+def play_next_from_playback():
+	try:
+		media_type = get_property('fenlight.current_media_type')
+		tmdb_id = get_property('fenlight.current_tmdb_id')
+		season = int(get_property('fenlight.current_season') or 0)
+		episode = int(get_property('fenlight.current_episode') or 0)
+		if media_type != 'episode' or not tmdb_id or season <= 0 or episode <= 0: return ok_dialog(text='No Episodes Available')
+		meta = tvshow_meta('tmdb_id', tmdb_id, settings.tmdb_api_key(), settings.mpaa_region(), get_datetime())
+		if not meta or meta.get('blank_entry'): return ok_dialog(text='No Episodes Available')
+		meta.update({'media_type': 'episode', 'season': season, 'episode': episode})
+		url_params = EpisodeTools(meta, {'play_type': 'autoplay_nextep'}).next_episode_info()
+		if url_params == 'error': return notification('Next Episode Error', 3000)
+		if url_params == 'no_next_episode': return ok_dialog(text='No Episodes Available')
+		url_params.pop('background', None)
+		url_params.pop('nextep_settings', None)
+		url_params.pop('play_type', None)
+		url_params['autoplay'] = 'true'
+		player = xbmc_player()
+		if player.isPlayingVideo():
+			logger('Fen Light Patched', 'play_next_from_playback stopping current playback | tmdb_id=%s | season=%s | episode=%s' % (tmdb_id, season, episode))
+			player.stop()
+			for _ in range(50):
+				if not player.isPlayingVideo(): break
+				sleep(100)
+			if player.isPlayingVideo():
+				logger('Fen Light Patched', 'play_next_from_playback stop timeout | tmdb_id=%s | season=%s | episode=%s' % (tmdb_id, season, episode))
+				return notification('Next Episode Stop Timeout', 3000)
+		logger('Fen Light Patched', 'play_next_from_playback starting foreground next episode | current_tmdb_id=%s | current_season=%s | current_episode=%s | next_season=%s | next_episode=%s' % (
+			tmdb_id, season, episode, url_params.get('season'), url_params.get('episode')))
+		return Sources().playback_prep(url_params)
+	except:
+		logger('Fen Light Patched', 'play_next_from_playback exception | error=%s' % traceback.format_exc().strip())
+		return notification('Next Episode Error', 3000)
 
 def build_next_episode_manager():
 	def _process(item):

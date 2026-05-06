@@ -439,6 +439,16 @@ class FenLightPlayer(xbmc_player):
 			trakt_ids = {'tmdb': self.tmdb_id, 'imdb': self.imdb_id, 'slug': make_trakt_slug(self.title)}
 			if self.media_type == 'episode': trakt_ids['tvdb'] = self.tvdb_id
 			set_property('script.trakt.ids', json.dumps(trakt_ids))
+			if self.media_type == 'episode':
+				set_property('fenlight.current_media_type', 'episode')
+				set_property('fenlight.current_tmdb_id', str(self.tmdb_id))
+				set_property('fenlight.current_season', str(self.season))
+				set_property('fenlight.current_episode', str(self.episode))
+			else:
+				clear_property('fenlight.current_media_type')
+				clear_property('fenlight.current_tmdb_id')
+				clear_property('fenlight.current_season')
+				clear_property('fenlight.current_episode')
 			if self.playing_filename: set_property('subs.player_filename', self.playing_filename)
 			playing_item = getattr(self, 'playing_item', {}) or {}
 			selector_source_key = playing_item.get('selector_source_key')
@@ -451,6 +461,10 @@ class FenLightPlayer(xbmc_player):
 
 	def clear_playback_properties(self):
 		clear_property('fenlight.window_stack')
+		clear_property('fenlight.current_media_type')
+		clear_property('fenlight.current_tmdb_id')
+		clear_property('fenlight.current_season')
+		clear_property('fenlight.current_episode')
 		clear_property('script.trakt.ids')
 		clear_property('subs.player_filename')
 		clear_property('subs.selector_source_key')
