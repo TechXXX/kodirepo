@@ -18,7 +18,7 @@ Current source-tree versions when this document was updated:
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.58`
+- `plugin.video.fenlight.patched` `2.0.60`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -35,8 +35,9 @@ Current source-tree versions when this document was updated:
   logging, and keeps the newer local resume bookmark cleanup on newer Kodi
   video databases. It now also refreshes stale Trakt access tokens before
   asking for re-auth, guards the Trakt monitor against invalid activity
-  payloads, and restores a direct OSD next-episode jump during episode
-  playback.
+  payloads, restores a direct OSD next-episode jump during episode playback,
+  and ships updated bundled default Trakt client credentials with matching
+  restore-default settings actions.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.10`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes

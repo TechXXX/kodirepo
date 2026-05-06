@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.58">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="Tikipeter" version="2.0.60">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.58]:
+        <news>[v2.0.60]:
+  * Update the bundled default Trakt client ID and secret, and keep the settings manager restore-default actions aligned with the new Trakt defaults.
+
+[v2.0.58]:
   * Refresh a stale Trakt access token once with the stored refresh token before showing the re-authentication prompt, and avoid caching invalid Trakt activity payloads.
   * Restore a dedicated in-play next-episode jump from the OSD while keeping Stop behavior available for episode playback.
 

@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Session Note (2026-05-06, Trakt default key refresh)[/B][/COLOR]
+- Update the bundled default Trakt client ID and secret.
+- Keep the settings manager Restore Default Trakt actions aligned with the new bundled Trakt defaults.
+
 [COLOR dodgerblue][B]Version 2.0.55[/B][/COLOR]
 - Keep the safer next-episode chapter timing fallback, make source shadow snapshots opt-in behind a profile marker file, and trim noisy playback and bookmark debug logging.
 
