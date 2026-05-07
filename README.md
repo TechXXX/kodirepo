@@ -57,6 +57,10 @@ Current source-tree versions when this document was updated:
   OpenSubtitles-backed `[HD]` badges.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
+- `plugin.program.famyt` `0.1.0`
+  Program add-on that prompts for a family password, fetches YouTube API
+  credentials from the external famYT Vercel bridge, and installs them into the
+  official Kodi YouTube add-on userdata.
 - `skin.arctic.horizon.2.patched` `0.8.30.11`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
@@ -83,6 +87,9 @@ Current source-tree versions when this document was updated:
   Baseline Fenlight source kept for comparison or non-patched shipping.
 - `service.kodi.favourites.sync/`
   Favourites sync service source.
+- `plugin.program.famyt/`
+  famYT setup add-on source. Credentials live in the separate Vercel bridge,
+  not in this Kodi repo.
 - `skin.arctic.horizon.2.patched/`
   Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
   id from this repo.

@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
+    <addon id="plugin.program.famyt" name="famYT" version="0.1.0" provider-name="DutchTech">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="plugin.video.youtube" version="7.0.0" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="plugin.py">
+            <provides>executable</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Install family YouTube API credentials</summary>
+            <description lang="en_GB">Fetches YouTube API credentials from the private famYT bridge and installs them for the Kodi YouTube add-on.</description>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+            <platform>all</platform>
+            <license>MIT</license>
+            <source>https://github.com/TechXXX/kodirepo</source>
+            <news>v0.1.0
+- Initial famYT installer add-on</news>
+        </extension>
+    </addon>
     <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.15">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
