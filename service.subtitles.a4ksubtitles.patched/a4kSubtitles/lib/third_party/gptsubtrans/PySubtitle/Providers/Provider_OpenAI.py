@@ -33,7 +33,7 @@ class OpenAiProvider(TranslationProvider):
         super().__init__(self.name, {
             "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
             "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-            "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-4.1-2025-04-14")),
+            "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-4.1-mini-2025-04-14")),
             'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
             'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
             "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
@@ -161,4 +161,3 @@ class OpenAiProvider(TranslationProvider):
         if self.settings.get('rate_limit', 0.0) != 0.0:
             return False
         return True
-

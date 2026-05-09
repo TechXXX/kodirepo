@@ -293,15 +293,16 @@ class Sources():
 			return results
 		try:
 			subtitle_results = self._gather_a4k_subtitles_once(a4k_api, search_params)
-			if not subtitle_results:
-				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle results from single gather')
-				return results
-			ranked_results = selector_integration.rank_kodi_sources_by_subtitles(results, subtitle_results)
+			ranked_results = selector_integration.rank_kodi_sources_by_subtitles(results, subtitle_results or [])
 			self._apply_selector_playback_metadata(results, ranked_results, selector_integration)
 			subtitle_matches = [item for item in ranked_results if item.get('matched_subtitle') is not None]
 			if not subtitle_matches:
-				logger('Fen Light Patched', 'Subtitle retry pool found no subtitle-backed autoplay sources | subtitle_results=%s' % len(subtitle_results))
-				return results
+				english_fallback = self._build_english_ai_subtitle_fallback(a4k_api, search_params, results, selector_integration)
+				if not english_fallback:
+					logger('Fen Light Patched', 'Subtitle retry pool found no subtitle-backed autoplay sources | subtitle_results=%s' % len(subtitle_results or []))
+					return results
+				ranked_results, subtitle_matches, subtitle_results = english_fallback
+				self._apply_selector_playback_metadata(results, ranked_results, selector_integration)
 			promoted_matches = subtitle_matches[:subtitle_fallback_candidate_limit]
 			promoted_source_ids = {id(item.get('source')) for item in promoted_matches}
 			remaining_results = [item for item in results if not id(item) in promoted_source_ids]
@@ -312,6 +313,7 @@ class Sources():
 				matched_subtitle_name = matched_subtitle.get('name') or (matched_subtitle.get('action_args') or {}).get('filename') or matched_subtitle.get('filename')
 				summary = '%s(score=%s reason=%s' % (source.get('name', source.get('display_name', 'UNKNOWN')), item.get('score', 0), item.get('match_reason', 'unknown'))
 				if item.get('matched_subtitle_translation_kind'): summary += ' translated=%s' % item.get('matched_subtitle_translation_kind')
+				if item.get('selector_requires_ai_translation'): summary += ' ai_translate=%s->%s' % (item.get('selector_ai_translation_source_language', ''), item.get('selector_ai_translation_target_language', ''))
 				if matched_subtitle_name: summary += ' subtitle=%s' % matched_subtitle_name
 				summary += ')'
 				pool_summary.append(summary)
@@ -321,6 +323,40 @@ class Sources():
 		except:
 			logger('Fen Light Patched', 'Subtitle retry pool exception | error=%s' % traceback.format_exc().replace('\n', ' | '))
 			return results
+
+	def _build_english_ai_subtitle_fallback(self, a4k_api, primary_search_params, results, selector_integration):
+		if not self._a4k_ai_translation_enabled(a4k_api): return None
+		target_language = primary_search_params.get('preferredlanguage') or ''
+		if str(target_language or '').strip().lower() in ('english', 'eng', 'en'): return None
+		english_search_params = self._a4k_search_params(
+			a4k_api,
+			languages=['English'],
+			preferred_language='English',
+			strip_english_for_ai=False,
+		)
+		if not english_search_params: return None
+		subtitle_results = self._gather_a4k_subtitles_once(
+			a4k_api,
+			english_search_params,
+			service_names=('opensubtitles',),
+			cache_label='english_ai_fallback',
+		)
+		if not subtitle_results:
+			logger('Fen Light Patched', 'English AI subtitle fallback found no OpenSubtitles results')
+			return None
+		ranked_results = selector_integration.rank_kodi_sources_by_subtitles(results, subtitle_results)
+		subtitle_matches = [item for item in ranked_results if item.get('matched_subtitle') is not None]
+		if not subtitle_matches:
+			logger('Fen Light Patched', 'English AI subtitle fallback found no subtitle-backed autoplay sources | subtitle_results=%s' % len(subtitle_results))
+			return None
+		for item in subtitle_matches:
+			item['selector_requires_ai_translation'] = True
+			item['selector_ai_translation_source_language'] = 'English'
+			item['selector_ai_translation_target_language'] = target_language
+			item['selector_ai_translation_reason'] = 'opensubtitles_english_fallback'
+		logger('Fen Light Patched', 'English AI subtitle fallback using OpenSubtitles results | matches=%s results=%s target=%s' % (
+			len(subtitle_matches), len(subtitle_results), target_language))
+		return (ranked_results, subtitle_matches, subtitle_results)
 
 	def _get_a4k_subtitles_api(self):
 		if self.a4k_subtitles_checked: return self.a4k_subtitles_api
@@ -357,6 +393,10 @@ class Sources():
 			'selector_used_comments_fallback',
 			'selector_matched_subtitle',
 			'selector_matched_subtitle_translation_kind',
+			'selector_requires_ai_translation',
+			'selector_ai_translation_source_language',
+			'selector_ai_translation_target_language',
+			'selector_ai_translation_reason',
 			'selector_should_notify_translated_subtitle_fallback',
 			'selector_translated_subtitle_notification',
 			'selector_subtitle_payload',
@@ -369,7 +409,7 @@ class Sources():
 			self._clear_selector_playback_metadata(source)
 			source.update(selector_integration.build_kodi_selector_playback_metadata(source, ranked_by_source_id.get(id(source))))
 
-	def _a4k_runtime_uses_ai_search(self, a4k_api):
+	def _a4k_ai_translation_enabled(self, a4k_api):
 		try:
 			core = getattr(a4k_api, 'core', None)
 			if not core or not core.kodi.get_bool_setting('general', 'use_ai'): return False
@@ -379,45 +419,69 @@ class Sources():
 		except:
 			return False
 
-	def _a4k_search_params(self, a4k_api=None):
+	def _remove_english_subtitle_search_languages(self, languages, preferred_language):
+		if str(preferred_language or '').strip().lower() in ('english', 'eng', 'en'): return languages
+		filtered = [item for item in languages if str(item or '').strip().lower() not in ('english', 'eng', 'en')]
+		if len(filtered) != len(languages):
+			logger('Fen Light Patched', 'Subtitle retry pool removed English search language while AI translation is enabled')
+		return filtered or [preferred_language]
+
+	def _a4k_search_params(self, a4k_api=None, languages=None, preferred_language=None, strip_english_for_ai=True):
 		try:
-			languages = jsonrpc_get_system_setting('subtitles.languages', [])
-			preferred_language = jsonrpc_get_system_setting('locale.subtitlelanguage', 'default')
+			if languages is None:
+				languages = jsonrpc_get_system_setting('subtitles.languages', [])
+			if preferred_language is None:
+				preferred_language = jsonrpc_get_system_setting('locale.subtitlelanguage', 'default')
 			if isinstance(languages, str): languages = [languages]
 			languages = [i for i in languages if i not in (None, '', 'none')]
 			if not languages and preferred_language not in (None, '', 'none'): languages = [preferred_language]
 			if not languages: return None
 			if preferred_language in (None, '', 'none'): preferred_language = languages[0]
-			if a4k_api and self._a4k_runtime_uses_ai_search(a4k_api):
-				languages = ['English']
-				preferred_language = 'English'
-				logger('Fen Light Patched', 'Subtitle retry pool mirroring a4k AI runtime search | languages=%s | preferred=%s' % (languages, preferred_language))
+			if strip_english_for_ai and a4k_api and self._a4k_ai_translation_enabled(a4k_api):
+				languages = self._remove_english_subtitle_search_languages(languages, preferred_language)
 			return {'action': 'search', 'languages': ','.join(languages), 'preferredlanguage': preferred_language}
 		except: return None
 
-	def _gather_a4k_subtitles_once(self, a4k_api, search_params):
-		cache_key = self._subtitle_search_cache_key(search_params)
+	def _gather_a4k_subtitles_once(self, a4k_api, search_params, service_names=None, cache_label=''):
+		cache_key = self._subtitle_search_cache_key(search_params, service_names, cache_label)
 		if cache_key in self.subtitle_search_cache:
 			cached_results = self.subtitle_search_cache[cache_key]
 			logger('Fen Light Patched', 'Subtitle retry pool cache hit | results=%s' % self._a4k_results_debug_summary(cached_results))
 			return cached_results
 		video_meta = self._a4k_search_video_meta()
-		search_settings = {'general.results_limit': str(subtitle_selector_results_limit)}
+		search_settings = self._a4k_search_settings(a4k_api, service_names)
 		results = a4k_api.search(search_params, settings=search_settings, video_meta=video_meta)
 		if not isinstance(results, list): results = []
-		logger('Fen Light Patched', 'Subtitle retry pool gathered subtitles once | filename=%s | results=%s' % (
-			video_meta.get('filename', ''), self._a4k_results_debug_summary(results)))
+		if service_names:
+			service_names = set(service_names)
+			results = [item for item in results if item.get('service_name') in service_names]
+		logger('Fen Light Patched', 'Subtitle retry pool gathered subtitles once | filename=%s | languages=%s | services=%s | results=%s' % (
+			video_meta.get('filename', ''), search_params.get('languages', ''), ','.join(service_names or []) or 'enabled', self._a4k_results_debug_summary(results)))
 		self.subtitle_search_cache[cache_key] = results
 		return results
 
-	def _subtitle_search_cache_key(self, search_params):
-		return '%s|%s|%s|%s|%s|%s' % (
+	def _a4k_search_settings(self, a4k_api, service_names=None):
+		search_settings = {'general.results_limit': str(subtitle_selector_results_limit)}
+		if not service_names: return search_settings
+		enabled_services = set(service_names)
+		try:
+			available_services = getattr(getattr(a4k_api, 'core', None), 'services', {}) or {}
+			for service_name in available_services:
+				search_settings['%s.enabled' % service_name] = 'true' if service_name in enabled_services else 'false'
+		except:
+			pass
+		return search_settings
+
+	def _subtitle_search_cache_key(self, search_params, service_names=None, cache_label=''):
+		return '%s|%s|%s|%s|%s|%s|%s|%s' % (
 			self.media_type,
 			self.meta.get('imdb_id', '') or '',
 			self.meta.get('season', '') or '',
 			self.meta.get('episode', '') or '',
 			search_params.get('languages', '') or '',
 			search_params.get('preferredlanguage', '') or '',
+			','.join(service_names or []),
+			cache_label or '',
 		)
 
 	def _a4k_result_names(self, result):

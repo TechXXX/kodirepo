@@ -67,6 +67,10 @@ def build_kodi_selector_playback_metadata(
         return metadata
 
     matched_subtitle = ranked_item["matched_subtitle"]
+    requires_ai_translation = bool(ranked_item.get("selector_requires_ai_translation"))
+    ai_translation_source_language = ranked_item.get("selector_ai_translation_source_language")
+    ai_translation_target_language = ranked_item.get("selector_ai_translation_target_language")
+    ai_translation_reason = ranked_item.get("selector_ai_translation_reason")
     metadata.update(
         {
             "selector_match_score": ranked_item["score"],
@@ -76,6 +80,10 @@ def build_kodi_selector_playback_metadata(
             "selector_matched_subtitle_translation_kind": ranked_item[
                 "matched_subtitle_translation_kind"
             ],
+            "selector_requires_ai_translation": requires_ai_translation,
+            "selector_ai_translation_source_language": ai_translation_source_language,
+            "selector_ai_translation_target_language": ai_translation_target_language,
+            "selector_ai_translation_reason": ai_translation_reason,
             "selector_should_notify_translated_subtitle_fallback": ranked_item[
                 "should_notify_translated_subtitle_fallback"
             ],
@@ -91,6 +99,10 @@ def build_kodi_selector_playback_metadata(
                 "matched_subtitle_translation_kind": ranked_item[
                     "matched_subtitle_translation_kind"
                 ],
+                "requires_ai_translation": requires_ai_translation,
+                "ai_translation_source_language": ai_translation_source_language,
+                "ai_translation_target_language": ai_translation_target_language,
+                "ai_translation_reason": ai_translation_reason,
                 "translated_subtitle_notification": ranked_item[
                     "translated_subtitle_notification"
                 ],

@@ -109,7 +109,7 @@ def get_subfile_from_temp_dir():
     if not os.path.exists(temp_dir):
         return None
     for file in os.listdir(temp_dir):
-        if file != 'sub.zip' and not file.endswith('.translated'):
+        if file != 'sub.zip' and '.translated' not in file:
             return os.path.join(temp_dir, file.strip())
     return None
 

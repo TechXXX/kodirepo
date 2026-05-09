@@ -113,7 +113,7 @@
                 </setting>
                 <setting id="general.ai_model" type="string" label="33112" help="">
                     <level>0</level>
-                    <default>gpt-4.1-2025-04-14</default>
+                    <default>gpt-4.1-mini-2025-04-14</default>
                     <constraints>
                         <allowempty>true</allowempty>
                     </constraints>

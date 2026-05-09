@@ -45,6 +45,11 @@ def _selector_forced_subtitle_result(core):
 
     return (matched_subtitle, payload)
 
+def _selector_payload_requires_ai_translation(payload):
+    if not isinstance(payload, dict):
+        return False
+    return bool(payload.get('requires_ai_translation'))
+
 def start(api):
     core = api.core
     core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
@@ -65,16 +70,23 @@ def start(api):
     subfile_translated = None
     ai_last_timestamp = None
     ai_tries = 0
+    ai_translation_active = False
+    ai_translation_source = ''
+    attached_subtitle_active = False
 
     def reset():
         nonlocal has_done_subs_check, prev_playing_filename, ai_last_timestamp, ai_tries
-        nonlocal fast_selector_poll_until
+        nonlocal fast_selector_poll_until, ai_translation_active, ai_translation_source
+        nonlocal attached_subtitle_active
 
         has_done_subs_check = False
         prev_playing_filename = ''
         ai_last_timestamp = None
         ai_tries = 0
         fast_selector_poll_until = 0.0
+        ai_translation_active = False
+        ai_translation_source = ''
+        attached_subtitle_active = False
 
     def prepare_runtime_attach_subfile(subfile):
         try:
@@ -126,8 +138,512 @@ def start(api):
             core.logger.debug('Runtime subtitle basename rewrite skipped: %s' % e)
             return subfile
 
-    def download_and_attach_result(result, preferredlang, preferredlang_preai, use_ai, ai_provider, ai_api_key, ai_model):
+    def normalize_language_list(value):
+        if isinstance(value, str):
+            values = value.split(',') if ',' in value else [value]
+        else:
+            values = list(value or [])
+        return [str(item).strip() for item in values if item not in (None, '', 'none')]
+
+    def language_code(value):
+        if value in (None, '', 'none'):
+            return ''
+        value = str(value).strip()
+        if not value:
+            return ''
+        return core.utils.get_lang_id(value, core.kodi.xbmc.ISO_639_2) or value.lower()
+
+    def subtitle_result_matches_languages(result, languages):
+        action_args = result.get('action_args') or {}
+        allowed_codes = {language_code(value) for value in languages}
+        result_codes = {
+            language_code(value)
+            for value in (
+                result.get('lang'),
+                result.get('lang_code'),
+                action_args.get('lang'),
+                action_args.get('language'),
+            )
+        }
+        allowed_codes.discard('')
+        result_codes.discard('')
+        return not allowed_codes or not result_codes or bool(allowed_codes & result_codes)
+
+    def remove_english_search_languages_for_ai(languages, preferredlang):
+        if not use_ai or language_code(preferredlang) == 'eng':
+            return languages
+        filtered = [language for language in languages if language_code(language) != 'eng']
+        if len(filtered) != len(languages):
+            core.logger.debug('Removed English search language while AI translation is enabled')
+        return filtered or ([preferredlang] if preferredlang else filtered)
+
+    def player_subtitle_for_language(language):
+        player_props = core.kodi.get_kodi_player_subtitles() or {}
+        subtitles = player_props.get('subtitles') or []
+        target_code = language_code(language)
+        candidates = [sub for sub in subtitles if language_code(sub.get('language')) == target_code]
+        if not candidates:
+            return None
+
+        for sub in candidates:
+            subname = str(sub.get('name') or '').lower()
+            if not sub.get('isforced') and all(token not in subname for token in ['forced', 'songs', 'commentary']):
+                return sub
+        return candidates[0]
+
+    def find_binary(name):
+        try:
+            found = core.shutil.which(name)
+            if found:
+                return found
+        except:
+            pass
+
+        for folder in ('/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin'):
+            candidate = core.os.path.join(folder, name)
+            try:
+                if core.os.path.exists(candidate) and core.os.access(candidate, core.os.X_OK):
+                    return candidate
+            except:
+                pass
+        return None
+
+    def run_subprocess(args, timeout):
+        import subprocess
+        return subprocess.run(
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            timeout=timeout,
+        )
+
+    def subtitle_file_looks_usable(path):
+        try:
+            if not path or not core.os.path.exists(path) or core.os.path.getsize(path) <= 0:
+                return False
+            with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                return '-->' in handle.read(4096)
+        except:
+            return False
+
+    def ai_translated_subfile_path(subfile, target_language, live=False):
+        folder = core.os.path.dirname(subfile)
+        basename = core.os.path.basename(subfile)
+        root, ext = core.os.path.splitext(basename)
+        root_parts = root.rsplit('.', 1)
+        if len(root_parts) == 2 and root_parts[1].isalpha() and len(root_parts[1]) <= 3:
+            root = root_parts[0]
+        suffix = 'translated.live.%s.srt' if live else 'translated.%s.srt'
+        return core.os.path.join(folder, '%s.%s' % (root, suffix % target_language))
+
+    def current_playing_url():
+        return (
+            core.kodi.xbmc.getInfoLabel('Player.FilenameAndPath')
+            or core.kodi.xbmc.getInfoLabel('Player.Filenameandpath')
+            or core.kodi.xbmc.Player().getPlayingFile()
+            or ''
+        )
+
+    def stream_language_code(stream):
+        tags = stream.get('tags') or {}
+        return language_code(tags.get('language') or tags.get('LANGUAGE') or tags.get('title') or tags.get('TITLE'))
+
+    def format_srt_timestamp(seconds):
+        try:
+            milliseconds = int(round(float(seconds) * 1000))
+        except:
+            milliseconds = 0
+        milliseconds = max(milliseconds, 0)
+        hours = milliseconds // 3600000
+        milliseconds = milliseconds % 3600000
+        minutes = milliseconds // 60000
+        milliseconds = milliseconds % 60000
+        seconds = milliseconds // 1000
+        milliseconds = milliseconds % 1000
+        return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, milliseconds)
+
+    def decode_ffprobe_packet_data(data):
+        byte_values = []
+        hex_digits = set('0123456789abcdefABCDEF')
+        for line in str(data or '').splitlines():
+            if ':' not in line:
+                continue
+            hex_column = line.split(':', 1)[1].split('  ', 1)[0]
+            for group in hex_column.split():
+                if len(group) % 2 != 0:
+                    continue
+                if not all(char in hex_digits for char in group):
+                    continue
+                for index in range(0, len(group), 2):
+                    try:
+                        byte_values.append(int(group[index:index + 2], 16))
+                    except:
+                        pass
+        if not byte_values:
+            return ''
+        return bytes(byte_values).decode('utf-8', errors='replace').replace('\r\n', '\n').replace('\r', '\n').strip()
+
+    def write_srt_from_ffprobe_packets(packets, output_file):
+        cue_number = 0
+        with open(output_file, 'w', encoding='utf-8') as handle:
+            for packet in packets:
+                text = decode_ffprobe_packet_data(packet.get('data'))
+                if not text:
+                    continue
+                try:
+                    start_seconds = float(packet.get('pts_time'))
+                except:
+                    continue
+                try:
+                    duration_seconds = float(packet.get('duration_time'))
+                except:
+                    duration_seconds = 2.0
+                end_seconds = start_seconds + max(duration_seconds, 0.1)
+                cue_number += 1
+                handle.write('%s\n%s --> %s\n%s\n\n' % (
+                    cue_number,
+                    format_srt_timestamp(start_seconds),
+                    format_srt_timestamp(end_seconds),
+                    text,
+                ))
+        return cue_number
+
+    def extract_embedded_subfile_with_ffprobe_packets(ffprobe, input_url, stream_index, output_file):
+        try:
+            core.logger.debug(
+                'Extracting complete embedded English subtitle with ffprobe packets: stream=%s output=%s' % (
+                    stream_index,
+                    output_file,
+                )
+            )
+            probe_packets = run_subprocess(
+                [
+                    ffprobe,
+                    '-v', 'error',
+                    '-select_streams', str(stream_index),
+                    '-show_packets',
+                    '-show_data',
+                    '-show_entries', 'packet=pts_time,duration_time,data',
+                    '-of', 'json',
+                    input_url,
+                ],
+                600,
+            )
+            if probe_packets.returncode != 0:
+                core.logger.debug('AI translation fallback ffprobe packet extraction failed: %s' % (probe_packets.stderr or '').strip())
+                return False
+            packets = (core.json.loads(probe_packets.stdout or '{}').get('packets') or [])
+            cue_count = write_srt_from_ffprobe_packets(packets, output_file)
+            if cue_count <= 0 or not subtitle_file_looks_usable(output_file):
+                core.logger.debug('AI translation fallback ffprobe packet extraction produced no usable subtitle file')
+                return False
+            core.logger.debug('Extracted complete embedded English subtitle with ffprobe packets: %s cues=%s' % (output_file, cue_count))
+            return True
+        except Exception as exc:
+            try:
+                core.os.remove(output_file)
+            except:
+                pass
+            core.logger.debug('AI translation fallback ffprobe packet extraction exception: %s' % exc)
+            return False
+
+    def extract_embedded_subfile_with_ffmpeg(ffmpeg, input_url, stream_index, output_file):
+        try:
+            core.logger.debug('Extracting complete embedded English subtitle with ffmpeg: stream=%s output=%s' % (stream_index, output_file))
+            extract = run_subprocess(
+                [
+                    ffmpeg,
+                    '-y',
+                    '-nostdin',
+                    '-loglevel', 'error',
+                    '-i', input_url,
+                    '-map', '0:%s' % stream_index,
+                    '-map_chapters', '-1',
+                    '-map_metadata', '-1',
+                    '-c:s', 'srt',
+                    '-flush_packets', '1',
+                    output_file,
+                ],
+                600,
+            )
+            if extract.returncode != 0:
+                core.logger.debug('AI translation fallback ffmpeg extraction failed: %s' % (extract.stderr or '').strip())
+                return False
+            if not subtitle_file_looks_usable(output_file):
+                core.logger.debug('AI translation fallback ffmpeg extraction produced no usable subtitle file')
+                return False
+            core.logger.debug('Extracted complete embedded English subtitle with ffmpeg: %s' % output_file)
+            return True
+        except Exception as exc:
+            try:
+                core.os.remove(output_file)
+            except:
+                pass
+            core.logger.debug('AI translation fallback ffmpeg extraction exception: %s' % exc)
+            return False
+
+    def extract_embedded_english_subfile(english_subtitle):
+        ffprobe = find_binary('ffprobe')
+        ffmpeg = find_binary('ffmpeg')
+        if not ffprobe:
+            core.logger.debug('AI translation fallback skipped: ffprobe unavailable for embedded subtitle extraction')
+            return None
+
+        input_url = current_playing_url()
+        if not input_url:
+            core.logger.debug('AI translation fallback skipped: no playing URL for embedded subtitle extraction')
+            return None
+
+        if input_url.startswith('plugin://'):
+            core.logger.debug('AI translation fallback skipped: playing URL is not directly readable by ffmpeg')
+            return None
+
+        try:
+            probe = run_subprocess(
+                [
+                    ffprobe,
+                    '-v', 'error',
+                    '-select_streams', 's',
+                    '-show_entries', 'stream=index,codec_name:stream_tags=language,title',
+                    '-of', 'json',
+                    input_url,
+                ],
+                25,
+            )
+            if probe.returncode != 0:
+                core.logger.debug('AI translation fallback ffprobe failed: %s' % (probe.stderr or '').strip())
+                return None
+            subtitle_streams = (core.json.loads(probe.stdout or '{}').get('streams') or [])
+        except Exception as exc:
+            core.logger.debug('AI translation fallback ffprobe exception: %s' % exc)
+            return None
+
+        text_codecs = {'subrip', 'ass', 'ssa', 'webvtt', 'mov_text', 'text'}
+        selected_index = english_subtitle.get('index')
+        english_streams = []
+        for ordinal, stream in enumerate(subtitle_streams):
+            if stream_language_code(stream) != 'eng':
+                continue
+            if stream.get('codec_name') not in text_codecs:
+                continue
+            if selected_index == ordinal:
+                english_streams.insert(0, stream)
+            else:
+                english_streams.append(stream)
+
+        if not english_streams:
+            core.logger.debug('AI translation fallback skipped: no text-based embedded English subtitle stream found')
+            return None
+
+        stream = english_streams[0]
+        stream_index = stream.get('index')
+        if stream_index in (None, ''):
+            core.logger.debug('AI translation fallback skipped: ffprobe did not expose an embedded subtitle stream index')
+            return None
+
+        try:
+            core.kodi.xbmcvfs.mkdirs(core.utils.temp_dir)
+        except:
+            pass
+
+        output_file = core.os.path.join(core.utils.temp_dir, 'embedded.english.%s.full.eng.srt' % stream_index)
+        try:
+            try:
+                core.os.remove(output_file)
+            except:
+                pass
+            core.logger.debug(
+                'Extracting complete embedded English subtitle for AI translation: stream=%s codec=%s output=%s' % (
+                    stream_index,
+                    stream.get('codec_name'),
+                    output_file,
+                )
+            )
+            if extract_embedded_subfile_with_ffprobe_packets(ffprobe, input_url, stream_index, output_file):
+                return output_file
+            if ffmpeg and extract_embedded_subfile_with_ffmpeg(ffmpeg, input_url, stream_index, output_file):
+                return output_file
+            return None
+        except Exception as exc:
+            try:
+                core.os.remove(output_file)
+            except:
+                pass
+            core.logger.debug('AI translation fallback ffmpeg extraction exception: %s' % exc)
+            return None
+
+    def translate_and_attach_subfile(subfile, target_preferredlang, ai_provider, ai_api_key, ai_model, reason, source='', full_file=False):
         nonlocal last_subfile, ai_last_timestamp, ai_tries, has_done_subs_check
+        nonlocal ai_translation_active, ai_translation_source, attached_subtitle_active
+
+        target_language = language_code(target_preferredlang)
+        if not target_language:
+            core.logger.debug('AI translation fallback skipped: no target subtitle language')
+            return False
+
+        core.logger.debug('Using AI to translate %s: %s' % (reason, subfile))
+        subfile_translated = ai_translated_subfile_path(subfile, target_language)
+
+        moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
+
+        core.logger.debug('Translating subtitles with AI provider: %s, model: %s' % (ai_provider, ai_model))
+        core.logger.debug('Moviename: %s, target_language: %s' % (moviename, target_language))
+
+        ai_last_timestamp = core.kodi.xbmc.Player().getTime()
+        translation_range = ai_max_range + ai_step if source == 'embedded_english' else ai_max_range
+        begin_seconds = None if full_file else ai_last_timestamp
+        end_seconds = None if full_file else ai_last_timestamp + translation_range
+        if full_file:
+            core.logger.debug('Translating complete subtitle file with AI')
+
+        partial_attach_window_seconds = 300.0
+        live_partial_file = ai_translated_subfile_path(subfile, target_language, True)
+        live_partial_state = {'attached_batch': 0, 'attached_coverage_seconds': 0.0, 'attached_file': ''}
+        notification_state = {'shown': False}
+
+        def notify_ai_translated_subtitle_selected():
+            if notification_state['shown']:
+                return
+            notification_state['shown'] = True
+            core.kodi.notification('GPT4 Translated', time=4000)
+
+        def cleanup_live_partial_files(keep_file=''):
+            try:
+                temp_dir = core.os.path.dirname(subfile_translated)
+                translated_basename = core.os.path.basename(subfile_translated)
+                live_basename = core.os.path.basename(live_partial_file)
+                legacy_basename = core.os.path.basename(subfile + '.translated')
+                for filename in core.os.listdir(temp_dir):
+                    if filename == live_basename or (
+                        filename.startswith(legacy_basename + '.live')
+                        and filename.endswith('.srt')
+                    ) or (
+                        filename.startswith(translated_basename + '.live.')
+                        and filename.endswith('.srt')
+                    ):
+                        path = core.os.path.join(temp_dir, filename)
+                        if keep_file and path == keep_file:
+                            continue
+                        try:
+                            core.os.remove(path)
+                        except:
+                            pass
+            except Exception as exc:
+                core.logger.debug('Partial AI subtitle cleanup skipped: %s' % exc)
+
+        if full_file:
+            cleanup_live_partial_files()
+
+        def attach_partial_translation(output_file, batch_number, total_batches, coverage_seconds=None):
+            if not full_file:
+                return
+            try:
+                coverage_seconds = float(coverage_seconds or 0.0)
+            except:
+                coverage_seconds = 0.0
+            if coverage_seconds < partial_attach_window_seconds and batch_number < total_batches:
+                return
+            if (
+                batch_number < total_batches
+                and live_partial_state['attached_batch'] > 0
+                and coverage_seconds - live_partial_state['attached_coverage_seconds'] < partial_attach_window_seconds
+            ):
+                return
+            if not subtitle_file_looks_usable(output_file):
+                return
+
+            try:
+                try:
+                    core.os.remove(live_partial_file)
+                except:
+                    pass
+                core.shutil.copyfile(output_file, live_partial_file)
+                core.kodi.xbmc.Player().setSubtitles(live_partial_file)
+                try:
+                    core.kodi.xbmc.Player().showSubtitles(True)
+                except:
+                    pass
+                notify_ai_translated_subtitle_selected()
+                live_partial_state['attached_batch'] = batch_number
+                live_partial_state['attached_coverage_seconds'] = coverage_seconds
+                live_partial_state['attached_file'] = live_partial_file
+                core.logger.debug(
+                    'Refreshed live AI subtitle translation: batch=%s/%s coverage=%.1fs file=%s' % (
+                        batch_number,
+                        total_batches,
+                        coverage_seconds,
+                        live_partial_file,
+                    )
+                )
+            except Exception as exc:
+                core.logger.debug('Partial AI subtitle attach skipped: %s' % exc)
+
+        core.utils.gptsubtrans.translate(
+            input_file=subfile,
+            target_language=target_language,
+            output_file=subfile_translated,
+            moviename=moviename,
+            provider=ai_provider,
+            api_key=ai_api_key,
+            model=ai_model,
+            begin_seconds=begin_seconds,
+            end_seconds=end_seconds,
+            priority_seconds=ai_last_timestamp if full_file else None,
+            log=core.logger.debug,
+            partial_callback=attach_partial_translation if full_file else None
+        )
+
+        last_subfile = subfile
+        subtitle_to_attach = subfile_translated
+        if full_file and live_partial_state['attached_file']:
+            try:
+                core.shutil.copyfile(subfile_translated, live_partial_state['attached_file'])
+                subtitle_to_attach = live_partial_state['attached_file']
+                core.logger.debug(
+                    'Refreshed partial AI subtitle stream with final translation: file=%s' % subtitle_to_attach
+                )
+            except Exception as exc:
+                core.logger.debug('Final AI subtitle live-file refresh skipped: %s' % exc)
+
+        core.kodi.xbmc.Player().setSubtitles(subtitle_to_attach)
+        try:
+            core.kodi.xbmc.Player().showSubtitles(True)
+        except:
+            pass
+        notify_ai_translated_subtitle_selected()
+        if full_file:
+            cleanup_live_partial_files(keep_file=subtitle_to_attach)
+        ai_tries = 0
+        has_done_subs_check = bool(full_file)
+        ai_translation_active = not full_file
+        ai_translation_source = source
+        attached_subtitle_active = True
+        return True
+
+    def try_embedded_english_ai_translation(target_preferredlang, ai_provider, ai_api_key, ai_model):
+        english_subtitle = player_subtitle_for_language('English')
+        if not english_subtitle:
+            core.logger.debug('AI translation fallback skipped: no embedded English subtitle stream')
+            return False
+
+        subfile = extract_embedded_english_subfile(english_subtitle)
+        if not subfile:
+            return False
+
+        return translate_and_attach_subfile(
+            subfile,
+            target_preferredlang,
+            ai_provider,
+            ai_api_key,
+            ai_model,
+            'embedded English subtitle stream',
+            'embedded_english_full',
+            True,
+        )
+
+    def download_and_attach_result(result, preferredlang, preferredlang_preai, use_ai, ai_provider, ai_api_key, ai_model, full_file_ai=False):
+        nonlocal last_subfile, ai_last_timestamp, ai_tries, has_done_subs_check, attached_subtitle_active
 
         subfile = api.download(result)
         last_subfile = subfile
@@ -141,36 +657,19 @@ def start(api):
             last_subfile = subfile
             core.logger.debug('Setting subtitles: %s' % subfile)
             core.kodi.xbmc.Player().setSubtitles(subfile)
+            attached_subtitle_active = True
             return True
 
-        core.logger.debug('Using AI to translate subtitles: %s' % subfile)
-        subfile_translated = subfile + '.translated'
-
-        moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
-        target_language = core.utils.get_lang_id(preferredlang_preai, core.kodi.xbmc.ISO_639_2)
-
-        core.logger.debug('Translating subtitles with AI provider: %s, model: %s' % (ai_provider, ai_model))
-        core.logger.debug('Moviename: %s, target_language: %s' % (moviename, target_language))
-
-        ai_last_timestamp = core.kodi.xbmc.Player().getTime()
-
-        core.utils.gptsubtrans.translate(
-            input_file=subfile,
-            target_language=target_language,
-            output_file=subfile_translated,
-            moviename=moviename,
-            provider=ai_provider,
-            api_key=ai_api_key,
-            model=ai_model,
-            begin_seconds=ai_last_timestamp,
-            end_seconds=ai_last_timestamp + ai_max_range,
-            log=core.logger.debug
+        return translate_and_attach_subfile(
+            subfile,
+            preferredlang_preai,
+            ai_provider,
+            ai_api_key,
+            ai_model,
+            'downloaded subtitle fallback',
+            'downloaded_english_full' if full_file_ai else '',
+            full_file_ai,
         )
-
-        core.kodi.xbmc.Player().setSubtitles(subfile_translated)
-        ai_tries = 0
-        has_done_subs_check = False
-        return True
 
     poll_interval = default_poll_interval
     while not monitor.abortRequested():
@@ -212,8 +711,10 @@ def start(api):
 
         if not has_video or not has_video_duration or has_done_subs_check:
             if use_ai:
-                core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
-                core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
+                keep_current_attached_subtitle = has_video and has_done_subs_check and attached_subtitle_active
+                if not keep_current_attached_subtitle:
+                    core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
+                    core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
             continue
 
         if use_ai:
@@ -250,28 +751,36 @@ def start(api):
             ai_last_timestamp = None
             ai_tries = 0
 
-        core.logger.debug('use_ai: %s, subfile: %s' % (use_ai, subfile))
-        if use_ai and subfile:
+        core.logger.debug('use_ai_translation: %s, ai_translation_active: %s, subfile: %s' % (use_ai, ai_translation_active, subfile))
+        if use_ai and ai_translation_active and subfile:
             def translate_subtitles():
                 nonlocal ai_last_timestamp, ai_tries, last_subfile
 
                 timestamp = core.kodi.xbmc.Player().getTime()
-                subfile_translated = subfile + '.translated'
-
-                if ai_last_timestamp is not None and ai_last_timestamp + ai_step > timestamp and timestamp > ai_last_timestamp and core.kodi.xbmcvfs.exists(subfile_translated):
-                    core.logger.debug('Skipping AI translation, already translated')
-                    return True
+                previous_ai_last_timestamp = ai_last_timestamp
 
                 try:
-                    ai_last_timestamp = timestamp
-                    moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
-                    target_language = core.utils.get_lang_id(core.kodi.get_kodi_setting('locale.subtitlelanguage'), core.kodi.xbmc.ISO_639_2)
+                    active_subfile = subfile
+                    translation_range = ai_max_range
 
-                    core.logger.debug('Subtitles file: %s' % subfile)
-                    core.logger.debug('Using AI to translate portion of subtitles between %s and %s seconds in %s' % (ai_last_timestamp, ai_last_timestamp + ai_max_range, target_language))
+                    moviename = '%s (%s)' % (core.last_meta.title, core.last_meta.year) if core.last_meta else ''
+                    target_language = language_code(core.kodi.parse_language(core.kodi.get_kodi_setting('locale.subtitlelanguage')))
+                    if not target_language:
+                        core.logger.debug('AI translation skipped: no target subtitle language')
+                        return False
+
+                    subfile_translated = ai_translated_subfile_path(active_subfile, target_language)
+
+                    if previous_ai_last_timestamp is not None and previous_ai_last_timestamp + ai_step > timestamp and timestamp > previous_ai_last_timestamp and core.kodi.xbmcvfs.exists(subfile_translated):
+                        core.logger.debug('Skipping AI translation, already translated')
+                        return True
+
+                    ai_last_timestamp = timestamp
+                    core.logger.debug('Subtitles file: %s' % active_subfile)
+                    core.logger.debug('Using AI to translate portion of subtitles between %s and %s seconds in %s' % (ai_last_timestamp, ai_last_timestamp + translation_range, target_language))
 
                     core.utils.gptsubtrans.translate(
-                        input_file=subfile,
+                        input_file=active_subfile,
                         target_language=target_language,
                         output_file=subfile_translated,
                         moviename=moviename,
@@ -279,11 +788,11 @@ def start(api):
                         api_key=ai_api_key,
                         model=ai_model,
                         begin_seconds=ai_last_timestamp,
-                        end_seconds=ai_last_timestamp + ai_max_range,
+                        end_seconds=ai_last_timestamp + translation_range,
                         log=core.logger.debug
                     )
 
-                    last_subfile = subfile
+                    last_subfile = active_subfile
                     core.logger.debug('Translated subtitles file: %s' % subfile_translated)
                     core.kodi.xbmc.Player().setSubtitles(subfile_translated)
                     ai_tries = 0
@@ -314,8 +823,8 @@ def start(api):
         preferredlang = core.kodi.parse_language(preferredlang)
 
         try:
-            def update_sub_stream():
-                if not core.kodi.get_bool_setting('general', 'auto_select'):
+            def update_sub_stream(force=False, reason=''):
+                if not force and not core.kodi.get_bool_setting('general', 'auto_select'):
                     return
                 if preferredlang is None:
                     core.logger.debug('no subtitle language found')
@@ -332,6 +841,8 @@ def start(api):
                 core.logger.debug('preferredlang_code: %s' % preferredlang_code)
                 core.logger.debug('sub_langs: %s' % sub_langs)
                 core.logger.debug('preferedlang_sub_indexes: %s' % preferedlang_sub_indexes)
+                if force:
+                    core.logger.debug('forced preferred subtitle stream check: %s' % (reason or 'unspecified'))
 
                 if len(preferedlang_sub_indexes) == 0:
                     core.logger.debug('no subtitles found for %s' % preferredlang)
@@ -386,10 +897,17 @@ def start(api):
 
                 if not player_props['currentsubtitle'] or sub_index != player_props['currentsubtitle']['index']:
                     core.kodi.xbmc.Player().setSubtitleStream(sub_index)
+                if force:
+                    core.logger.debug(
+                        'Selected existing preferred subtitle stream before fallback | reason=%s | index=%s | language=%s' % (
+                            reason or 'unspecified',
+                            sub_index,
+                            preferredlang,
+                        )
+                    )
                 return True
 
-            if not use_ai:
-                has_subtitles = update_sub_stream()
+            has_subtitles = update_sub_stream()
         except Exception as e:
             core.logger.debug('Error on update_sub_stream: %s' % e)
 
@@ -400,63 +918,100 @@ def start(api):
             core.kodi.xbmc.executebuiltin('ActivateWindow(SubtitleSearch)')
             continue
 
-        languages = core.kodi.get_kodi_setting('subtitles.languages')
+        languages = normalize_language_list(core.kodi.get_kodi_setting('subtitles.languages'))
+        if preferredlang and preferredlang not in languages:
+            languages.append(preferredlang)
+        languages = remove_english_search_languages_for_ai(languages, preferredlang)
         preferredlang_preai = preferredlang
-
-        if use_ai:
-            languages = ['English']
-            preferredlang = 'English'
 
         forced_result, forced_payload = _selector_forced_subtitle_result(core)
         if forced_result:
             try:
-                core.logger.debug(
-                    'Using selector-matched runtime subtitle | source_key=%s | score=%s | reason=%s | subtitle=%s' % (
-                        forced_payload.get('source_key', ''),
-                        forced_payload.get('match_score'),
-                        forced_payload.get('match_reason'),
-                        _selector_matched_subtitle_name(forced_result),
+                forced_requires_ai_translation = _selector_payload_requires_ai_translation(forced_payload)
+                if forced_requires_ai_translation and not use_ai:
+                    core.logger.debug(
+                        'Skipping selector-matched English subtitle fallback because AI translation is not configured | subtitle=%s' % (
+                            _selector_matched_subtitle_name(forced_result),
+                        )
                     )
-                )
-                if download_and_attach_result(
-                    forced_result,
-                    preferredlang,
-                    preferredlang_preai,
-                    use_ai,
-                    ai_provider if use_ai else '',
-                    ai_api_key if use_ai else '',
-                    ai_model if use_ai else '',
-                ):
-                    continue
+                elif not forced_requires_ai_translation and not subtitle_result_matches_languages(forced_result, languages):
+                    core.logger.debug(
+                        'Skipping selector-matched runtime subtitle outside configured languages | subtitle=%s | languages=%s' % (
+                            _selector_matched_subtitle_name(forced_result),
+                            languages,
+                        )
+                    )
+                else:
+                    if forced_requires_ai_translation:
+                        if update_sub_stream(
+                            force=True,
+                            reason='selector English AI fallback guard',
+                        ):
+                            core.logger.debug(
+                                'Skipping selector-matched English AI fallback because an existing preferred-language subtitle stream is available'
+                            )
+                            continue
+                        forced_download_language = forced_payload.get('ai_translation_source_language') or 'English'
+                    else:
+                        forced_download_language = preferredlang
+                    core.logger.debug(
+                        'Using selector-matched runtime subtitle | source_key=%s | score=%s | reason=%s | subtitle=%s | ai_translate=%s' % (
+                            forced_payload.get('source_key', ''),
+                            forced_payload.get('match_score'),
+                            forced_payload.get('match_reason'),
+                            _selector_matched_subtitle_name(forced_result),
+                            forced_requires_ai_translation,
+                        )
+                    )
+                    if download_and_attach_result(
+                        forced_result,
+                        forced_download_language,
+                        preferredlang_preai,
+                        forced_requires_ai_translation,
+                        ai_provider if forced_requires_ai_translation else '',
+                        ai_api_key if forced_requires_ai_translation else '',
+                        ai_model if forced_requires_ai_translation else '',
+                        forced_requires_ai_translation,
+                    ):
+                        continue
             except:
                 import traceback
                 core.logger.error('Error applying selector-matched subtitle: %s' % traceback.format_exc())
 
         has_imdb = core.kodi.xbmc.getInfoLabel('VideoPlayer.IMDBNumber')
-        if not has_imdb:
+        attached_subtitle = False
+
+        if has_imdb:
+            params = {
+                'action': 'search',
+                'languages': ','.join(languages),
+                'preferredlanguage': preferredlang
+            }
+
+            results = api.search(params)
+            for result in results:
+                try:
+                    if not download_and_attach_result(
+                        result,
+                        preferredlang,
+                        preferredlang_preai,
+                        False,
+                        '',
+                        '',
+                        '',
+                    ):
+                        continue
+                    attached_subtitle = True
+                    break
+                except:
+                    import traceback
+                    core.logger.error('Error downloading or setting subtitles: %s' % traceback.format_exc())
+                    continue
+        else:
+            core.logger.debug('No IMDb metadata, skipping runtime subtitle search')
+
+        if attached_subtitle:
             continue
 
-        params = {
-            'action': 'search',
-            'languages': ','.join(languages),
-            'preferredlanguage': preferredlang
-        }
-
-        results = api.search(params)
-        for result in results:
-            try:
-                if not download_and_attach_result(
-                    result,
-                    preferredlang,
-                    preferredlang_preai,
-                    use_ai,
-                    ai_provider if use_ai else '',
-                    ai_api_key if use_ai else '',
-                    ai_model if use_ai else '',
-                ):
-                    continue
-                break
-            except:
-                import traceback
-                core.logger.error('Error downloading or setting subtitles: %s' % traceback.format_exc())
-                continue
+        if use_ai:
+            core.logger.debug('AI fallback skipped after runtime search: external English subtitle fallback is selected before playback')

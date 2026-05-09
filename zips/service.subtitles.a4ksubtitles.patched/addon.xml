@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.31"
+       version="3.23.34"
        provider-name="DutchTech">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,11 +27,23 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
-[v3.23.30]:
+[v3.23.34]:
+  * Rename the local GPT fallback notification to GPT4 Translated.
+
+[v3.23.33]:
+  * Show the same AI-translated subtitle notification when a locally translated English fallback is actually attached.
+
+[v3.23.32]:
+  * Switch the default OpenAI subtitle translation model to gpt-4.1-mini-2025-04-14 to reduce fallback translation cost while keeping a stable GPT-4.1-family snapshot.
+
+[v3.23.31]:
+  * Translate selector-matched English OpenSubtitles fallbacks into Dutch as a full-file, resume-aware live subtitle, prefer embedded Dutch streams before AI fallback, and label translated files with the target language.
+
+[v3.23.29]:
   * Search OpenSubtitles TV episodes by parent show IMDb id plus season/episode first, so numeric show titles like 1923 return the full episode subtitle set instead of a single broad title fallback.
 
-[v3.23.27]:
-  * Promote the API-mode subtitle cache bypass to the main repo so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.
+[v3.23.28]:
+  * Rebrand the patched add-on metadata under DutchTech so Kodi listings no longer show the upstream or placeholder provider name for this repo build.
 
 [v3.23.26]:
   * Bypass the persisted subtitle-results cache during API-mode searches so Fenlight pre-play subtitle gathers always use a fresh subtitle result set instead of stale runtime cache state.

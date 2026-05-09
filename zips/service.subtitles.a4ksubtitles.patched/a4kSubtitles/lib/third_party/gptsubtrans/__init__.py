@@ -15,7 +15,7 @@ def translate(
     output_file,
     api_key=None,
     provider="OpenAI",
-    model="gpt-4.1-2025-04-14",
+    model="gpt-4.1-mini-2025-04-14",
     moviename=None,
     scene_threshold=60.0,
     min_batch_size=1,
@@ -44,7 +44,9 @@ def translate(
     writebackup=False,
     begin_seconds=None,
     end_seconds=None,
+    priority_seconds=None,
     log=print,
+    partial_callback=None,
 ):
     # Input file check
     if not os.path.exists(input_file):
@@ -143,8 +145,86 @@ def translate(
     translator = SubtitleTranslator(options, provider_obj)
     subtitles.AutoBatch(translator.batcher)
 
+    def line_start_seconds(line):
+        try:
+            return line.start.total_seconds() if line.start is not None else None
+        except Exception:
+            return None
+
+    def line_end_seconds(line):
+        try:
+            return line.end.total_seconds() if line.end is not None else None
+        except Exception:
+            return None
+
+    def batch_end_seconds(batch):
+        try:
+            return line_end_seconds(batch.originals[-1]) if batch.originals else None
+        except Exception:
+            return None
+
+    def prioritize_batches_from_timestamp():
+        if priority_seconds is None or not subtitles.scenes:
+            return
+        try:
+            timestamp = float(priority_seconds)
+        except Exception:
+            return
+
+        scene_index = None
+        batch_index = 0
+        for current_scene_index, scene in enumerate(subtitles.scenes):
+            if not scene.batches:
+                continue
+            scene_end = batch_end_seconds(scene.batches[-1])
+            if scene_end is None or scene_end <= timestamp:
+                continue
+            scene_index = current_scene_index
+            for current_batch_index, batch in enumerate(scene.batches):
+                batch_end = batch_end_seconds(batch)
+                if batch_end is None or batch_end > timestamp:
+                    batch_index = current_batch_index
+                    break
+            break
+
+        if scene_index is None:
+            return
+
+        scene = subtitles.scenes[scene_index]
+        if batch_index:
+            scene.batches = scene.batches[batch_index:] + scene.batches[:batch_index]
+        if scene_index:
+            subtitles._scenes = subtitles.scenes[scene_index:] + subtitles.scenes[:scene_index]
+
+        first_batch = subtitles.scenes[0].batches[0] if subtitles.scenes[0].batches else None
+        if first_batch:
+            log(
+                "Prioritized subtitle translation from %.1fs at scene %s, batch %s."
+                % (timestamp, first_batch.scene, first_batch.number)
+            )
+
+    if begin_seconds is None and end_seconds is None:
+        prioritize_batches_from_timestamp()
+
     total_scenes = len(subtitles.scenes)
-    total_batches = sum(len(scene.batches) for scene in subtitles.scenes)
+    flattened_batches = [
+        batch
+        for scene in subtitles.scenes
+        for batch in scene.batches
+    ]
+    total_batches = len(flattened_batches)
+
+    def batch_coverage_seconds(batch_index):
+        try:
+            current_batch = flattened_batches[batch_index - 1]
+            next_batch = flattened_batches[batch_index] if batch_index < total_batches else None
+            if next_batch and next_batch.originals:
+                return next_batch.originals[0].start.total_seconds()
+            if current_batch.originals:
+                return current_batch.originals[-1].end.total_seconds()
+        except Exception:
+            pass
+        return None
 
     # Progress reporting and batch translation
     orig_translate_batch = translator.TranslateBatch
@@ -155,6 +235,13 @@ def translate(
         result = orig_translate_batch(batch, line_numbers, context)
         try:
             subtitles.SaveTranslation(output_file)
+            if partial_callback:
+                partial_callback(
+                    output_file,
+                    progress['current'],
+                    total_batches,
+                    batch_coverage_seconds(progress['current']),
+                )
         except Exception as e:
             log(f"\nWarning: Failed to save partial output: {e}")
         return result

@@ -389,6 +389,12 @@ def _score_candidate_match(
     same_source_type = bool(source_type and subtitle_type and source_type == subtitle_type)
     same_source_family = bool(source_family and subtitle_family and source_family == subtitle_family)
     stable_release_family = source_family in {"web", "disc"} and subtitle_family in {"web", "disc"}
+    source_is_episodic = _has_episode_marker(source_normalized)
+    has_episode_identity = (
+        not source_is_episodic
+        or _has_title_identity_overlap(prepared_source, prepared_subtitle_release)
+        or (same_group and _has_matching_episode_marker(source_normalized, subtitle_normalized))
+    )
 
     if source_normalized and source_normalized == subtitle_normalized:
         return {
@@ -397,22 +403,26 @@ def _score_candidate_match(
             "token_overlap": token_overlap,
         }
 
-    if same_group and token_overlap >= 2:
+    if same_group and token_overlap >= 2 and has_episode_identity:
         return {
             "score": 90,
             "reason": "release_group_and_token_overlap",
             "token_overlap": token_overlap,
         }
 
-    if stable_release_family and same_source_type and same_quality and token_overlap >= 4:
+    if stable_release_family and same_source_type and same_quality and token_overlap >= 4 and has_episode_identity:
         return {
             "score": 82,
             "reason": "source_type_and_quality_overlap",
             "token_overlap": token_overlap,
         }
 
-    if stable_release_family and same_quality and token_overlap >= 2 and not (
-        source_group and subtitle_group and source_group != subtitle_group
+    if (
+        stable_release_family
+        and same_quality
+        and token_overlap >= 2
+        and has_episode_identity
+        and not (source_group and subtitle_group and source_group != subtitle_group)
     ):
         return {
             "score": 68,
@@ -420,35 +430,35 @@ def _score_candidate_match(
             "token_overlap": token_overlap,
         }
 
-    if _is_containment_match(source_normalized, subtitle_normalized):
+    if _is_containment_match(source_normalized, subtitle_normalized) and has_episode_identity:
         return {
             "score": 80,
             "reason": "containment_match",
             "token_overlap": token_overlap,
         }
 
-    if stable_release_family and same_source_type and token_overlap >= 4:
+    if stable_release_family and same_source_type and token_overlap >= 4 and has_episode_identity:
         return {
             "score": 70,
             "reason": "source_type_and_token_overlap",
             "token_overlap": token_overlap,
         }
 
-    if same_source_family and same_quality and token_overlap >= 4:
+    if same_source_family and same_quality and token_overlap >= 4 and has_episode_identity:
         return {
             "score": 65,
             "reason": "source_family_and_quality_overlap",
             "token_overlap": token_overlap,
         }
 
-    if same_group:
+    if same_group and has_episode_identity:
         return {
             "score": 60,
             "reason": "release_group_match",
             "token_overlap": token_overlap,
         }
 
-    if token_overlap >= 4:
+    if token_overlap >= 4 and has_episode_identity:
         return {
             "score": 45,
             "reason": "strong_token_overlap_fallback",
@@ -777,6 +787,43 @@ def _release_source_type(normalized_value: str) -> str | None:
         if re.search(pattern, normalized_value):
             return label
     return None
+
+
+def _episode_markers(normalized_value: str) -> set[str]:
+    return set(re.findall(r"\bs\d{1,2}e\d{1,3}\b", normalized_value))
+
+
+def _has_episode_marker(normalized_value: str) -> bool:
+    return bool(_episode_markers(normalized_value))
+
+
+def _has_matching_episode_marker(source_normalized: str, subtitle_normalized: str) -> bool:
+    source_markers = _episode_markers(source_normalized)
+    if not source_markers:
+        return False
+    return bool(source_markers & _episode_markers(subtitle_normalized))
+
+
+def _source_identity_tokens(prepared_source: dict[str, Any]) -> set[str]:
+    normalized = prepared_source["normalized"]
+    match = re.search(r"\bs\d{1,2}e\d{1,3}\b", normalized)
+    title_part = normalized[: match.start()] if match else normalized
+    ignored = {"the", "a", "an", "and", "of", "in", "on", "to", "for"}
+    return {
+        token
+        for token in _meaningful_tokens(title_part)
+        if token not in ignored and not re.fullmatch(r"\d{4}", token)
+    }
+
+
+def _has_title_identity_overlap(
+    prepared_source: dict[str, Any],
+    prepared_subtitle_release: dict[str, Any],
+) -> bool:
+    source_identity_tokens = _source_identity_tokens(prepared_source)
+    if not source_identity_tokens:
+        return False
+    return bool(source_identity_tokens & prepared_subtitle_release["meaningful_tokens"])
 
 
 def _source_size_value(source: dict[str, Any]) -> float:

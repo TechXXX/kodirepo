@@ -21,15 +21,20 @@ The current patched design is:
 
 - collect sources first
 - connect to patched a4k API mode once
-- gather subtitle results once per title/run
+- gather configured-language subtitle results once per title/run
 - import the bundled selector integration once
 - rank the full source list against the subtitle list
+- if no configured-language subtitle can be paired and a4k AI translation is
+  configured, gather English OpenSubtitles results as a final translation
+  fallback and rank sources against those results
 - promote the best subtitle-backed top-10 retry pool
 - append the remaining raw source order behind that promoted pool
 
 This is the important change from the older experiment:
 
 - no per-source subtitle probing
+- no English subtitle gather unless the configured-language subtitle pass
+  fails to produce a source/subtitle match
 
 ## Key Selector Hooks
 
@@ -61,7 +66,9 @@ This file should not own:
 ## Current Behavioral Rules
 
 - subtitle policy comes from the selector, not from ad hoc logic here
-- only one subtitle gather should happen per autoplay run/title
+- only one configured-language subtitle gather should happen per autoplay
+  run/title, with an English OpenSubtitles-only gather allowed as the final AI
+  translation fallback
 - promoted subtitle-backed matches are limited to the best 10
 - raw source order is still kept behind the promoted pool as fallback
 - bundled selector normalization may preserve meaningful bracketed technical
@@ -69,10 +76,15 @@ This file should not own:
   matching
 - the selector may also let comment aliases upgrade the same subtitle item when
   they provide a stronger release alias than the direct subtitle filename
+- episodic selector matches must carry episode/show identity; generic release
+  tags like `1080p AMZN WEB-DL` are not enough to pair an unrelated Dutch
+  `S01E01` subtitle to a source
 
 ## Future-Agent Guard Rails
 
 - Do not reintroduce per-source subtitle probing.
+- Do not run the English OpenSubtitles AI fallback until the preferred-language
+  selector pass has failed to pair a subtitle to a source.
 - Do not move playback logic into the selector integration.
 - Do not duplicate subtitle policy here if the selector can own it cleanly.
 - Do not move AI-search prompt handling into this file. AI discovery belongs in

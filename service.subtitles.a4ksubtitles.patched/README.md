@@ -127,10 +127,39 @@ preferred-language subtitle stream in the player.
 Only if no suitable built-in subtitle stream is found does the service continue
 into external subtitle download or subtitle search UI.
 
+AI subtitle translation is intentionally later than all preferred-language
+paths. Enabling `general.use_ai` must not switch pre-play or runtime subtitle
+searches to English. The service may only use AI translation when patched
+Fenlight has already failed to pair a preferred-language subtitle, found a
+source-matched English OpenSubtitles result during its final pre-play fallback,
+and handed that exact external subtitle to a4k. a4k downloads the complete SRT,
+translates the complete file, and then attaches the translated file.
+
+The default OpenAI translation model is `gpt-4.1-mini-2025-04-14`, chosen as a
+lower-cost GPT-4.1-family snapshot for full-file subtitle translation.
+
+Before applying that English AI fallback, a4k force-checks Kodi one more time
+for an existing preferred-language stream. If Kodi reports embedded Dutch, that
+stream wins and the English AI fallback is skipped.
+
+Full-file AI fallback is resume-aware. The translator starts at Kodi's current
+playback timestamp, refreshes one stable live SRT every roughly five minutes of
+translated coverage, then overwrites that same live file with the complete
+translation when finished. Translated filenames use the target language suffix,
+for example `.translated.live.nld.srt`, so Kodi labels the external stream as
+Dutch rather than English. When the translated fallback is attached, a4k shows
+the `GPT4 Translated` notification.
+
+The slow remote-embedded-subtitle extraction experiment is intentionally not a
+runtime fallback anymore.
+
 That behavior must stay aligned with patched Fenlight's goal:
 
 - built-in subtitles should beat external download when the stream already has
   the preferred language
+- English subtitles should only be searched after the preferred-language
+  selector pass fails, and only as an OpenSubtitles-backed AI translation
+  fallback
 
 ## Future-Agent Guard Rails
 

@@ -323,6 +323,15 @@ class SubtitleFile:
             if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
 
+            def translated_sort_key(line):
+                try:
+                    start_seconds = line.start.total_seconds() if line.start is not None else float('inf')
+                except Exception:
+                    start_seconds = float('inf')
+                return (start_seconds, line.number or 0)
+
+            translated = sorted(translated, key=translated_sort_key)
+
             # Renumber the lines to ensure compliance with SRT format
             output_lines = []
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):
