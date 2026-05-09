@@ -212,6 +212,14 @@ def get_setting(group, id=None):
     key = '%s.%s' % (group, id) if id else group
     return addon.getSetting(key).strip()
 
+def set_setting(group, id=None, value=None):
+    if value is None:
+        key = group
+        value = id
+    else:
+        key = '%s.%s' % (group, id)
+    return addon.setSetting(key, str(value))
+
 def get_int_setting(group, id=None):
     return int(get_setting(group, id))
 

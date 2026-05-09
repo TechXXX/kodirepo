@@ -65,7 +65,7 @@ msgid "AI API Key"
 msgstr ""
 
 msgctxt "#33112"
-msgid "AI Model"
+msgid "AI Model (forced GPT-4.1 mini)"
 msgstr ""
 
 # Services

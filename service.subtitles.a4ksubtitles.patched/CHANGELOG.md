@@ -1,6 +1,10 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* [v3.23.35](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.35):
+  * Pin OpenAI subtitle translation to `gpt-4.1-mini-2025-04-14` even when older Kodi userdata still contains `gpt-4.1-2025-04-14`.
+  * Persist the pinned mini model back into the a4k settings value at runtime so the settings screen no longer carries a stale full-model override.
+
 * [v3.23.34](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.34):
   * Rename the local GPT fallback notification to `GPT4 Translated`.
 

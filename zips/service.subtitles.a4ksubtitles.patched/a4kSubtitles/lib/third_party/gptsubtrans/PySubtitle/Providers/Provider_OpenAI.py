@@ -9,6 +9,8 @@ from PySubtitle.SubtitleError import ProviderError
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
+FORCED_OPENAI_MODEL = "gpt-4.1-mini-2025-04-14"
+
 class OpenAiProvider(TranslationProvider):
     name = "OpenAI"
 
@@ -30,10 +32,17 @@ class OpenAiProvider(TranslationProvider):
     """
 
     def __init__(self, settings : dict):
+        configured_model = settings.get('model') or os.getenv('OPENAI_MODEL')
+        if configured_model and configured_model != FORCED_OPENAI_MODEL:
+            logging.info(
+                "Forcing OpenAI subtitle translation model to %s (configured=%s)",
+                FORCED_OPENAI_MODEL,
+                configured_model,
+            )
         super().__init__(self.name, {
             "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
             "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-            "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-4.1-mini-2025-04-14")),
+            "model": FORCED_OPENAI_MODEL,
             'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
             'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
             "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),

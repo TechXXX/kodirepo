@@ -59,9 +59,10 @@ Current source-tree versions when this document was updated:
   path, while manual subtitle rows now show `[AI]`, `[MT]`, and
   OpenSubtitles-backed `[HD]` badges. It now translates selector-matched
   English OpenSubtitles fallbacks into Dutch as a full-file, resume-aware live
-  subtitle, prefers embedded Dutch streams before forcing that fallback, uses
-  `gpt-4.1-mini-2025-04-14` as the default translation model, and labels the
-  attached result with the `GPT4 Translated` notification.
+  subtitle, prefers embedded Dutch streams before forcing that fallback, pins
+  OpenAI translation to `gpt-4.1-mini-2025-04-14` even when stale Kodi userdata
+  contains the full GPT-4.1 model, and labels the attached result with the
+  `GPT4 Translated` notification.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `plugin.program.famyt` `0.1.0`

@@ -135,8 +135,10 @@ source-matched English OpenSubtitles result during its final pre-play fallback,
 and handed that exact external subtitle to a4k. a4k downloads the complete SRT,
 translates the complete file, and then attaches the translated file.
 
-The default OpenAI translation model is `gpt-4.1-mini-2025-04-14`, chosen as a
-lower-cost GPT-4.1-family snapshot for full-file subtitle translation.
+The OpenAI translation model is pinned to `gpt-4.1-mini-2025-04-14`, chosen as
+a lower-cost GPT-4.1-family snapshot for full-file subtitle translation. If an
+older Kodi profile still has a saved full `gpt-4.1-2025-04-14` setting, the
+service rewrites that setting back to mini before translating.
 
 Before applying that English AI fallback, a4k force-checks Kodi one more time
 for an existing preferred-language stream. If Kodi reports embedded Dutch, that

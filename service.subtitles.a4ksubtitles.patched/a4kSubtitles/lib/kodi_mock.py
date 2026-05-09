@@ -67,8 +67,10 @@ def __get_addon_info(name):
         return root.get('version')
     elif name == 'profile':
         return os.path.join(os.path.dirname(__file__), '../../tmp')
+__addon_settings = {}
 __addon.getAddonInfo = __get_addon_info
-__addon.getSetting = lambda _: ''
+__addon.getSetting = lambda key: __addon_settings.get(key, '')
+__addon.setSetting = lambda key, value: __addon_settings.__setitem__(key, value)
 xbmcaddon.Addon = lambda _: __addon
 
 # xbmcplugin

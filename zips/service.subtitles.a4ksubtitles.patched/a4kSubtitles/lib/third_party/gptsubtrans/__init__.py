@@ -9,6 +9,8 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.TranslationProvider import TranslationProvider
 
+FORCED_OPENAI_MODEL = "gpt-4.1-mini-2025-04-14"
+
 def translate(
     input_file,
     target_language,
@@ -52,6 +54,11 @@ def translate(
     if not os.path.exists(input_file):
         log(f"Input file does not exist: {input_file}")
         raise FileNotFoundError(f"Input file does not exist: {input_file}")
+
+    if str(provider).lower() == "openai":
+        if model and model != FORCED_OPENAI_MODEL:
+            log(f"Forcing OpenAI subtitle translation model to {FORCED_OPENAI_MODEL} (configured={model})")
+        model = FORCED_OPENAI_MODEL
 
     # Instruction file path
     if instructionfile:
