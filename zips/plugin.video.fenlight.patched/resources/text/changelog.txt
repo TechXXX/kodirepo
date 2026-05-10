@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Session Note (2026-05-10, Trakt auth prompt guard)[/B][/COLOR]
+- Guard Trakt re-authorization prompts so only one dialog appears at a time.
+- Skip watched-indicator refresh when Trakt returns an invalid payload instead of trying to thread over bad data.
+
 [COLOR dodgerblue][B]Session Note (2026-05-10, fullscreen trailer stop)[/B][/COLOR]
 - Force Extras trailer playback into fullscreen video and stop the trailer when Back leaves fullscreen playback.
 

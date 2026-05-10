@@ -30,6 +30,7 @@ res_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 API_ENDPOINT = 'https://api.trakt.tv/%s'
 timeout = 20
 EXPIRY_1_DAY, EXPIRY_1_WEEK = 24, 168
+TRAKT_AUTH_PROMPT_PROPERTY = 'fenlight.trakt_auth_prompt_active'
 
 def _set_trakt_auth_state(state, display_name):
 	set_setting('trakt.auth_state', state)
@@ -57,6 +58,16 @@ def no_client_key():
 def no_secret_key():
 	notification('Please set a valid Trakt Client Secret Key')
 	return None
+
+def _trakt_prompt_for_auth():
+	if get_property(TRAKT_AUTH_PROMPT_PROPERTY) == 'true': return None
+	kodi_utils.set_property(TRAKT_AUTH_PROMPT_PROPERTY, 'true')
+	try:
+		if confirm_dialog(heading='Authorize Trakt', text='You must authenticate with Trakt. Do you want to authenticate now?'):
+			return trakt_authenticate()
+		return False
+	finally:
+		clear_property(TRAKT_AUTH_PROMPT_PROPERTY)
 
 def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, method=None, pagination=False, page_no=1):
 	def send_query():
@@ -105,12 +116,13 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 	if status_code == 401:
 		_set_trakt_auth_state('authorization_expired', 'Authorization Expired')
 		if xbmc_player().isPlaying() == False:
-			if with_auth and confirm_dialog(heading='Authorize Trakt', text='You must authenticate with Trakt. Do you want to authenticate now?') and trakt_authenticate():
+			auth_result = _trakt_prompt_for_auth() if with_auth else False
+			if auth_result:
 				response = send_query()
 				try: status_code = response.status_code
 				except: return None
 			else:
-				notification('Trakt authorization expired', 3500)
+				if auth_result is False: notification('Trakt authorization expired', 3500)
 				return None
 		else:
 			notification('Trakt authorization expired', 3500)
@@ -672,6 +684,7 @@ def trakt_indicators_movies():
 	insert_append = insert_list.append
 	params = {'path': 'sync/watched/movies%s', 'with_auth': True, 'pagination': False}
 	result = get_trakt(params)
+	if not isinstance(result, list): return
 	threads = list(make_thread_list(_process, result))
 	[i.join() for i in threads]
 	trakt_watched_cache.set_bulk_movie_watched(insert_list)
@@ -695,6 +708,7 @@ def trakt_indicators_tv():
 	insert_append = insert_list.append
 	params = {'path': 'users/me/watched/shows?extended=full%s', 'with_auth': True, 'pagination': False}
 	result = get_trakt(params)
+	if not isinstance(result, list): return
 	threads = list(make_thread_list(_process, result))
 	[i.join() for i in threads]
 	trakt_watched_cache.set_bulk_tvshow_watched(insert_list)
