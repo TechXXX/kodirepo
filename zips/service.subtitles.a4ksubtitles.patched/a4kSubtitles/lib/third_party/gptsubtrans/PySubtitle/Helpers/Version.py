@@ -1,4 +1,6 @@
 
+from __future__ import annotations
+
 def VersionNumberLessThan(version1: str, version2: str) -> bool:
     """Compare two version strings and return True if version1 is less than version2"""
     if not version1:

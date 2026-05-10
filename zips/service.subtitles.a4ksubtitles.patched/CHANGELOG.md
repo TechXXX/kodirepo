@@ -1,6 +1,10 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* [v3.23.36](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.36):
+  * Make the bundled GPT subtitle translator import on Kodi Windows builds that still run Python `3.8.15` by postponing modern `list[...]` and `str | None` annotation evaluation.
+  * Log bundled translator import failures explicitly so future fallback failures point at the real cause instead of surfacing later as a missing `gptsubtrans` attribute.
+
 * [v3.23.35](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.35):
   * Pin OpenAI subtitle translation to `gpt-4.1-mini-2025-04-14` even when older Kodi userdata still contains `gpt-4.1-2025-04-14`.
   * Persist the pinned mini model back into the a4k settings value at runtime so the settings screen no longer carries a stale full-model override.

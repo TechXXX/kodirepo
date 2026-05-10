@@ -497,6 +497,11 @@ def start(api):
         nonlocal last_subfile, ai_last_timestamp, ai_tries, has_done_subs_check
         nonlocal ai_translation_active, ai_translation_source, attached_subtitle_active
 
+        translator = getattr(core.utils, 'gptsubtrans', None)
+        if not translator:
+            core.logger.error('AI translation fallback unavailable: bundled gptsubtrans could not be imported')
+            return False
+
         ai_model = _pinned_ai_model(core, ai_provider, ai_model)
         target_language = language_code(target_preferredlang)
         if not target_language:
@@ -600,7 +605,7 @@ def start(api):
             except Exception as exc:
                 core.logger.debug('Partial AI subtitle attach skipped: %s' % exc)
 
-        core.utils.gptsubtrans.translate(
+        translator.translate(
             input_file=subfile,
             target_language=target_language,
             output_file=subfile_translated,
@@ -800,7 +805,12 @@ def start(api):
                     core.logger.debug('Subtitles file: %s' % active_subfile)
                     core.logger.debug('Using AI to translate portion of subtitles between %s and %s seconds in %s' % (ai_last_timestamp, ai_last_timestamp + translation_range, target_language))
 
-                    core.utils.gptsubtrans.translate(
+                    translator = getattr(core.utils, 'gptsubtrans', None)
+                    if not translator:
+                        core.logger.error('AI translation unavailable: bundled gptsubtrans could not be imported')
+                        return False
+
+                    translator.translate(
                         input_file=active_subfile,
                         target_language=target_language,
                         output_file=subfile_translated,

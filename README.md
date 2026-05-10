@@ -62,7 +62,9 @@ Current source-tree versions when this document was updated:
   subtitle, prefers embedded Dutch streams before forcing that fallback, pins
   OpenAI translation to `gpt-4.1-mini-2025-04-14` even when stale Kodi userdata
   contains the full GPT-4.1 model, and labels the attached result with the
-  `GPT4 Translated` notification.
+  `GPT4 Translated` notification. It also keeps the bundled GPT subtitle
+  translator import-compatible with Kodi Windows builds that still run Python
+  `3.8.15`.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `plugin.program.famyt` `0.1.0`

@@ -1,5 +1,7 @@
 
 # Custom minimal Events base class to replace 'events' dependency
+from __future__ import annotations
+
 class Events:
     def __init__(self):
         self._listeners = {}

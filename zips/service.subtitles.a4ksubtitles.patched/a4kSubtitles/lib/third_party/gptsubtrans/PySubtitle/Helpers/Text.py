@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unicodedata
 import re
 from PySubtitle.Helpers.unicode_utils import remove_punctuation_separator_control

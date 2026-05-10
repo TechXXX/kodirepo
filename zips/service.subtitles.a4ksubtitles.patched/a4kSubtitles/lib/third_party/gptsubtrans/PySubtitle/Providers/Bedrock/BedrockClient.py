@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 def _structure_messages(messages : list[str]) -> list[dict]:

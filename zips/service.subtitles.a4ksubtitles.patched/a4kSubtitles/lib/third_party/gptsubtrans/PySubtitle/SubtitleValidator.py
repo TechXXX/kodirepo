@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 class SubtitleError(Exception):
     def __init__(self, message, error = None):
         super().__init__(message)

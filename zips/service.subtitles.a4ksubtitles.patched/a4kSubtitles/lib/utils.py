@@ -11,9 +11,21 @@ from . import logger
 
 try:
     from .third_party import chardet
+except Exception as exc:
+    chardet = None
+    logger.debug('Failed to import bundled chardet: %s' % exc)
+
+try:
     from .third_party import iso639
+except Exception as exc:
+    iso639 = None
+    logger.debug('Failed to import bundled iso639: %s' % exc)
+
+try:
     from .third_party import gptsubtrans
-except: pass
+except Exception as exc:
+    gptsubtrans = None
+    logger.debug('Failed to import bundled gptsubtrans: %s' % exc)
 
 try:  # pragma: no cover
     from urlparse import unquote, parse_qsl

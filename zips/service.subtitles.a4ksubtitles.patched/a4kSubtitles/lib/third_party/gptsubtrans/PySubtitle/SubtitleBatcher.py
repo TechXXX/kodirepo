@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import timedelta
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleScene import SubtitleScene

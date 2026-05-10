@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from PySubtitle.Providers.NexosAI.MinimalNexosAIClient import MinimalNexosAIClient
 from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError

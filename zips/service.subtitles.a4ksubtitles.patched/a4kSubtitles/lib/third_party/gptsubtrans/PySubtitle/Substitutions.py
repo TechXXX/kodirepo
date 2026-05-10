@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import re
 from PySubtitle.Helpers.unicode_utils import is_latin

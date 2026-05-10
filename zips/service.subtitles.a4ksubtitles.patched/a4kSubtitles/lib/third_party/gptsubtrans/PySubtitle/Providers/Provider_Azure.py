@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import os
 from PySubtitle.Providers.Azure.AzureOpenAIClient import AzureOpenAIClient

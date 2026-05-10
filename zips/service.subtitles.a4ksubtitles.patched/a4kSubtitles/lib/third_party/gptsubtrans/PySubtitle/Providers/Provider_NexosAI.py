@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from PySubtitle.Providers.NexosAI.NexosAIClient import NexosAIClient
 from PySubtitle.TranslationClient import TranslationClient

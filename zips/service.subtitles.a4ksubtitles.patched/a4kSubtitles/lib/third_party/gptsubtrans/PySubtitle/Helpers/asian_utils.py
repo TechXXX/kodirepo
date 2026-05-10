@@ -1,5 +1,7 @@
 # Utility functions for Asian script detection
 
+from __future__ import annotations
+
 def is_han(char):
     codepoint = ord(char)
     # CJK Unified Ideographs

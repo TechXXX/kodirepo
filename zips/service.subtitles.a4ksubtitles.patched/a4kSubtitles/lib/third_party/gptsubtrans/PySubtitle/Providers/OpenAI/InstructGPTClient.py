@@ -1,5 +1,7 @@
 
 
+from __future__ import annotations
+
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
 
