@@ -32,6 +32,9 @@ def gemini_api_key():
 	keys = gemini_api_keys()
 	return keys[0] if keys else 'empty_setting'
 
+def ai_search_strict_language_filters():
+	return get_setting('fenlight.aisearch.ai_search.strict_language_filters', 'false') == 'true'
+
 def trakt_client():
 	return get_setting('fenlight.aisearch.trakt.client', '')
 

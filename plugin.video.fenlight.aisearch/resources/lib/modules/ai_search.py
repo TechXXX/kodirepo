@@ -10,15 +10,74 @@ from indexers.movies import Movies
 from indexers.tvshows import TVShows
 from modules import kodi_utils, meta_lists
 from modules.search import add_to_search
-from modules.settings import gemini_api_key
+from modules.settings import ai_search_strict_language_filters, gemini_api_key
 from modules.utils import remove_accents, safe_string
 
 notification, build_url, kodi_dialog = kodi_utils.notification, kodi_utils.build_url, kodi_utils.kodi_dialog
 execute_builtin, close_all_dialog = kodi_utils.execute_builtin, kodi_utils.close_all_dialog
 external = kodi_utils.external
 empty_setting_check = (None, '', 'empty_setting')
-results_cache_prefix = 'ai_search_results_v3_'
+results_cache_prefix = 'ai_search_results_v5_'
 results_cache_expiration = 24
+
+original_language_aliases = {
+	'korean': 'ko',
+	'south korean': 'ko',
+	'korea': 'ko',
+	'south korea': 'ko',
+	'japanese': 'ja',
+	'japan': 'ja',
+	'spanish': 'es',
+	'spain': 'es',
+	'mexican': 'es',
+	'mexico': 'es',
+	'french': 'fr',
+	'france': 'fr',
+	'german': 'de',
+	'germany': 'de',
+	'italian': 'it',
+	'italy': 'it',
+	'portuguese': 'pt',
+	'brazilian': 'pt',
+	'brazil': 'pt',
+	'russian': 'ru',
+	'russia': 'ru',
+	'turkish': 'tr',
+	'turkey': 'tr',
+	'thai': 'th',
+	'thailand': 'th',
+	'polish': 'pl',
+	'poland': 'pl',
+	'dutch': 'nl',
+	'netherlands': 'nl',
+	'swedish': 'sv',
+	'sweden': 'sv',
+	'danish': 'da',
+	'denmark': 'da',
+	'norwegian': 'no',
+	'norway': 'no',
+	'finnish': 'fi',
+	'finland': 'fi',
+	'greek': 'el',
+	'greece': 'el',
+	'czech': 'cs',
+	'czech republic': 'cs',
+	'hungarian': 'hu',
+	'hungary': 'hu',
+	'romanian': 'ro',
+	'romania': 'ro',
+	'ukrainian': 'uk',
+	'ukraine': 'uk',
+	'arabic': 'ar',
+	'hebrew': 'he',
+	'chinese': 'zh',
+	'mandarin': 'zh',
+	'cantonese': 'zh',
+	'hindi': 'hi',
+	'tamil': 'ta',
+	'telugu': 'te'
+}
+language_alias_items = sorted(original_language_aliases.items(), key=lambda item: len(item[0]), reverse=True)
 
 genre_aliases = {
 	'movie': {
@@ -86,7 +145,8 @@ def _requested_media_type(params):
 	return None
 
 def _result_cache_id(prompt):
-	return results_cache_prefix + hashlib.md5(prompt.encode('utf-8')).hexdigest()
+	cache_source = '%s|strict_language:%s' % (prompt, ai_search_strict_language_filters())
+	return results_cache_prefix + hashlib.md5(cache_source.encode('utf-8')).hexdigest()
 
 def _cached_results(prompt):
 	return main_cache.get(_result_cache_id(prompt))
@@ -97,6 +157,7 @@ def _get_result_payload(prompt, params=None):
 	if gemini_api_key() in empty_setting_check: return None
 	intent = GeminiAPI().interpret_prompt(prompt)
 	if not intent: return None
+	intent = _coerce_language_intent(prompt, intent)
 	result_payload = _build_result_payload(prompt, intent, params or {})
 	if not result_payload: return None
 	_store_results(prompt, result_payload)
@@ -149,10 +210,12 @@ def _build_discover_url(media_type, intent):
 	genre_ids = _resolve_genre_ids(media_type, intent.get('genres', []))
 	keyword_ids = _resolve_keyword_ids(_intent_keyword_terms(intent))
 	cast_ids = _resolve_cast_ids(media_type, intent.get('people', []))
-	if not any((genre_ids, keyword_ids, cast_ids)): return None
+	original_language = _requested_original_language(intent)
+	if not any((genre_ids, keyword_ids, cast_ids, original_language)): return None
 	base_type = 'movie' if media_type == 'movie' else 'tv'
 	current_date = str(date.today())
-	url = 'https://api.themoviedb.org/3/discover/%s?language=en-US&region=US&sort_by=popularity.desc' % base_type
+	url = 'https://api.themoviedb.org/3/discover/%s?language=en-US&sort_by=popularity.desc' % base_type
+	if not original_language: url += '&region=US'
 	if media_type == 'movie': url += '&primary_release_date.lte=%s' % current_date
 	else: url += '&include_null_first_air_dates=false&first_air_date.lte=%s' % current_date
 	start_year, end_year = _year_range(intent)
@@ -162,6 +225,7 @@ def _build_discover_url(media_type, intent):
 	if end_year:
 		if media_type == 'movie': url += '&primary_release_date.lte=%s-12-31' % end_year
 		else: url += '&first_air_date.lte=%s-12-31' % end_year
+	if original_language: url += '&with_original_language=%s' % original_language
 	if genre_ids: url += '&with_genres=%s' % '|'.join(genre_ids[:4])
 	if keyword_ids: url += '&with_keywords=%s' % '|'.join(keyword_ids[:5])
 	if cast_ids: url += '&with_cast=%s' % '|'.join(cast_ids[:3])
@@ -272,6 +336,7 @@ def _intent_keyword_terms(intent):
 
 def _filter_results(results, media_type, intent):
 	start_year, end_year = _year_range(intent)
+	requested_language = _requested_original_language(intent)
 	exclude_terms = [_normalize(item) for item in intent.get('exclude_terms', []) if item]
 	filtered = []
 	append = filtered.append
@@ -279,11 +344,43 @@ def _filter_results(results, media_type, intent):
 		title = safe_string(item.get('title') or item.get('name') or '')
 		normalized_title = _normalize(title)
 		if exclude_terms and any(term in normalized_title for term in exclude_terms): continue
+		item_language = _normalize_original_language(item.get('original_language'))
+		if requested_language and item_language and item_language != requested_language: continue
 		result_year = _result_year(item, media_type)
 		if start_year and result_year and result_year < start_year: continue
 		if end_year and result_year and result_year > end_year: continue
 		append(item)
 	return filtered
+
+def _coerce_language_intent(prompt, intent):
+	intent = dict(intent)
+	intent['original_language'] = _requested_original_language(intent, prompt)
+	return intent
+
+def _requested_original_language(intent, prompt=None):
+	if not ai_search_strict_language_filters(): return None
+	language = _normalize_original_language(intent.get('original_language'))
+	if language: return language
+	for field in ('keywords', 'tone_descriptors', 'genres', 'exclude_terms'):
+		for item in intent.get(field, []):
+			language = _extract_original_language(item)
+			if language: return language
+	if prompt: return _extract_original_language(prompt)
+	return None
+
+def _normalize_original_language(value):
+	value = safe_string(value).strip().lower()
+	if not value: return None
+	return value if len(value) == 2 and value.isalpha() else original_language_aliases.get(value)
+
+def _extract_original_language(value):
+	normalized_value = _normalize(value)
+	if not normalized_value: return None
+	if len(normalized_value) == 2 and normalized_value.isalpha(): return normalized_value
+	padded_value = ' %s ' % normalized_value
+	for alias, language_code in language_alias_items:
+		if ' %s ' % alias in padded_value: return language_code
+	return None
 
 def _year_range(intent):
 	year_range = intent.get('year_range', {}) or {}

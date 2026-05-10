@@ -1,5 +1,9 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 1.0.8[/B][/COLOR]
+- Added an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
+- Added Gemini intent parsing and TMDb result filtering support for original-language detection so language-focused prompts can stay closer to the user's request.
+
 [COLOR dodgerblue][B]Version 1.0.7[/B][/COLOR]
 - Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
 

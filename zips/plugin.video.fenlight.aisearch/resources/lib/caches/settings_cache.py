@@ -301,6 +301,7 @@ default_settings = [
 {'setting_id': 'gemini_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'gemini_api_2', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'gemini_api_3', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'ai_search.strict_language_filters', 'setting_type': 'boolean', 'setting_default': 'false'},
 #==================== OMDb
 {'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== External

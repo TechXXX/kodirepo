@@ -1196,6 +1196,14 @@
                           <property name="setting_description">Optional second fallback Gemini Developer API key from a separate Google project</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.aisearch/?mode=settings_manager.set_string&amp;setting_id=gemini_api_3)</onclick>
                       </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">Strict Original Language Filters</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.aisearch.ai_search.strict_language_filters)]</property>
+                          <property name="setting_description">Enable this and AI Search will turn language or nationality prompts like Korean, German, or Dutch into strict TMDb original-language filters</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.aisearch/?mode=settings_manager.set_boolean&amp;setting_id=ai_search.strict_language_filters)</onclick>
+                      </item>
         <!-- OMDb -->
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
