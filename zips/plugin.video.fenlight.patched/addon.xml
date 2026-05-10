@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.61">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.62">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.61]:
+        <news>[v2.0.62]:
+  * Prefer playable YouTube trailer keys in the extras window, fall back to the best sorted YouTube trailer when raw trailer metadata is missing or non-plugin, and show a clearer no-trailer notice instead of failing playback.
+
+[v2.0.61]:
   * Add a final OpenSubtitles English AI-translation fallback after Dutch subtitle matching fails, and tighten episodic subtitle matching so unrelated S01E01 Dutch results cannot win on generic release tags.
 
 [v2.0.60]:

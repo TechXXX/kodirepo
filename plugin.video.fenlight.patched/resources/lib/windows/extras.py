@@ -347,14 +347,6 @@ class Extras(BaseDialog):
 	def make_videos(self):
 		if not videos_id in self.enabled_lists: return
 		if not self.youtube_installed_check(): return
-		def _sort_trailers(trailers):
-			official_trailers = [i for i in trailers if i['official'] and i['type'] == 'Trailer' and 'official trailer' in i['name'].lower()]
-			other_official_trailers = [i for i in trailers if i['official'] and i['type'] == 'Trailer' and not i in official_trailers]
-			other_trailers = [i for i in trailers if i['type'] == 'Trailer' and not i in official_trailers  and not i in other_official_trailers]
-			teaser_trailers = [i for i in trailers if i['type'] == 'Teaser']
-			full_trailers = official_trailers + other_official_trailers + other_trailers + teaser_trailers
-			features = [i for i in trailers if not i in full_trailers]
-			return full_trailers + features
 		def builder():
 			for item in all_trailers:
 				try:
@@ -366,12 +358,40 @@ class Extras(BaseDialog):
 					yield listitem
 				except: pass
 		try:
-			all_trailers = _sort_trailers(self.meta_get('all_trailers', []))
+			all_trailers = self.get_sorted_trailers()
 			item_list = list(builder())
 			self.setProperty('youtube_videos.number', count_insert % len(item_list))
 			self.item_action_dict[videos_id] = 'key_id'
 			self.add_items(videos_id, item_list)
 		except: pass
+
+	def get_sorted_trailers(self):
+		try: trailers = [i for i in self.meta_get('all_trailers', []) if i.get('site') == 'YouTube' and i.get('key')]
+		except: return []
+		official_trailers = [i for i in trailers if i.get('official') and i.get('type') == 'Trailer' and 'official trailer' in i.get('name', '').lower()]
+		other_official_trailers = [i for i in trailers if i.get('official') and i.get('type') == 'Trailer' and not i in official_trailers]
+		other_trailers = [i for i in trailers if i.get('type') == 'Trailer' and not i in official_trailers  and not i in other_official_trailers]
+		teaser_trailers = [i for i in trailers if i.get('type') == 'Teaser']
+		full_trailers = official_trailers + other_official_trailers + other_trailers + teaser_trailers
+		features = [i for i in trailers if not i in full_trailers]
+		return full_trailers + features
+
+	def get_trailer_url(self):
+		def normalize_trailer_url(url):
+			try: url = url.strip()
+			except: return ''
+			if not url or url.lower() in ('none', 'null'): return ''
+			if url.startswith('plugin://plugin.video.youtube'): return url
+			if 'youtu.be/' in url: key = url.split('youtu.be/', 1)[1].split('?', 1)[0].split('&', 1)[0].split('/', 1)[0]
+			elif 'youtube.com/watch' in url and 'v=' in url: key = url.split('v=', 1)[1].split('&', 1)[0]
+			elif 'youtube.com/embed/' in url: key = url.split('youtube.com/embed/', 1)[1].split('?', 1)[0].split('&', 1)[0].split('/', 1)[0]
+			elif 'youtube.com/shorts/' in url: key = url.split('youtube.com/shorts/', 1)[1].split('?', 1)[0].split('&', 1)[0].split('/', 1)[0]
+			else: key = ''
+			return youtube_url % key if key else url
+		trailer_url = normalize_trailer_url(self.meta_get('trailer'))
+		if trailer_url: return trailer_url
+		try: return youtube_url % self.get_sorted_trailers()[0]['key']
+		except: return ''
 
 	def make_year(self):
 		if not year_id in self.enabled_lists: return
@@ -558,7 +578,8 @@ class Extras(BaseDialog):
 	def show_trailers(self):
 		if not self.youtube_installed_check(): return self.notification('Youtube Plugin needed for playback')
 		self.set_current_params(set_starting_position=False)
-		self.window_player_url = self.meta_get('trailer')
+		self.window_player_url = self.get_trailer_url()
+		if not self.window_player_url: return self.notification('No Trailer Found')
 		return window_player(self)
 
 	def show_images(self):

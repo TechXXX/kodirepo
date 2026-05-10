@@ -1,3 +1,8 @@
+[COLOR dodgerblue][B]Session Note (2026-05-10, trailer playback fallback)[/B][/COLOR]
+- Prefer playable YouTube trailer keys in the extras window.
+- Fall back to the best sorted YouTube trailer when raw trailer metadata is missing or non-plugin.
+- Show a clearer no-trailer notice instead of handing window playback an unusable trailer URL.
+
 [COLOR dodgerblue][B]Session Note (2026-05-08, English-to-Dutch subtitle fallback)[/B][/COLOR]
 - Use OpenSubtitles English matching only as the final fallback after Dutch subtitle matching fails.
 - Pass the selected English OpenSubtitles file to a4k for full-file Dutch translation, while allowing embedded Dutch streams to override the fallback once playback starts.

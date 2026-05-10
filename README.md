@@ -18,7 +18,7 @@ Current source-tree versions when this document was updated:
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses.
-- `plugin.video.fenlight.patched` `2.0.61`
+- `plugin.video.fenlight.patched` `2.0.62`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -41,6 +41,10 @@ Current source-tree versions when this document was updated:
   matching only as the final AI-translation fallback after preferred-language
   subtitle matching fails, while tightening episodic subtitle identity checks
   so unrelated same-episode Dutch results cannot win on generic release tags.
+  It now also prefers playable YouTube trailer keys in the extras window,
+  falls back to the best sorted YouTube trailer when raw trailer metadata is
+  missing or non-plugin, and shows a clearer no-trailer notice instead of
+  failing playback.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.10`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -49,7 +53,7 @@ Current source-tree versions when this document was updated:
   OMDb ratings more reliably. It now also ships a bundled default OMDb API key
   for repo installs and includes bundled Fen Light / Fen Light Patched TMDb
   player definitions for default installs.
-- `service.subtitles.a4ksubtitles.patched` `3.23.34`
+- `service.subtitles.a4ksubtitles.patched` `3.23.36`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build searches OpenSubtitles TV episodes by parent show IMDb id
   plus season/episode before text fallbacks, so numeric show titles like
