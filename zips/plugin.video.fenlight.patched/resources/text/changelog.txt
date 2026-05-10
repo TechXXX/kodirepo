@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Session Note (2026-05-10, localized trailer fallback)[/B][/COLOR]
+- Fetch TMDb's standalone videos list in Extras when localized metadata has no trailers, so Dutch metadata can still play English YouTube trailers.
+
 [COLOR dodgerblue][B]Session Note (2026-05-10, trailer playback fallback)[/B][/COLOR]
 - Prefer playable YouTube trailer keys in the extras window.
 - Fall back to the best sorted YouTube trailer when raw trailer metadata is missing or non-plugin.

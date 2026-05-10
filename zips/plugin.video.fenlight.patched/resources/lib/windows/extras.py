@@ -29,7 +29,7 @@ media_extra_info, genres_choice, random_choice, keywords_choice = dialogs.media_
 person_search, person_data_dialog = people.person_search, people.person_data_dialog
 tmdb_movies_year, tmdb_tv_year, tmdb_movies_genres, tmdb_tv_genres = tmdb_api.tmdb_movies_year, tmdb_api.tmdb_tv_year, tmdb_api.tmdb_movies_genres, tmdb_api.tmdb_tv_genres
 tmdb_movies_recommendations, tmdb_tv_recommendations, tmdb_company_id = tmdb_api.tmdb_movies_recommendations, tmdb_api.tmdb_tv_recommendations, tmdb_api.tmdb_company_id
-tmdb_movies_companies, tmdb_tv_networks = tmdb_api.tmdb_movies_companies, tmdb_api.tmdb_tv_networks
+tmdb_movies_companies, tmdb_tv_networks, tmdb_media_videos = tmdb_api.tmdb_movies_companies, tmdb_api.tmdb_tv_networks, tmdb_api.tmdb_media_videos
 imdb_reviews, imdb_trivia, imdb_blunders, imdb_parentsguide = imdb_api.imdb_reviews, imdb_api.imdb_trivia, imdb_api.imdb_blunders, imdb_api.imdb_parentsguide
 fetch_ratings_info, trakt_comments, like_a_list, unlike_a_list = omdb_api.fetch_ratings_info, trakt_api.trakt_comments, trakt_api.trakt_like_a_list, trakt_api.trakt_unlike_a_list
 tmdb_image_base, count_insert = 'https://image.tmdb.org/t/p/%s%s', 'x%s'
@@ -366,8 +366,13 @@ class Extras(BaseDialog):
 		except: pass
 
 	def get_sorted_trailers(self):
-		try: trailers = [i for i in self.meta_get('all_trailers', []) if i.get('site') == 'YouTube' and i.get('key')]
-		except: return []
+		def youtube_trailers(items):
+			try: return [i for i in items if i.get('site') == 'YouTube' and i.get('key')]
+			except: return []
+		trailers = youtube_trailers(self.meta_get('all_trailers', []))
+		if not trailers:
+			try: trailers = youtube_trailers(tmdb_media_videos(self.media_type, self.tmdb_id).get('results', []))
+			except: trailers = []
 		official_trailers = [i for i in trailers if i.get('official') and i.get('type') == 'Trailer' and 'official trailer' in i.get('name', '').lower()]
 		other_official_trailers = [i for i in trailers if i.get('official') and i.get('type') == 'Trailer' and not i in official_trailers]
 		other_trailers = [i for i in trailers if i.get('type') == 'Trailer' and not i in official_trailers  and not i in other_official_trailers]
