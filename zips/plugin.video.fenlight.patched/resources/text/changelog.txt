@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Session Note (2026-05-10, fullscreen trailer stop)[/B][/COLOR]
+- Force Extras trailer playback into fullscreen video and stop the trailer when Back leaves fullscreen playback.
+
 [COLOR dodgerblue][B]Session Note (2026-05-10, localized trailer fallback)[/B][/COLOR]
 - Fetch TMDb's standalone videos list in Extras when localized metadata has no trailers, so Dutch metadata can still play English YouTube trailers.
 

@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.63">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.64">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.63]:
+        <news>[v2.0.64]:
+  * Force Extras trailer playback into fullscreen video and stop the trailer when Back leaves fullscreen playback.
+
+[v2.0.63]:
   * In Extras, fetch TMDb's standalone videos list when localized metadata has no trailers so Dutch metadata can still play English YouTube trailers.
 
 [v2.0.62]:

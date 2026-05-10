@@ -105,6 +105,17 @@ def window_manager(obj):
 	hide_busy_dialog()
 
 def window_player(obj):
+	def activate_fullscreen(player):
+		execute_builtin('ActivateWindow(fullscreenvideo)')
+		timer, started_fullscreen = 0, False
+		while player.isPlayingVideo() and timer <= 30:
+			if get_visibility('Window.IsActive(fullscreenvideo)'):
+				started_fullscreen = True
+				break
+			sleep(100)
+			timer += 1
+		return started_fullscreen
+
 	def monitor():
 		timer = 0
 		while not get_property('fenlight.window_loaded') == 'true' and timer <= 5:
@@ -135,7 +146,12 @@ def window_player(obj):
 		sleep(2000)
 		while not player.isPlayingVideo(): sleep(100)
 		obj.close()
-		while player.isPlayingVideo(): sleep(100)
+		started_fullscreen = activate_fullscreen(player)
+		while player.isPlayingVideo():
+			if started_fullscreen and not get_visibility('Window.IsActive(fullscreenvideo)'):
+				player.stop()
+				break
+			sleep(100)
 		show_busy_dialog()
 		sleep(1000)
 		Thread(target=monitor).start()
