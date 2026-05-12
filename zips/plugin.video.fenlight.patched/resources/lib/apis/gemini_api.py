@@ -9,7 +9,7 @@ base_url = 'https://generativelanguage.googleapis.com/v1beta'
 model = 'gemini-2.5-flash'
 timeout = 20.0
 cache_expiration = 168
-cache_prefix = 'ai_search_gemini_intent_v3_'
+cache_prefix = 'ai_search_gemini_intent_v4_'
 empty_setting_check = (None, '', 'empty_setting')
 session = make_session(base_url)
 
@@ -46,6 +46,10 @@ response_schema = {
 			'items': {'type': 'string'},
 			'description': 'A few example titles that match the request.'
 		},
+		'original_language': {
+			'type': ['string', 'null'],
+			'description': 'ISO 639-1 original language code when the request clearly specifies a language or nationality such as Korean->ko or Japanese->ja.'
+		},
 		'year_range': {
 			'type': 'object',
 			'properties': {
@@ -61,7 +65,7 @@ response_schema = {
 			'description': 'Titles, genres, or terms the user wants to avoid.'
 		}
 	},
-	'required': ['media_type', 'genres', 'keywords', 'people', 'tone_descriptors', 'example_titles', 'year_range', 'exclude_terms']
+	'required': ['media_type', 'genres', 'keywords', 'people', 'tone_descriptors', 'example_titles', 'original_language', 'year_range', 'exclude_terms']
 }
 
 prompt_template = '''Interpret this natural-language movie or TV discovery request for a Kodi addon.
@@ -79,9 +83,13 @@ Rules:
 - If the request mentions a specific actor, comedian, performer, director, or creator, put that person in people.
 - Use canonical person spellings when you know them.
 - Do not treat a named person as just a loose keyword when they are clearly intended as cast or creator guidance.
+- If the request clearly specifies a language, nationality, or country-of-origin that strongly implies language, set original_language to the ISO 639-1 code.
+- Examples: Korean -> ko, Japanese -> ja, Spanish -> es, French -> fr, German -> de, Italian -> it.
+- Do not treat language or nationality constraints as loose keywords when original_language can capture them.
 - tone_descriptors should be short mood descriptors.
 - example_titles should contain at most 3 titles.
 - If the prompt is a likely title or franchise, use example_titles to include the most likely matching known titles.
+- Use null for original_language when the request does not clearly specify one.
 - Use null for unknown year_range values.
 - exclude_terms should contain explicit avoid terms only.
 - Do not explain your reasoning.
@@ -97,6 +105,86 @@ media_type_aliases = {
 	'show': 'tvshow',
 	'series': 'tvshow',
 	'television': 'tvshow'
+}
+
+language_aliases = {
+	'ko': 'ko',
+	'korean': 'ko',
+	'south korean': 'ko',
+	'korea': 'ko',
+	'south korea': 'ko',
+	'ja': 'ja',
+	'japanese': 'ja',
+	'japan': 'ja',
+	'es': 'es',
+	'spanish': 'es',
+	'spain': 'es',
+	'mexican': 'es',
+	'mexico': 'es',
+	'fr': 'fr',
+	'french': 'fr',
+	'france': 'fr',
+	'de': 'de',
+	'german': 'de',
+	'germany': 'de',
+	'it': 'it',
+	'italian': 'it',
+	'italy': 'it',
+	'pt': 'pt',
+	'portuguese': 'pt',
+	'brazilian': 'pt',
+	'brazil': 'pt',
+	'ru': 'ru',
+	'russian': 'ru',
+	'russia': 'ru',
+	'tr': 'tr',
+	'turkish': 'tr',
+	'turkey': 'tr',
+	'th': 'th',
+	'thai': 'th',
+	'thailand': 'th',
+	'pl': 'pl',
+	'polish': 'pl',
+	'poland': 'pl',
+	'nl': 'nl',
+	'dutch': 'nl',
+	'netherlands': 'nl',
+	'sv': 'sv',
+	'swedish': 'sv',
+	'sweden': 'sv',
+	'da': 'da',
+	'danish': 'da',
+	'denmark': 'da',
+	'no': 'no',
+	'norwegian': 'no',
+	'norway': 'no',
+	'fi': 'fi',
+	'finnish': 'fi',
+	'finland': 'fi',
+	'el': 'el',
+	'greek': 'el',
+	'greece': 'el',
+	'cs': 'cs',
+	'czech': 'cs',
+	'czech republic': 'cs',
+	'hu': 'hu',
+	'hungarian': 'hu',
+	'hungary': 'hu',
+	'ro': 'ro',
+	'romanian': 'ro',
+	'romania': 'ro',
+	'uk': 'uk',
+	'ukrainian': 'uk',
+	'ukraine': 'uk',
+	'ar': 'ar',
+	'arabic': 'ar',
+	'he': 'he',
+	'hebrew': 'he',
+	'zh': 'zh',
+	'chinese': 'zh',
+	'mandarin': 'zh',
+	'cantonese': 'zh',
+	'cn': 'zh'
 }
 
 class GeminiAPI:
@@ -194,7 +282,13 @@ class GeminiAPI:
 		def int_or_none(value):
 			try: return int(value)
 			except: return None
+		def normalize_language(value):
+			try: value = str(value).strip().lower()
+			except: return None
+			if not value: return None
+			return language_aliases.get(value) or (value if len(value) == 2 and value.isalpha() else None)
 		media_type = media_type_aliases.get(str(data.get('media_type', '')).strip().lower(), 'movie')
+		original_language = normalize_language(data.get('original_language'))
 		year_range = data.get('year_range') or {}
 		start_year, end_year = int_or_none(year_range.get('start')), int_or_none(year_range.get('end'))
 		if all((start_year, end_year)) and start_year > end_year: start_year, end_year = end_year, start_year
@@ -205,6 +299,7 @@ class GeminiAPI:
 			'people': clean_list(data.get('people'), 4),
 			'tone_descriptors': clean_list(data.get('tone_descriptors'), 5),
 			'example_titles': clean_list(data.get('example_titles'), 3),
+			'original_language': original_language,
 			'year_range': {'start': start_year, 'end': end_year},
 			'exclude_terms': clean_list(data.get('exclude_terms'), 5)
 		}

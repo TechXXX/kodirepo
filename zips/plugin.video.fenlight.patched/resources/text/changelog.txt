@@ -1,6 +1,23 @@
-[COLOR dodgerblue][B]Session Note (2026-05-12, Real-Debrid resolve errors)[/B][/COLOR]
-- Return Real-Debrid unrestrict error payloads to playback resolution instead of discarding them inside the API wrapper.
-- Log the provider error details and show clearer user-facing failures such as `Infringing File` when Real-Debrid rejects the link.
+[COLOR dodgerblue][B]Session Note (2026-05-12, TorBox web download validation)[/B][/COLOR]
+- Confirm TorBox Web Download playback resolves and starts through Fen Light Patched.
+- Remove temporary scrape/resolver diagnostics while keeping the WebDL cloud support and `short_name` title-match fix.
+
+[COLOR dodgerblue][B]Session Note (2026-05-12, TorBox web downloads)[/B][/COLOR]
+- Add TorBox Web Download cloud support so hoster uploads such as GoFile-backed items appear in TorBox cloud scraping, browsing, resolving, and deleting alongside torrent and usenet items.
+- Use the TorBox `webdl/mylist`, `webdl/requestdl`, and `webdl/controlwebdownload` endpoints for these web-hosted downloads.
+
+[COLOR dodgerblue][B]Session Note (2026-05-12, live default settings seed)[/B][/COLOR]
+- Seed first-run Fen Light Patched settings from the live MacBook Kodi profile for non-secret preferences.
+- Default new installs to CocoScrapers, the live list/result/playback preferences, size filters, pagination, and update behavior while keeping credentials, tokens, account values, and local machine paths out of the package.
+
+[COLOR dodgerblue][B]Session Note (2026-05-12, QR auth refresh)[/B][/COLOR]
+- Refresh the QR-backed Trakt device-auth flow so the QR encodes the activation URL plus device code, renders the styled QR card, and keeps the manual verification URL and code prompt.
+- Refresh the Real-Debrid device-auth flow so the QR and clipboard use the provider's direct verification URL when available instead of only the generic device page.
+- Add the matching patched TMDb Helper Trakt QR dialog, QR create/cleanup helpers, and clipboard support in the test repo release line.
+
+[COLOR dodgerblue][B]Session Note (2026-05-10, strict AI language filters)[/B][/COLOR]
+- Add an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
+- Parse original-language intent from Gemini output and fallback prompt terms, then keep TMDb discover and local result filtering aligned with that language when the toggle is on.
 
 [COLOR dodgerblue][B]Session Note (2026-05-10, Trakt auth prompt guard)[/B][/COLOR]
 - Guard Trakt re-authorization prompts so only one dialog appears at a time.

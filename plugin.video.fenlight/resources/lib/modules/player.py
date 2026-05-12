@@ -10,6 +10,7 @@ set_property, clear_property, get_visibility, hide_busy_dialog, xbmc_actor = ku.
 xbmc_player, execute_builtin, sleep = ku.xbmc_player, ku.execute_builtin, ku.sleep
 make_listitem, volume_checker, get_infolabel, xbmc_monitor = ku.make_listitem, ku.volume_checker, ku.get_infolabel, ku.xbmc_monitor
 close_all_dialog, notification, poster_empty, fanart_empty = ku.close_all_dialog, ku.notification, ku.empty_poster, ku.get_addon_fanart()
+set_resolved_url = ku.set_resolved_url
 auto_resume, auto_nextep_settings, store_resolved_to_cloud = st.auto_resume, st.auto_nextep_settings, st.store_resolved_to_cloud
 set_bookmark, mark_movie, mark_episode = ws.set_bookmark, ws.mark_movie, ws.mark_episode
 total_time_errors = ('0.0', '', 0.0, None)
@@ -26,6 +27,27 @@ class FenLightPlayer(xbmc_player):
 		if not url: return self.run_error()
 		try: return self.play_video(url, obj)
 		except: return self.run_error()
+
+	def run_resolved(self, url=None, obj=None):
+		hide_busy_dialog()
+		self.clear_playback_properties()
+		if not url: return self.run_error()
+		try:
+			self.set_constants(url, obj)
+			volume_checker()
+			set_resolved_url(self.make_listing())
+			if not self.is_generic:
+				self.check_playback_start()
+				if self.playback_successful: self.monitor()
+				else:
+					self.sources_object.playback_successful = self.playback_successful
+					self.sources_object.cancel_all_playback = self.cancel_all_playback
+					if self.cancel_all_playback: self.kill_dialog()
+					self.stop()
+				try: del self.kodi_monitor
+				except: pass
+		except:
+			return self.run_error()
 
 	def play_video(self, url, obj):
 		self.set_constants(url, obj)

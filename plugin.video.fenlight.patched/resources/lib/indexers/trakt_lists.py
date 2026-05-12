@@ -32,15 +32,15 @@ def search_trakt_lists(params):
 				if list_key == 'officiallist': continue
 				item_count = list_info['item_count']
 				if list_info['privacy'] == 'private' or item_count == 0: continue
-				list_name, user, slug = list_info['name'], list_info['username'], list_info['ids']['slug']
+				list_name, user, list_id = list_info['name'], list_info['username'], list_info['ids'].get('trakt')
 				list_name_upper = list_name.upper()
-				if not slug: continue
+				if not list_id: continue
 				cm = []
 				cm_append = cm.append
 				display = '%s | [I]%s (x%s)[/I]' % (list_name_upper, user, str(item_count))
-				url = build_url({'mode': 'trakt.list.build_trakt_list', 'user': user, 'slug': slug, 'list_type': 'user_lists', 'list_name': list_name})
-				cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'user': user, 'list_slug': slug})))
-				cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'user': user, 'list_slug': slug})))
+				url = build_url({'mode': 'trakt.list.build_trakt_list', 'list_id': list_id, 'list_type': 'user_lists', 'list_name': list_name})
+				cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'list_id': list_id})))
+				cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
 				listitem = make_listitem()
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
@@ -72,20 +72,21 @@ def get_trakt_lists(params):
 				if list_type == 'liked_lists': item = item['list']
 				cm = []
 				cm_append = cm.append
-				list_name, user, slug, item_count = item['name'], item['user']['ids']['slug'], item['ids']['slug'], item['item_count']
+				list_name, user, list_id, item_count = item['name'], item['user']['ids']['slug'], item['ids'].get('trakt'), item['item_count']
+				if not list_id: continue
 				list_name_upper = " ".join(w.capitalize() for w in list_name.split())
 				mode = 'random.build_trakt_my_lists_contents' if randomize_contents == 'true' else 'trakt.list.build_trakt_list'
-				url_params = {'mode': mode, 'user': user, 'slug': slug, 'list_type': list_type, 'list_name': list_name}
+				url_params = {'mode': mode, 'list_id': list_id, 'list_type': list_type, 'list_name': list_name}
 				if randomize_contents: url_params['random'] = 'true'
 				elif shuffle: url_params['shuffle'] = 'true'
 				url = build_url(url_params)
 				if list_type == 'liked_lists':
 					display = '%s | [I]%s (x%s)[/I]' % (list_name_upper, user, str(item_count))
-					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'user': user, 'list_slug': slug})))
+					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
 				else:
 					display = '%s [I](x%s)[/I]' % (list_name_upper, str(item_count))
 					cm_append(('[B]Make New List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.make_new_trakt_list'})))
-					cm_append(('[B]Delete List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.delete_trakt_list', 'user': user, 'list_slug': slug})))
+					cm_append(('[B]Delete List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.delete_trakt_list', 'list_id': list_id})))
 				listitem = make_listitem()
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
@@ -129,17 +130,17 @@ def get_trakt_trending_popular_lists(params):
 				item = _list['list']
 				item_count = item.get('item_count', 0)
 				if item_count == 0: continue
-				list_name, user, slug = item['name'], item['user']['ids']['slug'], item['ids']['slug']
+				list_name, user, list_id = item['name'], item['user']['ids']['slug'], item['ids'].get('trakt')
 				list_name_upper = list_name.upper()
-				if not slug: continue
+				if not list_id: continue
 				if item['type'] == 'official': user = 'Trakt Official'
 				if not user: continue
 				display = '%s | [I]%s (x%s)[/I]' % (list_name_upper, user, str(item_count))
-				url = build_url({'mode': 'trakt.list.build_trakt_list', 'user': user, 'slug': slug, 'list_type': 'user_lists', 'list_name': list_name})
+				url = build_url({'mode': 'trakt.list.build_trakt_list', 'list_id': list_id, 'list_type': 'user_lists', 'list_name': list_name})
 				listitem = make_listitem()
 				if not user == 'Trakt Official':
-					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'user': user, 'list_slug': slug})))
-					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'user': user, 'list_slug': slug})))
+					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'list_id': list_id})))
+					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
 				listitem.addContextMenuItems(cm)
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
@@ -169,14 +170,15 @@ def get_trakt_lists_with_media(params):
 				cm = []
 				cm_append = cm.append
 				item_count = item.get('item_count', 0)
-				list_name, user, slug = item['name'], item['user']['ids']['slug'], item['ids']['slug']
+				list_name, user, list_id = item['name'], item['user']['ids']['slug'], item['ids'].get('trakt')
+				if not list_id: continue
 				list_name_upper = list_name.upper()
 				display = '%s | [I]%s (x%s)[/I]' % (list_name_upper, user, str(item_count))
-				url = build_url({'mode': 'trakt.list.build_trakt_list', 'user': user, 'slug': slug, 'list_type': 'user_lists', 'list_name': list_name})
+				url = build_url({'mode': 'trakt.list.build_trakt_list', 'list_id': list_id, 'list_type': 'user_lists', 'list_name': list_name})
 				listitem = make_listitem()
 				if not user == 'Trakt Official':
-					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'user': user, 'list_slug': slug})))
-					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'user': user, 'list_slug': slug})))
+					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'list_id': list_id})))
+					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
 				listitem.addContextMenuItems(cm)
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
@@ -212,16 +214,16 @@ def build_trakt_list(params):
 	try:
 		threads, item_list = [], []
 		item_list_extend = item_list.extend
-		user, slug, list_type = '', '', ''
+		user, slug, list_id, list_type = '', '', '', ''
 		paginate_enabled = paginate(is_home)
 		use_result = 'result' in params
 		page_no, paginate_start = int(params.get('new_page', '1')), int(params.get('paginate_start', '0'))
 		if page_no == 1 and not is_external: set_property('fenlight.exit_params', folder_path())
 		if use_result: result = params.get('result', [])
 		else:
-			user, slug, list_type = params.get('user'), params.get('slug'), params.get('list_type')
+			user, slug, list_id, list_type = params.get('user'), params.get('slug'), params.get('list_id'), params.get('list_type')
 			with_auth = list_type == 'my_lists'
-			result = get_trakt_list_contents(list_type, user, slug, with_auth)
+			result = get_trakt_list_contents(list_type, user, slug, with_auth, list_id)
 		process_list, total_pages, paginate_start = _paginate_list(result, page_no, paginate_start)
 		all_movies = [i for i in process_list if i['type'] == 'movie']
 		all_tvshows = [i for i in process_list if i['type'] == 'show']
@@ -244,7 +246,9 @@ def build_trakt_list(params):
 		if total_pages > page_no:
 			new_page = str(page_no + 1)
 			new_params = {'mode': 'trakt.list.build_trakt_list', 'list_type': list_type, 'list_name': list_name,
-							'user': user, 'slug': slug, 'paginate_start': paginate_start, 'new_page': new_page}
+							'paginate_start': paginate_start, 'new_page': new_page}
+			if list_id: new_params['list_id'] = list_id
+			else: new_params.update({'user': user, 'slug': slug})
 			add_dir(new_params, 'Next Page (%s) >>' % new_page, handle, 'nextpage', nextpage_landscape)
 	except: pass
 	set_content(handle, content)

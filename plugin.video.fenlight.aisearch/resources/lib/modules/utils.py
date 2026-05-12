@@ -90,7 +90,7 @@ def get_datetime(string=False, dt=False):
 
 def get_current_timestamp():
 	return int(time.time())
-	
+
 def adjust_premiered_date(orig_date, adjust_hours):
 	if not orig_date: return None, None
 	orig_date += ' 20:00:00'
@@ -154,7 +154,7 @@ def clean_file_name(s, use_encoding=False, use_blanks=True):
 					['&#xB7;', '.'], ['&#xE4;', 'A'], ['\xe2\x80\x99', '']]
 		special_encoded = [['"', '%22'], ['*', '%2A'], ['/', '%2F'], [':', ','], ['<', '%3C'],
 							['>', '%3E'], ['?', '%3F'], ['\\', '%5C'], ['|', '%7C']]
-		
+
 		special_blanks = [['"', ' '], ['/', ' '], [':', ''], ['<', ' '],
 							['>', ' '], ['?', ' '], ['\\', ' '], ['|', ' '], ['%BD;', ' '],
 							['%B3;', ' '], ['%B0;', ' '], ["'", ""], [' - ', ' '], ['.', ' '],
@@ -255,7 +255,7 @@ def title_key(title):
 def sort_for_article(_list, _key):
 	_list.sort(key=lambda k: re.sub(r'(^the |^a |^an )', '', k[_key].lower()))
 	return _list
-	
+
 def sort_list(sort_key, sort_direction, list_data):
 	try:
 		reverse = sort_direction != 'asc'
@@ -290,6 +290,88 @@ def unzip(zip_location, destination_location, destination_check, show_busy=True)
 	except: status = False
 	if show_busy: hide_busy_dialog()
 	return status
+
+def make_qrcode(url, styled=False):
+	if url == None: return
+	try:
+		import segno
+		from os import path
+		from modules.kodi_utils import addon_profile, logger
+		art_path = path.join(addon_profile(), 'auth_qr.png')
+		qrcode = segno.make(url, micro=False)
+		if styled: return _save_styled_qrcode(qrcode, art_path)
+		qrcode.save(art_path, scale=20)
+		return art_path
+	except Exception as e:
+		try: logger('QR Code Error', str(e))
+		except: pass
+		return
+
+def _save_styled_qrcode(qrcode, art_path):
+	width, height = 300, 373
+	card_left, card_top, card_size, radius = 11, 11, 278, 8
+	pixels = [[0, 0, 0, 255] * width for _ in range(height)]
+	_draw_round_rect(pixels, width, height, card_left, card_top, card_size, card_size, radius, (255, 255, 255, 255))
+	matrix = list(qrcode.matrix_iter(scale=1, border=4))
+	module_count = len(matrix)
+	scale = max(1, min(6, (card_size - 32) // module_count))
+	qr_size = module_count * scale
+	qr_left = card_left + (card_size - qr_size) // 2
+	qr_top = card_top + (card_size - qr_size) // 2
+	for row_index, row in enumerate(matrix):
+		for column_index, module in enumerate(row):
+			if not module: continue
+			_draw_rect(pixels, width, height, qr_left + column_index * scale, qr_top + row_index * scale, scale, scale, (0, 0, 0, 255))
+	_draw_scan_me(pixels, width, height)
+	_write_png(art_path, width, height, pixels)
+	return art_path
+
+def _draw_scan_me(pixels, width, height):
+	from base64 import b64decode
+	from zlib import decompress
+	mask_width, mask_height = 211, 39
+	left, top = 45, 311
+	mask = decompress(b64decode(
+		'eNpt1D1y2zAQBeCHQYESR8AVcgLxYhwRHhcqcwRfBRoVOobpymWYKvQMrM3bBSWSUTRiQX0akvvziJSBhP99nMyATEAPVDieHIBQksjo5QavfARuRh0QjYJIDmTcniiKFB5G0igjGfHISUm/eUddSejKkN1KBfqjXjnwf6k4yZCyIz4qBt53Q+OGjiT/izQuNGwojP6zsPInYiPgrw+aeOU7VR6B9D3vqLvTZUStRrPbU3x9prKho1F1f4zSvNDLhDrYUHrfKMpolBypW+hTe4jAWT0ovSgdQiMdpRHmla6lDUOMDkrxrNTFhZLkRhU1fCileGrEhjXqH/TzVNqOJaNeyf9Wim9hoTA2OpK+jN73JPqkzijInfxK7L3SbaXeSIuQZwofjQYlX9d7cTfOjbot/SBxo84TUl7IzY16bhP38DIhktKWhCVze19JLD1aiO7EOLBhnPFKLV+FlJmUMPK8Imyj19k4WYl1ZUfRUlkX8vvAWpZjsYbtsqxJY0kxk/55A/wFQ9xylg=='
+	))
+	bytes_per_row = (mask_width + 7) // 8
+	for y in range(mask_height):
+		for x in range(mask_width):
+			if mask[y * bytes_per_row + x // 8] & (0x80 >> (x % 8)):
+				_set_pixel(pixels, width, height, left + x, top + y, (255, 255, 255, 255))
+
+def _draw_round_rect(pixels, canvas_width, canvas_height, left, top, width, height, radius, color):
+	right, bottom = left + width - 1, top + height - 1
+	for y in range(top, top + height):
+		for x in range(left, left + width):
+			dx = max(left + radius - x, 0, x - (right - radius))
+			dy = max(top + radius - y, 0, y - (bottom - radius))
+			if dx * dx + dy * dy <= radius * radius:
+				_set_pixel(pixels, canvas_width, canvas_height, x, y, color)
+
+def _draw_rect(pixels, canvas_width, canvas_height, left, top, width, height, color):
+	for y in range(top, top + height):
+		for x in range(left, left + width):
+			_set_pixel(pixels, canvas_width, canvas_height, x, y, color)
+
+def _set_pixel(pixels, canvas_width, canvas_height, x, y, color):
+	if 0 <= x < canvas_width and 0 <= y < canvas_height:
+		index = x * 4
+		pixels[y][index:index + 4] = color
+
+def _write_png(path, width, height, pixels):
+	from struct import pack
+	from zlib import compress, crc32
+	def chunk(tag, data):
+		return pack('!I', len(data)) + tag + data + pack('!I', crc32(tag + data) & 0xffffffff)
+	raw = b''.join(b'\x00' + bytes(row) for row in pixels)
+	with open(path, 'wb') as png_file:
+		png_file.write(
+			b'\x89PNG\r\n\x1a\n' +
+			chunk(b'IHDR', pack('!IIBBBBB', width, height, 8, 6, 0, 0, 0)) +
+			chunk(b'IDAT', compress(raw, 9)) +
+			chunk(b'IEND', b'')
+		)
 
 def copy2clip(txt):
 	if sys.platform == "win32":

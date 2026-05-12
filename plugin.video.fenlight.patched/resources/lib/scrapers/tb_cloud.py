@@ -29,12 +29,14 @@ class source:
 			self.folder_query = clean_title(normalize(title))
 			self._scrape_cloud()
 			self._scrape_cloud_usenet()
+			self._scrape_cloud_webdl()
 			if not self.scrape_results: return internal_results(self.scrape_provider, self.sources)
 			self.aliases = get_aliases_titles(info.get('aliases', []))
 			def _process():
 				for item in self.scrape_results:
 					try:
-						file_name = normalize(item['name'])
+						file_name = normalize(item.get('short_name') or item.get('name') or '')
+						if not file_name: continue
 						if filter_title and not check_title(title, file_name, self.aliases, self.year, self.season, self.episode): continue
 						display_name = clean_file_name(file_name).replace('html', ' ').replace('+', ' ').replace('-', ' ')
 						direct_debrid_link = item.get('direct_debrid_link', False)
@@ -91,10 +93,34 @@ class source:
 						if not any(x in normalized for x in year_query_list): continue
 					elif not seas_ep_filter(self.season, self.episode, normalized): continue
 					file['folder_id'] = folder_id
-					file['direct_debrid_link'] = True
+					file['direct_debrid_link'] = 'usenet'
+					append(file)
+		except: return
+
+	def _scrape_cloud_webdl(self):
+		try:
+			append = self.scrape_results.append
+			year_query_list = self._year_query_list()
+			try: my_cloud_files_webdl = TorBox.user_cloud_webdl()
+			except: return self.sources
+			for item in my_cloud_files_webdl['data']:
+				if not item['download_finished']: continue
+				if not self.folder_query in clean_title(normalize(item['name'])): continue
+				folder_id = item['id']
+				for file in item['files']:
+					file_name = file.get('short_name') or file.get('name') or ''
+					if not file_name.endswith(tuple(extensions)): continue
+					normalized = normalize(file_name)
+					folder_name = clean_title(normalized)
+					if self.media_type == 'movie':
+						if not any(x in normalized for x in year_query_list): continue
+					elif not seas_ep_filter(self.season, self.episode, normalized): continue
+					file['short_name'] = file_name
+					file['name'] = file_name
+					file['folder_id'] = folder_id
+					file['direct_debrid_link'] = 'webdl'
 					append(file)
 		except: return
 
 	def _year_query_list(self):
 		return (str(self.year), str(self.year+1), str(self.year-1))
-

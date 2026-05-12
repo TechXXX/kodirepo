@@ -11,17 +11,20 @@ standalone Fen Light AIsearch fork, and the patched a4k addon.
 
 Current source-tree versions when this document was updated:
 
-- `plugin.video.fenlight` `2.0.15`
-  Baseline Fenlight package.
-- `plugin.video.fenlight.aisearch` `1.0.8`
+- `plugin.video.fenlight` `2.0.16`
+  Baseline Fenlight package. It now supports TorBox Web Download cloud items
+  so hoster uploads can be found, browsed, resolved, and deleted from the
+  TorBox cloud path.
+- `plugin.video.fenlight.aisearch` `1.0.10`
   Standalone AI-search fork with its own addon id, profile, artwork, and repo
   package. The production build keeps its built-in updater pointed at
   `kodirepo`, and it now supports up to three Gemini API keys with automatic
   fallback on rate-limit or quota-exhaustion responses. It now also offers an
   optional strict original-language filter so prompts like Korean, German, or
   Dutch can become TMDb original-language constraints instead of loose
-  keywords.
-- `plugin.video.fenlight.patched` `2.0.66`
+  keywords. It now also supports TorBox Web Download cloud items through the
+  same WebDL path as the other Fen variants.
+- `plugin.video.fenlight.patched` `2.0.70`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -44,6 +47,11 @@ Current source-tree versions when this document was updated:
   matching only as the final AI-translation fallback after preferred-language
   subtitle matching fails, while tightening episodic subtitle identity checks
   so unrelated same-episode Dutch results cannot win on generic release tags.
+  It now seeds first-run defaults from the live patched profile for non-secret
+  Fen preferences, supports TorBox Web Download cloud items for scraping,
+  browsing, resolving, and deleting hoster uploads, and prefers TorBox file
+  `short_name` values so random webhoster folder prefixes do not block title
+  matching.
   It now also prefers playable YouTube trailer keys in the extras window,
   falls back to the best sorted YouTube trailer when raw trailer metadata is
   missing or non-plugin, shows a clearer no-trailer notice instead of failing
@@ -53,18 +61,22 @@ Current source-tree versions when this document was updated:
   refresh when Trakt returns invalid payloads. It now also surfaces clearer
   Real-Debrid resolve failures, including `Infringing File`, when the provider
   rejects an unrestrict request.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.10`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.11`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
   OMDb lookups to the JSON endpoint while backfilling missing cached IMDb and
-  OMDb ratings more reliably. It now also ships a bundled default OMDb API key
-  for repo installs and includes bundled Fen Light / Fen Light Patched TMDb
-  player definitions for default installs.
-- `service.subtitles.a4ksubtitles.patched` `3.23.36`
+  OMDb ratings more reliably. It now ships a bundled default OMDb API key for
+  repo installs, includes bundled Fen Light / Fen Light Patched TMDb player
+  definitions for default installs, and adds the refreshed Trakt QR auth dialog
+  support promoted from the test repo.
+- `service.subtitles.a4ksubtitles.patched` `3.23.37`
   Main patched a4k build used with selector-aware Fenlight. The current
-  production build searches OpenSubtitles TV episodes by parent show IMDb id
-  plus season/episode before text fallbacks, so numeric show titles like
+  production build keeps AI subtitle translation off until an API key is
+  configured, leaves the API key field editable while AI is off, and disables
+  stale saved AI toggles at runtime when no API key is present. It also
+  searches OpenSubtitles TV episodes by parent show IMDb id plus season/episode
+  before text fallbacks, so numeric show titles like
   `1923` return the full episode subtitle set for selector ranking. It also
   keeps repeated in-play manual subtitle search working after a manual pick by
   returning the chosen subtitle through Kodi's normal subtitle-service result

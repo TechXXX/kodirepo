@@ -9,6 +9,7 @@ current_skin_prop = 'fenlight.aisearch.current_skin'
 trakt_service_string = 'TraktMonitor Service Update %s - %s'
 trakt_success_line_dict = {'success': 'Trakt Update Performed', 'no account': '(Unauthorized) Trakt Update Performed'}
 update_string = 'Next Update in %s minutes...'
+old_trakt_client_id = '1038ef327e86e7f6d39d80d2eb5479bff66dd8394e813c5e0e387af0f84d89fb'
 
 def logger(heading, function):
 	xbmc.log('###%s###: %s' % (heading, function), 1)
@@ -44,6 +45,44 @@ class SyncSettings:
 		from caches.settings_cache import sync_settings
 		sync_settings()
 		logger('fenlight.aisearch', 'SyncSettings Service Finished')
+
+class OnUpdateChanges:
+	def run(self):
+		logger('fenlight.aisearch', 'OnUpdateChanges Service Starting')
+		from caches.settings_cache import get_setting, set_setting
+		try:
+			migrations = (('refresh_addon_keys', self.refresh_addon_keys),)
+			for setting_id, migration in migrations:
+				update_setting_id = 'updatechecks.%s' % setting_id
+				if get_setting('fenlight.aisearch.%s' % update_setting_id, 'false') == 'true': continue
+				migration()
+				set_setting(update_setting_id, 'true')
+		except Exception as e: logger('fenlight.aisearch', 'OnUpdateChanges Service Failed: %s' % str(e))
+		return logger('fenlight.aisearch', 'OnUpdateChanges Service Finished')
+
+	def refresh_addon_keys(self):
+		from caches.settings_cache import get_setting, set_setting, restore_setting_default
+		current_trakt_client = (get_setting('fenlight.aisearch.trakt.client') or '').lower()
+		if current_trakt_client != old_trakt_client_id: return
+		from caches.trakt_cache import clear_all_trakt_cache_data
+		from modules import kodi_utils
+		restore_setting_default({'silent': 'true', 'setting_id': 'trakt.client'})
+		restore_setting_default({'silent': 'true', 'setting_id': 'trakt.secret'})
+		setting_resets = (
+			('trakt.user', 'empty_setting'),
+			('trakt.expires', ''),
+			('trakt.token', ''),
+			('trakt.refresh', ''),
+			('trakt.next_daily_clear', '0'),
+			('watched_indicators', '0')
+		)
+		for setting_id, value in setting_resets: set_setting(setting_id, value)
+		clear_all_trakt_cache_data(silent=True, refresh=False)
+		logger('fenlight.aisearch', 'Old Trakt client ID detected. Trakt credentials reset; reauthorization required.')
+		kodi_utils.ok_dialog(
+			heading='Trakt Credentials Reset',
+			text='Fen Light AI Search has replaced an old Trakt app key with the current default.[CR][CR]Please re-authorize your Trakt account.'
+		)
 
 class CustomFonts:
 	def run(self):
@@ -153,7 +192,7 @@ class WidgetRefresher:
 	def condition_check(self):
 		if not self.home(): return True
 		if self.next_refresh == None or self.is_playing() or self.window.getProperty(pause_services_prop) == 'true': return True
-		if self.window.getProperty('fenlight.aisearch.window_loaded') == 'true': return True 
+		if self.window.getProperty('fenlight.aisearch.window_loaded') == 'true': return True
 		try:
 			window_stack = json.loads(self.window.getProperty('fenlight.aisearch.window_stack'))
 			if window_stack or window_stack == []: return True
@@ -183,6 +222,7 @@ class FenLightMonitor(xbmc.Monitor):
 		SetAddonConstants().run()
 		DatabaseMaintenance().run()
 		SyncSettings().run()
+		OnUpdateChanges().run()
 		Thread(target=CustomFonts().run).start()
 		Thread(target=TraktMonitor().run).start()
 		Thread(target=UpdateCheck().run).start()

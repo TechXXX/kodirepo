@@ -23,6 +23,24 @@ def _pinned_ai_model(core, ai_provider, configured_model):
 
     return OPENAI_TRANSLATION_MODEL
 
+def _ai_api_key_configured(core):
+    api_key = (core.kodi.get_setting('general', 'ai_api_key') or '').strip()
+    return bool(api_key and api_key != 'empty_setting')
+
+def _disable_ai_without_api_key(core):
+    if not core.kodi.get_bool_setting('general', 'use_ai'):
+        return False
+
+    if _ai_api_key_configured(core):
+        return False
+
+    core.logger.debug('Disabling AI subtitle translation because no API key is configured')
+    try:
+        core.kodi.set_setting('general', 'use_ai', 'false')
+    except Exception as exc:
+        core.logger.debug('Unable to persist disabled AI subtitle translation setting: %s' % exc)
+    return True
+
 def _selector_matched_subtitle_name(result):
     if not isinstance(result, dict):
         return ''
@@ -703,6 +721,9 @@ def start(api):
             break
         poll_interval = default_poll_interval
 
+        if _disable_ai_without_api_key(core):
+            reset()
+
         if not core.kodi.get_bool_setting('general', 'auto_search'):
             continue
 
@@ -757,9 +778,9 @@ def start(api):
                 core.logger.error('Invalid AI provider: %s' % ai_provider)
                 use_ai = False
 
-            ai_api_key = core.kodi.get_setting('general', 'ai_api_key')
+            ai_api_key = (core.kodi.get_setting('general', 'ai_api_key') or '').strip()
             ai_model = _pinned_ai_model(core, ai_provider, core.kodi.get_setting('general', 'ai_model'))
-            if ai_api_key is None or ai_api_key == '' or (ai_provider != 'OpenAI' and (ai_model is None or ai_model == '')):
+            if ai_api_key == 'empty_setting' or not ai_api_key or (ai_provider != 'OpenAI' and (ai_model is None or ai_model == '')):
                 use_ai = False
 
         subfile = core.utils.get_subfile_from_temp_dir()

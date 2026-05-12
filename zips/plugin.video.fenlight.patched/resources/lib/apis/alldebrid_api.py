@@ -5,7 +5,7 @@ import requests
 from threading import Thread
 from caches.main_cache import cache_object
 from caches.settings_cache import get_setting, set_setting
-from modules.utils import copy2clip
+from modules.utils import copy2clip, make_qrcode
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
 from modules import kodi_utils
 # logger = kodi_utils.logger
@@ -32,11 +32,15 @@ class AllDebridAPI:
 		expires_in = int(response['expires_in'])
 		poll_url = response['check_url']
 		user_code = response['pin']
-		try: copy2clip(user_code)
+		verification_url = response.get('base_url') or 'https://alldebrid.com/pin'
+		auth_url = 'https://alldebrid.com/pin?pin=%s' % user_code
+		qr_code = make_qrcode(auth_url)
+		try: copy2clip(auth_url)
 		except: pass
 		sleep_interval = 5
-		content = 'Authorize Debrid Services[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (response.get('base_url'), user_code)
-		progressDialog = progress_dialog('All Debrid Authorize', get_icon('ad_qrcode'))
+		content = 'Authorize Debrid Services[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (verification_url, user_code)
+		if qr_code: content += '[CR]Or scan the [B]QR Code[/B]'
+		progressDialog = progress_dialog('All Debrid Authorize', qr_code or get_icon('ad_qrcode'))
 		progressDialog.update(content, 0)
 		start, time_passed = time.time(), 0
 		sleep(2000)
@@ -158,7 +162,7 @@ class AllDebridAPI:
 				if transfer_id: self.delete_transfer(transfer_id)
 			except: pass
 			return None
-	
+
 	def display_magnet_pack(self, magnet_url, info_hash):
 		from modules.source_utils import supported_video_extensions
 		try:

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
+import re
 import time
+import traceback
 from threading import Thread
 import itertools
 from windows.base_window import open_window, create_window
@@ -11,12 +13,13 @@ from modules import debrid, kodi_utils, settings, metadata, watched_status
 from modules.player import FenLightPlayer
 from modules.source_utils import get_cache_expiry, make_alias_dict
 from modules.utils import clean_file_name, string_to_float, safe_string, remove_accents, get_datetime, append_module_to_syspath, manual_function_import, manual_module_import
-# logger = kodi_utils.logger
+logger = kodi_utils.logger
 
 get_icon, notification, sleep, xbmc_monitor = kodi_utils.get_icon, kodi_utils.notification, kodi_utils.sleep, kodi_utils.xbmc_monitor
 select_dialog, confirm_dialog, close_all_dialog = kodi_utils.select_dialog, kodi_utils.confirm_dialog, kodi_utils.close_all_dialog
 show_busy_dialog, hide_busy_dialog, xbmc_player = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.xbmc_player
 get_property, set_property, clear_property = kodi_utils.get_property, kodi_utils.set_property, kodi_utils.clear_property
+jsonrpc_get_system_setting = kodi_utils.jsonrpc_get_system_setting
 auto_play, active_internal_scrapers, provider_sort_ranks, audio_filters = settings.auto_play, settings.active_internal_scrapers, settings.provider_sort_ranks, settings.audio_filters
 check_prescrape_sources, external_scraper_info, auto_resume = settings.check_prescrape_sources, settings.external_scraper_info, settings.auto_resume
 store_resolved_to_cloud, source_folders_directory, watched_indicators = settings.store_resolved_to_cloud, settings.source_folders_directory, settings.watched_indicators
@@ -43,6 +46,9 @@ default_internal_scrapers = ('easynews', 'rd_cloud', 'pm_cloud', 'ad_cloud', 'oc
 main_line = '%s[CR]%s[CR]%s'
 int_window_prop = 'fenlight.internal_results.%s'
 scraper_timeout = 25
+a4k_subtitles_addon_path = 'special://home/addons/service.subtitles.a4ksubtitles'
+subtitle_autoplay_probe_limit = 10
+release_group_stopwords = {'proper', 'repack', 'rerip', 'internal', 'multi', 'dubbed', 'subbed', 'readnfo', 'limited', 'extended', 'remux', 'hybrid', 'hdr', 'dv', 'uhd'}
 filter_keys = {'hevc': '[B]HEVC[/B]', '3d': '[B]3D[/B]', 'hdr': '[B]HDR[/B]', 'dv': '[B]D/VISION[/B]', 'av1': '[B]AV1[/B]', 'enhanced_upscaled': '[B]AI ENHANCED/UPSCALED[/B]'}
 preference_values = {0:100, 1:50, 2:20, 3:10, 4:5, 5:2}
 
@@ -58,6 +64,7 @@ class Sources():
 		self.ext_name, self.ext_folder, self.provider_defaults, self.ext_sources = '', '', [], None
 		self.progress_dialog, self.progress_thread = None, None
 		self.playing_filename = ''
+		self.a4k_subtitles_api, self.a4k_subtitles_checked, self.subtitle_probe_cache = None, False, {}
 		self.count_tuple = (('sources_4k', '4K', self._quality_length), ('sources_1080p', '1080p', self._quality_length), ('sources_720p', '720p', self._quality_length),
 							('sources_sd', '', self._quality_length_sd), ('sources_total', '', self._quality_length_final))
 
@@ -80,7 +87,7 @@ class Sources():
 		self.default_ext_only = params_get('default_ext_only', self.default_ext_only) == 'true'
 		self.folders_ignore_filters = get_setting('fenlight.results.folders_ignore_filters', 'false') == 'true'
 		self.filter_size_method = int(get_setting('fenlight.results.filter_size_method', '0'))
-		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')		
+		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')
 		self.custom_title, self.custom_year = params_get('custom_title', None), params_get('custom_year', None)
 		self.episode_group_label = params_get('episode_group_label', '')
 		if self.media_type == 'episode':
@@ -193,6 +200,7 @@ class Sources():
 			for file_type in filter_keys: results = self.special_filter(results, file_type)
 		results = self.sort_preferred_autoplay(results)
 		results = self.sort_first(results)
+		results = self.sort_subtitle_ready_autoplay(results)
 		return results
 
 	def sort_results(self, results):
@@ -264,6 +272,161 @@ class Sources():
 			return preference_results + results
 		except: return results
 
+	def sort_subtitle_ready_autoplay(self, results):
+		if not self.autoplay or not results: return results
+		search_params = self._a4k_search_params()
+		if not search_params:
+			logger('Fen Light', 'Subtitle probe skipped: no subtitle language settings available')
+			return results
+		a4k_api = self._get_a4k_subtitles_api()
+		if not a4k_api:
+			logger('Fen Light', 'Subtitle probe skipped: a4kSubtitles API unavailable')
+			return results
+		try:
+			probe_limit = min(len(results), subtitle_autoplay_probe_limit)
+			logger('Fen Light', 'Subtitle probe starting for %s of %s autoplay results' % (probe_limit, len(results)))
+			probed_results = []
+			for item in results[:probe_limit]:
+				subtitle_hit, subtitle_names, subtitle_match_score = self._a4k_result_available(a4k_api, search_params, item)
+				item = dict(item, **{'subtitle_hit': subtitle_hit, 'subtitle_names': subtitle_names, 'subtitle_match_score': subtitle_match_score})
+				probed_results.append(item)
+			subtitle_matches = [i for i in probed_results if i.get('subtitle_hit')]
+			if not subtitle_matches:
+				logger('Fen Light', 'Subtitle probe found no subtitle-backed autoplay sources')
+				return results
+			subtitle_matches.sort(key=lambda k: k.get('subtitle_match_score', 0), reverse=True)
+			logger('Fen Light', 'Subtitle probe promoted %s source(s). First promoted source: %s' % (len(subtitle_matches), subtitle_matches[0].get('name', subtitle_matches[0].get('display_name', 'UNKNOWN'))))
+			no_subtitle_matches = [i for i in probed_results if not i.get('subtitle_hit')]
+			return subtitle_matches + no_subtitle_matches + results[probe_limit:]
+		except: return results
+
+	def _get_a4k_subtitles_api(self):
+		if self.a4k_subtitles_checked: return self.a4k_subtitles_api
+		self.a4k_subtitles_checked = True
+		try:
+			append_module_to_syspath(a4k_subtitles_addon_path)
+			self.a4k_subtitles_api = manual_function_import('a4kSubtitles.api', 'A4kSubtitlesApi')()
+			logger('Fen Light', 'Subtitle probe connected to a4kSubtitles API')
+		except: self.a4k_subtitles_api = None
+		return self.a4k_subtitles_api
+
+	def _a4k_search_params(self):
+		try:
+			languages = jsonrpc_get_system_setting('subtitles.languages', [])
+			preferred_language = jsonrpc_get_system_setting('locale.subtitlelanguage', 'default')
+			if isinstance(languages, str): languages = [languages]
+			languages = [i for i in languages if i not in (None, '', 'none')]
+			if not languages and preferred_language not in (None, '', 'none'): languages = [preferred_language]
+			if not languages: return None
+			if preferred_language in (None, '', 'none'): preferred_language = languages[0]
+			return {'action': 'search', 'languages': ','.join(languages), 'preferredlanguage': preferred_language}
+		except: return None
+
+	def _a4k_result_available(self, a4k_api, search_params, item):
+		cache_key = '%s|%s|%s|%s|%s' % (self.media_type, self.meta.get('imdb_id', ''), self.meta.get('season', ''), self.meta.get('episode', ''), item.get('name', item.get('display_name', '')))
+		if cache_key in self.subtitle_probe_cache:
+			cached_hit, cached_names, cached_score = self.subtitle_probe_cache[cache_key]
+			logger('Fen Light', 'Subtitle probe cache hit for %s | match=%s | score=%s | subtitles=%s' % (item.get('name', item.get('display_name', 'UNKNOWN')), cached_hit, cached_score, ' | '.join(cached_names[:3]) or 'None'))
+			return self.subtitle_probe_cache[cache_key]
+		try:
+			results = a4k_api.search(search_params, video_meta=self._a4k_video_meta(item))
+			subtitle_names, subtitle_match_score = self._match_a4k_results_to_source(results, item)
+			has_result = subtitle_match_score > 0
+			logger('Fen Light', 'Subtitle probe checked source=%s | match=%s | score=%s | results=%s | subtitles=%s' % (
+				item.get('name', item.get('display_name', 'UNKNOWN')), has_result, subtitle_match_score, self._a4k_results_debug_summary(results), ' | '.join(subtitle_names[:3]) or 'None'))
+		except:
+			has_result, subtitle_names, subtitle_match_score = False, [], 0
+			logger('Fen Light', 'Subtitle probe failed for source=%s | error=%s' % (item.get('name', item.get('display_name', 'UNKNOWN')), traceback.format_exc().replace('\n', ' | ')))
+		self.subtitle_probe_cache[cache_key] = (has_result, subtitle_names, subtitle_match_score)
+		return self.subtitle_probe_cache[cache_key]
+
+	def _match_a4k_results_to_source(self, results, item):
+		source_name = item.get('name', '') or item.get('display_name', '') or ''
+		source_norm = self._normalize_release_name(source_name)
+		source_group = self._extract_release_group(source_name)
+		best_score, matched_names = 0, []
+		for result in results:
+			candidate_names = self._a4k_result_names(result)
+			for candidate_name in candidate_names:
+				score = self._subtitle_source_match_score(source_norm, source_group, candidate_name)
+				if score <= 0: continue
+				if score > best_score:
+					best_score = score
+					matched_names = [candidate_name]
+				elif score == best_score and not candidate_name in matched_names:
+					matched_names.append(candidate_name)
+		if matched_names: return matched_names, best_score
+		return [i for i in list(itertools.chain.from_iterable(self._a4k_result_names(result) for result in results)) if i][:3], 0
+
+	def _a4k_result_names(self, result):
+		names = []
+		for key in ('name', 'release', 'filename'):
+			value = result.get(key, '')
+			if value and not value in names: names.append(value)
+		action_args = result.get('action_args', {})
+		if action_args:
+			for key in ('filename', 'release'):
+				value = action_args.get(key, '')
+				if value and not value in names: names.append(value)
+		return names
+
+	def _a4k_results_debug_summary(self, results):
+		try:
+			if results is None: return 'type=None count=0'
+			if not isinstance(results, list): return 'type=%s' % type(results).__name__
+			if not results: return 'type=list count=0'
+			sample_names = []
+			for result in results[:3]:
+				for name in self._a4k_result_names(result):
+					if name and not name in sample_names:
+						sample_names.append(name)
+				if len(sample_names) >= 3: break
+			first_keys = ','.join(sorted(results[0].keys())[:6]) if isinstance(results[0], dict) else type(results[0]).__name__
+			return 'type=list count=%s sample_keys=%s sample_names=%s' % (len(results), first_keys or 'None', ' | '.join(sample_names[:3]) or 'None')
+		except:
+			return 'debug_error=%s' % traceback.format_exc().replace('\n', ' | ')
+
+	def _subtitle_source_match_score(self, source_norm, source_group, subtitle_name):
+		subtitle_norm = self._normalize_release_name(subtitle_name)
+		if not source_norm or not subtitle_norm: return 0
+		if source_norm == subtitle_norm: return 100
+		if subtitle_norm in source_norm or source_norm in subtitle_norm: return 80
+		subtitle_group = self._extract_release_group(subtitle_name)
+		if source_group and subtitle_group and source_group == subtitle_group: return 60
+		return 0
+
+	def _normalize_release_name(self, name):
+		if not name: return ''
+		name = clean_file_name(name).lower()
+		name = re.sub(r'\.(mkv|mp4|avi|ts|m2ts|srt|sub|ass|ssa)$', '', name)
+		name = re.sub(r'[^a-z0-9]+', '.', name).strip('.')
+		return name
+
+	def _extract_release_group(self, name):
+		name = self._normalize_release_name(name)
+		if not name: return ''
+		parts = [i for i in name.split('.') if i]
+		for token in reversed(parts):
+			if token in release_group_stopwords: continue
+			if token.isdigit(): continue
+			if len(token) < 2: continue
+			return token
+		return ''
+
+	def _a4k_video_meta(self, item):
+		release_name = item.get('name', '') or item.get('display_name', '') or ''
+		if '.' not in release_name: release_name = '%s.mkv' % release_name
+		meta = {'version': kodi_utils.get_infolabel('System.BuildVersionCode') or '20.0.0', 'year': str(self.meta.get('year', '') or ''),
+				'season': str(self.meta.get('season', '') or ''), 'episode': str(self.meta.get('episode', '') or ''), 'tvshow': '', 'title': '', '_title': '',
+				'imdb_id': self.meta.get('imdb_id', '') or '', 'url': item.get('url', '') or '', 'filename': release_name, 'filesize': '', 'filehash': ''}
+		if self.media_type == 'movie':
+			title = self.meta.get('original_title') or self.meta.get('title') or ''
+			meta.update({'title': title, '_title': title})
+		else:
+			meta.update({'tvshow': self.meta.get('title') or '', 'title': self.meta.get('original_title') or self.meta.get('ep_name') or '',
+						'_title': self.meta.get('ep_name') or self.meta.get('title') or ''})
+		return meta
+
 	def prepare_internal_scrapers(self):
 		if self.active_external and len(self.active_internal_scrapers) == 1: return
 		active_internal_scrapers = [i for i in self.active_internal_scrapers if not i in self.remove_scrapers]
@@ -291,7 +454,7 @@ class Sources():
 		if not self.import_external_scrapers(): return self.disable_external('Error Importing External Module')
 		self.external_providers = self.external_sources()
 		if not self.external_providers: self.disable_external('No External Providers Enabled')
-	
+
 	def import_external_scrapers(self):
 		try:
 			append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
@@ -473,7 +636,7 @@ class Sources():
 			except: continue
 			set_property(int_window_prop % i, 'checked')
 			self._sources_quality_count(sources)
-	
+
 	def _sources_quality_count(self, sources):
 		for item in self.count_tuple: setattr(self, item[0], getattr(self, item[0]) + item[2](sources, item[1]))
 
@@ -595,7 +758,7 @@ class Sources():
 			results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
 			if not source: source = results[0]
 			items = [source]
-			if not self.limit_resolve: 
+			if not self.limit_resolve:
 				source_index = results.index(source)
 				results.remove(source)
 				items_prev = results[:source_index]
@@ -650,7 +813,8 @@ class Sources():
 							self.progress_dialog.busy_spinner('false')
 							self.progress_dialog.update_resolver(percent=resolve_percent)
 							sleep(200)
-							player.run(url, self)
+							if self.background: player.run(url, self)
+							else: player.run_resolved(url, self)
 						else: continue
 						if self.cancel_all_playback: break
 						if self.playback_successful: break
@@ -779,7 +943,11 @@ class Sources():
 	def resolve_internal(self, scrape_provider, item_id, url_dl, direct_debrid_link=False):
 		url = None
 		try:
-			if direct_debrid_link or scrape_provider == 'folders': url = url_dl
+			if scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl'):
+				debrid_function = self.debrid_importer(scrape_provider)()
+				if direct_debrid_link == 'usenet': url = debrid_function.unrestrict_usenet(url_dl)
+				else: url = debrid_function.unrestrict_webdl(url_dl)
+			elif direct_debrid_link or scrape_provider == 'folders': url = url_dl
 			elif scrape_provider == 'easynews':
 				from indexers.easynews import resolve_easynews
 				url = resolve_easynews({'url_dl': url_dl, 'play': 'false'})

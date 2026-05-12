@@ -19,6 +19,10 @@ download_usenet = 'usenet/requestdl'
 remove_usenet = 'usenet/controlusenetdownload'
 history_usenet = 'usenet/mylist'
 explore_usenet = 'usenet/mylist?id=%s'
+download_webdl = 'webdl/requestdl'
+remove_webdl = 'webdl/controlwebdownload'
+history_webdl = 'webdl/mylist'
+explore_webdl = 'webdl/mylist?id=%s'
 user_agent = 'Mozilla/5.0'
 timeout = 20.0
 session = make_session(base_url)
@@ -58,6 +62,11 @@ class TorBoxAPI:
 		url = history_usenet
 		return cache_object(self._get, string, url, False, 0.03)
 
+	def user_cloud_webdl(self):
+		string = 'tb_user_cloud_webdl'
+		url = history_webdl
+		return cache_object(self._get, string, url, False, 0.03)
+
 	def user_cloud_info(self, request_id=''):
 		string = 'tb_user_cloud_%s' % request_id
 		url = explore % request_id
@@ -68,11 +77,17 @@ class TorBoxAPI:
 		url = explore_usenet % request_id
 		return cache_object(self._get, string, url, False, 0.03)
 
+	def user_cloud_info_webdl(self, request_id=''):
+		string = 'tb_user_cloud_webdl_%s' % request_id
+		url = explore_webdl % request_id
+		return cache_object(self._get, string, url, False, 0.03)
+
 	def user_cloud_clear(self):
 		if not confirm_dialog(): return
 		data = {'all': True, 'operation': 'delete'}
 		self._post(remove, json=data)
 		self._post(remove_usenet, json=data)
+		self._post(remove_webdl, json=data)
 		self.clear_cache()
 
 	def torrent_info(self, request_id=''):
@@ -87,6 +102,10 @@ class TorBoxAPI:
 		data = {'usenet_id': request_id, 'operation': 'delete'}
 		return self._post(remove_usenet, json=data)
 
+	def delete_webdl(self, request_id=''):
+		data = {'webdl_id': request_id, 'operation': 'delete'}
+		return self._post(remove_webdl, json=data)
+
 	def unrestrict_link(self, file_id):
 		torrent_id, file_id = file_id.split(',')
 		data = {'token': self.token, 'torrent_id': torrent_id, 'file_id': file_id}
@@ -96,7 +115,13 @@ class TorBoxAPI:
 	def unrestrict_usenet(self, file_id):
 		usenet_id, file_id = file_id.split(',')
 		params = {'token': self.token, 'usenet_id': usenet_id, 'file_id': file_id, 'user_ip': True}
-		try: return self._get(download_usenet, params=params)['data']
+		try: return self._get(download_usenet, data=params)['data']
+		except: return None
+
+	def unrestrict_webdl(self, file_id):
+		web_id, file_id = file_id.split(',')
+		params = {'token': self.token, 'web_id': web_id, 'file_id': file_id, 'user_ip': True}
+		try: return self._get(download_webdl, data=params)['data']
 		except: return None
 
 	def add_magnet(self, magnet):
@@ -204,4 +229,3 @@ class TorBoxAPI:
 		except: return False
 		if False in (user_cloud_success, hash_cache_status_success): return False
 		return True
-

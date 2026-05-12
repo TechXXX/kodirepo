@@ -1,10 +1,19 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
-[COLOR dodgerblue][B]Version 1.0.8[/B][/COLOR]
+[COLOR dodgerblue][B]Version 1.0.10[/B][/COLOR]
+- Add TorBox Web Download cloud support so web-hosted uploads can be scraped, browsed, resolved, and deleted alongside TorBox torrent and usenet cloud items.
+- Prefer TorBox file `short_name` values during cloud scraping so webhoster folder prefixes do not block title matching.
+
+[COLOR dodgerblue][B]Version 1.0.9[/B][/COLOR]
+- Refresh the QR-backed Trakt device-auth flow so the QR encodes the activation URL plus device code, renders the styled QR card, and keeps the manual verification URL and code prompt.
+- Refresh the Real-Debrid device-auth flow so the QR and clipboard use the provider's direct verification URL when available instead of only the generic device page.
+- Bundle `segno` for local QR generation, update the bundled default Trakt client credentials, and run a one-time migration that resets old Trakt app keys and asks the user to re-authorize.
+
+[COLOR dodgerblue][B]Version 1.0.7[/B][/COLOR]
 - Added an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
 - Added Gemini intent parsing and TMDb result filtering support for original-language detection so language-focused prompts can stay closer to the user's request.
 
-[COLOR dodgerblue][B]Version 1.0.7[/B][/COLOR]
+[COLOR dodgerblue][B]Version 1.0.6[/B][/COLOR]
 - Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
 
 [COLOR dodgerblue][B]Version 1.0.5[/B][/COLOR]

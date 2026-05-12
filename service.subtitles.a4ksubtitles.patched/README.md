@@ -135,6 +135,10 @@ source-matched English OpenSubtitles result during its final pre-play fallback,
 and handed that exact external subtitle to a4k. a4k downloads the complete SRT,
 translates the complete file, and then attaches the translated file.
 
+Fresh installs ship with AI subtitle translation off. The API key field remains
+editable while AI is off, and the service disables any stale saved
+`general.use_ai=true` value when no API key is configured.
+
 The OpenAI translation model is pinned to `gpt-4.1-mini-2025-04-14`, chosen as
 a lower-cost GPT-4.1-family snapshot for full-file subtitle translation. If an
 older Kodi profile still has a saved full `gpt-4.1-2025-04-14` setting, the

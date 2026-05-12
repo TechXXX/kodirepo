@@ -2,14 +2,14 @@
 import json
 import time
 import requests
-from urllib.parse import unquote
+from urllib.parse import unquote, urlencode
 from caches import trakt_cache
 from caches.settings_cache import get_setting, set_setting
 from caches.main_cache import cache_object
 from caches.lists_cache import lists_cache_object
 from modules import kodi_utils, settings
 from modules.metadata import movie_meta_external_id, tvshow_meta_external_id
-from modules.utils import sort_list, sort_for_article, make_thread_list, get_datetime, timedelta, replace_html_codes, copy2clip, title_key, jsondate_to_datetime as js2date
+from modules.utils import sort_list, sort_for_article, make_thread_list, get_datetime, timedelta, replace_html_codes, copy2clip, make_qrcode, title_key, jsondate_to_datetime as js2date
 
 sleep, with_media_removals, get_property = kodi_utils.sleep, kodi_utils.with_media_removals, kodi_utils.get_property
 logger, notification, xbmc_player, confirm_dialog = kodi_utils.logger, kodi_utils.notification, kodi_utils.xbmc_player, kodi_utils.confirm_dialog
@@ -113,10 +113,13 @@ def trakt_get_device_token(device_codes):
 		expires_in = device_codes['expires_in']
 		sleep_interval = device_codes['interval']
 		user_code = str(device_codes['user_code'])
+		verification_url = str(device_codes.get('verification_url') or 'https://trakt.tv/activate')
+		separator = '&' if '?' in verification_url else '?'
+		auth_url = '%s%s%s' % (verification_url, separator, urlencode({'code': user_code}))
 		try: copy2clip(user_code)
 		except: pass
-		content = '[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (str(device_codes['verification_url']), user_code)
-		progressDialog = progress_dialog('Trakt Authorize', get_icon('trakt_qrcode'))
+		content = '[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (verification_url, user_code)
+		progressDialog = progress_dialog('Trakt Authorize', make_qrcode(auth_url, styled=True) or get_icon('trakt_qrcode'))
 		progressDialog.update(content, 0)
 		try:
 			time_passed = 0
@@ -143,7 +146,7 @@ def trakt_refresh_token():
 	if CLIENT_ID in empty_setting_check: return no_client_key()
 	CLIENT_SECRET = trakt_secret()
 	if CLIENT_SECRET in empty_setting_check: return no_secret_key()
-	data = {        
+	data = {
 		'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET, 'redirect_uri': 'urn:ietf:wg:oauth:2.0:oob',
 		'grant_type': 'refresh_token', 'refresh_token': get_setting('fenlight.aisearch.trakt.refresh')}
 	response = call_trakt("oauth/token", data=data, with_auth=False)
@@ -604,13 +607,13 @@ def get_trakt_tvshow_id(item):
 	tmdb_id = None
 	api_key = tmdb_api_key()
 	if item['imdb']:
-		try: 
+		try:
 			meta = tvshow_meta_external_id('imdb_id', item['imdb'], api_key)
 			tmdb_id = meta['id']
 		except: tmdb_id = None
 	if not tmdb_id:
 		if item['tvdb']:
-			try: 
+			try:
 				meta = tvshow_meta_external_id('tvdb_id', item['tvdb'], api_key)
 				tmdb_id = meta['id']
 			except: tmdb_id = None

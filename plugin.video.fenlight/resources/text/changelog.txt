@@ -1,5 +1,9 @@
 [COLOR darkgoldenrod]GOD BLESS HIM AND KEEP HIM SAFE.[/COLOR]
 
+[COLOR dodgerblue][B]Version 2.0.16[/B][/COLOR]
+- Add TorBox Web Download cloud support so web-hosted uploads can be scraped, browsed, resolved, and deleted alongside TorBox torrent and usenet cloud items.
+- Prefer TorBox file `short_name` values during cloud scraping so webhoster folder prefixes do not block title matching.
+
 [COLOR dodgerblue][B]Version 2.0.15[/B][/COLOR]
 - Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
 

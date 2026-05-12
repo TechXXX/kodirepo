@@ -7,7 +7,7 @@ from threading import Thread
 from urllib.parse import urlencode
 from caches.main_cache import cache_object
 from caches.settings_cache import get_setting, set_setting
-from modules.utils import copy2clip
+from modules.utils import copy2clip, make_qrcode
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
 from modules import kodi_utils
 # logger = kodi_utils.logger
@@ -32,10 +32,14 @@ class PremiumizeAPI:
 		url = 'https://www.premiumize.me/token'
 		response = self._post(url, data)
 		user_code = response['user_code']
-		try: copy2clip(user_code)
+		verification_url = response.get('verification_uri') or 'https://www.premiumize.me/device'
+		auth_url = response.get('verification_uri_complete') or verification_url
+		qr_code = make_qrcode(auth_url)
+		try: copy2clip(auth_url)
 		except: pass
-		content = 'Authorize Debrid Services[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (response.get('verification_uri'), user_code)
-		progressDialog = progress_dialog('Premiumize Authorize', get_icon('pm_qrcode'))
+		content = 'Authorize Debrid Services[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (verification_url, user_code)
+		if qr_code: content += '[CR]Or scan the [B]QR Code[/B]'
+		progressDialog = progress_dialog('Premiumize Authorize', qr_code or get_icon('pm_qrcode'))
 		progressDialog.update(content, 0)
 		device_code = response['device_code']
 		expires_in = int(response['expires_in'])

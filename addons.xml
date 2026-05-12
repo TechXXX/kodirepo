@@ -31,7 +31,7 @@ v0.1.0
 - Initial famYT installer add-on</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.15">
+    <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.16">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -55,7 +55,7 @@ v0.1.0
             <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.8">
+    <addon id="plugin.video.fenlight.aisearch" name="Fen Light AIsearch" provider-name="DutchTech" version="1.0.10">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -76,10 +76,16 @@ v0.1.0
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v1.0.8]:
-  * Add an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
+            <news>[v1.0.10]:
+  * Add TorBox Web Download cloud support so web-hosted uploads can be scraped, browsed, resolved, and deleted alongside TorBox torrent and usenet cloud items.
+
+[v1.0.9]:
+  * Refresh the Trakt and Real-Debrid QR-backed device-auth flow with styled Trakt QR cards, direct activation QR targets where available, bundled segno QR generation, and a one-time migration away from the old Trakt app key.
 
 [v1.0.7]:
+  * Add an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
+
+[v1.0.6]:
   * Update the built-in default TMDb API key and keep the Restore Default TMDb API Key action aligned with the new bundled value.
 
 [v1.0.5]:
@@ -91,7 +97,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.66">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.70">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -112,8 +118,20 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.66]:
-  * Return Real-Debrid unrestrict error payloads to playback resolution so Fenlight can log the provider error and show clearer failures such as Infringing File instead of silently dropping the playback attempt.
+            <news>[v2.0.70]:
+  * Validate TorBox Web Download playback and remove temporary scrape/resolver diagnostics while keeping the WebDL cloud fix.
+
+[v2.0.69]:
+  * Add TorBox Web Download cloud support so hoster uploads such as GoFile-backed items appear in TorBox cloud scraping, browsing, resolving, and deleting alongside torrent and usenet items.
+
+[v2.0.68]:
+  * Seed first-run settings from the live patched Fen Light profile, including CocoScrapers, list/result/playback preferences, size filters, pagination, and update behavior while leaving user credentials, tokens, account values, and local paths out of the package.
+
+[v2.0.67]:
+  * Refresh the Trakt and Real-Debrid QR-backed device-auth flow with styled Trakt QR cards, direct activation QR targets where available, and the latest patched TMDb Helper Trakt QR dialog support.
+
+[v2.0.66]:
+  * Add an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
 
 [v2.0.65]:
   * Guard Trakt re-authorization prompts so only one dialog appears at a time, and skip watched-indicator refresh when Trakt returns an invalid payload instead of trying to thread over bad data.
@@ -231,7 +249,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.10" name="TMDb Helper Patched" provider-name="DutchTech">
+    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.11" name="TMDb Helper Patched" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
             <import addon="script.module.requests" version="2.9.1" />
@@ -674,7 +692,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.36" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.37" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -699,6 +717,10 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.37]:
+  * Keep AI subtitle translation off for fresh installs until an API key is entered, while leaving the API key field editable.
+  * Disable stale saved AI translation toggles at runtime when no API key is configured.
+
 [v3.23.36]:
   * Make the bundled GPT subtitle translator import on Kodi Windows Python 3.8 by postponing modern type annotations, and log translator import failures instead of hiding them.
 

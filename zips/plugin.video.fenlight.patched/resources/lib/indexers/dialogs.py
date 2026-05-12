@@ -158,7 +158,7 @@ def keywords_choice(params):
 
 def random_choice(params):
 	meta, poster, return_choice = params.get('meta'), params.get('poster'), params.get('return_choice', 'false')
-	meta = params.get('meta', None)	
+	meta = params.get('meta', None)
 	list_items = [{'line1': 'Single Random Play', 'icon': poster}, {'line1': 'Continual Random Play', 'icon': poster}]
 	choices = ['play_random', 'play_random_continual']
 	kwargs = {'items': json.dumps(list_items), 'heading': 'Choose Random Play Type...'}

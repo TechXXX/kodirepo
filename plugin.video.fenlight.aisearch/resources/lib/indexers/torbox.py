@@ -29,11 +29,12 @@ def tb_cloud():
 				listitem.setArt({'icon': default_tb_icon, 'poster': default_tb_icon, 'thumb': default_tb_icon, 'fanart': fanart, 'banner': default_tb_icon})
 				yield (url, listitem, True)
 			except: pass
-	torrents_folders, usenets_folders = TorBox.user_cloud(), TorBox.user_cloud_usenet()
+	torrents_folders, usenets_folders, webdl_folders = TorBox.user_cloud(), TorBox.user_cloud_usenet(), TorBox.user_cloud_webdl()
 	folders_torrents = [{**i, 'media_type': 'torrent'} for i in torrents_folders['data'] if i['download_finished']]
 	folders_usenets = [{**i, 'media_type': 'usenet'} for i in usenets_folders['data'] if i['download_finished']]
-	folders = folders_torrents + folders_usenets
-	
+	folders_webdl = [{**i, 'media_type': 'webdl'} for i in webdl_folders['data'] if i['download_finished']]
+	folders = folders_torrents + folders_usenets + folders_webdl
+
 	folders.sort(key=lambda k: k['updated_at'], reverse=True)
 	handle = int(sys.argv[1])
 	add_items(handle, list(_builder()))
@@ -62,8 +63,10 @@ def browse_tb_cloud(folder_id, media_type):
 				yield (url, listitem, False)
 			except: pass
 	if media_type == 'torrent': files = TorBox.user_cloud_info(folder_id)
-	else: files = TorBox.user_cloud_info_usenet(folder_id)
-	video_files = [{**i, 'media_type': media_type} for i in files['data']['files'] if i['short_name'].lower().endswith(tuple(extensions))]
+	elif media_type == 'usenet': files = TorBox.user_cloud_info_usenet(folder_id)
+	else: files = TorBox.user_cloud_info_webdl(folder_id)
+	video_files = [{**i, 'short_name': i.get('short_name') or i.get('name') or '', 'media_type': media_type} for i in files['data']['files']
+					if (i.get('short_name') or i.get('name') or '').lower().endswith(tuple(extensions))]
 	handle = int(sys.argv[1])
 	add_items(handle, list(_builder()))
 	set_content(handle, 'files')
@@ -73,7 +76,8 @@ def browse_tb_cloud(folder_id, media_type):
 def tb_delete(folder_id, media_type):
 	if not confirm_dialog(): return
 	if media_type == 'torrent': result = TorBox.delete_torrent(folder_id)
-	else: result = TorBox.delete_usenet(folder_id)
+	elif media_type == 'usenet': result = TorBox.delete_usenet(folder_id)
+	else: result = TorBox.delete_webdl(folder_id)
 	if not result['success']: return notification('Error')
 	TorBox.clear_cache()
 	execute_builtin('Container.Refresh')
@@ -81,7 +85,8 @@ def tb_delete(folder_id, media_type):
 def resolve_tb(params):
 	file_id, media_type = params['url'], params['media_type']
 	if media_type == 'torrent': resolved_link = TorBox.unrestrict_link(file_id)
-	else: resolved_link = TorBox.unrestrict_usenet(file_id)
+	elif media_type == 'usenet': resolved_link = TorBox.unrestrict_usenet(file_id)
+	else: resolved_link = TorBox.unrestrict_webdl(file_id)
 	if params.get('play', 'false') != 'true': return resolved_link
 	from modules.player import FenLightPlayer
 	FenLightPlayer().run(resolved_link, 'video')
@@ -102,4 +107,3 @@ def tb_account_info():
 		hide_busy_dialog()
 		return show_text('TorBox'.upper(), '\n\n'.join(body), font_size='large')
 	except: hide_busy_dialog()
-

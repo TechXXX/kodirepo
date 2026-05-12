@@ -6,7 +6,7 @@ import requests
 from threading import Thread
 from caches.main_cache import cache_object
 from caches.settings_cache import get_setting, set_setting
-from modules.utils import copy2clip
+from modules.utils import copy2clip, make_qrcode
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
 from modules import kodi_utils
 # logger = kodi_utils.logger
@@ -37,10 +37,14 @@ class RealDebridAPI:
 		url = auth_url + device_url % 'client_id=%s&new_credentials=yes' % self.client_ID
 		response = requests.get(url, timeout=timeout).json()
 		user_code = response['user_code']
-		try: copy2clip(user_code)
+		verification_url = response.get('verification_url') or 'https://real-debrid.com/device'
+		qr_url = response.get('direct_verification_url') or verification_url
+		qr_code = make_qrcode(qr_url)
+		try: copy2clip(qr_url)
 		except: pass
-		content = 'Authorize Debrid Services[CR]Navigate to: [B]https://real-debrid.com/device[/B][CR]Enter the following code: [B]%s[/B]' % user_code
-		progressDialog = progress_dialog('Real Debrid Authorize', get_icon('rd_qrcode'))
+		content = 'Authorize Debrid Services[CR]Navigate to: [B]%s[/B][CR]Enter the following code: [B]%s[/B]' % (verification_url, user_code)
+		if qr_code: content += '[CR]Or scan the [B]QR Code[/B]'
+		progressDialog = progress_dialog('Real Debrid Authorize', qr_code or get_icon('rd_qrcode'))
 		progressDialog.update(content, 0)
 		expires_in = int(response['expires_in'])
 		sleep_interval = int(response['interval'])

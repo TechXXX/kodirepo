@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # TRUMP WON
+import sys
 import xbmc, xbmcgui, xbmcplugin, xbmcvfs, xbmcaddon
 from os import path as osPath
 from urllib.parse import urlencode
@@ -13,6 +14,7 @@ get_infolabel, get_visibility, execute_JSON, window_xml_dialog = xbmc.getInfoLab
 executebuiltin, xbmc_sleep, convertLanguage, getSupportedMedia, PlayList = xbmc.executebuiltin, xbmc.sleep, xbmc.convertLanguage, xbmc.getSupportedMedia, xbmc.PlayList
 progressDialogBG = xbmcgui.DialogProgressBG
 endOfDirectory, addSortMethod, listdir, mkdir, mkdirs = xbmcplugin.endOfDirectory, xbmcplugin.addSortMethod, xbmcvfs.listdir, xbmcvfs.mkdir, xbmcvfs.mkdirs
+setResolvedUrl = xbmcplugin.setResolvedUrl
 addDirectoryItem, addDirectoryItems, setContent, setCategory = xbmcplugin.addDirectoryItem, xbmcplugin.addDirectoryItems, xbmcplugin.setContent, xbmcplugin.setPluginCategory
 path_join = osPath.join
 img_url = 'https://i.imgur.com/%s.png'
@@ -109,6 +111,10 @@ def set_category(handle, label):
 def end_directory(handle, cacheToDisc=True):
 	endOfDirectory(handle, cacheToDisc=cacheToDisc)
 
+def set_resolved_url(listitem, succeeded=True, handle=None):
+	if handle is None: handle = int(sys.argv[1])
+	return setResolvedUrl(handle, succeeded, listitem)
+
 def set_view_mode(view_type, content='files', is_external=None):
 	if not get_property('fenlight.use_viewtypes') == 'true': return
 	if is_external == None: is_external = external()
@@ -170,7 +176,7 @@ def make_session(url='https://'):
 	import requests
 	session = requests.Session()
 	session.mount(url, requests.adapters.HTTPAdapter(pool_maxsize=100))
-	return session	
+	return session
 
 def make_playlist(playlist_type='video'):
 	return PlayList(playlist_type_dict[playlist_type])
@@ -307,7 +313,7 @@ def disable_enable_addon(addon_name='plugin.video.fenlight'):
 def update_local_addons():
 	execute_builtin('UpdateLocalAddons', True)
 	sleep(2500)
- 
+
 def update_kodi_addons_db(addon_name='plugin.video.fenlight'):
 	import time
 	import sqlite3 as database

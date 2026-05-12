@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.66">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.70">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,8 +19,20 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.66]:
-  * Return Real-Debrid unrestrict error payloads to playback resolution so Fenlight can log the provider error and show clearer failures such as Infringing File instead of silently dropping the playback attempt.
+        <news>[v2.0.70]:
+  * Validate TorBox Web Download playback and remove temporary scrape/resolver diagnostics while keeping the WebDL cloud fix.
+
+[v2.0.69]:
+  * Add TorBox Web Download cloud support so hoster uploads such as GoFile-backed items appear in TorBox cloud scraping, browsing, resolving, and deleting alongside torrent and usenet items.
+
+[v2.0.68]:
+  * Seed first-run settings from the live patched Fen Light profile, including CocoScrapers, list/result/playback preferences, size filters, pagination, and update behavior while leaving user credentials, tokens, account values, and local paths out of the package.
+
+[v2.0.67]:
+  * Refresh the Trakt and Real-Debrid QR-backed device-auth flow with styled Trakt QR cards, direct activation QR targets where available, and the latest patched TMDb Helper Trakt QR dialog support.
+
+[v2.0.66]:
+  * Add an optional strict original-language AI Search filter so prompts like Korean, German, or Dutch can become TMDb original-language constraints instead of loose keywords when enabled.
 
 [v2.0.65]:
   * Guard Trakt re-authorization prompts so only one dialog appears at a time, and skip watched-indicator refresh when Trakt returns an invalid payload instead of trying to thread over bad data.

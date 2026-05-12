@@ -75,9 +75,24 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
+                <setting id="general.ai_api_key" type="string" label="33111" help="">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>33111</heading>
+                    </control>
+                </setting>
                 <setting id="general.use_ai" type="boolean" label="33109" help="">
                     <level>0</level>
                     <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition operator="!is" setting="general.ai_api_key"/>
+                        </dependency>
+                    </dependencies>
                     <control type="toggle"/>
                 </setting>
                 <setting id="general.ai_provider" type="integer" label="33110" help="">
@@ -95,21 +110,6 @@
                         </dependency>
                     </dependencies>
                     <control type="spinner" format="string"/>
-                </setting>
-                <setting id="general.ai_api_key" type="string" label="33111" help="">
-                    <level>0</level>
-                    <default/>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <dependencies>
-                        <dependency type="enable">
-                            <condition operator="is" setting="general.use_ai">true</condition>
-                        </dependency>
-                    </dependencies>
-                    <control type="edit" format="string">
-                        <heading>33111</heading>
-                    </control>
                 </setting>
                 <setting id="general.ai_model" type="string" label="33112" help="">
                     <level>0</level>

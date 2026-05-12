@@ -32,6 +32,9 @@ def gemini_api_key():
 	keys = gemini_api_keys()
 	return keys[0] if keys else 'empty_setting'
 
+def ai_search_strict_language_filters():
+	return get_setting('fenlight.ai_search.strict_language_filters', 'false') == 'true'
+
 def trakt_client():
 	return get_setting('fenlight.trakt.client', '')
 
@@ -69,7 +72,7 @@ def limit_resolve():
 
 def movies_directory():
 	return translate_path(get_setting('fenlight.movies_directory'))
-	
+
 def tv_show_directory():
 	return translate_path(get_setting('fenlight.tv_shows_directory'))
 
@@ -92,7 +95,7 @@ def paginate(is_home):
 	if is_home: return paginate_lists in (2, 3)
 	else: return paginate_lists in (1, 3)
 
-def page_limit(is_home):	
+def page_limit(is_home):
 	return int(get_setting(paginate_dict[is_home], '20'))
 
 def quality_filter(setting):

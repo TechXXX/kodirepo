@@ -118,7 +118,7 @@ class RandomLists():
 			info = random.choice(choice_list[self.action])
 			list_name = info['name']
 			if self.action in tvshow_trakt_special:
-				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)), self.get_sample()))			
+				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)), self.get_sample()))
 			else:
 				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)['results']), self.get_sample()))
 			[i.join() for i in threads]
@@ -171,10 +171,10 @@ class RandomLists():
 			self.random_results = trakt_get_lists(list_type)
 			random_list = random.choice(self.random_results)
 			if list_type == 'liked_lists': random_list = random_list['list']
-			user, slug = random_list['user']['ids']['slug'], random_list['ids']['slug']
+			list_id = random_list['ids'].get('trakt')
 			list_name = random_list['name']
 			with_auth = list_type == 'my_lists'
-			result = get_trakt_list_contents(list_type, user, slug, with_auth)
+			result = get_trakt_list_contents(list_type, list_id=list_id, with_auth=with_auth)
 			random.shuffle(result)
 			result = [dict(i, **{'order': c}) for c, i in enumerate(random.sample(result, min(len(result), 20)))]
 			url_params = {'base_list_name':list_type_name, 'list_name': list_name, 'result': result}
@@ -190,17 +190,19 @@ class RandomLists():
 	def trakt_my_lists_contents(self):
 		list_name, list_type = self.params.get('list_name'), self.params.get('list_type')
 		list_type_name = 'Trakt My Lists' if list_type == 'my_lists' else 'Trakt Liked Lists'
-		random_list, cache_to_memory = get_persistent_content('trakt_my_lists_contents', '%s_%s' % (list_type, list_name), self.remake_widgets, self.is_external)
+		list_id = self.params_get('list_id')
+		cache_key = '%s_%s' % (list_type, list_id or list_name)
+		random_list, cache_to_memory = get_persistent_content('trakt_my_lists_contents', cache_key, self.remake_widgets, self.is_external)
 		if not random_list:
 			user, slug = self.params_get('user'), self.params_get('slug')
 			with_auth = list_type == 'my_lists'
-			result = get_trakt_list_contents(list_type, user, slug, with_auth)
+			result = get_trakt_list_contents(list_type, user, slug, with_auth, list_id)
 			random.shuffle(result)
 			if paginate(self.is_home): result = paginate_list(result, 1, page_limit(self.is_home), 0)[0]
 			result = [dict(i, **{'order': c}) for c, i in enumerate(result)]
 			url_params = {'base_list_name':list_type_name, 'list_name': list_name, 'result': result}
 			self.list_items = build_trakt_list(url_params)
-			if cache_to_memory: set_persistent_content('trakt_my_lists_contents', '%s_%s' % (list_type, list_name), {'name': list_name, 'result': result})
+			if cache_to_memory: set_persistent_content('trakt_my_lists_contents', cache_key, {'name': list_name, 'result': result})
 		else:
 			list_name, result = random_list['name'], random_list['result']
 			url_params = {'base_list_name':list_type_name, 'list_name': list_name, 'result': result}

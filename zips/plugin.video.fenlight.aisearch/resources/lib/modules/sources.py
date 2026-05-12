@@ -80,7 +80,7 @@ class Sources():
 		self.default_ext_only = params_get('default_ext_only', self.default_ext_only) == 'true'
 		self.folders_ignore_filters = get_setting('fenlight.aisearch.results.folders_ignore_filters', 'false') == 'true'
 		self.filter_size_method = int(get_setting('fenlight.aisearch.results.filter_size_method', '0'))
-		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')		
+		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')
 		self.custom_title, self.custom_year = params_get('custom_title', None), params_get('custom_year', None)
 		self.episode_group_label = params_get('episode_group_label', '')
 		if self.media_type == 'episode':
@@ -291,7 +291,7 @@ class Sources():
 		if not self.import_external_scrapers(): return self.disable_external('Error Importing External Module')
 		self.external_providers = self.external_sources()
 		if not self.external_providers: self.disable_external('No External Providers Enabled')
-	
+
 	def import_external_scrapers(self):
 		try:
 			append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
@@ -473,7 +473,7 @@ class Sources():
 			except: continue
 			set_property(int_window_prop % i, 'checked')
 			self._sources_quality_count(sources)
-	
+
 	def _sources_quality_count(self, sources):
 		for item in self.count_tuple: setattr(self, item[0], getattr(self, item[0]) + item[2](sources, item[1]))
 
@@ -595,7 +595,7 @@ class Sources():
 			results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
 			if not source: source = results[0]
 			items = [source]
-			if not self.limit_resolve: 
+			if not self.limit_resolve:
 				source_index = results.index(source)
 				results.remove(source)
 				items_prev = results[:source_index]
@@ -779,7 +779,11 @@ class Sources():
 	def resolve_internal(self, scrape_provider, item_id, url_dl, direct_debrid_link=False):
 		url = None
 		try:
-			if direct_debrid_link or scrape_provider == 'folders': url = url_dl
+			if scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl'):
+				debrid_function = self.debrid_importer(scrape_provider)()
+				if direct_debrid_link == 'usenet': url = debrid_function.unrestrict_usenet(url_dl)
+				else: url = debrid_function.unrestrict_webdl(url_dl)
+			elif direct_debrid_link or scrape_provider == 'folders': url = url_dl
 			elif scrape_provider == 'easynews':
 				from indexers.easynews import resolve_easynews
 				url = resolve_easynews({'url_dl': url_dl, 'play': 'false'})
