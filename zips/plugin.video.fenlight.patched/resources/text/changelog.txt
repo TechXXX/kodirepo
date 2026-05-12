@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Session Note (2026-05-12, Real-Debrid resolve errors)[/B][/COLOR]
+- Return Real-Debrid unrestrict error payloads to playback resolution instead of discarding them inside the API wrapper.
+- Log the provider error details and show clearer user-facing failures such as `Infringing File` when Real-Debrid rejects the link.
+
 [COLOR dodgerblue][B]Session Note (2026-05-10, Trakt auth prompt guard)[/B][/COLOR]
 - Guard Trakt re-authorization prompts so only one dialog appears at a time.
 - Skip watched-indicator refresh when Trakt returns an invalid payload instead of trying to thread over bad data.

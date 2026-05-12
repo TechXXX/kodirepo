@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.65">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.66">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/fenlight_icon.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.65]:
+        <news>[v2.0.66]:
+  * Return Real-Debrid unrestrict error payloads to playback resolution so Fenlight can log the provider error and show clearer failures such as Infringing File instead of silently dropping the playback attempt.
+
+[v2.0.65]:
   * Guard Trakt re-authorization prompts so only one dialog appears at a time, and skip watched-indicator refresh when Trakt returns an invalid payload instead of trying to thread over bad data.
 
 [v2.0.64]:

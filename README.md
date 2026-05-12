@@ -21,7 +21,7 @@ Current source-tree versions when this document was updated:
   optional strict original-language filter so prompts like Korean, German, or
   Dutch can become TMDb original-language constraints instead of loose
   keywords.
-- `plugin.video.fenlight.patched` `2.0.65`
+- `plugin.video.fenlight.patched` `2.0.66`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -50,7 +50,9 @@ Current source-tree versions when this document was updated:
   playback, fetches TMDb's standalone videos list when localized metadata has
   no trailers, forces trailer playback into fullscreen video, and now guards
   duplicate Trakt re-authorization prompts while skipping watched-indicator
-  refresh when Trakt returns invalid payloads.
+  refresh when Trakt returns invalid payloads. It now also surfaces clearer
+  Real-Debrid resolve failures, including `Infringing File`, when the provider
+  rejects an unrestrict request.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.10`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
