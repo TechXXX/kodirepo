@@ -841,6 +841,11 @@
             <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-SpotifySongs">plugin://plugin.audio.spotify/?action=search_tracks&amp;trackid=</property>
             <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-SpotifyPlaylists">plugin://plugin.audio.spotify/?action=search_playlists&amp;playlistid=</property>
 
+            <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-FenlightMovies">plugin://plugin.video.fenlight.patched/?mode=build_movie_list&amp;action=tmdb_movies_search&amp;query=</property>
+            <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-FenlightShows">plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&amp;action=tmdb_tv_search&amp;query=</property>
+            <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-FenlightGemini">plugin://plugin.video.fenlight.patched/?mode=ai_search.widget&amp;query=</property>
+            <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-FenlightCollections">plugin://plugin.video.fenlight.patched/?mode=build_movie_list&amp;action=tmdb_movies_search_sets&amp;query=</property>
+
             <property name="widgetPath" tag="property" attribute="name|list" value="DefaultSearch-TMDBMovies">plugin://plugin.video.themoviedb.helper.patched?info=search&amp;type=movie&amp;query=</property>
             <property name="widgetPath2" tag="property" attribute="name|list" value="DefaultSearch-TMDBMovies">&amp;nextpage=false&amp;fanarttv=false&amp;cacheonly=true</property>
 

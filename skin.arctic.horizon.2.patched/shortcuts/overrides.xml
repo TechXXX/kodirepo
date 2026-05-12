@@ -429,6 +429,10 @@
         <shortcut label="Spotify Songs" type="571" icon="special://skin/extras/icons/spotify.png">DefaultSearch-SpotifySongs</shortcut>
         <shortcut label="Spotify Playlists" type="571" icon="special://skin/extras/icons/spotify.png">DefaultSearch-SpotifyPlaylists</shortcut>
         <shortcut label="Radio DE" type="571" icon="special://skin/extras/icons/radio.png">DefaultSearch-RadioDE</shortcut>
+        <shortcut label="Fen Light Movies" type="571" icon="special://skin/extras/icons/film.png">DefaultSearch-FenlightMovies</shortcut>
+        <shortcut label="Fen Light Shows" type="571" icon="special://skin/extras/icons/tv.png">DefaultSearch-FenlightShows</shortcut>
+        <shortcut label="Fen Light Gemini" type="571" icon="special://skin/extras/icons/wand-magic-sparkles.png">DefaultSearch-FenlightGemini</shortcut>
+        <shortcut label="Fen Light Collections" type="571" icon="special://skin/extras/icons/sets.png">DefaultSearch-FenlightCollections</shortcut>
         <shortcut label="TMDb Movies" type="571" icon="special://skin/extras/icons/film.png">DefaultSearch-TMDBMovies</shortcut>
         <shortcut label="TMDb Shows" type="571" icon="special://skin/extras/icons/tv.png">DefaultSearch-TMDBShows</shortcut>
         <shortcut label="TMDb Sets" type="571" icon="special://skin/extras/icons/sets.png">DefaultSearch-TMDBSets</shortcut>

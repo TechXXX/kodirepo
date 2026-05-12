@@ -81,13 +81,15 @@ Current source-tree versions when this document was updated:
   Program add-on that prompts for a family password, fetches YouTube API
   credentials from the external famYT Vercel bridge, and installs them into the
   official Kodi YouTube add-on userdata.
-- `skin.arctic.horizon.2.patched` `0.8.30.11`
+- `skin.arctic.horizon.2.patched` `0.8.30.12`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
   production build now also pairs with patched Fenlight playback state so
   episode playback can show a dedicated next-episode OSD action while
   preserving stop behavior, and now hides that action when Fenlight reports
-  there is no next aired episode.
+  there is no next aired episode. It now also rewires the default skin search
+  menu to Fen Light movie, show, Gemini AI Search, and collection lookups
+  instead of the broader mixed-media shortcut set.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
 - `repository.dutchtech` `1.0.44`
