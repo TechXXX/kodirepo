@@ -94,6 +94,11 @@ Current source-tree versions when this document was updated:
 - `plugin.program.famyt` `0.4.2`
   Private family setup helper. It contains no credentials; operational notes
   are kept outside the public repository.
+- `plugin.program.autocompletion` `2.1.4`
+  Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
+  from this repo instead of the broken upstream `2.1.3` package URL.
+- `script.module.autocompletion` `2.1.1`
+  Library dependency for the virtual keyboard autocomplete helper.
 - `skin.arctic.horizon.2.patched` `0.8.30.12`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
@@ -125,6 +130,10 @@ Current source-tree versions when this document was updated:
 - `plugin.program.famyt/`
   Private family setup helper source. Credentials are not stored in this
   repository.
+- `plugin.program.autocompletion/`
+  Bundled virtual keyboard autocomplete helper source.
+- `script.module.autocompletion/`
+  Bundled virtual keyboard autocomplete library source.
 - `skin.arctic.horizon.2.patched/`
   Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
   id from this repo.
