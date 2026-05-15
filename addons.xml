@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-    <addon id="plugin.program.famyt" name="famYT" version="0.4.1" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="famYT" version="0.4.2" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -8,8 +8,8 @@
             <provides>executable</provides>
         </extension>
         <extension point="xbmc.addon.metadata">
-            <summary lang="en_GB">Install family streaming setup values</summary>
-            <description lang="en_GB">Fetches private setup values from the famYT bridge and installs YouTube credentials, a TorBox API key for Fen Light, a4kSubtitles Patched account settings, Cocoscrapers filters, or everything at once.</description>
+            <summary lang="en_GB">Private family setup helper</summary>
+            <description lang="en_GB">Private setup helper for a configured family Kodi environment. Contains no credentials.</description>
             <assets>
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
@@ -17,21 +17,23 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.4.1
-- Let Install everything continue when optional add-ons are missing
+            <news>v0.4.2
+- Public metadata cleanup
+
+v0.4.1
+- Internal setup flow cleanup
 
 v0.4.0
-- Added Cocoscrapers undesirable filter installer
+- Internal setup updates
 
 v0.3.0
-- Added a4kSubtitles Patched settings installer
+- Internal setup updates
 
 v0.2.0
 - Added setup menu
-- Added TorBox API key installer for Fen Light
 
 v0.1.0
-- Initial famYT installer add-on</news>
+- Initial private helper add-on</news>
         </extension>
     </addon>
     <addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.16">

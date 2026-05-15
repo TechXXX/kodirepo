@@ -91,12 +91,9 @@ Current source-tree versions when this document was updated:
   `3.8.15`.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `plugin.program.famyt` `0.4.1`
-  Program add-on that prompts for a family password, fetches private setup
-  values from the external famYT Vercel bridge, and can now install YouTube
-  API credentials, a TorBox API key for Fen Light, a4kSubtitles Patched account
-  settings, Cocoscrapers undesirable filters, or everything from the same setup
-  menu.
+- `plugin.program.famyt` `0.4.2`
+  Private family setup helper. It contains no credentials; operational notes
+  are kept outside the public repository.
 - `skin.arctic.horizon.2.patched` `0.8.30.12`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
@@ -126,8 +123,8 @@ Current source-tree versions when this document was updated:
 - `service.kodi.favourites.sync/`
   Favourites sync service source.
 - `plugin.program.famyt/`
-  famYT setup add-on source. Credentials live in the separate Vercel bridge,
-  not in this Kodi repo.
+  Private family setup helper source. Credentials are not stored in this
+  repository.
 - `skin.arctic.horizon.2.patched/`
   Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
   id from this repo.

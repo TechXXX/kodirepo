@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="famYT">
-    <setting id="api_url" type="text" label="famYT bridge URL" default="https://famyt-vercel.vercel.app/api/youtube-keys"/>
+    <setting id="api_url" type="text" label="Setup service URL" default="https://famyt-vercel.vercel.app/api/youtube-keys"/>
     <setting id="last_install" type="text" label="Last install cache" default="" visible="false"/>
     <setting id="last_youtube_install" type="text" label="Last YouTube install cache" default="" visible="false"/>
     <setting id="last_torbox_install" type="text" label="Last TorBox install cache" default="" visible="false"/>
