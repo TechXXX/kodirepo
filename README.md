@@ -105,7 +105,7 @@ Current source-tree versions when this document was updated:
   from this repo instead of the broken upstream `2.1.3` package URL.
 - `script.module.autocompletion` `2.1.1`
   Library dependency for the virtual keyboard autocomplete helper.
-- `skin.arctic.horizon.2.patched` `0.8.30.12`
+- `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
   production build now also pairs with patched Fenlight playback state so
@@ -113,7 +113,10 @@ Current source-tree versions when this document was updated:
   preserving stop behavior, and now hides that action when Fenlight reports
   there is no next aired episode. It now also rewires the default skin search
   menu to Fen Light movie, show, Gemini AI Search, and collection lookups
-  instead of the broader mixed-media shortcut set.
+  instead of the broader mixed-media shortcut set. It now also adds a
+  Kodi/Android voice-search button to the virtual keyboard, uses Kodi's
+  `VoiceRecognizer`, and auto-submits once Android voice input fills the
+  keyboard text.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
 - `repository.dutchtech` `1.0.44`

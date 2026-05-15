@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
     <defaultcontrol always="true">300</defaultcontrol>
+    <onunload>ClearProperty(AH2VoiceAutoDone,Home)</onunload>
     <controls>
         <include>Object_Overlay</include>
 
@@ -139,6 +140,7 @@
                                 <width>100%</width>
                                 <onup>8000</onup>
                                 <ondown>9002</ondown>
+                                <ontextchange condition="[!String.IsEmpty(Window(Home).Property(AH2VoiceAutoDone)) | Window.IsVisible(DialogNotification.xml)] + !String.IsEmpty(Control.GetLabel(312).index(1))">AlarmClock(AH2VoiceAutoDone,Action(Enter),00:01,silent)</ontextchange>
                                 <font>font_midi</font>
                             </include>
                         </control>
@@ -333,7 +335,7 @@
                                 <label>20179</label>
                                 <width>keyboard_shift_w</width>
                                 <onup>302</onup>
-                                <ondown>307</ondown>
+                                <ondown>95210</ondown>
                             </include>
                             <control type="group" id="9904">
                                 <width>grid_x04</width>
@@ -416,13 +418,38 @@
                             <orientation>horizontal</orientation>
                             <itemgap>keyboard_pad</itemgap>
                             <height>grid_x08</height>
-                            <include content="Object_Keyboard_Button" description="IP Address">
-                                <param name="id" value="307" />
-                                <label>IP</label>
+                            <control type="group" description="Voice Search">
                                 <width>keyboard_symbols_w</width>
-                                <onup>303</onup>
-                                <ondown>300</ondown>
-                            </include>
+                                <height>grid_x08</height>
+                                <include content="Object_Keyboard_Button">
+                                    <param name="id" value="95210" />
+                                    <include>Texture_KeyboardButton</include>
+                                    <label />
+                                    <width>keyboard_symbols_w</width>
+                                    <onup>303</onup>
+                                    <ondown>300</ondown>
+                                    <onclick>SetProperty(AH2VoiceAutoDone,1,Home)</onclick>
+                                    <onclick>Action(VoiceRecognizer)</onclick>
+                                </include>
+                                <control type="image">
+                                    <centerleft>50%</centerleft>
+                                    <centertop>50%</centertop>
+                                    <width>grid_x04</width>
+                                    <height>grid_x04</height>
+                                    <aspectratio>keep</aspectratio>
+                                    <texture colordiffuse="$VAR[ColorSelected]">special://skin/extras/icons/microphone.png</texture>
+                                    <visible>Control.HasFocus(95210)</visible>
+                                </control>
+                                <control type="image">
+                                    <centerleft>50%</centerleft>
+                                    <centertop>50%</centertop>
+                                    <width>grid_x04</width>
+                                    <height>grid_x04</height>
+                                    <aspectratio>keep</aspectratio>
+                                    <texture colordiffuse="dialog_fg_70">special://skin/extras/icons/microphone.png</texture>
+                                    <visible>!Control.HasFocus(95210)</visible>
+                                </control>
+                            </control>
                             <include content="Object_Keyboard_Button" description="Symbols">
                                 <param name="id" value="304" />
                                 <label>@#!*</label>
@@ -515,7 +542,7 @@
                                 <param name="id" value="300" />
                                 <label>20177</label>
                                 <width>keyboard_done_w</width>
-                                <onup>307</onup>
+                                <onup>95210</onup>
                                 <ondown>8000</ondown>
                             </include>
                             <include content="Object_Keyboard_Button" description="Cancel">
