@@ -685,6 +685,17 @@ def _install_cocoscrapers(addon):
     return "Cocoscrapers filters installed for: %s." % ", ".join(updated)
 
 
+def _run_install_all_step(messages, label, install_func):
+    try:
+        messages.append(install_func())
+        return True
+    except Exception as exc:
+        message = "%s skipped: %s" % (label, exc)
+        messages.append(message)
+        _log("Install everything step skipped: %s\n%s" % (message, traceback.format_exc()), xbmc.LOGWARNING)
+        return False
+
+
 def _run_action(action):
     if action not in (
         "install_youtube",
@@ -729,31 +740,39 @@ def _run_action(action):
         messages = []
 
         if action == "install_all":
-            _extract_youtube_keys(bridge_data)
-            _extract_torbox_key(bridge_data)
-            _extract_a4ksubtitles_settings(bridge_data)
-            if not _candidate_fenlight_addons():
-                raise RuntimeError("Fen Light was not found in this Kodi profile.")
-            if not _candidate_a4ksubtitles_addons():
-                raise RuntimeError("a4kSubtitles Patched was not found in this Kodi profile.")
-            if not _candidate_cocoscrapers_addons():
-                raise RuntimeError("Cocoscrapers was not found in this Kodi profile.")
-
-        if action in ("install_youtube", "install_all"):
+            progress.update(25, "Installing YouTube credentials...")
+            _run_install_all_step(
+                messages,
+                "YouTube credentials",
+                lambda: _install_youtube(addon, bridge_data),
+            )
+            progress.update(50, "Installing TorBox API key...")
+            _run_install_all_step(
+                messages,
+                "TorBox API key",
+                lambda: _install_torbox(addon, bridge_data),
+            )
+            progress.update(75, "Installing a4kSubtitles settings...")
+            _run_install_all_step(
+                messages,
+                "a4kSubtitles settings",
+                lambda: _install_a4ksubtitles(addon, bridge_data),
+            )
+            progress.update(90, "Installing Cocoscrapers filters...")
+            _run_install_all_step(
+                messages,
+                "Cocoscrapers filters",
+                lambda: _install_cocoscrapers(addon),
+            )
+        elif action == "install_youtube":
             progress.update(25, "Installing YouTube credentials...")
             messages.append(_install_youtube(addon, bridge_data))
-
-        if action in ("install_torbox", "install_all"):
+        elif action == "install_torbox":
             progress.update(50, "Installing TorBox API key...")
             messages.append(_install_torbox(addon, bridge_data))
-
-        if action in ("install_a4ksubtitles", "install_all"):
+        elif action == "install_a4ksubtitles":
             progress.update(75, "Installing a4kSubtitles settings...")
             messages.append(_install_a4ksubtitles(addon, bridge_data))
-
-        if action == "install_all":
-            progress.update(90, "Installing Cocoscrapers filters...")
-            messages.append(_install_cocoscrapers(addon))
 
         progress.update(100, "Done")
         progress.close()

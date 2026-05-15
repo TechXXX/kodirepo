@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-    <addon id="plugin.program.famyt" name="famYT" version="0.4.0" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="famYT" version="0.4.1" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -17,7 +17,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.4.0
+            <news>v0.4.1
+- Let Install everything continue when optional add-ons are missing
+
+v0.4.0
 - Added Cocoscrapers undesirable filter installer
 
 v0.3.0

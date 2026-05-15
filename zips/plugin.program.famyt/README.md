@@ -11,6 +11,9 @@ password, calls the configured famYT Vercel bridge, and offers menu actions to:
 - install Cocoscrapers undesirable filters
 - install everything at once
 
+When installing everything, missing optional add-ons are reported as skipped
+instead of stopping the remaining setup steps.
+
 The YouTube action writes:
 
 ```text
