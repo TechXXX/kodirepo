@@ -7,6 +7,43 @@ __user_agent = 'a4kSubtitles v3'
 __content_type = 'application/json'
 __date_format = '%Y-%m-%d %H:%M:%S'
 
+def __normalise_id(value, strip_tt=False):
+    if value is None:
+        return None
+
+    value = str(value).strip()
+    if not value:
+        return None
+
+    if strip_tt and value.lower().startswith('tt'):
+        value = value[2:]
+
+    if not value.isdigit():
+        return None
+
+    value = value.lstrip('0') or '0'
+    if value == '0':
+        return None
+
+    return value
+
+def __normalise_id_as_int(value, strip_tt=False):
+    value = __normalise_id(value, strip_tt=strip_tt)
+    if value is None:
+        return None
+
+    try:
+        return int(value)
+    except:
+        return None
+
+def __first_meta_id(meta, *names):
+    for name in names:
+        value = getattr(meta, name, '')
+        if value not in (None, ''):
+            return value
+    return ''
+
 def __set_api_headers(core, service_name, request, token_cache=None):
     if core.os.getenv('A4KSUBTITLES_TESTRUN') != 'true' and token_cache is None:
         cache = core.cache.get_tokens_cache()
@@ -153,15 +190,12 @@ def build_search_requests(core, service_name, meta):
             'episode_number': meta.episode,
         }
 
-        def normalize_imdb_id(imdb_id):
-            if not imdb_id:
-                return None
-            return imdb_id[2:] if imdb_id.startswith('tt') else imdb_id
-
-        # OpenSubtitles episode pages are keyed by the parent TV-show IMDb id plus
-        # season/episode. Adding query text to that request can hide valid rows.
-        parent_imdb_id = normalize_imdb_id(
-            getattr(meta, 'tv_show_imdb_id', '') or getattr(meta, 'imdb_id', '')
+        parent_tmdb_id = __normalise_id(
+            __first_meta_id(meta, 'parent_tmdb_id', 'tv_show_tmdb_id', 'tmdb_id')
+        )
+        parent_imdb_id = __normalise_id(
+            __first_meta_id(meta, 'parent_imdb_id', 'tv_show_imdb_id', 'imdb_id'),
+            strip_tt=True
         )
 
         fallback_title = build_request(dict(base_params, query=meta.title)) if meta.title else None
@@ -174,11 +208,22 @@ def build_search_requests(core, service_name, meta):
             next_request=fallback_episode_title
         )
 
-        if not parent_imdb_id:
-            return [fallback_episode_query]
+        primary_params = None
+        if parent_tmdb_id:
+            primary_params = dict(base_params, parent_tmdb_id=parent_tmdb_id)
+        elif parent_imdb_id:
+            primary_params = dict(base_params, parent_imdb_id=parent_imdb_id)
 
-        primary_params = dict(base_params, parent_imdb_id=parent_imdb_id)
-        return [build_request(primary_params, next_request=fallback_episode_query)]
+        if core.api_mode_enabled:
+            if not primary_params:
+                core.logger.debug('%s - skipping broad episode query in api mode: missing parent TMDb/IMDb id for %s' % (service_name, episode_query))
+                return []
+            return [build_request(primary_params)]
+
+        if primary_params:
+            return [build_request(primary_params, next_request=fallback_episode_query)]
+
+        return [fallback_episode_query]
 
     base_params = {
         'languages': ','.join(lang_ids),
@@ -213,20 +258,74 @@ def parse_search_response(core, service_name, meta, response):
 
     service = core.services[service_name]
 
+    expected_parent_tmdb_id = __normalise_id_as_int(
+        __first_meta_id(meta, 'parent_tmdb_id', 'tv_show_tmdb_id', 'tmdb_id')
+    )
+    expected_parent_imdb_id = __normalise_id_as_int(
+        __first_meta_id(meta, 'parent_imdb_id', 'tv_show_imdb_id', 'imdb_id'),
+        strip_tt=True
+    )
+    expected_movie_tmdb_id = __normalise_id_as_int(getattr(meta, 'tmdb_id', ''))
+    expected_imdb_id = __normalise_id_as_int(getattr(meta, 'imdb_id', ''), strip_tt=True)
+    expected_season = __normalise_id_as_int(getattr(meta, 'season', ''))
+    expected_episode = __normalise_id_as_int(getattr(meta, 'episode', ''))
+
+    def get_feature_value(feature_details, *names):
+        for name in names:
+            value = feature_details.get(name, None)
+            if value not in (None, ''):
+                return value
+        return None
+
+    def get_feature_id(feature_details, *names, **kwargs):
+        return __normalise_id_as_int(
+            get_feature_value(feature_details, *names),
+            strip_tt=kwargs.get('strip_tt', False)
+        )
+
+    def matches_expected_id(expected, actual):
+        return expected is None or actual == expected
+
+    def matches_expected_episode(feature_details):
+        if expected_season is None and expected_episode is None:
+            return True
+
+        season = get_feature_id(feature_details, 'season_number', 'season')
+        episode = get_feature_id(feature_details, 'episode_number', 'episode')
+        return matches_expected_id(expected_season, season) and matches_expected_id(expected_episode, episode)
+
+    def matches_expected_tv_parent(feature_details):
+        if expected_parent_tmdb_id is not None:
+            parent_tmdb_id = get_feature_id(feature_details, 'parent_tmdb_id', 'parent_tmdb')
+            return parent_tmdb_id == expected_parent_tmdb_id
+
+        if expected_parent_imdb_id is not None:
+            parent_imdb_id = get_feature_id(feature_details, 'parent_imdb_id', 'parent_imdb', strip_tt=True)
+            return parent_imdb_id == expected_parent_imdb_id
+
+        return True
+
+    def matches_expected_movie(feature_details):
+        imdb_id = get_feature_id(feature_details, 'imdb_id', strip_tt=True)
+        tmdb_id = get_feature_id(feature_details, 'tmdb_id')
+        if expected_movie_tmdb_id is not None and tmdb_id is not None and tmdb_id != expected_movie_tmdb_id:
+            return False
+        if expected_imdb_id is not None and imdb_id is not None and imdb_id != expected_imdb_id:
+            return False
+        return True
+
     def map_result(result):
         result = result['attributes']
-        imdb_id = result.get('feature_details', {}).get('imdb_id', None)
         if len(result['files']) == 0:
             return None
 
-        tv_show_imdb_id_as_int = getattr(meta, 'tv_show_imdb_id_as_int', 0)
-        imdb_matches = imdb_id is None or imdb_id in (meta.imdb_id_as_int, tv_show_imdb_id_as_int)
-        # OpenSubtitles episode searches can return valid episode subtitles keyed to a
-        # different IMDb entity than the pre-play mocked metadata. Keep TV episode
-        # candidates and let the later filename-based ranking decide.
-        if not meta.is_tvshow and not imdb_matches:
-            return None
-        if meta.is_tvshow and imdb_id is not None and not imdb_matches and not (meta.season and meta.episode):
+        feature_details = result.get('feature_details', {}) or {}
+        if meta.is_tvshow:
+            if not matches_expected_episode(feature_details):
+                return None
+            if not matches_expected_tv_parent(feature_details):
+                return None
+        elif not matches_expected_movie(feature_details):
             return None
 
         filename = result.get('release') or result['files'][0]['file_name']

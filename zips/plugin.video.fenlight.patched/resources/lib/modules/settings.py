@@ -131,6 +131,9 @@ def auto_rescrape_with_all():
 def auto_episode_group():
 	return int(get_setting('fenlight.results.auto_episode_group', '0'))
 
+def auto_tb_usenet_search():
+	return int(get_setting('fenlight.results.auto_tb_usenet_search', '1'))
+
 def auto_nextep_settings(play_type):
 	play_type = 'autoplay' if play_type == 'autoplay_nextep' else 'autoscrape'
 	window_percentage = 100 - int(get_setting('fenlight.%s_next_window_percentage' % play_type, '95'))
@@ -212,6 +215,12 @@ def external_scraper_info():
 def filter_by_name(scraper):
 	if get_property('fs_filterless_search') == 'true': return False
 	return get_setting('fenlight.%s.title_filter' % scraper, 'false') == 'true'
+
+def torbox_usenet_search_enabled(media_type, force=False):
+	if force: return True
+	if media_type == 'movie': return get_setting('fenlight.tb.usenet_search.movies', 'false') == 'true'
+	if media_type == 'episode': return get_setting('fenlight.tb.usenet_search.episodes', 'false') == 'true'
+	return False
 
 def easynews_language_filter():
 	enabled = get_setting('fenlight.easynews.filter_lang') == 'true'

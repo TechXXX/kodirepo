@@ -1,3 +1,11 @@
+[COLOR dodgerblue][B]Session Note (2026-05-15, TorBox Usenet Search retry)[/B][/COLOR]
+- Add TorBox Usenet Search settings for movies and TV shows.
+- Retry with cached TorBox Usenet Search when a scrape finds no playable results.
+
+[COLOR dodgerblue][B]Session Note (2026-05-14, exact OpenSubtitles retry metadata)[/B][/COLOR]
+- Pass Fen Light's TMDb/show identifiers into the bundled a4k retry-pool metadata so OpenSubtitles can use exact parent-ID episode searches.
+- Include the TMDb id in the retry-pool subtitle cache key so selector searches do not reuse results across different shows with similar IMDb/title context.
+
 [COLOR dodgerblue][B]Session Note (2026-05-12, TorBox web download validation)[/B][/COLOR]
 - Confirm TorBox Web Download playback resolves and starts through Fen Light Patched.
 - Remove temporary scrape/resolver diagnostics while keeping the WebDL cloud support and `short_name` title-match fix.

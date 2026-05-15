@@ -1771,21 +1771,43 @@
                           <property name="setting_description">Enable this and Fen Light Patched will search your TorBox Cloud for media</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=provider.tb_cloud)</onclick>
                       </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(50)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
-                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
-                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
-                          <property name="setting_label">    - Filter Results by Name</property>
-                          <property name="setting_type">boolean</property>
-                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb_cloud.title_filter)]</property>
-                          <property name="setting_description">Enable this and Fen Light Patched will perform extra name matching functions on your TorBox Cloud results. Will help to limit incorrect results, but may also filter some relevant results</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb_cloud.title_filter)</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(50)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
-                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(50)</visible>
+	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
+	                          <property name="setting_label">    - Filter Results by Name</property>
+	                          <property name="setting_type">boolean</property>
+	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb_cloud.title_filter)]</property>
+	                          <property name="setting_description">Enable this and Fen Light Patched will perform extra name matching functions on your TorBox Cloud results. Will help to limit incorrect results, but may also filter some relevant results</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb_cloud.title_filter)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(50)</visible>
+	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
+	                          <property name="setting_label">    - Search Usenet for Movies</property>
+	                          <property name="setting_type">boolean</property>
+	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.movies)]</property>
+	                          <property name="setting_description">Enable this and Fen Light Patched will include cached TorBox Usenet Search results during movie source scrapes</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb.usenet_search.movies)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(50)</visible>
+	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
+	                          <property name="setting_label">    - Search Usenet for TV Shows</property>
+	                          <property name="setting_type">boolean</property>
+	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.episodes)]</property>
+	                          <property name="setting_description">Enable this and Fen Light Patched will include cached TorBox Usenet Search results during episode source scrapes</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb.usenet_search.episodes)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(50)</visible>
+	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
                           <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
                           <property name="setting_label">    - Check Before Full Search</property>
                           <property name="setting_type">boolean</property>
@@ -2002,12 +2024,20 @@
                           <property name="setting_label">Retry With Custom Episode Group When No Results</property>
                           <property name="setting_type">action</property>
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.results.auto_episode_group_name)]</property>
-                          <property name="setting_description">Choose whether to rescrape with a custom episode grouping (if available) when there are no results. This setting only relates to episode scrapes. If a Custom Episode Group is already assigned to the TV Show, then the regular season/episode will be used. Choices are Off, Auto or Prompt</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_from_list&amp;setting_id=results.auto_episode_group)</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(60)</visible>
-                          <property name="setting_label">Ignore All Filters When No Results</property>
+	                          <property name="setting_description">Choose whether to rescrape with a custom episode grouping (if available) when there are no results. This setting only relates to episode scrapes. If a Custom Episode Group is already assigned to the TV Show, then the regular season/episode will be used. Choices are Off, Auto or Prompt</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_from_list&amp;setting_id=results.auto_episode_group)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(60)</visible>
+	                          <property name="setting_label">Retry With TorBox Usenet Search When No Results</property>
+	                          <property name="setting_type">action</property>
+	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.results.auto_tb_usenet_search_name)]</property>
+	                          <property name="setting_description">Choose whether to retry with cached TorBox Usenet Search when no playable results are found. This retry temporarily enables TorBox Usenet Search for the current scrape. Choices are Off, Auto or Prompt</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_from_list&amp;setting_id=results.auto_tb_usenet_search)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(60)</visible>
+	                          <property name="setting_label">Ignore All Filters When No Results</property>
                           <property name="setting_type">action</property>
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.results.ignore_filter_name)]</property>
                           <property name="setting_description">Choose whether to rescrape ignoring filters when there are no results. Choices are Off, Auto or Prompt</property>

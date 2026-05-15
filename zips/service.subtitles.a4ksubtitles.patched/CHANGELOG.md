@@ -1,6 +1,11 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* [v3.23.38](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.38):
+  * Make OpenSubtitles TV episode searches exact in API mode: prefer `parent_tmdb_id + season_number + episode_number`, fall back to `parent_imdb_id + season_number + episode_number` only when TMDb is missing, and return no OpenSubtitles rows instead of using a broad title query when neither exact ID exists.
+  * Validate returned OpenSubtitles TV rows against the expected parent ID, season, and episode before ranking so unrelated shows cannot enter the selector pool.
+  * Keep OpenSubtitles AI/machine-translated Dutch rows available as fallback while normal non-translated Dutch rows remain preferred before any GPT-translated English fallback.
+
 * [v3.23.37](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.37):
   * Keep AI subtitle translation off for fresh installs until an API key is entered, while leaving the API key field editable.
   * Disable stale saved AI translation toggles at runtime when no API key is configured.

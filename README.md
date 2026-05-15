@@ -24,7 +24,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.70`
+- `plugin.video.fenlight.patched` `2.0.71`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -60,7 +60,10 @@ Current source-tree versions when this document was updated:
   duplicate Trakt re-authorization prompts while skipping watched-indicator
   refresh when Trakt returns invalid payloads. It now also surfaces clearer
   Real-Debrid resolve failures, including `Infringing File`, when the provider
-  rejects an unrestrict request.
+  rejects an unrestrict request. It now also passes exact parent TMDb/IMDb show
+  IDs into patched a4k retry-pool searches, includes the TMDb id in retry-pool
+  subtitle cache keys, and adds TorBox Usenet Search controls for movies, TV
+  episodes, and automatic no-results retry.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.11`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -70,7 +73,7 @@ Current source-tree versions when this document was updated:
   repo installs, includes bundled Fen Light / Fen Light Patched TMDb player
   definitions for default installs, and adds the refreshed Trakt QR auth dialog
   support promoted from the test repo.
-- `service.subtitles.a4ksubtitles.patched` `3.23.37`
+- `service.subtitles.a4ksubtitles.patched` `3.23.38`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build keeps AI subtitle translation off until an API key is
   configured, leaves the API key field editable while AI is off, and disables
@@ -88,7 +91,10 @@ Current source-tree versions when this document was updated:
   contains the full GPT-4.1 model, and labels the attached result with the
   `GPT4 Translated` notification. It also keeps the bundled GPT subtitle
   translator import-compatible with Kodi Windows builds that still run Python
-  `3.8.15`.
+  `3.8.15`. It now accepts Fen Light's exact retry metadata with parent show
+  TMDb/IMDb ids, validates cached subtitle rows against the requested media
+  identity, and keeps AI or machine-translated OpenSubtitles rows as a ranked
+  Dutch fallback before GPT translates an English subtitle.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `plugin.program.famyt` `0.4.2`

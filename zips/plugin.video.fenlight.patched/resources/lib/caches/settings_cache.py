@@ -358,6 +358,8 @@ default_settings = [
 {'setting_id': 'store_resolved_to_cloud.torbox', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'None', '1': 'All', '2': 'Show Packs Only'}},
 {'setting_id': 'provider.tb_cloud', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'tb_cloud.title_filter', 'setting_type': 'boolean', 'setting_default': 'true'},
+{'setting_id': 'tb.usenet_search.movies', 'setting_type': 'boolean', 'setting_default': 'false'},
+{'setting_id': 'tb.usenet_search.episodes', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'check.tb_cloud', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'results.sort_tbcloud_first', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'tb.priority', 'setting_type': 'action', 'setting_default': '10', 'min_value': '1', 'max_value': '10'},
@@ -387,6 +389,7 @@ default_settings = [
 #==================== General
 {'setting_id': 'results.auto_rescrape_with_all', 'setting_type': 'action', 'setting_default': '1', 'settings_options': {'0': 'Off', '1': 'Auto', '2': 'Prompt'}},
 {'setting_id': 'results.auto_episode_group', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'Off', '1': 'Auto', '2': 'Prompt'}},
+{'setting_id': 'results.auto_tb_usenet_search', 'setting_type': 'action', 'setting_default': '1', 'settings_options': {'0': 'Off', '1': 'Auto', '2': 'Prompt'}},
 {'setting_id': 'results.ignore_filter', 'setting_type': 'action', 'setting_default': '1', 'settings_options': {'0': 'Off', '1': 'Auto', '2': 'Prompt'}},
 #==================== Sorting and Filtering
 {'setting_id': 'results.sort_order_display', 'setting_type': 'string', 'setting_default': 'Quality, Size, Provider'},

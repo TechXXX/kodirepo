@@ -1,13 +1,13 @@
 import requests
 from threading import Thread
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from caches.settings_cache import get_setting, set_setting
 from caches.main_cache import cache_object
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
-from modules.kodi_utils import make_session, kodi_dialog, ok_dialog, notification, confirm_dialog
-# from modules.kodi_utils import logger
+from modules.kodi_utils import make_session, kodi_dialog, ok_dialog, notification, confirm_dialog, sleep, logger
 
 base_url = 'https://api.torbox.app/v1/api/'
+search_base_url = 'https://search-api.torbox.app/'
 stats = 'user/me'
 download = 'torrents/requestdl'
 remove = 'torrents/controltorrent'
@@ -15,10 +15,12 @@ history = 'torrents/mylist'
 explore = 'torrents/mylist?id=%s'
 cache = 'torrents/checkcached'
 cloud = 'torrents/createtorrent'
+cloud_usenet = 'usenet/createusenetdownload'
 download_usenet = 'usenet/requestdl'
 remove_usenet = 'usenet/controlusenetdownload'
 history_usenet = 'usenet/mylist'
 explore_usenet = 'usenet/mylist?id=%s'
+search_usenet = 'usenet/search/%s'
 download_webdl = 'webdl/requestdl'
 remove_webdl = 'webdl/controlwebdownload'
 history_webdl = 'webdl/mylist'
@@ -26,6 +28,7 @@ explore_webdl = 'webdl/mylist?id=%s'
 user_agent = 'Mozilla/5.0'
 timeout = 20.0
 session = make_session(base_url)
+search_session = make_session(search_base_url)
 
 class TorBoxAPI:
 
@@ -44,6 +47,13 @@ class TorBoxAPI:
 		headers = {'Authorization': 'Bearer %s' % self.token}
 		url = base_url + url
 		response = session.post(url, params=params, json=json, data=data, headers=headers, timeout=timeout)
+		return response.json()
+
+	def _search_get(self, url, data={}):
+		if self.token in ('empty_setting', ''): return None
+		headers = {'Authorization': 'Bearer %s' % self.token, 'User-Agent': user_agent}
+		url = search_base_url + url
+		response = search_session.get(url, params=data, headers=headers, timeout=timeout)
 		return response.json()
 
 	def add_headers_to_url(self, url):
@@ -128,6 +138,18 @@ class TorBoxAPI:
 		data = {'magnet': magnet, 'seed': 3, 'allow_zip': False}
 		return self._post(cloud, data=data)
 
+	def add_usenet(self, link, name=''):
+		data = {'link': link, 'post_processing': -1, 'as_queued': False, 'add_only_if_cached': True}
+		if name: data['name'] = name
+		return self._post(cloud_usenet, data=data)
+
+	def search_usenet(self, query, metadata=False, check_cache=True, check_owned=True, search_user_engines=False, cached_only=True):
+		data = {'metadata': metadata, 'check_cache': check_cache, 'check_owned': check_owned,
+				'search_user_engines': search_user_engines, 'cached_only': cached_only}
+		url = search_usenet % quote(query, safe='')
+		string = 'tb_search_usenet_%s_%s_%s_%s_%s_%s' % (query, metadata, check_cache, check_owned, search_user_engines, cached_only)
+		return cache_object(self._search_get, string, [url, data], False, 1)
+
 	def check_cache_single(self, _hash):
 		return self._get(cache, data={'hash': _hash, 'format': 'list'})
 
@@ -139,6 +161,74 @@ class TorBoxAPI:
 		result = self.add_magnet(magnet_url)
 		if not result['success']: return ''
 		return result['data'].get('torrent_id', '')
+
+	def create_usenet_transfer(self, link, name=''):
+		result = self.add_usenet(link, name)
+		if not result or not result.get('success'): return ''
+		data = result.get('data') or {}
+		if isinstance(data, int): return data
+		return data.get('usenet_id') or data.get('usenetdownload_id') or data.get('usenetdownloadId') or data.get('id') or ''
+
+	def resolve_usenet_search(self, link, name, title, season, episode):
+		try:
+			file_url, usenet_id = None, None
+			extensions = supported_video_extensions()
+			extras_filtering_list = tuple(i for i in EXTRAS if not i in (title or '').lower())
+			logger('Fen Light Patched', 'TorBox Usenet Search resolve start | name=%s | title=%s | season=%s | episode=%s' % (name, title, season, episode))
+			usenet_id = self.create_usenet_transfer(link, name)
+			if not usenet_id:
+				logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=create_transfer | name=%s' % name)
+				return None
+			selected_files = self._usenet_transfer_video_files(usenet_id, extensions)
+			logger('Fen Light Patched', 'TorBox Usenet Search transfer files | usenet_id=%s | count=%s | files=%s' % (
+				usenet_id, len(selected_files), self._debug_usenet_files(selected_files)))
+			if not selected_files:
+				logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=no_video_files | usenet_id=%s' % usenet_id)
+				return None
+			if season:
+				pre_filter_count = len(selected_files)
+				selected_files = [i for i in selected_files if seas_ep_filter(season, episode, i['filename'])]
+				if not selected_files:
+					logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=episode_filter | usenet_id=%s | before=%s | target=S%02dE%02d' % (
+						usenet_id, pre_filter_count, int(season), int(episode)))
+			else:
+				if self._m2ts_check(selected_files):
+					logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=m2ts_folder | usenet_id=%s' % usenet_id)
+					return None
+				selected_files = [i for i in selected_files if not any(x in i['filename'] for x in extras_filtering_list)]
+				selected_files.sort(key=lambda k: k['size'], reverse=True)
+			if not selected_files: return None
+			chosen_file = selected_files[0]
+			logger('Fen Light Patched', 'TorBox Usenet Search selected file | usenet_id=%s | filename=%s | size=%s' % (
+				usenet_id, chosen_file.get('filename'), chosen_file.get('size')))
+			file_key = chosen_file['url']
+			file_url = self.unrestrict_usenet(file_key)
+			logger('Fen Light Patched', 'TorBox Usenet Search requestdl | usenet_id=%s | success=%s' % (usenet_id, bool(file_url)))
+			if not int(get_setting('fenlight.store_resolved_to_cloud.torbox', '0')) == 1:
+				Thread(target=self.delete_usenet, args=(usenet_id,)).start()
+			return file_url
+		except Exception as e:
+			logger('Fen Light Patched', 'TorBox Usenet Search resolve exception | usenet_id=%s | error=%s' % (usenet_id, str(e)))
+			if usenet_id: self.delete_usenet(usenet_id)
+			return None
+
+	def _debug_usenet_files(self, selected_files):
+		return ' / '.join(['%s (%s)' % (i.get('filename', '')[:120], i.get('size')) for i in selected_files[:5]])
+
+	def _usenet_transfer_video_files(self, usenet_id, extensions):
+		for _ in range(8):
+			try:
+				transfer = self._get(explore_usenet % usenet_id, data={'bypass_cache': True})
+				files = (transfer.get('data') or {}).get('files') or []
+				selected_files = []
+				for item in files:
+					filename = item.get('short_name') or item.get('name') or ''
+					if not filename.lower().endswith(tuple(extensions)): continue
+					selected_files.append({'url': '%d,%d' % (int(usenet_id), item['id']), 'filename': filename, 'size': item['size']})
+				if selected_files: return selected_files
+			except: pass
+			sleep(1000)
+		return []
 
 	def resolve_magnet(self, magnet_url, info_hash, store_to_cloud, title, season, episode):
 		try:
@@ -217,6 +307,7 @@ class TorBoxAPI:
 			try:
 				dbcon.execute("""DELETE FROM maincache WHERE id=?""", ('tb_user_cloud',))
 				dbcon.execute("""DELETE FROM maincache WHERE id LIKE ?""", ('tb_user_cloud%',))
+				dbcon.execute("""DELETE FROM maincache WHERE id LIKE ?""", ('tb_search_usenet_%',))
 				user_cloud_success = True
 			except: user_cloud_success = False
 			# HASH CACHED STATUS

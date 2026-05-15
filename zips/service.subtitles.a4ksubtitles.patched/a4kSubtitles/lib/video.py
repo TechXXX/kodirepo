@@ -326,6 +326,7 @@ def __get_basic_info(core):
             meta.title = video_info.getTitle()
 
         meta.imdb_id = video_info.getUniqueID('imdb')
+        meta.tmdb_id = video_info.getUniqueID('tmdb')
         filename_and_path = video_info.getFilenameAndPath()
 
     if not meta.year:
@@ -344,6 +345,8 @@ def __get_basic_info(core):
 
     if not meta.imdb_id:
         meta.imdb_id = xbmc.getInfoLabel('VideoPlayer.IMDBNumber')
+    if not getattr(meta, 'tmdb_id', ''):
+        meta.tmdb_id = xbmc.getInfoLabel('VideoPlayer.UniqueID(tmdb)')
     if not filename_and_path:
         filename_and_path = xbmc.getInfoLabel('Player.FilenameAndPath')
 
@@ -363,6 +366,9 @@ def __get_basic_info(core):
         meta.episode = meta.episode or filename_path_info.episode or filename_info.episode
 
     meta.tv_show_imdb_id = meta.imdb_id
+    meta.parent_imdb_id = meta.tv_show_imdb_id
+    meta.tv_show_tmdb_id = meta.tmdb_id
+    meta.parent_tmdb_id = meta.tv_show_tmdb_id
 
     return meta
 
@@ -425,6 +431,21 @@ def get_meta(core):
 
     meta.is_tvshow = meta.tvshow != ''
     meta.is_movie = not meta.is_tvshow
+    if getattr(meta, 'tmdb_id', None) is None:
+        meta.tmdb_id = ''
+    if getattr(meta, 'tv_show_imdb_id', None) is None:
+        meta.tv_show_imdb_id = ''
+    if getattr(meta, 'parent_imdb_id', None) is None:
+        meta.parent_imdb_id = ''
+    if getattr(meta, 'tv_show_tmdb_id', None) is None:
+        meta.tv_show_tmdb_id = ''
+    if getattr(meta, 'parent_tmdb_id', None) is None:
+        meta.parent_tmdb_id = ''
+    if meta.is_tvshow:
+        meta.tv_show_imdb_id = meta.tv_show_imdb_id or meta.parent_imdb_id or meta.imdb_id
+        meta.parent_imdb_id = meta.parent_imdb_id or meta.tv_show_imdb_id
+        meta.tv_show_tmdb_id = meta.tv_show_tmdb_id or meta.parent_tmdb_id or meta.tmdb_id
+        meta.parent_tmdb_id = meta.parent_tmdb_id or meta.tv_show_tmdb_id
 
     tvshow_year_requiring_service_enabled = (
         get_bool_setting('podnadpisi', 'enabled') or
@@ -444,6 +465,26 @@ def get_meta(core):
     try:
         if len(meta.imdb_id) > 2:
             meta.imdb_id_as_int = int(meta.imdb_id[2:].lstrip('0'))
+    except: pass
+    try:
+        if len(meta.tv_show_imdb_id) > 2:
+            meta.tv_show_imdb_id_as_int = int(meta.tv_show_imdb_id[2:].lstrip('0'))
+    except: pass
+    try:
+        if len(meta.parent_imdb_id) > 2:
+            meta.parent_imdb_id_as_int = int(meta.parent_imdb_id[2:].lstrip('0'))
+    except: pass
+    try:
+        if meta.tmdb_id:
+            meta.tmdb_id_as_int = int(str(meta.tmdb_id).lstrip('0'))
+    except: pass
+    try:
+        if meta.tv_show_tmdb_id:
+            meta.tv_show_tmdb_id_as_int = int(str(meta.tv_show_tmdb_id).lstrip('0'))
+    except: pass
+    try:
+        if meta.parent_tmdb_id:
+            meta.parent_tmdb_id_as_int = int(str(meta.parent_tmdb_id).lstrip('0'))
     except: pass
 
     return meta

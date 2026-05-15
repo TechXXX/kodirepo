@@ -127,7 +127,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.70">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.71">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -148,7 +148,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/fenlight_icon.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.70]:
+            <news>[v2.0.71]:
+  * Pass Fen Light's TMDb/show IDs into the a4k subtitle retry pool so OpenSubtitles can use exact parent-ID episode searches and avoid broad title fallbacks.
+  * Add TorBox Usenet Search controls for movies and TV shows, plus automatic no-results retry support for cached TorBox Usenet Search.
+
+[v2.0.70]:
   * Validate TorBox Web Download playback and remove temporary scrape/resolver diagnostics while keeping the WebDL cloud fix.
 
 [v2.0.69]:
@@ -739,7 +743,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.37" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.38" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -764,6 +768,10 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.38]:
+  * Make OpenSubtitles TV episode searches exact in API mode: parent TMDb plus season/episode first, parent IMDb plus season/episode if TMDb is missing, no broad title fallback without an exact ID.
+  * Reject OpenSubtitles TV rows whose parent ID, season, or episode do not match, and exclude OpenSubtitles AI-translated rows by default.
+
 [v3.23.37]:
   * Keep AI subtitle translation off for fresh installs until an API key is entered, while leaving the API key field editable.
   * Disable stale saved AI translation toggles at runtime when no API key is configured.

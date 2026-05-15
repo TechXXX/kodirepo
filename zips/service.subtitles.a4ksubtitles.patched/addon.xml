@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.37"
+       version="3.23.38"
        provider-name="DutchTech">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,6 +27,10 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
+[v3.23.38]:
+  * Make OpenSubtitles TV episode searches exact in API mode: parent TMDb plus season/episode first, parent IMDb plus season/episode if TMDb is missing, no broad title fallback without an exact ID.
+  * Reject OpenSubtitles TV rows whose parent ID, season, or episode do not match, and exclude OpenSubtitles AI-translated rows by default.
+
 [v3.23.37]:
   * Keep AI subtitle translation off for fresh installs until an API key is entered, while leaving the API key field editable.
   * Disable stale saved AI translation toggles at runtime when no API key is configured.

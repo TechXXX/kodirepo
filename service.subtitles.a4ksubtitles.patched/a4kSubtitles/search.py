@@ -676,7 +676,11 @@ def search(core, params):
         meta.languages, meta.preferredlanguage, core.api_mode_enabled, getattr(meta, 'filename', '')
     ))
 
-    if meta.imdb_id == '':
+    if meta.imdb_id == '' and not (
+        getattr(meta, 'tmdb_id', '') or
+        getattr(meta, 'parent_tmdb_id', '') or
+        getattr(meta, 'tv_show_tmdb_id', '')
+    ):
         core.logger.error('missing imdb id!')
         core.kodi.notification('IMDB ID is not provided')
         return

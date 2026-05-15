@@ -26,12 +26,37 @@ class A4kSubtitlesApi(object):
 
     def __mock_video_meta(self, meta):
         def build_mock_meta():
+            def first_meta_value(*keys):
+                for key in keys:
+                    value = meta.get(key, '')
+                    if value not in (None, ''):
+                        return value
+                return ''
+
+            def id_as_int(value, strip_tt=False):
+                try:
+                    value = str(value or '').strip()
+                    if strip_tt and value.lower().startswith('tt'):
+                        value = value[2:]
+                    if not value.isdigit():
+                        return 0
+                    return int(value.lstrip('0') or '0')
+                except:
+                    return 0
+
             filename = meta.get('filename', '') or meta.get('title', '')
             filename_without_ext = filename
             try:
                 filename_without_ext = os.path.splitext(filename)[0]
             except:
                 pass
+
+            is_tvshow = str(meta.get('tvshow', '') or '') != ''
+            parent_imdb_id = first_meta_value('parent_imdb_id', 'tv_show_imdb_id')
+            parent_tmdb_id = first_meta_value('parent_tmdb_id', 'tv_show_tmdb_id')
+            if is_tvshow:
+                parent_imdb_id = parent_imdb_id or first_meta_value('imdb_id')
+                parent_tmdb_id = parent_tmdb_id or first_meta_value('tmdb_id')
 
             mocked_meta = self.core.utils.DictAsObject({
                 'year': str(meta.get('year', '') or ''),
@@ -40,6 +65,11 @@ class A4kSubtitlesApi(object):
                 'tvshow': str(meta.get('tvshow', '') or ''),
                 'title': str(meta.get('title', '') or ''),
                 'imdb_id': str(meta.get('imdb_id', '') or ''),
+                'tmdb_id': str(meta.get('tmdb_id', '') or ''),
+                'parent_imdb_id': str(parent_imdb_id or ''),
+                'parent_tmdb_id': str(parent_tmdb_id or ''),
+                'tv_show_imdb_id': str(parent_imdb_id or ''),
+                'tv_show_tmdb_id': str(parent_tmdb_id or ''),
                 'tvshow_year': str(meta.get('tvshow_year', '') or ''),
                 'filename': str(filename or ''),
                 'filename_without_ext': str(filename_without_ext or ''),
@@ -48,17 +78,17 @@ class A4kSubtitlesApi(object):
                 'tvshow_year_thread': None,
             })
 
-            mocked_meta.tv_show_imdb_id = mocked_meta.imdb_id
             mocked_meta.is_tvshow = mocked_meta.tvshow != ''
             mocked_meta.is_movie = not mocked_meta.is_tvshow
             if mocked_meta.is_tvshow and mocked_meta.tvshow_year == '':
                 mocked_meta.tvshow_year = mocked_meta.year
 
-            try:
-                if len(mocked_meta.imdb_id) > 2:
-                    mocked_meta.imdb_id_as_int = int(mocked_meta.imdb_id[2:].lstrip('0'))
-            except:
-                mocked_meta.imdb_id_as_int = 0
+            mocked_meta.imdb_id_as_int = id_as_int(mocked_meta.imdb_id, strip_tt=True)
+            mocked_meta.tmdb_id_as_int = id_as_int(mocked_meta.tmdb_id)
+            mocked_meta.parent_imdb_id_as_int = id_as_int(mocked_meta.parent_imdb_id, strip_tt=True)
+            mocked_meta.tv_show_imdb_id_as_int = mocked_meta.parent_imdb_id_as_int
+            mocked_meta.parent_tmdb_id_as_int = id_as_int(mocked_meta.parent_tmdb_id)
+            mocked_meta.tv_show_tmdb_id_as_int = mocked_meta.parent_tmdb_id_as_int
 
             return mocked_meta
 

@@ -26,6 +26,7 @@ check_prescrape_sources, external_scraper_info, auto_resume = settings.check_pre
 store_resolved_to_cloud, source_folders_directory, watched_indicators = settings.store_resolved_to_cloud, settings.source_folders_directory, settings.watched_indicators
 quality_filter, sort_to_top, tmdb_api_key, mpaa_region = settings.quality_filter, settings.sort_to_top, settings.tmdb_api_key, settings.mpaa_region
 scraping_settings, include_prerelease_results, auto_rescrape_with_all = settings.scraping_settings, settings.include_prerelease_results, settings.auto_rescrape_with_all
+auto_tb_usenet_search = settings.auto_tb_usenet_search
 ignore_results_filter, results_sort_order, results_format, filter_status = settings.ignore_results_filter, settings.results_sort_order, settings.results_format, settings.filter_status
 autoplay_next_episode, autoscrape_next_episode, limit_resolve = settings.autoplay_next_episode, settings.autoscrape_next_episode, settings.limit_resolve
 auto_episode_group, preferred_autoplay, debrid_enabled = settings.auto_episode_group, settings.preferred_autoplay, debrid.debrid_enabled
@@ -60,7 +61,8 @@ class Sources():
 		self.params = {}
 		self.prescrape_scrapers, self.prescrape_threads, self.prescrape_sources, self.uncached_results = [], [], [], []
 		self.threads, self.providers, self.sources, self.internal_scraper_names, self.remove_scrapers = [], [], [], [], ['external']
-		self.rescrape_with_all, self.rescrape_with_episode_group = False, False
+		self.rescrape_with_all, self.rescrape_with_episode_group, self.rescrape_with_tb_usenet_search = False, False, False
+		self.force_tb_usenet_search = False
 		self.clear_properties, self.filters_ignored, self.active_folders, self.resolve_dialog_made, self.episode_group_used = True, False, False, False, False
 		self.sources_total = self.sources_4k = self.sources_1080p = self.sources_720p = self.sources_sd = 0
 		self.prescrape, self.disabled_ext_ignored, self.default_ext_only = 'true', 'false', 'false'
@@ -85,6 +87,7 @@ class Sources():
 		else: self.autoplay_nextep, self.autoscrape_nextep = autoplay_next_episode(), autoscrape_next_episode()
 		self.autoscrape = self.autoscrape_nextep and self.background
 		self.auto_rescrape_with_all, self.auto_episode_group = auto_rescrape_with_all(), auto_episode_group()
+		self.auto_tb_usenet_search = auto_tb_usenet_search()
 		self.nextep_settings, self.disable_autoplay_next_episode = params_get('nextep_settings', {}), params_get('disable_autoplay_next_episode', 'false') == 'true'
 		self.ignore_scrape_filters = params_get('ignore_scrape_filters', 'false') == 'true'
 		self.disabled_ext_ignored = params_get('disabled_ext_ignored', self.disabled_ext_ignored) == 'true'
@@ -473,9 +476,10 @@ class Sources():
 		return search_settings
 
 	def _subtitle_search_cache_key(self, search_params, service_names=None, cache_label=''):
-		return '%s|%s|%s|%s|%s|%s|%s|%s' % (
+		return '%s|%s|%s|%s|%s|%s|%s|%s|%s' % (
 			self.media_type,
 			self.meta.get('imdb_id', '') or '',
+			self.meta.get('tmdb_id', '') or self.tmdb_id or '',
 			self.meta.get('season', '') or '',
 			self.meta.get('episode', '') or '',
 			search_params.get('languages', '') or '',
@@ -514,16 +518,23 @@ class Sources():
 
 	def _a4k_search_video_meta(self):
 		release_name = self._subtitle_search_filename()
+		imdb_id = str(self.meta.get('imdb_id', '') or '')
+		tmdb_id = str(self.meta.get('tmdb_id', '') or self.tmdb_id or '')
 		meta = {'version': kodi_utils.get_infolabel('System.BuildVersionCode') or '20.0.0', 'year': str(self.meta.get('year', '') or ''),
 				'season': str(self.meta.get('season', '') or ''), 'episode': str(self.meta.get('episode', '') or ''), 'tvshow': '', 'title': '', '_title': '',
-				'imdb_id': self.meta.get('imdb_id', '') or '', 'url': '', 'filename': release_name, 'filesize': '', 'filehash': ''}
+					'imdb_id': imdb_id, 'tmdb_id': tmdb_id, 'parent_imdb_id': '', 'parent_tmdb_id': '', 'tv_show_imdb_id': '', 'tv_show_tmdb_id': '',
+					'url': '', 'filename': release_name, 'filesize': '', 'filehash': ''}
 		if self.media_type == 'movie':
 			title = self.meta.get('original_title') or self.meta.get('title') or ''
 			meta.update({'title': title, '_title': title})
 		else:
 			tvshow_title = self.meta.get('original_title') or self.meta.get('english_title') or self.meta.get('title') or ''
 			episode_title = self.meta.get('ep_name') or ''
-			meta.update({'tvshow': tvshow_title, 'title': episode_title, '_title': episode_title or tvshow_title})
+			parent_imdb_id = str(self.meta.get('parent_imdb_id') or self.meta.get('tv_show_imdb_id') or imdb_id or '')
+			parent_tmdb_id = str(self.meta.get('parent_tmdb_id') or self.meta.get('tv_show_tmdb_id') or tmdb_id or '')
+			meta.update({'tvshow': tvshow_title, 'title': episode_title, '_title': episode_title or tvshow_title,
+				'parent_imdb_id': parent_imdb_id, 'tv_show_imdb_id': parent_imdb_id,
+				'parent_tmdb_id': parent_tmdb_id, 'tv_show_tmdb_id': parent_tmdb_id})
 		return meta
 
 	def _subtitle_search_filename(self):
@@ -774,6 +785,15 @@ class Sources():
 						self.params.update({'custom_season': season, 'custom_episode': episode, 'episode_group_label': '[B]CUSTOM GROUP: S%02dE%02d[/B]' % (season, episode)})
 						self.threads, self.rescrape_with_episode_group, self.rescrape_with_all, self.disabled_ext_ignored, self.prescrape = [], True, True, True, False
 						return self.playback_prep()
+		if self.auto_tb_usenet_search in (1, 2) and not self.rescrape_with_tb_usenet_search and settings.enabled_debrids_check('tb'):
+			if self.auto_tb_usenet_search == 1 or confirm_dialog(heading=self.meta.get('rootname', ''), text='No results.[CR]Retry With TorBox Usenet Search?'):
+				self.rescrape_with_tb_usenet_search, self.force_tb_usenet_search = True, True
+				self.threads, self.providers, self.sources, self.prescrape = [], [], [], False
+				self.sources_total = self.sources_4k = self.sources_1080p = self.sources_720p = self.sources_sd = 0
+				self.active_external, self.active_folders = False, False
+				self.active_internal_scrapers, self.remove_scrapers = ['tb_cloud'], []
+				self.make_search_info()
+				return self.get_sources()
 		if self.orig_results and not self.background:
 			if self.ignore_results_filter == 0: return self._no_results()
 			if self.ignore_results_filter == 1 or confirm_dialog(heading=self.meta.get('rootname', ''), text='No results. Access Filtered Results?'):
@@ -876,7 +896,7 @@ class Sources():
 		expiry_times = get_cache_expiry(self.media_type, self.meta, self.season)
 		self.search_info = {'media_type': self.media_type, 'title': title, 'year': year, 'tmdb_id': self.tmdb_id, 'imdb_id': self.meta.get('imdb_id'), 'aliases': aliases,
 							'season': self.get_season(), 'episode': self.get_episode(), 'tvdb_id': self.meta.get('tvdb_id'), 'ep_name': ep_name, 'expiry_times': expiry_times,
-							'total_seasons': self.meta.get('total_seasons', 1)}
+							'total_seasons': self.meta.get('total_seasons', 1), 'force_tb_usenet_search': self.force_tb_usenet_search}
 
 	def _get_module(self, module_type, function):
 		if module_type == 'external': module = function.source(*self.external_args)
@@ -1123,7 +1143,11 @@ class Sources():
 				else: title, season, episode, pack = self.get_search_title(), None, None, False
 				if cache_provider in debrid_providers: url = self.resolve_cached(cache_provider, item['url'], item['hash'], title, season, episode, pack)
 			elif item.get('scrape_provider', None) in default_internal_scrapers:
-				url = self.resolve_internal(item['scrape_provider'], item['id'], item['url_dl'], item.get('direct_debrid_link', False))
+				if self.meta['media_type'] == 'episode':
+					if hasattr(self, 'search_info'): title, season, episode = self.search_info['title'], self.search_info['season'], self.search_info['episode']
+					else: title, season, episode = self.get_search_title(), self.get_season(), self.get_episode()
+				else: title, season, episode = self.get_search_title(), None, None
+				url = self.resolve_internal(item['scrape_provider'], item['id'], item['url_dl'], item.get('direct_debrid_link', False), title, season, episode)
 			else: url = item['url']
 		except: pass
 		return url
@@ -1135,13 +1159,18 @@ class Sources():
 		except: url = None
 		return url
 
-	def resolve_internal(self, scrape_provider, item_id, url_dl, direct_debrid_link=False):
+	def resolve_internal(self, scrape_provider, item_id, url_dl, direct_debrid_link=False, title='', season=None, episode=None):
 		url = None
 		try:
-			if scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl'):
+			if scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl', 'usenet_search'):
+				logger('Fen Light Patched', 'resolve_internal start | scrape_provider=%s | direct=%s | item_id=%s | title=%s | season=%s | episode=%s' % (
+					scrape_provider, direct_debrid_link, item_id, title, season, episode))
 				debrid_function = self.debrid_importer(scrape_provider)()
 				if direct_debrid_link == 'usenet': url = debrid_function.unrestrict_usenet(url_dl)
+				elif direct_debrid_link == 'usenet_search': url = debrid_function.resolve_usenet_search(url_dl, item_id, title, season, episode)
 				else: url = debrid_function.unrestrict_webdl(url_dl)
+				logger('Fen Light Patched', 'resolve_internal done | scrape_provider=%s | direct=%s | success=%s' % (
+					scrape_provider, direct_debrid_link, bool(url)))
 			elif direct_debrid_link or scrape_provider == 'folders': url = url_dl
 			elif scrape_provider == 'easynews':
 				from indexers.easynews import resolve_easynews
@@ -1153,7 +1182,8 @@ class Sources():
 				else:
 					if '_cloud' in scrape_provider: item_id = debrid_function().get_item_details(item_id)['link']
 					url = debrid_function().add_headers_to_url(item_id)
-		except: pass
+		except Exception as e:
+			logger('Fen Light Patched', 'resolve_internal exception | scrape_provider=%s | direct=%s | error=%s' % (scrape_provider, direct_debrid_link, str(e)))
 		return url
 
 	def _quality_length(self, items, quality):
