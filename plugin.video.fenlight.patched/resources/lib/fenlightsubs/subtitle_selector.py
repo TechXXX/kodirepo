@@ -71,6 +71,7 @@ KNOWN_EXTENSIONS = {
     ".m2ts",
     ".ts",
 }
+SUPERSCRIPT_FOOTNOTE_PATTERN = re.compile("[\u00b9\u00b2\u00b3\u2070-\u2079]+")
 
 QUALITY_RANKS = {
     "2160p": 4,
@@ -677,7 +678,7 @@ def _strip_known_extension(value: str) -> str:
 
 
 def _extract_comment_release_candidates(subtitle: dict[str, Any]) -> list[str]:
-    comments = str(subtitle.get("comment", "") or "")
+    comments = _strip_superscript_footnotes(str(subtitle.get("comment", "") or ""))
     if not comments:
         return []
 
@@ -701,6 +702,10 @@ def _extract_comment_release_candidates(subtitle: dict[str, Any]) -> list[str]:
         seen.add(normalized)
         unique_candidates.append(candidate)
     return unique_candidates
+
+
+def _strip_superscript_footnotes(value: str) -> str:
+    return SUPERSCRIPT_FOOTNOTE_PATTERN.sub("", value)
 
 
 def _is_ai_generated_subtitle(subtitle: dict[str, Any]) -> bool:
