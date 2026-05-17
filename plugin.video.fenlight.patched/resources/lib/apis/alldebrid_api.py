@@ -162,7 +162,7 @@ class AllDebridAPI:
 				if transfer_id: self.delete_transfer(transfer_id)
 			except: pass
 			return None
-
+	
 	def display_magnet_pack(self, magnet_url, info_hash):
 		from modules.source_utils import supported_video_extensions
 		try:

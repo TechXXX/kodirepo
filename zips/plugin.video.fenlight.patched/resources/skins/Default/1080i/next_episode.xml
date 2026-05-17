@@ -68,7 +68,7 @@
                         <align>left</align>
                         <aligny>top</aligny>
                         <aspectratio aligny="top">keep</aspectratio>
-                        <texture colordiffuse="FFB7B4BB">fenlight_common/fenlight.png</texture>
+                        <texture colordiffuse="FFB7B4BB">fenlight_common/baslite.png</texture>
                     </control>
                     <!-- Autoplay -->
                     <control type="group">

@@ -9,7 +9,7 @@ from caches.settings_cache import get_setting, set_setting
 from modules.utils import copy2clip, make_qrcode
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
 from modules import kodi_utils
-logger = kodi_utils.logger
+# logger = kodi_utils.logger
 
 sleep, confirm_dialog, ok_dialog, xbmc_monitor = kodi_utils.sleep, kodi_utils.confirm_dialog, kodi_utils.ok_dialog, kodi_utils.xbmc_monitor
 progress_dialog, get_icon, notification = kodi_utils.progress_dialog, kodi_utils.get_icon, kodi_utils.notification
@@ -158,17 +158,12 @@ class RealDebridAPI:
 		url = 'torrents/info/%s' % file_id
 		return self._get(url)
 
-	def unrestrict_link(self, link, return_error=False):
+	def unrestrict_link(self, link):
 		url = 'unrestrict/link'
 		post_data = {'link': link}
 		response = self._post(url, post_data)
-		try:
-			result = response['download']
-			return (result, None) if return_error else result
-		except:
-			if isinstance(response, dict) and response.get('error'):
-				logger('Real Debrid unrestrict error', 'error=%s code=%s' % (response.get('error'), response.get('error_code')))
-			return (None, response) if return_error else None
+		try: return response['download']
+		except: return None
 
 	def add_magnet(self, magnet):
 		post_data = {'magnet': magnet}

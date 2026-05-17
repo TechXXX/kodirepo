@@ -198,7 +198,7 @@ class WidgetRefresher:
 	def condition_check(self):
 		if not self.home(): return True
 		if self.next_refresh == None or self.is_playing() or self.window.getProperty(pause_services_prop) == 'true': return True
-		if self.window.getProperty('fenlight.window_loaded') == 'true': return True
+		if self.window.getProperty('fenlight.window_loaded') == 'true': return True 
 		try:
 			window_stack = json.loads(self.window.getProperty('fenlight.window_stack'))
 			if window_stack or window_stack == []: return True

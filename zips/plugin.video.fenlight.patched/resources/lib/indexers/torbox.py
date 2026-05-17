@@ -34,7 +34,7 @@ def tb_cloud():
 	folders_usenets = [{**i, 'media_type': 'usenet'} for i in usenets_folders['data'] if i['download_finished']]
 	folders_webdl = [{**i, 'media_type': 'webdl'} for i in webdl_folders['data'] if i['download_finished']]
 	folders = folders_torrents + folders_usenets + folders_webdl
-
+	
 	folders.sort(key=lambda k: k['updated_at'], reverse=True)
 	handle = int(sys.argv[1])
 	add_items(handle, list(_builder()))

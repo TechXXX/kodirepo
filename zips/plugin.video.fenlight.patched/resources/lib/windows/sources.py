@@ -12,7 +12,7 @@ get_icon, img_url = kodi_utils.get_icon, kodi_utils.img_url
 
 resume_dict = {10: 'resume', 11: 'start_over', 12: 'cancel'}
 info_icons_dict = {'easynews': get_icon('easynews'), 'alldebrid': get_icon('alldebrid'), 'real-debrid': get_icon('realdebrid'), 'premiumize': get_icon('premiumize'),
-'offcloud': get_icon('offcloud'), 'easydebrid': get_icon('easydebrid'), 'torbox': get_icon('torbox'), 'ad_cloud': get_icon('alldebrid'), 'rd_cloud': get_icon('realdebrid'),
+'offcloud': get_icon('offcloud'), 'easydebrid': get_icon('easydebrid'), 'torbox': get_icon('torbox'), 'tb usenet': get_icon('torbox'), 'ad_cloud': get_icon('alldebrid'), 'rd_cloud': get_icon('realdebrid'),
 'pm_cloud': get_icon('premiumize'), 'oc_cloud': get_icon('offcloud'), 'tb_cloud': get_icon('torbox')}
 info_quality_dict = {'4k': get_icon('flag_4k'), '1080p': get_icon('flag_1080p'), '720p': get_icon('flag_720p'), 'sd': get_icon('flag_sd')}
 quality_choices = ('4K', '1080P', '720P', 'SD', 'CAM/SCR/TELE')
@@ -153,11 +153,19 @@ class SourcesResults(BaseDialog):
 							else: set_properties({'source_type': '%s' % cache_flag})
 						set_properties({'provider': provider})
 					else:
-						source_site = upper(source)
-						provider, provider_icon = self.get_provider_and_path(lower(source))
-						if highlight_type == 0: key = provider
-						else: key = basic_quality
-						set_properties({'highlight': self.info_highlights_dict[key], 'source_type': 'DIRECT', 'provider': upper(provider)})
+						if scrape_provider == 'tb_cloud' and get('direct_debrid_link') == 'usenet_search':
+							source_site = 'TB USENET'
+							provider, provider_icon = self.get_provider_and_path('tb usenet')
+							display_provider = 'TB USENET'
+							if highlight_type == 0: key = 'tb usenet'
+							else: key = basic_quality
+						else:
+							source_site = upper(source)
+							provider, provider_icon = self.get_provider_and_path(lower(source))
+							display_provider = upper(provider)
+							if highlight_type == 0: key = provider
+							else: key = basic_quality
+						set_properties({'highlight': self.info_highlights_dict[key], 'source_type': 'DIRECT', 'provider': display_provider})
 					set_properties({'name': upper(name), 'source_site': source_site, 'provider_icon': provider_icon, 'quality_icon': quality_icon, 'count': '%02d.' % count,
 								'size_label': get('size_label', 'N/A'), 'extraInfo': extraInfo, 'quality': upper(quality), 'hash': get('hash', 'N/A'), 'source': json.dumps(item)})	
 					yield listitem

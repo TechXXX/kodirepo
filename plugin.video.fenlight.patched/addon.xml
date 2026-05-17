@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.71">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.72">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -16,10 +16,14 @@
 		<disclaimer lang="en">The author of this addon does not host any of the content which is found and has no affiliation with any of the content providers.</disclaimer>
         <license/>
         <assets>
-            <icon>resources/media/fenlight_icon.png</icon>
+            <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.71]:
+        <news>[v2.0.72]:
+  * Polish TorBox Usenet Search source display as TB USENET/NZB instead of prefixing release titles.
+  * Keep TorBox Usenet Search rows mixed into normal quality and size sorting instead of pinning them with TorBox cloud sort-to-top.
+
+[v2.0.71]:
   * Pass Fen Light's TMDb/show IDs into the a4k subtitle retry pool so OpenSubtitles can use exact parent-ID episode searches and avoid broad title fallbacks.
   * Add TorBox Usenet Search controls for movies and TV shows, plus automatic no-results retry support for cached TorBox Usenet Search.
 

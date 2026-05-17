@@ -90,7 +90,7 @@ def get_datetime(string=False, dt=False):
 
 def get_current_timestamp():
 	return int(time.time())
-
+	
 def adjust_premiered_date(orig_date, adjust_hours):
 	if not orig_date: return None, None
 	orig_date += ' 20:00:00'
@@ -154,7 +154,7 @@ def clean_file_name(s, use_encoding=False, use_blanks=True):
 					['&#xB7;', '.'], ['&#xE4;', 'A'], ['\xe2\x80\x99', '']]
 		special_encoded = [['"', '%22'], ['*', '%2A'], ['/', '%2F'], [':', ','], ['<', '%3C'],
 							['>', '%3E'], ['?', '%3F'], ['\\', '%5C'], ['|', '%7C']]
-
+		
 		special_blanks = [['"', ' '], ['/', ' '], [':', ''], ['<', ' '],
 							['>', ' '], ['?', ' '], ['\\', ' '], ['|', ' '], ['%BD;', ' '],
 							['%B3;', ' '], ['%B0;', ' '], ["'", ""], [' - ', ' '], ['.', ' '],
@@ -255,7 +255,7 @@ def title_key(title):
 def sort_for_article(_list, _key):
 	_list.sort(key=lambda k: re.sub(r'(^the |^a |^an )', '', k[_key].lower()))
 	return _list
-
+	
 def sort_list(sort_key, sort_direction, list_data):
 	try:
 		reverse = sort_direction != 'asc'

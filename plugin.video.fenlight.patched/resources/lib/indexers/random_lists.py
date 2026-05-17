@@ -118,7 +118,7 @@ class RandomLists():
 			info = random.choice(choice_list[self.action])
 			list_name = info['name']
 			if self.action in tvshow_trakt_special:
-				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)), self.get_sample()))
+				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)), self.get_sample()))			
 			else:
 				threads = list(make_thread_list(lambda x: self.random_results.extend(list_function(info['id'], x)['results']), self.get_sample()))
 			[i.join() for i in threads]

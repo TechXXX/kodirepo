@@ -94,7 +94,7 @@ class Sources():
 		self.default_ext_only = params_get('default_ext_only', self.default_ext_only) == 'true'
 		self.folders_ignore_filters = get_setting('fenlight.results.folders_ignore_filters', 'false') == 'true'
 		self.filter_size_method = int(get_setting('fenlight.results.filter_size_method', '0'))
-		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')
+		self.media_type, self.tmdb_id = params_get('media_type'), params_get('tmdb_id')		
 		self.custom_title, self.custom_year = params_get('custom_title', None), params_get('custom_year', None)
 		self.episode_group_label = params_get('episode_group_label', '')
 		if self.media_type == 'episode':
@@ -259,7 +259,8 @@ class Sources():
 			if 'folders' in self.all_scrapers and sort_to_top('folders'): sort_first_scrapers.append('folders')
 			sort_first_scrapers.extend([i for i in self.all_scrapers if i in cloud_scrapers and sort_to_top(i)])
 			if not sort_first_scrapers: return results
-			sort_first = [i for i in results if i['scrape_provider'] in sort_first_scrapers]
+			sort_first = [i for i in results if i['scrape_provider'] in sort_first_scrapers
+						and not (i.get('scrape_provider') == 'tb_cloud' and i.get('direct_debrid_link') == 'usenet_search')]
 			sort_first.sort(key=lambda k: (self._sort_folder_to_top(k['scrape_provider']), k['quality_rank']))
 			sort_last = [i for i in results if not i in sort_first]
 			results = sort_first + sort_last
@@ -659,7 +660,7 @@ class Sources():
 		if not self.import_external_scrapers(): return self.disable_external('Error Importing External Module')
 		self.external_providers = self.external_sources()
 		if not self.external_providers: self.disable_external('No External Providers Enabled')
-
+	
 	def import_external_scrapers(self):
 		try:
 			append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
@@ -850,7 +851,7 @@ class Sources():
 			except: continue
 			set_property(int_window_prop % i, 'checked')
 			self._sources_quality_count(sources)
-
+	
 	def _sources_quality_count(self, sources):
 		for item in self.count_tuple: setattr(self, item[0], getattr(self, item[0]) + item[2](sources, item[1]))
 
@@ -964,15 +965,54 @@ class Sources():
 		self._kill_progress_dialog()
 		return FenLightPlayer().run(link, 'video')
 
+	def _sports_event_autoplay_choice(self, results):
+		try:
+			if not self.autoplay or self.background or not results: return None
+			top_result = results[0]
+			if not top_result.get('sports_event_cloud'): return None
+			pack_id = top_result.get('sports_event_pack_id')
+			if not pack_id: return None
+			choices = [i for i in results if i.get('sports_event_cloud') and i.get('sports_event_pack_id') == pack_id]
+			if len(choices) < 2: return None
+			choices.sort(key=self._sports_event_choice_sort)
+			list_items = [{'line1': '%s | %s | %s' % (i.get('sports_event_part') or 'Event Video', i.get('quality', ''), i.get('size_label', '')),
+						'line2': clean_file_name(i.get('name', '')).upper()} for i in choices]
+			kwargs = {'items': json.dumps(list_items), 'heading': 'Choose Event Video', 'enumerate': 'false', 'multi_line': 'true'}
+			chosen_result = select_dialog(choices, **kwargs)
+			if chosen_result is None: return 'cancel'
+			return chosen_result
+		except:
+			logger('Fen Light Patched', 'sports_event_autoplay_choice exception | error=%s' % traceback.format_exc().strip())
+			return None
+
+	def _sports_event_choice_sort(self, item):
+		part = (item.get('sports_event_part') or '').lower()
+		part_rank = {'main card': 0, 'prelims': 1, 'early prelims': 2, 'event video': 3}.get(part, 9)
+		try: size_rank = -float(item.get('size') or 0)
+		except: size_rank = 0
+		return (part_rank, size_rank, item.get('name', '').lower())
+
+	def _sports_event_results_after_choice(self, results, source):
+		pack_id = source.get('sports_event_pack_id')
+		source_id = source.get('id')
+		if not pack_id or not source_id: return results
+		return [i for i in results if not (i.get('sports_event_cloud') and i.get('sports_event_pack_id') == pack_id and i.get('id') != source_id)]
+
 	def play_file(self, results, source={}):
 		self.playback_successful, self.cancel_all_playback = None, False
 		try:
 			hide_busy_dialog()
 			url = None
 			results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
+			if not source:
+				sports_event_choice = self._sports_event_autoplay_choice(results)
+				if sports_event_choice == 'cancel': return self._kill_progress_dialog()
+				if sports_event_choice:
+					source = sports_event_choice
+					results = self._sports_event_results_after_choice(results, source)
 			if not source: source = results[0]
 			items = [source]
-			if not self.limit_resolve:
+			if not self.limit_resolve: 
 				source_index = results.index(source)
 				results.remove(source)
 				items_prev = results[:source_index]

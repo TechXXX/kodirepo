@@ -118,18 +118,10 @@ def rd_delete(file_id, cache_type):
 	RealDebrid.clear_cache()
 	execute_builtin('Container.Refresh')
 
-def _rd_unrestrict_error_message(response):
-	if isinstance(response, dict):
-		error = response.get('error')
-		if error == 'infringing_file': return 'Infringing File'
-		if error: return 'Real Debrid: %s' % clean_file_name(error).title()
-	return 'Real Debrid: Unable To Resolve Link'
-
 def resolve_rd(params):
 	url = params['url']
-	resolved_link, error = RealDebrid.unrestrict_link(url, return_error=True)
+	resolved_link = RealDebrid.unrestrict_link(url)
 	if params.get('play', 'false') != 'true' : return resolved_link
-	if not resolved_link: return notification(_rd_unrestrict_error_message(error), 4500)
 	from modules.player import FenLightPlayer
 	FenLightPlayer().run(resolved_link, 'video')
 

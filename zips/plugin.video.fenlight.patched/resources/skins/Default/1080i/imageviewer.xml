@@ -67,7 +67,7 @@
                     <width>60</width>
                     <height>60</height>
                     <aspectratio aligny="top">keep</aspectratio>
-                    <texture>fenlight_common/fenlight.png</texture>
+                    <texture>fenlight_common/baslite.png</texture>
                 </control>
                 <control type="label">
                     <left>75</left>
