@@ -376,6 +376,27 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             <platform>all</platform>
         </extension>
     </addon>
+    <addon id="script.kodiskin.widget.importer"
+           name="KodiSkin Widget Importer"
+           version="0.1.4"
+           provider-name="Kalter">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.script" library="default.py">
+            <provides>executable</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Import Skin Shortcuts widget backups from ZIP files or pCloud links.</summary>
+            <description lang="en_GB">Downloads or opens a widget backup ZIP, copies Skin Shortcuts DATA and properties files into the local profile, optionally retargets Fen-style widget paths to another video add-on, renames files for the active skin, and creates a restore backup before overwriting anything.</description>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+            <platform>all</platform>
+            <license>MIT</license>
+        </extension>
+    </addon>
     <addon id="script.module.addon.signals" name="Addon Signals" version="0.0.6+matrix.1" provider-name="Rick Phillips (ruuk)">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
