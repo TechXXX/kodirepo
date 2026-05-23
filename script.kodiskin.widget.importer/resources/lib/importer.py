@@ -34,7 +34,7 @@ ADDON_NAME = "KodiSkin Widget Importer"
 SHORTCUTS_DATA = "special://profile/addon_data/script.skinshortcuts/"
 ADDON_DATA = "special://profile/addon_data/{}/".format(ADDON_ID)
 INCLUDE_NAME = "script-skinshortcuts-includes.xml"
-USER_AGENT = "{}/0.1.4 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.5 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -838,7 +838,13 @@ def looks_like_skin_id(value: str) -> bool:
 def is_pcloud_public_link(source: str) -> bool:
     parsed = urllib.parse.urlparse(source)
     host = parsed.netloc.lower()
-    return ("pcloud.link" in host or "pcloud.com" in host) and bool(extract_pcloud_code(source))
+    is_pcloud_host = (
+        "pcloud.link" in host
+        or "pcloud.com" in host
+        or host == "pc.cd"
+        or host.endswith(".pc.cd")
+    )
+    return is_pcloud_host and bool(extract_pcloud_code(source))
 
 
 def extract_pcloud_code(public_link: str) -> str:
@@ -846,6 +852,12 @@ def extract_pcloud_code(public_link: str) -> str:
     query = urllib.parse.parse_qs(parsed.query)
     if query.get("code"):
         return query["code"][0]
+
+    host = parsed.netloc.lower()
+    if host == "pc.cd" or host.endswith(".pc.cd"):
+        path_code = parsed.path.strip("/").split("/", 1)[0]
+        if re.match(r"^[A-Za-z0-9_-]+$", path_code or ""):
+            return path_code
 
     fragment = parsed.fragment
     if fragment:

@@ -1,6 +1,6 @@
 # KodiSkin Widget Importer
 
-Kodi script add-on for importing Skin Shortcuts widget backups from a ZIP file, direct URL, network path, local path, or pCloud public link.
+Kodi script add-on for importing Skin Shortcuts widget backups from a ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link.
 
 ## What it imports
 
@@ -34,7 +34,7 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Paste a pCloud public link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
+3. Paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
 4. Choose whether to keep or retarget detected video add-on widget paths.
 5. Choose whether to overwrite matching local widget files or add onto them.
 6. Confirm the source skin and target skin shown by the add-on.
