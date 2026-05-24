@@ -54,6 +54,15 @@ For in-place source edits, the safe pattern is:
 
 That is the correct pattern for doc-only or source-tree-only edits.
 
+## Test/Main Version Ordering
+
+Before publishing a production addon that also exists in
+`DutchTechTestRepo`, read the test repo's advertised version for that same addon
+id. Main must always publish a strictly higher version than test. Do not reuse
+the test version number in production, even if the promoted code is identical,
+because the Android box has both repos installed and Kodi compares addon
+versions across them.
+
 ## Helpers Worth Knowing
 
 From `publish_addon_update.py`:

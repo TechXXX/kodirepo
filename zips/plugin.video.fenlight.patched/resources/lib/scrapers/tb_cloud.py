@@ -46,7 +46,9 @@ class source:
 						if not file_name: continue
 						direct_debrid_link = item.get('direct_debrid_link', False)
 						if filter_title:
-							if direct_debrid_link not in ('usenet_search', 'aiostreams_usenet'):
+							if direct_debrid_link == 'aiostreams_usenet':
+								pass
+							elif direct_debrid_link != 'usenet_search':
 								if not self._cloud_title_matches(title, file_name): continue
 							elif item.get('package'):
 								if not self._title_matches_pack(file_name): continue

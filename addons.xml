@@ -133,7 +133,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.75">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.81">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -154,7 +154,25 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.75]:
+            <news>[v2.0.81]:
+  * Promote the tested manual source-list cancel cleanup and AIOStreams TorBox Usenet matching fixes to the production repo.
+
+[v2.0.80]:
+  * Refresh the active container after manual source-list cancel cleanup so Kodi's temporary watched overlay is cleared from the GUI.
+
+[v2.0.79]:
+  * Re-apply the saved Kodi watch/progress state after manual source-list cancel cleanup to avoid delayed dummy-playback writes.
+
+[v2.0.78]:
+  * Preserve existing Kodi watch/progress state when cancelling the manual source list workaround.
+
+[v2.0.77]:
+  * Prevent Kodi's generic Playback Failed dialog when backing out of the manual source list without selecting a source.
+
+[v2.0.76]:
+  * Trust ID-matched AIOStreams TorBox Usenet Search rows so official prefix text in release names does not hide valid cached results.
+
+[v2.0.75]:
   * Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
 
 [v2.0.74]:
@@ -386,6 +404,20 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             <summary lang="en">White Weather Icons</summary>
             <description lang="en">White Weather Icons</description>
             <platform>all</platform>
+        </extension>
+    </addon>
+    <addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.3" provider-name="DutchTech">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.python.script" library="default.py">
+            <provides>executable</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en">Install Shield shortcuts for Fen Light rescrape/source select</summary>
+            <description lang="en">Helper that installs a Kodi keymap and runs Fen Light rescrape/source select for the focused AH2 movie or episode item.</description>
+            <platform>android</platform>
+            <license>MIT</license>
         </extension>
     </addon>
     <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.5" provider-name="Kalter">

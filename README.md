@@ -3,6 +3,15 @@
 This repository is the main GitHub Pages distribution channel for DutchTech
 Kodi packages.
 
+Production version rule:
+
+- for any addon id also present in `DutchTechTestRepo`, main must always
+  advertise a strictly higher version than test
+- never publish the same version number to test and main, even when promoting
+  identical code, because the Android box has both repositories installed
+- usual pattern: test ships version `N`, main ships the promoted build as
+  version `N+1` or higher
+
 For subtitle-selector and AI-search promotion work, this repo matters because
 it is the production-facing package source for the patched Fenlight, the
 standalone Fen Light AIsearch fork, and the patched a4k addon.
@@ -24,7 +33,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.71`
+- `plugin.video.fenlight.patched` `2.0.81`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -63,7 +72,10 @@ Current source-tree versions when this document was updated:
   rejects an unrestrict request. It now also passes exact parent TMDb/IMDb show
   IDs into patched a4k retry-pool searches, includes the TMDb id in retry-pool
   subtitle cache keys, and adds TorBox Usenet Search controls for movies, TV
-  episodes, and automatic no-results retry.
+  episodes, and automatic no-results retry. It now also trusts ID-matched
+  AIOStreams TorBox Usenet rows and uses a dummy resolved playback cleanup to
+  suppress Kodi's generic playback-failed dialog when cancelling the manual
+  source list while restoring local watched/progress state afterward.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.11`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -105,6 +117,10 @@ Current source-tree versions when this document was updated:
   from this repo instead of the broken upstream `2.1.3` package URL.
 - `script.module.autocompletion` `2.1.1`
   Library dependency for the virtual keyboard autocomplete helper.
+- `script.fenlight.quickrescrape` `0.0.3`
+  Android helper script that installs a Shield-friendly shortcut and runs Fen
+  Light Patched source-select/rescrape for the focused AH2 movie or episode
+  item.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current

@@ -209,14 +209,82 @@ def clear_local_bookmarks():
 		try: dbcon.close()
 		except: pass
 
+def _local_playback_filename(media_type, media_id, season='', episode=''):
+	media_type, media_id = str(media_type), str(media_id)
+	season, episode = str(season), str(episode)
+	if media_type == 'movie': return 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=movie&tmdb_id=%s%%' % media_id
+	if media_type == 'episode': return 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=episode&tmdb_id=%s&season=%s&episode=%s%%' % (media_id, season, episode)
+	return ''
+
+def local_playback_state(media_type, media_id, season='', episode=''):
+	dbcon = None
+	state = {'files': {}}
+	try:
+		filename = _local_playback_filename(media_type, media_id, season, episode)
+		if not filename: return state
+		dbcon, _ = connect_video_database()
+		bookmark_columns = [i[1] for i in dbcon.execute('PRAGMA table_info(bookmark)').fetchall()]
+		stream_columns = [i[1] for i in dbcon.execute('PRAGMA table_info(streamdetails)').fetchall()]
+		state.update({'filename': filename, 'bookmark_columns': bookmark_columns, 'stream_columns': stream_columns})
+		files = dbcon.execute('SELECT idFile, strFilename, playCount, lastPlayed, dateAdded FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
+		for id_file, str_filename, play_count, last_played, date_added in files:
+			bookmarks = dbcon.execute('SELECT * FROM bookmark WHERE idFile = ?', (id_file,)).fetchall()
+			streams = dbcon.execute('SELECT * FROM streamdetails WHERE idFile = ?', (id_file,)).fetchall()
+			state['files'][str_filename] = {
+				'playCount': play_count, 'lastPlayed': last_played, 'dateAdded': date_added,
+				'bookmarks': [tuple(i) for i in bookmarks], 'streams': [tuple(i) for i in streams]
+			}
+	except: pass
+	finally:
+		try: dbcon.close()
+		except: pass
+	return state
+
+def restore_local_playback_state(state):
+	dbcon = None
+	try:
+		filename = state.get('filename')
+		if not filename: return False
+		dbcon, _ = connect_video_database()
+		files = dbcon.execute('SELECT idFile, strFilename FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
+		bookmark_columns = state.get('bookmark_columns') or [i[1] for i in dbcon.execute('PRAGMA table_info(bookmark)').fetchall()]
+		stream_columns = state.get('stream_columns') or [i[1] for i in dbcon.execute('PRAGMA table_info(streamdetails)').fetchall()]
+		bookmark_insert_columns = [i for i in bookmark_columns if i != 'idBookmark']
+		bookmark_indexes = [bookmark_columns.index(i) for i in bookmark_insert_columns]
+		stream_indexes = [stream_columns.index(i) for i in stream_columns]
+		for id_file, str_filename in files:
+			file_state = state.get('files', {}).get(str_filename)
+			if file_state:
+				dbcon.execute('UPDATE files SET playCount = ?, lastPlayed = ?, dateAdded = ? WHERE idFile = ?',
+							(file_state.get('playCount'), file_state.get('lastPlayed'), file_state.get('dateAdded'), id_file))
+			else:
+				dbcon.execute('UPDATE files SET playCount = NULL, lastPlayed = NULL WHERE idFile = ?', (id_file,))
+			dbcon.execute('DELETE FROM bookmark WHERE idFile = ?', (id_file,))
+			dbcon.execute('DELETE FROM streamdetails WHERE idFile = ?', (id_file,))
+			if not file_state: continue
+			for row in file_state.get('bookmarks', []):
+				values = [row[i] for i in bookmark_indexes]
+				values[bookmark_insert_columns.index('idFile')] = id_file
+				dbcon.execute('INSERT INTO bookmark (%s) VALUES (%s)' % (
+					','.join(bookmark_insert_columns), ','.join('?' for _ in values)), values)
+			for row in file_state.get('streams', []):
+				values = [row[i] for i in stream_indexes]
+				values[stream_columns.index('idFile')] = id_file
+				dbcon.execute('INSERT INTO streamdetails (%s) VALUES (%s)' % (
+					','.join(stream_columns), ','.join('?' for _ in values)), values)
+		try: dbcon.commit()
+		except: pass
+		return True
+	except: return False
+	finally:
+		try: dbcon.close()
+		except: pass
+
 def clear_local_bookmark(media_type, media_id, season='', episode=''):
 	dbcon = None
 	try:
-		media_type, media_id = str(media_type), str(media_id)
-		season, episode = str(season), str(episode)
-		if media_type == 'movie': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=movie&tmdb_id=%s%%' % media_id
-		elif media_type == 'episode': filename = 'plugin://plugin.video.fenlight.patched/?mode=playback.media&media_type=episode&tmdb_id=%s&season=%s&episode=%s%%' % (media_id, season, episode)
-		else: return
+		filename = _local_playback_filename(media_type, media_id, season, episode)
+		if not filename: return
 		dbcon, _ = connect_video_database()
 		file_ids = dbcon.execute('SELECT idFile FROM files WHERE strFilename LIKE ?', (filename,)).fetchall()
 		if not file_ids: return False

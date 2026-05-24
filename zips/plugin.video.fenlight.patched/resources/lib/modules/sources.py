@@ -748,11 +748,27 @@ class Sources():
 		action, chosen_item = open_window(('windows.sources', 'SourcesResults'), 'sources_results.xml',
 				window_format=window_format, window_id=window_number, results=results, meta=self.meta, episode_group_label=self.episode_group_label,
 				scraper_settings=self.scraper_settings, prescrape=self.prescrape, filters_ignored=self.filters_ignored, uncached_results=self.uncached_results)
-		if not action: self._kill_progress_dialog()
+		if not action: return self._cancel_manual_source_browse()
 		elif action == 'play': return self.play_file(results, chosen_item)
 		elif self.prescrape and action == 'perform_full_search':
 			self.prescrape, self.clear_properties = False, False
 			return self.get_sources()
+
+	def _cancel_manual_source_browse(self):
+		try:
+			from modules.kodi_utils import addon_path, container_refresh, make_listitem, path_join, set_resolved_url
+			playback_state = watched_status.local_playback_state(self.media_type, self.tmdb_id, self.season, self.episode)
+			self._kill_progress_dialog()
+			listitem = make_listitem()
+			listitem.setPath(path_join(addon_path(), 'resources/media/playback_cancelled.mp4'))
+			listitem.setContentLookup(False)
+			set_resolved_url(listitem)
+			for _ in range(4):
+				sleep(500)
+				watched_status.restore_local_playback_state(playback_state)
+			container_refresh()
+		except: pass
+		return
 
 	def _get_active_scraper_names(self, scraper_list):
 		return [i[2] for i in scraper_list]

@@ -1,3 +1,21 @@
+[COLOR dodgerblue][B]Version 2.0.81[/B][/COLOR]
+- Promote the tested manual source-list cancel cleanup and AIOStreams TorBox Usenet matching fixes to the production repo.
+
+[COLOR dodgerblue][B]Version 2.0.80[/B][/COLOR]
+- Refresh the active container after manual source-list cancel cleanup so Kodi's temporary watched overlay is cleared from the GUI.
+
+[COLOR dodgerblue][B]Version 2.0.79[/B][/COLOR]
+- Re-apply the saved Kodi watch/progress state after manual source-list cancel cleanup to avoid delayed dummy-playback writes.
+
+[COLOR dodgerblue][B]Version 2.0.78[/B][/COLOR]
+- Preserve existing Kodi watch/progress state when cancelling the manual source list workaround.
+
+[COLOR dodgerblue][B]Version 2.0.77[/B][/COLOR]
+- Prevent Kodi's generic Playback Failed dialog when backing out of the manual source list without selecting a source.
+
+[COLOR dodgerblue][B]Version 2.0.76[/B][/COLOR]
+- Trust ID-matched AIOStreams TorBox Usenet Search rows so official prefix text in release names does not hide valid cached results.
+
 [COLOR dodgerblue][B]Version 2.0.75[/B][/COLOR]
 - Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
 
