@@ -52,7 +52,7 @@ COCOSCRAPERS_DISABLED_DEFAULT_UNDESIRABLES = (
 
 MENU_ITEMS = (
     ("Install YouTube credentials", "install_youtube"),
-    ("Install TorBox API key", "install_torbox"),
+    ("Install TorBox API key and Manifest URL", "install_torbox"),
     ("Install a4kSubtitles settings", "install_a4ksubtitles"),
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install everything", "install_all"),
