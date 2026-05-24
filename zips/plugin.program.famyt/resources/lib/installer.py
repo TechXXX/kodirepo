@@ -30,6 +30,7 @@ FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight.patched.kodienglish",
 )
 FENLIGHT_SETTINGS_DB = os.path.join("databases", "settings.db")
+FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
 )
@@ -234,6 +235,25 @@ def _extract_torbox_key(data):
     return api_key
 
 
+def _extract_torbox_aiostreams_manifest(data):
+    torbox = data.get("torbox") if isinstance(data.get("torbox"), dict) else {}
+    return _pick(
+        torbox,
+        "aiostreams_manifest_url",
+        "aiostreamsManifestUrl",
+        "aiostreams_manifest",
+        "aiostreamsManifest",
+        "manifest_url",
+        "manifestUrl",
+    ) or _pick(
+        data,
+        "torbox_aiostreams_manifest_url",
+        "torboxAiostreamsManifestUrl",
+        "torbox_manifest_url",
+        "torboxManifestUrl",
+    )
+
+
 def _extract_a4ksubtitles_settings(data):
     a4k = data.get("a4ksubtitles") if isinstance(data.get("a4ksubtitles"), dict) else {}
     if not a4k:
@@ -388,11 +408,25 @@ def _addon_install_path(addon_id):
     return _translate_path(path)
 
 
-def _write_fenlight_torbox_setting(addon_id, data_path, api_key):
+def _write_fenlight_torbox_setting(addon_id, data_path, api_key, aiostreams_manifest_url=""):
     db_path = os.path.join(data_path, FENLIGHT_SETTINGS_DB)
     db_dir = os.path.dirname(db_path)
     if not os.path.isdir(db_dir):
         os.makedirs(db_dir)
+
+    rows = [
+        ("tb.token", "string", "empty_setting", api_key),
+        ("tb.enabled", "boolean", "false", "true"),
+    ]
+    if aiostreams_manifest_url:
+        rows.append(
+            (
+                FENLIGHT_AIOSTREAMS_MANIFEST_SETTING,
+                "string",
+                "empty_setting",
+                aiostreams_manifest_url,
+            )
+        )
 
     connection = sqlite3.connect(db_path, timeout=10)
     try:
@@ -405,10 +439,7 @@ def _write_fenlight_torbox_setting(addon_id, data_path, api_key):
             "INSERT OR REPLACE INTO settings "
             "(setting_id, setting_type, setting_default, setting_value) "
             "VALUES (?, ?, ?, ?)",
-            (
-                ("tb.token", "string", "empty_setting", api_key),
-                ("tb.enabled", "boolean", "false", "true"),
-            ),
+            rows,
         )
         connection.commit()
     finally:
@@ -418,11 +449,16 @@ def _write_fenlight_torbox_setting(addon_id, data_path, api_key):
     return db_path
 
 
-def _set_fenlight_window_cache(api_key):
+def _set_fenlight_window_cache(api_key, aiostreams_manifest_url=""):
     try:
         window = xbmcgui.Window(10000)
         window.setProperty("fenlight.tb.token", api_key)
         window.setProperty("fenlight.tb.enabled", "true")
+        if aiostreams_manifest_url:
+            window.setProperty(
+                "fenlight.%s" % FENLIGHT_AIOSTREAMS_MANIFEST_SETTING,
+                aiostreams_manifest_url,
+            )
     except Exception:
         pass
 
@@ -634,19 +670,22 @@ def _install_youtube(addon, bridge_data):
 
 def _install_torbox(addon, bridge_data):
     api_key = _extract_torbox_key(bridge_data)
+    aiostreams_manifest_url = _extract_torbox_aiostreams_manifest(bridge_data)
     candidates = _candidate_fenlight_addons()
     if not candidates:
         raise RuntimeError("Fen Light was not found in this Kodi profile.")
 
     updated = []
     for addon_id, data_path in candidates:
-        _write_fenlight_torbox_setting(addon_id, data_path, api_key)
+        _write_fenlight_torbox_setting(addon_id, data_path, api_key, aiostreams_manifest_url)
         updated.append(addon_id)
 
-    _set_fenlight_window_cache(api_key)
+    _set_fenlight_window_cache(api_key, aiostreams_manifest_url)
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_torbox_install", now)
     _set_setting(addon, "last_install", now)
+    if aiostreams_manifest_url:
+        return "TorBox API key and AIOStreams manifest installed for: %s." % ", ".join(updated)
     return "TorBox API key installed for: %s." % ", ".join(updated)
 
 
