@@ -153,7 +153,7 @@ class SourcesResults(BaseDialog):
 							else: set_properties({'source_type': '%s' % cache_flag})
 						set_properties({'provider': provider})
 					else:
-						if scrape_provider == 'tb_cloud' and get('direct_debrid_link') == 'usenet_search':
+						if scrape_provider == 'tb_cloud' and get('direct_debrid_link') in ('usenet_search', 'aiostreams_usenet'):
 							source_site = 'TB USENET'
 							provider, provider_icon = self.get_provider_and_path('tb usenet')
 							display_provider = 'TB USENET'

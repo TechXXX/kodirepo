@@ -1,10 +1,20 @@
-[COLOR dodgerblue][B]Session Note (2026-05-17, TorBox Usenet Search polish)[/B][/COLOR]
+[COLOR dodgerblue][B]Version 2.0.75[/B][/COLOR]
+- Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
+
+[COLOR dodgerblue][B]Version 2.0.74[/B][/COLOR]
+- Add optional AIOStreams manifest support for TorBox Usenet Search cached streams, with direct TorBox Search API fallback when unset.
+
+[COLOR dodgerblue][B]Version 2.0.73[/B][/COLOR]
+- Strip superscript footnote markers from subtitle comments before selector matching.
+
+[COLOR dodgerblue][B]Version 2.0.72[/B][/COLOR]
 - Show TorBox Usenet Search results as TB USENET/NZB without adding a release-title prefix.
 - Keep TorBox Usenet Search rows mixed into the normal quality and size sorting instead of pinning them with TorBox cloud sort-to-top.
 
-[COLOR dodgerblue][B]Session Note (2026-05-14, exact OpenSubtitles retry metadata)[/B][/COLOR]
+[COLOR dodgerblue][B]Version 2.0.71[/B][/COLOR]
 - Pass Fen Light's TMDb/show identifiers into the bundled a4k retry-pool metadata so OpenSubtitles can use exact parent-ID episode searches.
 - Include the TMDb id in the retry-pool subtitle cache key so selector searches do not reuse results across different shows with similar IMDb/title context.
+- Add TorBox Usenet Search controls for movies and TV shows, plus automatic no-results retry support for cached TorBox Usenet Search.
 
 [COLOR dodgerblue][B]Session Note (2026-05-12, TorBox web download validation)[/B][/COLOR]
 - Confirm TorBox Web Download playback resolves and starts through Fen Light Patched.

@@ -260,7 +260,7 @@ class Sources():
 			sort_first_scrapers.extend([i for i in self.all_scrapers if i in cloud_scrapers and sort_to_top(i)])
 			if not sort_first_scrapers: return results
 			sort_first = [i for i in results if i['scrape_provider'] in sort_first_scrapers
-						and not (i.get('scrape_provider') == 'tb_cloud' and i.get('direct_debrid_link') == 'usenet_search')]
+						and not (i.get('scrape_provider') == 'tb_cloud' and i.get('direct_debrid_link') in ('usenet_search', 'aiostreams_usenet'))]
 			sort_first.sort(key=lambda k: (self._sort_folder_to_top(k['scrape_provider']), k['quality_rank']))
 			sort_last = [i for i in results if not i in sort_first]
 			results = sort_first + sort_last

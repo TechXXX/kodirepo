@@ -218,9 +218,8 @@ def filter_by_name(scraper):
 
 def torbox_usenet_search_enabled(media_type, force=False):
 	if force: return True
-	if media_type == 'movie': return get_setting('fenlight.tb.usenet_search.movies', 'false') == 'true'
-	if media_type == 'episode': return get_setting('fenlight.tb.usenet_search.episodes', 'false') == 'true'
-	return False
+	setting_id = {'movie': 'fenlight.tb.usenet_search.movies', 'episode': 'fenlight.tb.usenet_search.episodes'}.get(media_type)
+	return bool(setting_id) and get_setting(setting_id, 'false') == 'true'
 
 def easynews_language_filter():
 	enabled = get_setting('fenlight.easynews.filter_lang') == 'true'

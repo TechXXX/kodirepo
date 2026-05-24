@@ -127,7 +127,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.73">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.75">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -148,7 +148,13 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.73]:
+            <news>[v2.0.75]:
+  * Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
+
+[v2.0.74]:
+  * Add optional AIOStreams manifest support for TorBox Usenet Search cached streams, with direct TorBox Search API fallback when unset.
+
+[v2.0.73]:
   * Strip superscript footnote markers from subtitle comments before selector matching.
 
 [v2.0.72]:

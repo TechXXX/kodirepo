@@ -1790,7 +1790,7 @@
 	                          <property name="setting_label">    - Search Usenet for Movies</property>
 	                          <property name="setting_type">boolean</property>
 	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.movies)]</property>
-	                          <property name="setting_description">Enable this and Fen Light Patched will include cached TorBox Usenet Search results during movie source scrapes</property>
+	                          <property name="setting_description">Include cached TorBox Usenet Search results during normal movie source scrapes. No-results retry can still force TorBox Usenet Search when enabled</property>
 	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb.usenet_search.movies)</onclick>
 	                      </item>
 	                      <item>
@@ -1801,8 +1801,19 @@
 	                          <property name="setting_label">    - Search Usenet for TV Shows</property>
 	                          <property name="setting_type">boolean</property>
 	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.episodes)]</property>
-	                          <property name="setting_description">Enable this and Fen Light Patched will include cached TorBox Usenet Search results during episode source scrapes</property>
+	                          <property name="setting_description">Include cached TorBox Usenet Search results during normal episode source scrapes. No-results retry can still force TorBox Usenet Search when enabled</property>
 	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=tb.usenet_search.episodes)</onclick>
+	                      </item>
+	                      <item>
+	                          <visible>Container(2000).HasFocus(50)</visible>
+	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
+	                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
+	                          <property name="setting_label">    - AIOStreams Manifest URL</property>
+	                          <property name="setting_type">string</property>
+	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.aiostreams_manifest)]</property>
+	                          <property name="setting_description">Optional. When filled, Fen Light Patched will fetch TorBox Usenet Search streams through this AIOStreams manifest instead of the TorBox Search API</property>
+	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=tb.usenet_search.aiostreams_manifest)</onclick>
 	                      </item>
 	                      <item>
 	                          <visible>Container(2000).HasFocus(50)</visible>

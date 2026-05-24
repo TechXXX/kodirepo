@@ -26,7 +26,7 @@ class source:
 			filter_title = filter_by_name(self.scrape_provider)
 			self.media_type, title = info.get('media_type'), info.get('title')
 			self.year, self.season, self.episode = int(info.get('year')), info.get('season'), info.get('episode')
-			self.tmdb_id = info.get('tmdb_id')
+			self.tmdb_id, self.imdb_id = info.get('tmdb_id'), info.get('imdb_id')
 			self.force_usenet_search = info.get('force_tb_usenet_search') in (True, 'true', 'True')
 			self.search_title = clean_file_name(title).replace('&', 'and')
 			self.aliases = get_aliases_titles(info.get('aliases', []))
@@ -46,7 +46,7 @@ class source:
 						if not file_name: continue
 						direct_debrid_link = item.get('direct_debrid_link', False)
 						if filter_title:
-							if direct_debrid_link != 'usenet_search':
+							if direct_debrid_link not in ('usenet_search', 'aiostreams_usenet'):
 								if not self._cloud_title_matches(title, file_name): continue
 							elif item.get('package'):
 								if not self._title_matches_pack(file_name): continue
@@ -54,11 +54,11 @@ class source:
 						display_name = clean_file_name(file_name).replace('html', ' ').replace('+', ' ').replace('-', ' ')
 						source_label = ''
 						source_site = self.scrape_provider
-						if direct_debrid_link == 'usenet_search':
+						if direct_debrid_link in ('usenet_search', 'aiostreams_usenet'):
 							is_pack = item.get('package') and not item.get('package') == 'episode'
 							source_label = 'NZB PACK' if is_pack else 'NZB'
 							source_site = 'torbox'
-							file_dl = item['nzb']
+							file_dl = item['nzb'] if direct_debrid_link == 'usenet_search' else item['url']
 							source_id = file_name
 						else:
 							file_dl = '%d,%d' % (int(item['folder_id']), item['id'])
@@ -74,7 +74,7 @@ class source:
 							except: pass
 						video_quality, details = get_file_info(name_info=release_info_format(file_name))
 						if source_label: details = ' | '.join([i for i in (details, source_label) if i])
-						sports_event_cloud = self._is_sports_event_movie() and direct_debrid_link != 'usenet_search'
+						sports_event_cloud = self._is_sports_event_movie() and direct_debrid_link not in ('usenet_search', 'aiostreams_usenet')
 						sports_event_part = self._sports_event_part_label(file_name) if sports_event_cloud else ''
 						sports_event_pack_id = '%s:%s:%s' % (self.scrape_provider, direct_debrid_link or 'torrent', item.get('folder_id')) if sports_event_cloud else ''
 						source_item = {'name': file_name, 'display_name': display_name, 'quality': video_quality, 'size': size, 'size_label': size_label,
@@ -168,6 +168,7 @@ class source:
 	def _scrape_usenet_search(self):
 		try:
 			if not torbox_usenet_search_enabled(self.media_type, self.force_usenet_search): return
+			if self._scrape_aiostreams_usenet_search(): return
 			append = self.scrape_results.append
 			seen = set()
 			for query in self._search_names():
@@ -195,6 +196,26 @@ class source:
 								'hash': item.get('hash'), 'direct_debrid_link': 'usenet_search', 'package': package, 'package_size': package_size})
 					except: pass
 		except: return
+
+	def _scrape_aiostreams_usenet_search(self):
+		try:
+			from apis.aiostreams_api import AIOStreamsAPI
+			AIOStreams = AIOStreamsAPI()
+			if not AIOStreams.enabled(): return False
+			append = self.scrape_results.append
+			seen = set()
+			results = AIOStreams.usenet_streams(self.media_type, self.imdb_id, self.tmdb_id, self.season, self.episode)
+			for item in results:
+				try:
+					url = item.get('url')
+					if not url or url in seen: continue
+					file_name = item.get('short_name') or item.get('name') or ''
+					if not file_name: continue
+					seen.add(url)
+					append(item)
+				except: pass
+			return True
+		except: return False
 
 	def _cloud_folder_queries(self, title):
 		queries = []
