@@ -117,10 +117,10 @@ Current source-tree versions when this document was updated:
   from this repo instead of the broken upstream `2.1.3` package URL.
 - `script.module.autocompletion` `2.1.1`
   Library dependency for the virtual keyboard autocomplete helper.
-- `script.fenlight.quickrescrape` `0.0.3`
+- `script.fenlight.quickrescrape` `0.0.4`
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
-  item.
+  item. It ships custom icon and fanart assets for Kodi's add-on browser.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current

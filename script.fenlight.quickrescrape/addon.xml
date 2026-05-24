@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.3" provider-name="DutchTech">
+<addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.4" provider-name="DutchTech">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -9,7 +9,13 @@
     <extension point="xbmc.addon.metadata">
         <summary lang="en">Install Shield shortcuts for Fen Light rescrape/source select</summary>
         <description lang="en">Helper that installs a Kodi keymap and runs Fen Light rescrape/source select for the focused AH2 movie or episode item.</description>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
         <platform>android</platform>
         <license>MIT</license>
+        <news>v0.0.4
+- Add package artwork.</news>
     </extension>
 </addon>
