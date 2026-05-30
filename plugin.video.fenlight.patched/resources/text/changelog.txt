@@ -1,3 +1,9 @@
+[COLOR dodgerblue][B]Version 2.0.82[/B][/COLOR]
+- Let TorBox cloud scraping match completed cloud item filenames as well as folder names, and tolerate punctuation-only title differences after the year/episode gate.
+- Keep AIOStreams and TorBox Search Usenet rows on the stricter title/year filter, regardless of the TorBox cloud title-filter setting, so older same-title movies do not enter the source list.
+- Use AIOStreams search metadata as NZB lookup only and resolve TorBox Usenet Search through the local TorBox account; remove the direct TorBox Search API fallback.
+- Default the AIOStreams TorBox Usenet Search bridge to Midnight's search-enabled public instance, while keeping the endpoint editable.
+
 [COLOR dodgerblue][B]Version 2.0.81[/B][/COLOR]
 - Promote the tested manual source-list cancel cleanup and AIOStreams TorBox Usenet matching fixes to the production repo.
 
@@ -20,7 +26,7 @@
 - Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
 
 [COLOR dodgerblue][B]Version 2.0.74[/B][/COLOR]
-- Add optional AIOStreams manifest support for TorBox Usenet Search cached streams, with direct TorBox Search API fallback when unset.
+- Add optional AIOStreams manifest support for TorBox Usenet Search cached streams.
 
 [COLOR dodgerblue][B]Version 2.0.73[/B][/COLOR]
 - Strip superscript footnote markers from subtitle comments before selector matching.

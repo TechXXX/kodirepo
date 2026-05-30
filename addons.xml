@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="famYT" version="0.4.4" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="famYT" version="0.5.0" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -42,7 +42,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.4.4
+            <news>v0.5.0
+- Add Kodi network advanced settings installer
+
+v0.4.4
 - Rename TorBox setup menu item
 
 v0.4.3
@@ -133,7 +136,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.81">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.82">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -154,7 +157,13 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.81]:
+            <news>[v2.0.82]:
+  * Let TorBox cloud scraping match completed cloud item filenames as well as folder names, and tolerate punctuation-only title differences after the year/episode gate.
+  * Keep AIOStreams and TorBox Search Usenet rows on the stricter title/year filter, regardless of the TorBox cloud title-filter setting, so older same-title movies do not enter the source list.
+  * Use AIOStreams search metadata as NZB lookup only and resolve TorBox Usenet Search through the local TorBox account; remove the direct TorBox Search API fallback.
+  * Default the AIOStreams TorBox Usenet Search bridge to Midnight's search-enabled public instance, while keeping the endpoint editable.
+
+[v2.0.81]:
   * Promote the tested manual source-list cancel cleanup and AIOStreams TorBox Usenet matching fixes to the production repo.
 
 [v2.0.80]:
@@ -176,7 +185,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
   * Let the no-results TorBox Usenet Search retry bypass the normal movie/TV account toggles, so those toggles only control ordinary scrapes.
 
 [v2.0.74]:
-  * Add optional AIOStreams manifest support for TorBox Usenet Search cached streams, with direct TorBox Search API fallback when unset.
+  * Add optional AIOStreams manifest support for TorBox Usenet Search cached streams.
 
 [v2.0.73]:
   * Strip superscript footnote markers from subtitle comments before selector matching.

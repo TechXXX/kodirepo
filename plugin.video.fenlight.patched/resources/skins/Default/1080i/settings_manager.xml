@@ -1809,10 +1809,10 @@
 	                          <visible>!String.IsEqual(Window(10000).Property(fenlight.tb.token),empty_setting)</visible>
 	                          <visible>String.IsEqual(Window(10000).Property(fenlight.tb.enabled),true)</visible>
 	                          <visible>String.IsEqual(Window(10000).Property(fenlight.provider.tb_cloud),true)</visible>
-	                          <property name="setting_label">    - AIOStreams Manifest URL</property>
+		                          <property name="setting_label">    - AIOStreams Search URL</property>
 	                          <property name="setting_type">string</property>
 	                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.tb.usenet_search.aiostreams_manifest)]</property>
-	                          <property name="setting_description">Optional. When filled, Fen Light Patched will fetch TorBox Usenet Search streams through this AIOStreams manifest instead of the TorBox Search API</property>
+		                          <property name="setting_description">Default is Midnight public AIOStreams. AIOStreams receives your TorBox key for search; Fen resolves NZBs through your local TorBox account.</property>
 	                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=tb.usenet_search.aiostreams_manifest)</onclick>
 	                      </item>
 	                      <item>

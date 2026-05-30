@@ -45,14 +45,11 @@ class source:
 						file_name = normalize(item.get('short_name') or item.get('name') or '')
 						if not file_name: continue
 						direct_debrid_link = item.get('direct_debrid_link', False)
-						if filter_title:
-							if direct_debrid_link == 'aiostreams_usenet':
-								pass
-							elif direct_debrid_link != 'usenet_search':
-								if not self._cloud_title_matches(title, file_name): continue
-							elif item.get('package'):
+						if direct_debrid_link in ('usenet_search', 'aiostreams_usenet'):
+							if item.get('package'):
 								if not self._title_matches_pack(file_name): continue
 							elif not check_title(title, file_name, self.aliases, self.year, self.season, self.episode): continue
+						elif filter_title and not self._cloud_title_matches(title, file_name): continue
 						display_name = clean_file_name(file_name).replace('html', ' ').replace('+', ' ').replace('-', ' ')
 						source_label = ''
 						source_site = self.scrape_provider
@@ -100,10 +97,11 @@ class source:
 			except: return self.sources
 			for item in my_cloud_files['data']:
 				if not item['download_finished']: continue
-				if not self._matches_cloud_folder_query(item.get('name')): continue
+				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				for file in self._cloud_video_files(item.get('files', [])):
 					file_name = file.get('short_name') or file.get('name') or ''
+					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
 					folder_name = clean_title(normalized)
 					if self.media_type == 'movie':
@@ -124,10 +122,11 @@ class source:
 			except: return self.sources
 			for item in my_cloud_files_usenet['data']:
 				if not item['download_finished']: continue
-				if not self._matches_cloud_folder_query(item.get('name')): continue
+				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				for file in self._cloud_video_files(item.get('files', [])):
 					file_name = file.get('short_name') or file.get('name') or ''
+					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
 					folder_name = clean_title(normalized)
 					if self.media_type == 'movie':
@@ -149,10 +148,11 @@ class source:
 			except: return self.sources
 			for item in my_cloud_files_webdl['data']:
 				if not item['download_finished']: continue
-				if not self._matches_cloud_folder_query(item.get('name')): continue
+				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				for file in self._cloud_video_files(item.get('files', [])):
 					file_name = file.get('short_name') or file.get('name') or ''
+					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
 					folder_name = clean_title(normalized)
 					if self.media_type == 'movie':
@@ -170,33 +170,7 @@ class source:
 	def _scrape_usenet_search(self):
 		try:
 			if not torbox_usenet_search_enabled(self.media_type, self.force_usenet_search): return
-			if self._scrape_aiostreams_usenet_search(): return
-			append = self.scrape_results.append
-			seen = set()
-			for query in self._search_names():
-				try: search_results = TorBox.search_usenet(query)
-				except: continue
-				nzbs = ((search_results or {}).get('data') or {}).get('nzbs') or []
-				for item in nzbs:
-					try:
-						if not item.get('cached'): continue
-						nzb_link = item.get('nzb')
-						if not nzb_link or nzb_link in seen: continue
-						file_name = item.get('raw_title') or item.get('title') or ''
-						if not file_name: continue
-						package = ''
-						size = item.get('size', 0)
-						package_size = 0
-						if self.media_type == 'episode':
-							package = self._episode_result_type(file_name)
-							if not package: continue
-							if package != 'episode':
-								package_size = size
-								size = 0
-						seen.add(nzb_link)
-						append({'name': file_name, 'short_name': file_name, 'size': size, 'nzb': nzb_link,
-								'hash': item.get('hash'), 'direct_debrid_link': 'usenet_search', 'package': package, 'package_size': package_size})
-					except: pass
+			self._scrape_aiostreams_usenet_search()
 		except: return
 
 	def _scrape_aiostreams_usenet_search(self):
@@ -209,11 +183,18 @@ class source:
 			results = AIOStreams.usenet_streams(self.media_type, self.imdb_id, self.tmdb_id, self.season, self.episode)
 			for item in results:
 				try:
-					url = item.get('url')
-					if not url or url in seen: continue
+					nzb_link = item.get('nzb')
+					if not nzb_link or nzb_link in seen: continue
 					file_name = item.get('short_name') or item.get('name') or ''
 					if not file_name: continue
-					seen.add(url)
+					if self.media_type == 'episode':
+						package = self._episode_result_type(file_name)
+						if not package: continue
+						item['package'] = package
+						if package != 'episode':
+							item['package_size'] = item.get('package_size') or item.get('size', 0)
+							item['size'] = 0
+					seen.add(nzb_link)
 					append(item)
 				except: pass
 			return True
@@ -241,6 +222,13 @@ class source:
 		name = clean_title(normalize(name or ''))
 		if not name: return False
 		return any(query in name for query in self.folder_queries)
+
+	def _cloud_title_queries(self):
+		queries = list(self.folder_queries)
+		for title in self._query_titles():
+			query = clean_title(normalize(title or ''))
+			if query and not query in queries: queries.append(query)
+		return queries
 
 	def _is_sports_event_movie(self):
 		return self.media_type == 'movie' and bool(self.sports_event_queries)
@@ -271,9 +259,11 @@ class source:
 
 	def _cloud_title_matches(self, title, file_name):
 		if check_title(title, file_name, self.aliases, self.year, self.season, self.episode): return True
-		if self.media_type != 'movie': return False
 		file_name = clean_title(normalize(file_name or ''))
 		if not file_name: return False
+		for query in self._cloud_title_queries():
+			if len(query) > 5 and query in file_name: return True
+		if self.media_type != 'movie': return False
 		for query in self.sports_event_queries:
 			query = clean_title(normalize(query or ''))
 			if query and query in file_name: return True

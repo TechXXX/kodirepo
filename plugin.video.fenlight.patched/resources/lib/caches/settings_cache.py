@@ -360,7 +360,7 @@ default_settings = [
 {'setting_id': 'tb_cloud.title_filter', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'tb.usenet_search.movies', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'tb.usenet_search.episodes', 'setting_type': 'boolean', 'setting_default': 'false'},
-{'setting_id': 'tb.usenet_search.aiostreams_manifest', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'tb.usenet_search.aiostreams_manifest', 'setting_type': 'string', 'setting_default': 'https://aiostreamsfortheweebsstable.midnightignite.me'},
 {'setting_id': 'check.tb_cloud', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'results.sort_tbcloud_first', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'tb.priority', 'setting_type': 'action', 'setting_default': '10', 'min_value': '1', 'max_value': '10'},

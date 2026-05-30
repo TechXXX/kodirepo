@@ -22,6 +22,7 @@ YOUTUBE_ADDON_ID = "plugin.video.youtube"
 YOUTUBE_DATA_PATH = "special://profile/addon_data/plugin.video.youtube"
 API_KEYS_FILENAME = "api_keys.json"
 CLIENT_ID_SUFFIX = ".apps.googleusercontent.com"
+ADVANCEDSETTINGS_PATH = "special://profile/advancedsettings.xml"
 
 FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight",
@@ -55,6 +56,7 @@ MENU_ITEMS = (
     ("Install TorBox API key and Manifest URL", "install_torbox"),
     ("Install a4kSubtitles settings", "install_a4ksubtitles"),
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
+    ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install everything", "install_all"),
 )
 
@@ -480,6 +482,79 @@ def _indent_xml(element, level=0):
     children[-1].tail = "\n" + "    " * level
 
 
+def _parse_xml(path):
+    try:
+        parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+        return ET.parse(path, parser=parser)
+    except TypeError:
+        return ET.parse(path)
+
+
+def _backup_file(path):
+    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    backup_path = "%s.famyt-backup-%s" % (path, timestamp)
+    os.replace(path, backup_path)
+    return backup_path
+
+
+def _direct_child(element, tag):
+    for child in list(element):
+        if child.tag == tag:
+            return child
+    return None
+
+
+def _set_direct_child_text(element, tag, value):
+    child = _direct_child(element, tag)
+    if child is None:
+        child = ET.SubElement(element, tag)
+    child.text = value
+    return child
+
+
+def _write_advanced_network_settings():
+    userdata_path = _translate_path("special://profile")
+    if not os.path.isdir(userdata_path):
+        os.makedirs(userdata_path)
+
+    advancedsettings_path = _translate_path(ADVANCEDSETTINGS_PATH)
+    backup_path = ""
+
+    if os.path.exists(advancedsettings_path):
+        try:
+            tree = _parse_xml(advancedsettings_path)
+            root = tree.getroot()
+            if root.tag != "advancedsettings":
+                backup_path = _backup_file(advancedsettings_path)
+                root = ET.Element("advancedsettings", {"version": "1.0"})
+                tree = ET.ElementTree(root)
+        except Exception as exc:
+            backup_path = _backup_file(advancedsettings_path)
+            root = ET.Element("advancedsettings", {"version": "1.0"})
+            tree = ET.ElementTree(root)
+            _log("Backed up invalid advancedsettings.xml: %s" % exc, xbmc.LOGWARNING)
+    else:
+        root = ET.Element("advancedsettings", {"version": "1.0"})
+        tree = ET.ElementTree(root)
+
+    network = _direct_child(root, "network")
+    if network is None:
+        network = ET.SubElement(root, "network")
+
+    _set_direct_child_text(network, "disablehttp2", "true")
+    _set_direct_child_text(network, "disableipv6", "true")
+
+    _indent_xml(root)
+    tmp_path = advancedsettings_path + ".tmp"
+    tree.write(tmp_path, encoding="utf-8", xml_declaration=True)
+    if os.path.exists(advancedsettings_path):
+        os.remove(advancedsettings_path)
+    os.rename(tmp_path, advancedsettings_path)
+
+    _log("Installed Kodi network advanced settings at %s" % advancedsettings_path)
+    return advancedsettings_path, backup_path
+
+
 def _write_kodi_settings_xml(data_path, values):
     if not os.path.isdir(data_path):
         os.makedirs(data_path)
@@ -724,6 +799,21 @@ def _install_cocoscrapers(addon):
     return "Cocoscrapers filters installed for: %s." % ", ".join(updated)
 
 
+def _install_advanced_network_settings(addon):
+    advancedsettings_path, backup_path = _write_advanced_network_settings()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_advanced_network_install", now)
+    _set_setting(addon, "last_install", now)
+
+    message = (
+        "Kodi network advanced settings installed. "
+        "Restart Kodi for disablehttp2 and disableipv6 to take effect."
+    )
+    if backup_path:
+        message += " Existing invalid advancedsettings.xml was backed up."
+    return message
+
+
 def _run_install_all_step(messages, label, install_func):
     try:
         messages.append(install_func())
@@ -741,6 +831,7 @@ def _run_action(action):
         "install_torbox",
         "install_a4ksubtitles",
         "install_cocoscrapers",
+        "install_advanced_network",
         "install_all",
     ):
         _show_menu()
@@ -753,6 +844,20 @@ def _run_action(action):
         progress.create("famYT", "Installing Cocoscrapers filters...")
         try:
             message = _install_cocoscrapers(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("famYT", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "install_advanced_network":
+        progress = xbmcgui.DialogProgress()
+        progress.create("famYT", "Installing Kodi network advanced settings...")
+        try:
+            message = _install_advanced_network_settings(addon)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("famYT", message)
@@ -779,29 +884,35 @@ def _run_action(action):
         messages = []
 
         if action == "install_all":
-            progress.update(25, "Installing YouTube credentials...")
+            progress.update(20, "Installing YouTube credentials...")
             _run_install_all_step(
                 messages,
                 "YouTube credentials",
                 lambda: _install_youtube(addon, bridge_data),
             )
-            progress.update(50, "Installing TorBox API key...")
+            progress.update(40, "Installing TorBox API key...")
             _run_install_all_step(
                 messages,
                 "TorBox API key",
                 lambda: _install_torbox(addon, bridge_data),
             )
-            progress.update(75, "Installing a4kSubtitles settings...")
+            progress.update(60, "Installing a4kSubtitles settings...")
             _run_install_all_step(
                 messages,
                 "a4kSubtitles settings",
                 lambda: _install_a4ksubtitles(addon, bridge_data),
             )
-            progress.update(90, "Installing Cocoscrapers filters...")
+            progress.update(80, "Installing Cocoscrapers filters...")
             _run_install_all_step(
                 messages,
                 "Cocoscrapers filters",
                 lambda: _install_cocoscrapers(addon),
+            )
+            progress.update(90, "Installing Kodi network advanced settings...")
+            _run_install_all_step(
+                messages,
+                "Kodi network advanced settings",
+                lambda: _install_advanced_network_settings(addon),
             )
         elif action == "install_youtube":
             progress.update(25, "Installing YouTube credentials...")

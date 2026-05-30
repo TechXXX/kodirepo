@@ -1,13 +1,12 @@
 import requests
 from threading import Thread
-from urllib.parse import quote, urlencode
+from urllib.parse import urlencode
 from caches.settings_cache import get_setting, set_setting
 from caches.main_cache import cache_object
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
 from modules.kodi_utils import make_session, kodi_dialog, ok_dialog, notification, confirm_dialog, sleep, logger
 
 base_url = 'https://api.torbox.app/v1/api/'
-search_base_url = 'https://search-api.torbox.app/'
 stats = 'user/me'
 download = 'torrents/requestdl'
 remove = 'torrents/controltorrent'
@@ -20,7 +19,6 @@ download_usenet = 'usenet/requestdl'
 remove_usenet = 'usenet/controlusenetdownload'
 history_usenet = 'usenet/mylist'
 explore_usenet = 'usenet/mylist?id=%s'
-search_usenet = 'usenet/search/%s'
 download_webdl = 'webdl/requestdl'
 remove_webdl = 'webdl/controlwebdownload'
 history_webdl = 'webdl/mylist'
@@ -28,7 +26,6 @@ explore_webdl = 'webdl/mylist?id=%s'
 user_agent = 'Mozilla/5.0'
 timeout = 20.0
 session = make_session(base_url)
-search_session = make_session(search_base_url)
 
 class TorBoxAPI:
 
@@ -47,13 +44,6 @@ class TorBoxAPI:
 		headers = {'Authorization': 'Bearer %s' % self.token}
 		url = base_url + url
 		response = session.post(url, params=params, json=json, data=data, headers=headers, timeout=timeout)
-		return response.json()
-
-	def _search_get(self, url, data={}):
-		if self.token in ('empty_setting', ''): return None
-		headers = {'Authorization': 'Bearer %s' % self.token, 'User-Agent': user_agent}
-		url = search_base_url + url
-		response = search_session.get(url, params=data, headers=headers, timeout=timeout)
 		return response.json()
 
 	def add_headers_to_url(self, url):
@@ -142,13 +132,6 @@ class TorBoxAPI:
 		data = {'link': link, 'post_processing': -1, 'as_queued': False, 'add_only_if_cached': True}
 		if name: data['name'] = name
 		return self._post(cloud_usenet, data=data)
-
-	def search_usenet(self, query, metadata=False, check_cache=True, check_owned=True, search_user_engines=False, cached_only=True):
-		data = {'metadata': metadata, 'check_cache': check_cache, 'check_owned': check_owned,
-				'search_user_engines': search_user_engines, 'cached_only': cached_only}
-		url = search_usenet % quote(query, safe='')
-		string = 'tb_search_usenet_%s_%s_%s_%s_%s_%s' % (query, metadata, check_cache, check_owned, search_user_engines, cached_only)
-		return cache_object(self._search_get, string, [url, data], False, 1)
 
 	def check_cache_single(self, _hash):
 		return self._get(cache, data={'hash': _hash, 'format': 'list'})
