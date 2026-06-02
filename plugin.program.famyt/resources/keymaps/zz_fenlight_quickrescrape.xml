@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keymap>
+  <Home>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </Home>
+  <Videos>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </Videos>
+  <window1114>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </window1114>
+  <window1190>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </window1190>
+</keymap>

@@ -17,7 +17,19 @@ ADDON_ID = "script.fenlight.quickrescrape"
 FEN_ADDON_ID = "plugin.video.fenlight.patched"
 HOME_WINDOW_ID = 10000
 MY_VIDEO_NAV_WINDOW_ID = 10025
-ALLOWED_WINDOW_IDS = (HOME_WINDOW_ID, MY_VIDEO_NAV_WINDOW_ID)
+AH2_SEARCH_WINDOW_ID = 1114
+AH2_TMDB_HELPER_WINDOW_ID = 1190
+# Kodi reports custom skin window ids through xbmcgui with a 10000 offset.
+AH2_SEARCH_RUNTIME_WINDOW_ID = 11114
+AH2_TMDB_HELPER_RUNTIME_WINDOW_ID = 11190
+ALLOWED_WINDOW_IDS = (
+    HOME_WINDOW_ID,
+    MY_VIDEO_NAV_WINDOW_ID,
+    AH2_SEARCH_WINDOW_ID,
+    AH2_TMDB_HELPER_WINDOW_ID,
+    AH2_SEARCH_RUNTIME_WINDOW_ID,
+    AH2_TMDB_HELPER_RUNTIME_WINDOW_ID,
+)
 FEN_PLUGIN_PREFIX = "plugin://{}/".format(FEN_ADDON_ID)
 KEYMAP_FILE = "special://profile/keymaps/zz_fenlight_quickrescrape.xml"
 KEYMAP_ACTION = "RunScript(special://home/addons/{}/default.py,rescrape)".format(ADDON_ID)
@@ -41,6 +53,24 @@ KEYMAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
       <fastforward mod="longpress">{action}</fastforward>
     </appcommand>
   </Videos>
+  <window1114>
+    <keyboard>
+      <i>{action}</i>
+      <fastforward mod="longpress">{action}</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">{action}</fastforward>
+    </appcommand>
+  </window1114>
+  <window1190>
+    <keyboard>
+      <i>{action}</i>
+      <fastforward mod="longpress">{action}</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">{action}</fastforward>
+    </appcommand>
+  </window1190>
 </keymap>
 """.format(action=KEYMAP_ACTION)
 

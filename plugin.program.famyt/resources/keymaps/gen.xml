@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<keymap>
+  <global>
+    <keyboard>
+      <key id="61482">delete</key>
+    </keyboard>
+  </global>
+  <Home>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </Home>
+  <Videos>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </Videos>
+  <window1114>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </window1114>
+  <window1190>
+    <keyboard>
+      <i>RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</i>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </keyboard>
+    <appcommand>
+      <fastforward mod="longpress">RunScript(special://home/addons/script.fenlight.quickrescrape/default.py,rescrape)</fastforward>
+    </appcommand>
+  </window1190>
+  <fullscreenvideo>
+    <keyboard>
+      <left mod="longpress">activatewindow(subtitlesearch)</left>
+      <key id="61669">nextsubtitle</key>
+    </keyboard>
+  </fullscreenvideo>
+  <filemanager>
+    <keyboard>
+      <left mod="longpress">delete</left>
+    </keyboard>
+  </filemanager>
+</keymap>

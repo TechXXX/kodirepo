@@ -23,6 +23,8 @@ YOUTUBE_DATA_PATH = "special://profile/addon_data/plugin.video.youtube"
 API_KEYS_FILENAME = "api_keys.json"
 CLIENT_ID_SUFFIX = ".apps.googleusercontent.com"
 ADVANCEDSETTINGS_PATH = "special://profile/advancedsettings.xml"
+KEYMAPS_SOURCE_DIR = os.path.join("resources", "keymaps")
+KEYMAPS_TARGET_PATH = "special://profile/keymaps"
 
 FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight",
@@ -57,6 +59,7 @@ MENU_ITEMS = (
     ("Install a4kSubtitles settings", "install_a4ksubtitles"),
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install Kodi network advanced settings", "install_advanced_network"),
+    ("Install Kodi keymaps", "install_keymaps"),
     ("Install everything", "install_all"),
 )
 
@@ -497,6 +500,16 @@ def _backup_file(path):
     return backup_path
 
 
+def _same_file_bytes(path, payload):
+    if not os.path.exists(path):
+        return False
+    try:
+        with io.open(path, "rb") as handle:
+            return handle.read() == payload
+    except Exception:
+        return False
+
+
 def _direct_child(element, tag):
     for child in list(element):
         if child.tag == tag:
@@ -553,6 +566,59 @@ def _write_advanced_network_settings():
 
     _log("Installed Kodi network advanced settings at %s" % advancedsettings_path)
     return advancedsettings_path, backup_path
+
+
+def _addon_resource_path(*parts):
+    addon_path = xbmcaddon.Addon(ADDON_ID).getAddonInfo("path")
+    return os.path.join(_translate_path(addon_path), *parts)
+
+
+def _keymap_source_files():
+    source_dir = _addon_resource_path(KEYMAPS_SOURCE_DIR)
+    if not os.path.isdir(source_dir):
+        raise RuntimeError("famYT keymap bundle was not found.")
+
+    keymap_files = []
+    for name in sorted(os.listdir(source_dir)):
+        if name.startswith("._") or not name.lower().endswith(".xml"):
+            continue
+        path = os.path.join(source_dir, name)
+        if os.path.isfile(path):
+            keymap_files.append((name, path))
+    if not keymap_files:
+        raise RuntimeError("famYT keymap bundle is empty.")
+    return keymap_files
+
+
+def _install_keymap_files():
+    target_dir = _translate_path(KEYMAPS_TARGET_PATH)
+    if not os.path.isdir(target_dir):
+        os.makedirs(target_dir)
+
+    installed = []
+    backups = []
+    for name, source_path in _keymap_source_files():
+        with io.open(source_path, "rb") as handle:
+            payload = handle.read()
+
+        target_path = os.path.join(target_dir, name)
+        if _same_file_bytes(target_path, payload):
+            installed.append(name)
+            continue
+
+        if os.path.exists(target_path):
+            backups.append(_backup_file(target_path))
+
+        tmp_path = target_path + ".tmp"
+        with io.open(tmp_path, "wb") as handle:
+            handle.write(payload)
+        if os.path.exists(target_path):
+            os.remove(target_path)
+        os.rename(tmp_path, target_path)
+        installed.append(name)
+
+    _log("Installed Kodi keymaps at %s: %s" % (target_dir, ", ".join(installed)))
+    return installed, backups
 
 
 def _write_kodi_settings_xml(data_path, values):
@@ -814,6 +880,21 @@ def _install_advanced_network_settings(addon):
     return message
 
 
+def _install_keymaps(addon):
+    installed, backups = _install_keymap_files()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_keymaps_install", now)
+    _set_setting(addon, "last_install", now)
+
+    message = (
+        "Kodi keymaps installed: %s. Restart Kodi for the keymaps to take effect."
+        % ", ".join(installed)
+    )
+    if backups:
+        message += " Existing matching keymap files were backed up."
+    return message
+
+
 def _run_install_all_step(messages, label, install_func):
     try:
         messages.append(install_func())
@@ -832,6 +913,7 @@ def _run_action(action):
         "install_a4ksubtitles",
         "install_cocoscrapers",
         "install_advanced_network",
+        "install_keymaps",
         "install_all",
     ):
         _show_menu()
@@ -867,6 +949,20 @@ def _run_action(action):
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
         return
 
+    if action == "install_keymaps":
+        progress = xbmcgui.DialogProgress()
+        progress.create("famYT", "Installing Kodi keymaps...")
+        try:
+            message = _install_keymaps(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("famYT", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
     api_url = _get_setting(addon, "api_url").strip()
     if not api_url or "YOUR-VERCEL-PROJECT" in api_url:
         xbmcgui.Dialog().ok("famYT", "Set the famYT bridge URL in the add-on settings first.")
@@ -884,35 +980,41 @@ def _run_action(action):
         messages = []
 
         if action == "install_all":
-            progress.update(20, "Installing YouTube credentials...")
+            progress.update(15, "Installing YouTube credentials...")
             _run_install_all_step(
                 messages,
                 "YouTube credentials",
                 lambda: _install_youtube(addon, bridge_data),
             )
-            progress.update(40, "Installing TorBox API key...")
+            progress.update(30, "Installing TorBox API key...")
             _run_install_all_step(
                 messages,
                 "TorBox API key",
                 lambda: _install_torbox(addon, bridge_data),
             )
-            progress.update(60, "Installing a4kSubtitles settings...")
+            progress.update(50, "Installing a4kSubtitles settings...")
             _run_install_all_step(
                 messages,
                 "a4kSubtitles settings",
                 lambda: _install_a4ksubtitles(addon, bridge_data),
             )
-            progress.update(80, "Installing Cocoscrapers filters...")
+            progress.update(65, "Installing Cocoscrapers filters...")
             _run_install_all_step(
                 messages,
                 "Cocoscrapers filters",
                 lambda: _install_cocoscrapers(addon),
             )
-            progress.update(90, "Installing Kodi network advanced settings...")
+            progress.update(80, "Installing Kodi network advanced settings...")
             _run_install_all_step(
                 messages,
                 "Kodi network advanced settings",
                 lambda: _install_advanced_network_settings(addon),
+            )
+            progress.update(90, "Installing Kodi keymaps...")
+            _run_install_all_step(
+                messages,
+                "Kodi keymaps",
+                lambda: _install_keymaps(addon),
             )
         elif action == "install_youtube":
             progress.update(25, "Installing YouTube credentials...")

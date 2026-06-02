@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.4" provider-name="DutchTech">
+<addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.5" provider-name="DutchTech">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -15,7 +15,10 @@
         </assets>
         <platform>android</platform>
         <license>MIT</license>
-        <news>v0.0.4
+        <news>v0.0.5
+- Add AH2 search and TMDbHelper result window support.
+
+v0.0.4
 - Add package artwork.</news>
     </extension>
 </addon>

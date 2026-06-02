@@ -25,9 +25,10 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="famYT" version="0.5.0" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="famYT" version="0.6.0" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.fenlight.quickrescrape" version="0.0.5" />
         </requires>
         <extension point="xbmc.python.pluginsource" library="plugin.py">
             <provides>executable</provides>
@@ -42,7 +43,12 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.5.0
+            <news>v0.6.0
+- Add Kodi keymaps installer
+- Require Fen Light quick rescrape helper for keymap actions
+- Bundle current Fen Light quick rescrape keymaps
+
+v0.5.0
 - Add Kodi network advanced settings installer
 
 v0.4.4
@@ -415,7 +421,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             <platform>all</platform>
         </extension>
     </addon>
-    <addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.4" provider-name="DutchTech">
+    <addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.5" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -431,7 +437,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             </assets>
             <platform>android</platform>
             <license>MIT</license>
-            <news>v0.0.4
+            <news>v0.0.5
+- Add AH2 search and TMDbHelper result window support.
+
+v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
