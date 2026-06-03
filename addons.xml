@@ -142,7 +142,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.82">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.83">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -163,7 +163,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.82]:
+            <news>[v2.0.83]:
+  * Prefer actual OpenSubtitles file names for subtitle selector matching, while keeping release aliases as labeled fallback context.
+
+[v2.0.82]:
   * Let TorBox cloud scraping match completed cloud item filenames as well as folder names, and tolerate punctuation-only title differences after the year/episode gate.
   * Keep AIOStreams and TorBox Search Usenet rows on the stricter title/year filter, regardless of the TorBox cloud title-filter setting, so older same-title movies do not enter the source list.
   * Use AIOStreams search metadata as NZB lookup only and resolve TorBox Usenet Search through the local TorBox account; remove the direct TorBox Search API fallback.
@@ -836,7 +839,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.38" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.39" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -861,6 +864,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.39]:
+  * Pass OpenSubtitles file names through as subtitle filenames while preserving release aliases separately for selector context.
+
 [v3.23.38]:
   * Make OpenSubtitles TV episode searches exact in API mode: parent TMDb plus season/episode first, parent IMDb plus season/episode if TMDb is missing, no broad title fallback without an exact ID.
   * Reject OpenSubtitles TV rows whose parent ID, season, or episode do not match, and exclude OpenSubtitles AI-translated rows by default.

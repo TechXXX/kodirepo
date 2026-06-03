@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.82">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.83">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.82]:
+        <news>[v2.0.83]:
+  * Prefer actual OpenSubtitles file names for subtitle selector matching, while keeping release aliases as labeled fallback context.
+
+[v2.0.82]:
   * Let TorBox cloud scraping match completed cloud item filenames as well as folder names, and tolerate punctuation-only title differences after the year/episode gate.
   * Keep AIOStreams and TorBox Search Usenet rows on the stricter title/year filter, regardless of the TorBox cloud title-filter setting, so older same-title movies do not enter the source list.
   * Use AIOStreams search metadata as NZB lookup only and resolve TorBox Usenet Search through the local TorBox account; remove the direct TorBox Search API fallback.

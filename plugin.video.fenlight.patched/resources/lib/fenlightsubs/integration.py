@@ -180,10 +180,12 @@ def adapt_fenlight_source(source: dict[str, Any]) -> dict[str, Any]:
 
 def adapt_a4k_subtitle(subtitle: dict[str, Any]) -> dict[str, Any]:
     action_args = subtitle.get("action_args") or {}
+    filename = action_args.get("filename") or subtitle.get("filename") or ""
+    release_alias = action_args.get("release_name") or subtitle.get("release_name") or ""
     release_name = (
-        subtitle.get("name")
-        or action_args.get("filename")
-        or subtitle.get("filename")
+        filename
+        or subtitle.get("name")
+        or release_alias
         or ""
     )
 
@@ -191,13 +193,13 @@ def adapt_a4k_subtitle(subtitle: dict[str, Any]) -> dict[str, Any]:
         subtitle.get("comment", ""),
         subtitle.get("comments", ""),
         subtitle.get("service", ""),
-        action_args.get("release_name", ""),
+        "Release: %s" % release_alias if release_alias else "",
         action_args.get("comment", ""),
     ]
 
     return {
         "release_name": str(release_name),
-        "filename": str(action_args.get("filename") or subtitle.get("filename") or release_name),
+        "filename": str(filename or release_name),
         "comment": " | ".join(part for part in comment_parts if part),
         "service_name": subtitle.get("service_name"),
         "service": subtitle.get("service"),
@@ -221,7 +223,7 @@ def _source_trace(source: dict[str, Any]) -> dict[str, Any]:
 def _subtitle_trace(subtitle: dict[str, Any]) -> dict[str, Any]:
     action_args = subtitle.get("action_args") or {}
     return {
-        "release_name": subtitle.get("name") or action_args.get("filename") or subtitle.get("filename"),
+        "release_name": action_args.get("filename") or subtitle.get("filename") or subtitle.get("name"),
         "service_name": subtitle.get("service_name"),
         "service": subtitle.get("service"),
         "sync": subtitle.get("sync"),
@@ -240,9 +242,9 @@ def _ranked_trace(item: dict[str, Any]) -> dict[str, Any]:
         "match_reason": item["match_reason"],
         "used_comments_fallback": item["used_comments_fallback"],
         "matched_subtitle_release_name": (
-            subtitle.get("name")
-            or (subtitle.get("action_args") or {}).get("filename")
+            (subtitle.get("action_args") or {}).get("filename")
             or subtitle.get("filename")
+            or subtitle.get("name")
             if subtitle
             else None
         ),

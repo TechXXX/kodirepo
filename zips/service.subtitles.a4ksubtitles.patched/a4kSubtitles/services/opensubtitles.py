@@ -328,7 +328,9 @@ def parse_search_response(core, service_name, meta, response):
         elif not matches_expected_movie(feature_details):
             return None
 
-        filename = result.get('release') or result['files'][0]['file_name']
+        file_info = result['files'][0]
+        release_name = result.get('release')
+        filename = file_info.get('file_name') or release_name
         language = core.utils.get_lang_id(result['language'], core.kodi.xbmc.ENGLISH_NAME)
 
         return {
@@ -344,10 +346,10 @@ def parse_search_response(core, service_name, meta, response):
             'hd': bool(result.get('hd', False)),
             'color': 'springgreen',
             'action_args': {
-                'url': result['files'][0]['file_id'],
+                'url': file_info['file_id'],
                 'lang': language,
                 'filename': filename,
-                'release_name': result.get('release'),
+                'release_name': release_name,
                 'gzip': True,
                 'ai_translated': result.get('ai_translated', False),
                 'machine_translated': result.get('machine_translated', False),
