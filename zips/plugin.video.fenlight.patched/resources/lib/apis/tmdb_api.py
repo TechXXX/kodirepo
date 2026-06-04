@@ -208,6 +208,16 @@ def tmdb_movie_keywords(tmdb_id):
 	url = '%s/movie/%s/keywords?api_key=%s' % (base_url, tmdb_id, api_key)
 	return cache_function(get_tmdb, string, url, expiration=EXPIRY_1_WEEK)
 
+def tmdb_external_ids(media_type, tmdb_id):
+	api_key = tmdb_api_key()
+	if api_key in empty_setting_check: return {}
+	try:
+		media_type = 'movie' if media_type in ('movie', 'movies') else 'tv'
+		string = 'tmdb_external_ids_%s_%s' % (media_type, tmdb_id)
+		url = '%s/%s/%s/external_ids?api_key=%s' % (base_url, media_type, tmdb_id, api_key)
+		return cache_function(get_tmdb, string, url, expiration=EXPIRY_1_WEEK) or {}
+	except: return {}
+
 def tmdb_tv_keywords(tmdb_id):
 	api_key = tmdb_api_key()
 	if api_key in empty_setting_check: return no_api_key()

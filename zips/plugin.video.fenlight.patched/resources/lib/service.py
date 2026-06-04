@@ -10,6 +10,8 @@ trakt_service_string = 'TraktMonitor Service Update %s - %s'
 trakt_success_line_dict = {'success': 'Trakt Update Performed', 'no account': '(Unauthorized) Trakt Update Performed'}
 update_string = 'Next Update in %s minutes...'
 old_trakt_client_id = '1038ef327e86e7f6d39d80d2eb5479bff66dd8394e813c5e0e387af0f84d89fb'
+old_aiostreams_elfhosted_host = 'aiostreams.elfhosted.com'
+default_aiostreams_midnight_url = 'https://aiostreamsfortheweebsstable.midnightignite.me'
 
 def logger(heading, function):
 	xbmc.log('###%s###: %s' % (heading, function), 1)
@@ -55,7 +57,10 @@ class OnUpdateChanges:
 		logger('Fen Light Patched', 'OnUpdateChanges Service Starting')
 		from caches.settings_cache import get_setting, set_setting
 		try:
-			migrations = (('refresh_addon_keys', self.refresh_addon_keys),)
+			migrations = (
+				('refresh_addon_keys', self.refresh_addon_keys),
+				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url)
+			)
 			for setting_id, migration in migrations:
 				update_setting_id = 'updatechecks.%s' % setting_id
 				if get_setting('fenlight.%s' % update_setting_id, 'false') == 'true': continue
@@ -89,6 +94,23 @@ class OnUpdateChanges:
 			heading='Trakt Credentials Reset',
 			text='Fen Light Patched has replaced an old Trakt app key with the current default.[CR][CR]Please re-authorize your Trakt account.'
 		)
+
+	def migrate_tb_usenet_aiostreams_url(self):
+		from urllib.parse import urlsplit
+		from caches.settings_cache import get_setting, set_setting
+		current_url = (get_setting('fenlight.tb.usenet_search.aiostreams_manifest', '') or '').strip()
+		if not current_url: return
+		try:
+			test_url = current_url
+			if test_url.startswith('stremio://'): test_url = 'https://%s' % test_url.split('://', 1)[1]
+			elif test_url.startswith('://'): test_url = 'https%s' % test_url
+			elif test_url.startswith('aiostreams.'): test_url = 'https://%s' % test_url
+			host = urlsplit(test_url).netloc.lower()
+			if host != old_aiostreams_elfhosted_host: return
+			set_setting('tb.usenet_search.aiostreams_manifest', default_aiostreams_midnight_url)
+			logger('Fen Light Patched', 'TorBox Usenet AIOStreams URL migrated from ElfHosted public instance to Midnight.')
+		except Exception as e:
+			logger('Fen Light Patched', 'TorBox Usenet AIOStreams URL migration failed: %s' % str(e))
 
 class CustomFonts:
 	def run(self):

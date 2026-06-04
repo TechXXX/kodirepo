@@ -31,7 +31,18 @@ class AIOStreamsAPI:
 			if not self.stream_base: return []
 			url = '%s/stream/%s/%s.json' % (self.stream_base, stremio_type, quote(stremio_id, safe=':'))
 			response = session.get(url, headers={'User-Agent': user_agent, 'Accept': 'application/json'}, timeout=timeout)
-			data = response.json()
+			content_type = response.headers.get('Content-Type', '')
+			content_length = len(response.content or b'')
+			try:
+				data = response.json()
+			except Exception as e:
+				logger('Fen Light Patched', 'AIOStreams stream fallback non-json | status=%s | content_type=%s | bytes=%s | prefix=%s | error=%s | type=%s | id=%s' % (
+					response.status_code, content_type, content_length, self._response_prefix(response), str(e), stremio_type, stremio_id))
+				return []
+			if not response.ok:
+				logger('Fen Light Patched', 'AIOStreams stream fallback unavailable | status=%s | content_type=%s | bytes=%s | type=%s | id=%s' % (
+					response.status_code, content_type, content_length, stremio_type, stremio_id))
+				return []
 			streams = data.get('streams') or []
 			return [i for i in (self._parse_stream(stream) for stream in streams) if i]
 		except Exception as e:
@@ -75,11 +86,25 @@ class AIOStreamsAPI:
 		imdb_id = (imdb_id or '').strip()
 		tmdb_id = str(tmdb_id or '').strip()
 		if re.match(r'^tt\d+$', imdb_id) and imdb_id != 'tt0000000': base_id = imdb_id
-		elif tmdb_id: base_id = 'tmdb:%s' % tmdb_id
+		elif tmdb_id:
+			converted_imdb_id = self._imdb_id_from_tmdb(media_type, tmdb_id)
+			base_id = converted_imdb_id or 'tmdb:%s' % tmdb_id
 		else: return '', ''
 		if media_type == 'movie': return 'movie', base_id
 		if not season or not episode: return '', ''
 		return 'series', '%s:%s:%s' % (base_id, int(season), int(episode))
+
+	def _imdb_id_from_tmdb(self, media_type, tmdb_id):
+		try:
+			if not tmdb_id or str(tmdb_id) == '0000000': return ''
+			from apis.tmdb_api import tmdb_external_ids
+			ids = tmdb_external_ids(media_type, tmdb_id)
+			imdb_id = (ids or {}).get('imdb_id') or ''
+			if re.match(r'^tt\d+$', imdb_id) and imdb_id != 'tt0000000': return imdb_id
+		except Exception as e:
+			logger('Fen Light Patched', 'AIOStreams TMDb to IMDb conversion exception | media=%s | tmdb=%s | error=%s' % (
+				media_type, tmdb_id, str(e)))
+		return ''
 
 	def _search_api_results(self, stremio_type, stremio_id):
 		try:
@@ -106,7 +131,14 @@ class AIOStreamsAPI:
 			}
 			url = '%s/api/v1/search' % self.api_base
 			response = session.get(url, params={'type': stremio_type, 'id': stremio_id}, headers=headers, timeout=timeout)
-			data = response.json()
+			content_type = response.headers.get('Content-Type', '')
+			content_length = len(response.content or b'')
+			try:
+				data = response.json()
+			except Exception as e:
+				logger('Fen Light Patched', 'AIOStreams Search API non-json | status=%s | content_type=%s | bytes=%s | prefix=%s | error=%s | type=%s | id=%s' % (
+					response.status_code, content_type, content_length, self._response_prefix(response), str(e), stremio_type, stremio_id))
+				return []
 			if not response.ok:
 				logger('Fen Light Patched', 'AIOStreams Search API unavailable | status=%s | error=%s' % (response.status_code, data.get('error') or data.get('message') or 'unknown'))
 				return []
@@ -183,3 +215,7 @@ class AIOStreamsAPI:
 	def _to_int(self, value):
 		try: return int(float(value))
 		except: return 0
+
+	def _response_prefix(self, response):
+		try: return (response.text or '').replace('\r', ' ').replace('\n', ' ')[:160]
+		except: return ''
