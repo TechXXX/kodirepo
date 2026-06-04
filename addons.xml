@@ -424,7 +424,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             <platform>all</platform>
         </extension>
     </addon>
-    <addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.5" provider-name="DutchTech">
+    <addon id="script.fenlight.quickrescrape" name="Fen Light Quick Rescrape" version="0.0.6" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -438,9 +438,12 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <platform>android</platform>
+            <platform>all</platform>
             <license>MIT</license>
-            <news>v0.0.5
+            <news>v0.0.6
+- Make the helper installable on all Kodi platforms so famYT keymap dependencies can resolve on Mac as well as Android.
+
+v0.0.5
 - Add AH2 search and TMDbHelper result window support.
 
 v0.0.4
