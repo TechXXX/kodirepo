@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="famYT" version="0.6.0" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="famYT" version="0.6.1" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
@@ -43,7 +43,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.6.0
+            <news>v0.6.1
+- Fix the English language placeholder so Kodi's PO parser accepts the add-on cleanly.
+
+v0.6.0
 - Add Kodi keymaps installer
 - Require Fen Light quick rescrape helper for keymap actions
 - Bundle current Fen Light quick rescrape keymaps

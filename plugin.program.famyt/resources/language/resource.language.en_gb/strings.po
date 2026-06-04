@@ -1,1 +1,16 @@
-# Kodi strings placeholder for famYT.
+# Kodi Media Center language file
+# Addon Name: famYT
+# Addon id: plugin.program.famyt
+# Addon Provider: DutchTech
+msgid ""
+msgstr ""
+"Project-Id-Version: famYT\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-04 12:15+0200\n"
+"PO-Revision-Date: 2026-06-04 12:15+0200\n"
+"Last-Translator: DutchTech\n"
+"Language-Team: English\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
