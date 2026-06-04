@@ -1,3 +1,11 @@
+[COLOR dodgerblue][B]Version 2.0.84[/B][/COLOR]
+- Migrate old ElfHosted AIOStreams manifest settings to the Midnight endpoint.
+- Use TMDb-to-IMDb fallback ids for AIOStreams lookups when IMDb metadata is missing.
+- Log and skip non-JSON AIOStreams responses instead of letting source scraping fail.
+
+[COLOR dodgerblue][B]Version 2.0.83[/B][/COLOR]
+- Prefer actual OpenSubtitles file names for subtitle selector matching, while keeping release aliases as labeled fallback context.
+
 [COLOR dodgerblue][B]Version 2.0.82[/B][/COLOR]
 - Let TorBox cloud scraping match completed cloud item filenames as well as folder names, and tolerate punctuation-only title differences after the year/episode gate.
 - Keep AIOStreams and TorBox Search Usenet rows on the stricter title/year filter, regardless of the TorBox cloud title-filter setting, so older same-title movies do not enter the source list.

@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.83">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.84">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.83]:
+        <news>[v2.0.84]:
+  * Migrate old ElfHosted AIOStreams manifest settings to the Midnight endpoint, use TMDb-to-IMDb fallback for AIOStreams ids, and guard non-JSON AIOStreams responses.
+
+[v2.0.83]:
   * Prefer actual OpenSubtitles file names for subtitle selector matching, while keeping release aliases as labeled fallback context.
 
 [v2.0.82]:

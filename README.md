@@ -33,7 +33,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.81`
+- `plugin.video.fenlight.patched` `2.0.84`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -75,7 +75,10 @@ Current source-tree versions when this document was updated:
   episodes, and automatic no-results retry. It now also trusts ID-matched
   AIOStreams TorBox Usenet rows and uses a dummy resolved playback cleanup to
   suppress Kodi's generic playback-failed dialog when cancelling the manual
-  source list while restoring local watched/progress state afterward.
+  source list while restoring local watched/progress state afterward. It now
+  also migrates the old ElfHosted AIOStreams manifest URL to the Midnight
+  endpoint, falls back from TMDb ids to IMDb ids for AIOStreams lookups, and
+  logs non-JSON AIOStreams responses without crashing the source scrape.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.11`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes

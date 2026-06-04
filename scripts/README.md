@@ -63,6 +63,13 @@ the test version number in production, even if the promoted code is identical,
 because the Android box has both repos installed and Kodi compares addon
 versions across them.
 
+Also do not replace an already-published same-version package zip and call it an
+update. Kodi decides repository updates from the advertised addon version in
+`addon.xml` / `addons.xml`, and clients may cache same-version zips. For a real
+Kodi-visible release, bump the addon source version first, regenerate
+`zips/<addon-id>/<addon-id>-<new-version>.zip`, regenerate `addons.xml` and
+`addons.xml.md5`, then commit and push that new version.
+
 ## Helpers Worth Knowing
 
 From `publish_addon_update.py`:
