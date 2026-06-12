@@ -42,7 +42,13 @@ SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
     "skinvariables-shortcut-context.json",
 }
-USER_AGENT = "{}/0.1.6 Kodi".format(ADDON_ID)
+PRELOADED_WIDGET_SOURCES = [
+    (
+        "DutchTech preloaded widgets",
+        "https://e.pcloud.link/publink/show?code=8Vdy6alK",
+    ),
+]
+USER_AGENT = "{}/0.1.7 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -287,7 +293,7 @@ def choose_source(ui: KodiUI) -> str:
     options: List[str] = []
     if last_source:
         options.append("Use last source")
-    options.extend(["Paste URL or path", "Browse for ZIP"])
+    options.extend(["Preloaded widgets", "Paste URL or path", "Browse for ZIP"])
 
     choice = ui.select(ADDON_NAME, options)
     if choice < 0:
@@ -296,9 +302,22 @@ def choose_source(ui: KodiUI) -> str:
     label = options[choice]
     if label == "Use last source":
         return last_source
+    if label == "Preloaded widgets":
+        return choose_preloaded_source(ui)
     if label == "Browse for ZIP":
         return strip_quotes(ui.browse_zip())
     return strip_quotes(ui.input("Paste widget ZIP, pCloud link, or path", last_source))
+
+
+def choose_preloaded_source(ui: KodiUI) -> str:
+    if len(PRELOADED_WIDGET_SOURCES) == 1:
+        return PRELOADED_WIDGET_SOURCES[0][1]
+
+    labels = [label for label, _source in PRELOADED_WIDGET_SOURCES]
+    choice = ui.select("Preloaded widgets", labels)
+    if choice < 0:
+        raise ImportCancelled()
+    return PRELOADED_WIDGET_SOURCES[choice][1]
 
 
 def confirm_import(
