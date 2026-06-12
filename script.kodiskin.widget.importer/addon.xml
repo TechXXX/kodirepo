@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.kodiskin.widget.importer"
        name="KodiSkin Widget Importer"
-       version="0.1.5"
+       version="0.1.6"
        provider-name="Kalter">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
@@ -10,8 +10,8 @@
         <provides>executable</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_GB">Import Skin Shortcuts widget backups from ZIP files or pCloud links.</summary>
-        <description lang="en_GB">Downloads or opens a widget backup ZIP, copies Skin Shortcuts DATA and properties files into the local profile, optionally retargets Fen-style widget paths to another video add-on, renames files for the active skin, and creates a restore backup before overwriting anything.</description>
+        <summary lang="en_GB">Import Skin Shortcuts and Arctic Fuse 3 widget backups.</summary>
+        <description lang="en_GB">Downloads or opens a widget backup ZIP, imports Skin Shortcuts XML or Arctic Fuse 3 Skin Variables widget JSON into the active skin profile, optionally retargets Fen-style widget paths to another video add-on, and creates a restore backup before overwriting anything.</description>
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>

@@ -32,9 +32,17 @@ except ImportError:  # Allows local syntax/unit checks outside Kodi.
 ADDON_ID = "script.kodiskin.widget.importer"
 ADDON_NAME = "KodiSkin Widget Importer"
 SHORTCUTS_DATA = "special://profile/addon_data/script.skinshortcuts/"
+SKINVARIABLES_NODES_DATA = "special://profile/addon_data/script.skinvariables/nodes/"
 ADDON_DATA = "special://profile/addon_data/{}/".format(ADDON_ID)
 INCLUDE_NAME = "script-skinshortcuts-includes.xml"
-USER_AGENT = "{}/0.1.5 Kodi".format(ADDON_ID)
+SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
+SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
+SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
+SKINVARIABLES_SKIP_FILES = {
+    "skinvariables-shortcut-config.json",
+    "skinvariables-shortcut-context.json",
+}
+USER_AGENT = "{}/0.1.6 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -77,6 +85,20 @@ class ShortcutPackage:
     files: List[ImportFile]
     include_path: Optional[Path]
     skipped_hashes: List[Path]
+
+
+@dataclass(frozen=True)
+class SkinVariablesFile:
+    source_path: Path
+    source_skin: str
+    target_name: str
+    menu_name: str
+
+
+@dataclass(frozen=True)
+class SkinVariablesPackage:
+    source_skin: str
+    files: List[SkinVariablesFile]
 
 
 @dataclass(frozen=True)
@@ -168,11 +190,50 @@ def main() -> None:
 
         work_dir = make_work_dir()
         package_root = prepare_source(source, work_dir, ui)
-        package = discover_package(package_root, target_skin, ui)
+        skinvariables_package = discover_skinvariables_package(package_root, target_skin, ui)
+        if skinvariables_package.files and skin_supports_skinvariables(target_skin):
+            video_rewrite = choose_video_addon_rewrite(skinvariables_package, ui)
+            import_mode = choose_import_mode(ui)
 
+            if not confirm_skinvariables_import(
+                skinvariables_package, target_skin, video_rewrite, import_mode, ui
+            ):
+                return
+
+            backup_dir = import_skinvariables_shortcuts(
+                skinvariables_package.files, target_skin, video_rewrite, import_mode, ui
+            )
+            save_last_source(source)
+            rebuild_skinvariables_shortcuts(ui)
+
+            rewrite_note = ""
+            if video_rewrite:
+                rewrite_note = "Retargeted widgets to {}. ".format(video_rewrite.target_id)
+
+            ui.ok(
+                ADDON_NAME,
+                "Imported {} Arctic Fuse 3 widget file(s).".format(
+                    len(skinvariables_package.files)
+                ),
+                "Backup: {}".format(backup_dir),
+                "{}Skin Variables rebuild was triggered.".format(rewrite_note),
+            )
+            return
+
+        package = discover_package(package_root, target_skin, ui)
         if not package.files:
+            if skinvariables_package.files:
+                raise ImportErrorWithMessage(
+                    "That looks like an Arctic Fuse 3 / Skin Variables widget backup, "
+                    "but the active skin does not look like an AF3 Skin Variables skin."
+                )
             raise ImportErrorWithMessage(
-                "No Skin Shortcuts DATA/properties files were found in that ZIP."
+                "No Skin Shortcuts DATA/properties or Arctic Fuse 3 widget JSON files were found in that ZIP."
+            )
+        if skin_supports_skinvariables(target_skin):
+            raise ImportErrorWithMessage(
+                "The active skin uses Arctic Fuse 3 / Skin Variables widgets, but that ZIP only "
+                "contains Skin Shortcuts XML. Import an AF3 Skin Variables widget backup instead."
             )
 
         video_rewrite = choose_video_addon_rewrite(package, ui)
@@ -267,6 +328,32 @@ def confirm_import(
     )
 
 
+def confirm_skinvariables_import(
+    package: SkinVariablesPackage,
+    target_skin: str,
+    video_rewrite: Optional[VideoAddonRewrite],
+    import_mode: str,
+    ui: KodiUI,
+) -> bool:
+    rewrite_note = "Video add-ons: unchanged"
+    if video_rewrite:
+        rewrite_note = "Video add-ons: {} -> {}".format(
+            ", ".join(video_rewrite.source_ids), video_rewrite.target_id
+        )
+    mode_note = "Mode: overwrite matching local files"
+    if import_mode == IMPORT_MODE_APPEND:
+        mode_note = "Mode: add onto existing local files"
+    menu_note = ", ".join(item.menu_name for item in package.files)
+    return ui.yesno(
+        ADDON_NAME,
+        "Source skin: {}".format(package.source_skin),
+        "Target AF3 skin: {}".format(target_skin),
+        "{}. {}. Import {} widget menu file(s): {}".format(
+            mode_note, rewrite_note, len(package.files), menu_note
+        ),
+    )
+
+
 def get_current_skin() -> str:
     if xbmc:
         return xbmc.getSkinDir()
@@ -323,6 +410,57 @@ def discover_package(root: Path, target_skin: str, ui: KodiUI) -> ShortcutPackag
         return discover_package_once(nested_root, target_skin, ui)
 
     return package
+
+
+def discover_skinvariables_package(
+    root: Path, target_skin: str, ui: KodiUI
+) -> SkinVariablesPackage:
+    package = discover_skinvariables_package_once(root, target_skin, ui)
+    if package.files:
+        return package
+
+    nested_zips = [path for path in root.rglob("*.zip") if path.is_file()]
+    if len(nested_zips) == 1:
+        nested_root = root.parent / "nested-skinvariables-zip"
+        ui.log("No Skin Variables widgets found; extracting nested ZIP {}".format(nested_zips[0].name))
+        safe_extract_zip(nested_zips[0], nested_root)
+        return discover_skinvariables_package_once(nested_root, target_skin, ui)
+
+    return package
+
+
+def discover_skinvariables_package_once(
+    root: Path, target_skin: str, ui: KodiUI
+) -> SkinVariablesPackage:
+    candidates: List[SkinVariablesFile] = []
+
+    for path in sorted(root.rglob("{}*{}".format(SKINVARIABLES_SHORTCUT_PREFIX, SKINVARIABLES_SHORTCUT_SUFFIX))):
+        if not path.is_file() or any(part == "__MACOSX" for part in path.parts):
+            continue
+
+        menu_name = parse_skinvariables_widget_filename(path.name)
+        if not menu_name:
+            continue
+        if not is_skinvariables_shortcut_node_file(path):
+            continue
+
+        candidates.append(
+            SkinVariablesFile(
+                path,
+                infer_skinvariables_source_skin(path, root),
+                path.name,
+                menu_name,
+            )
+        )
+
+    if not candidates:
+        return SkinVariablesPackage("", [])
+
+    source_skin = choose_source_skin(candidates, ui)
+    chosen = [item for item in candidates if item.source_skin == source_skin]
+    deduped = dedupe_by_target_name(chosen, root)
+
+    return SkinVariablesPackage(source_skin, deduped)
 
 
 def discover_package_once(root: Path, target_skin: str, ui: KodiUI) -> ShortcutPackage:
@@ -412,7 +550,7 @@ def candidate_score(path: Path, root: Path) -> Tuple[int, int]:
 
 
 def choose_video_addon_rewrite(
-    package: ShortcutPackage, ui: KodiUI
+    package: object, ui: KodiUI
 ) -> Optional[VideoAddonRewrite]:
     scanned = scan_video_addons(package)
     source_ids = tuple(
@@ -453,11 +591,12 @@ def choose_video_addon_rewrite(
     return VideoAddonRewrite(source_ids, target_id)
 
 
-def scan_video_addons(package: ShortcutPackage) -> Dict[str, int]:
+def scan_video_addons(package: object) -> Dict[str, int]:
     counts: Dict[str, int] = {}
-    paths = [item.source_path for item in package.files]
-    if package.include_path:
-        paths.append(package.include_path)
+    paths = [item.source_path for item in getattr(package, "files", [])]
+    include_path = getattr(package, "include_path", None)
+    if include_path:
+        paths.append(include_path)
 
     for path in paths:
         try:
@@ -562,6 +701,51 @@ def import_shortcuts(
         ui.log("Removed {} to force Skin Shortcuts rebuild".format(target_hash_name))
 
     return backup_dir
+
+
+def import_skinvariables_shortcuts(
+    files: Sequence[SkinVariablesFile],
+    target_skin: str,
+    video_rewrite: Optional[VideoAddonRewrite],
+    import_mode: str,
+    ui: KodiUI,
+) -> str:
+    target_dir = vfs_join(SKINVARIABLES_NODES_DATA, target_skin)
+    ensure_vfs_dir(target_dir)
+
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    backup_dir = vfs_join(
+        ADDON_DATA, "backups", stamp, "script.skinvariables", "nodes", target_skin
+    )
+    ensure_vfs_dir(backup_dir)
+
+    for item in files:
+        dest = vfs_join(target_dir, item.target_name)
+        if vfs_exists(dest):
+            copy_vfs(dest, vfs_join(backup_dir, item.target_name))
+
+    for item in files:
+        dest = vfs_join(target_dir, item.target_name)
+        source_data = read_import_bytes(item.source_path, video_rewrite)
+        if import_mode == IMPORT_MODE_APPEND and vfs_exists(dest):
+            added = merge_skinvariables_data(dest, source_data)
+            ui.log("Merged {} widget row(s) into {}".format(added, item.target_name))
+        else:
+            write_skinvariables_data(dest, source_data)
+            ui.log("Imported {}".format(item.target_name))
+
+    return backup_dir
+
+
+def rebuild_skinvariables_shortcuts(ui: KodiUI) -> None:
+    if not xbmc:
+        ui.log("Skin Variables rebuild skipped outside Kodi")
+        return
+    xbmc.executebuiltin(
+        "SetProperty(SkinVariables.ShortcutsNode.Reload,{},Home)".format(time.time())
+    )
+    xbmc.executebuiltin("RunScript(script.skinvariables,action=buildtemplate,force)")
+    ui.log("Triggered Skin Variables shortcut rebuild")
 
 
 def import_generated_include(
@@ -683,6 +867,115 @@ def property_row_key(row: object) -> Tuple[object, ...]:
     if isinstance(row, list) and len(row) >= 3:
         return tuple(row[:3])
     return (json.dumps(row, sort_keys=True, ensure_ascii=False),)
+
+
+def write_skinvariables_data(dest: str, source_data: bytes) -> None:
+    rows = load_skinvariables_rows(source_data)
+    ensure_unique_skinvariables_guids(rows)
+    write_json_vfs(dest, rows)
+
+
+def merge_skinvariables_data(dest: str, source_data: bytes) -> int:
+    target_rows = load_skinvariables_rows(read_bytes_vfs(dest))
+    source_rows = load_skinvariables_rows(source_data)
+    added = merge_skinvariables_rows(target_rows, source_rows)
+    ensure_unique_skinvariables_guids(target_rows)
+    write_json_vfs(dest, target_rows)
+    return added
+
+
+def load_skinvariables_rows(data: bytes) -> List[object]:
+    try:
+        rows = json.loads(data.decode("utf-8-sig", "replace"))
+    except Exception as exc:
+        raise ImportErrorWithMessage("Could not read Skin Variables widget JSON: {}".format(exc))
+    if not isinstance(rows, list):
+        raise ImportErrorWithMessage("Expected Skin Variables widget JSON to be a list.")
+    return rows
+
+
+def merge_skinvariables_rows(target_rows: List[object], source_rows: Sequence[object]) -> int:
+    by_signature = {
+        skinvariables_item_signature(row): row
+        for row in target_rows
+        if isinstance(row, dict)
+    }
+    added = 0
+    for row in source_rows:
+        if not isinstance(row, dict):
+            key = skinvariables_item_signature(row)
+            if key in by_signature:
+                continue
+            target_rows.append(row)
+            added += 1
+            continue
+
+        key = skinvariables_item_signature(row)
+        target_row = by_signature.get(key)
+        if isinstance(target_row, dict):
+            added += merge_skinvariables_child_rows(target_row, row)
+            continue
+
+        target_rows.append(row)
+        by_signature[key] = row
+        added += 1
+    return added
+
+
+def merge_skinvariables_child_rows(target_row: Dict[str, object], source_row: Dict[str, object]) -> int:
+    added = 0
+    for child_key in ("submenu", "widgets"):
+        source_children = source_row.get(child_key)
+        if not isinstance(source_children, list):
+            continue
+        target_children = target_row.get(child_key)
+        if not isinstance(target_children, list):
+            target_children = []
+            target_row[child_key] = target_children
+        added += merge_skinvariables_rows(target_children, source_children)
+    return added
+
+
+def skinvariables_item_signature(row: object) -> Tuple[object, ...]:
+    if not isinstance(row, dict):
+        return ("raw", json.dumps(row, sort_keys=True, ensure_ascii=False))
+    return (
+        row.get("label", ""),
+        row.get("path", ""),
+        row.get("target", ""),
+        row.get("widget_style", ""),
+    )
+
+
+def ensure_unique_skinvariables_guids(rows: Sequence[object]) -> None:
+    used = set()
+
+    def make_guid() -> str:
+        while True:
+            guid = "guid-{}".format(os.urandom(4).hex())
+            if guid not in used:
+                return guid
+
+    def walk(items: Sequence[object]) -> None:
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            guid = str(item.get("guid") or "")
+            if not guid or guid in used:
+                guid = make_guid()
+                item["guid"] = guid
+            used.add(guid)
+            for child_key in ("submenu", "widgets"):
+                children = item.get(child_key)
+                if isinstance(children, list):
+                    walk(children)
+
+    walk(rows)
+
+
+def write_json_vfs(dest: str, rows: object) -> None:
+    payload = json.dumps(rows, ensure_ascii=False, indent=4).encode("utf-8")
+    write_bytes_vfs(dest, payload + b"\n")
 
 
 def indent_element(element: ET.Element, level: int = 0) -> None:
@@ -831,8 +1124,79 @@ def parse_data_filename(name: str) -> Optional[Tuple[str, str]]:
     return source_skin, menu_name
 
 
+def parse_skinvariables_widget_filename(name: str) -> str:
+    if name in SKINVARIABLES_SKIP_FILES:
+        return ""
+    if not name.startswith(SKINVARIABLES_SHORTCUT_PREFIX):
+        return ""
+    if not name.endswith(SKINVARIABLES_SHORTCUT_SUFFIX):
+        return ""
+    menu_name = name[len(SKINVARIABLES_SHORTCUT_PREFIX) : -len(SKINVARIABLES_SHORTCUT_SUFFIX)]
+    if not menu_name.endswith("widgets"):
+        return ""
+    if not re.match(r"^[A-Za-z0-9_.-]+$", menu_name):
+        return ""
+    return menu_name
+
+
+def is_skinvariables_shortcut_node_file(path: Path) -> bool:
+    try:
+        payload = json.loads(path.read_text("utf-8-sig"))
+    except Exception:
+        return False
+    return isinstance(payload, list)
+
+
+def infer_skinvariables_source_skin(path: Path, root: Path) -> str:
+    rel_parts = relative_parts(path, root)
+    lowered = [part.lower() for part in rel_parts]
+
+    for index, part in enumerate(lowered[:-1]):
+        if part == "nodes" and index + 1 < len(rel_parts) - 1:
+            candidate = rel_parts[index + 1]
+            if looks_like_skin_id(candidate):
+                return candidate
+
+    for part in reversed(rel_parts[:-1]):
+        if looks_like_skin_id(part):
+            return part
+
+    addon_skin = find_nearest_skin_addon_id(path, root)
+    if addon_skin:
+        return addon_skin
+
+    return "Skin Variables"
+
+
+def find_nearest_skin_addon_id(path: Path, root: Path) -> str:
+    current = path.parent
+    while is_inside(current, root):
+        addon_xml = current / "addon.xml"
+        if addon_xml.exists():
+            try:
+                addon_id = ET.parse(str(addon_xml)).getroot().attrib.get("id", "")
+            except Exception:
+                addon_id = ""
+            if looks_like_skin_id(addon_id):
+                return addon_id
+        if current == root:
+            break
+        current = current.parent
+    return ""
+
+
 def looks_like_skin_id(value: str) -> bool:
     return bool(re.match(r"^skin\.[A-Za-z0-9_.-]+$", value))
+
+
+def skin_supports_skinvariables(target_skin: str) -> bool:
+    if vfs_exists(vfs_join("special://skin/shortcuts", SKINVARIABLES_GENERATOR_NAME)):
+        return True
+    return is_arctic_fuse_3_skin(target_skin)
+
+
+def is_arctic_fuse_3_skin(skin_id: str) -> bool:
+    return bool(re.search(r"\.fuse\.3(?:\.|$)", skin_id or ""))
 
 
 def is_pcloud_public_link(source: str) -> bool:
