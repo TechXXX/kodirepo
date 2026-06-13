@@ -1,6 +1,6 @@
 # KodiSkin Widget Importer
 
-Kodi script add-on for importing Skin Shortcuts and Arctic Fuse 3 shortcut backups from preloaded sources, ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link. It can also import a bundled MacBook AF3 setup and bundled MacBook skin settings presets for AH2 and AF3.
+Kodi script add-on for importing preloaded AF3/AH2 setups or custom Skin Shortcuts and Arctic Fuse 3 shortcut backups from ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link.
 
 ## What it imports
 
@@ -43,7 +43,9 @@ Skin Shortcuts XML backups are not converted into Arctic Fuse 3 Skin Variables J
 
 Skin settings imports overwrite the active skin's `settings.xml` after making a backup. When the target skin is active, the add-on also applies the imported settings through Kodi skin builtins so Kodi's in-memory settings do not overwrite the imported file on shutdown. The preset can be imported into compatible forks because the add-on writes to the currently active skin id.
 
-The built-in AF3 setup import overwrites matching AF3 shortcut node files and also replaces the active skin's `settings.xml` with the bundled MacBook AF3 settings after making backups.
+The preloaded AF3 setup import overwrites matching AF3 shortcut node files and also replaces the active skin's `settings.xml` with the bundled MacBook AF3 settings after making backups.
+
+The preloaded AH2 setup import overwrites matching Skin Shortcuts files and also replaces the active skin's `settings.xml` with the bundled MacBook AH2 settings after making backups.
 
 ## Video add-on retargeting
 
@@ -57,7 +59,7 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Choose **Import built-in AF3 setup** for the bundled MacBook AF3 shortcut nodes and settings, **Import widgets from source** for URL/path/ZIP imports, or **Import preloaded skin settings** for the bundled MacBook AH2/AF3 settings presets.
+3. Choose **Preloaded AF3 setup** for the bundled MacBook AF3 shortcut nodes and settings, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded AH2 setup** for the bundled AH2 widget source and MacBook AH2 settings.
 4. For widget sources, choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
 5. For widget sources, choose whether to keep or retarget detected video add-on paths.
 6. For widget sources, choose whether to overwrite matching local shortcut files or add onto them.
@@ -67,8 +69,8 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 The built-in preloaded widget sources are:
 
 ```text
-DutchTech AH2 preloaded widgets: https://e.pcloud.link/publink/show?code=8Vdy6alK
-MacBook Arctic Fuse 3 shortcut nodes: bundled with the add-on
+Preloaded AH2 widgets: https://e.pcloud.link/publink/show?code=8Vdy6alK
+Preloaded AF3 shortcut nodes: bundled with the add-on
 ```
 
 The built-in preloaded skin settings presets are:

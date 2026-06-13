@@ -42,7 +42,11 @@ SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
-PRELOADED_AF3_WIDGET_LABEL = "MacBook Arctic Fuse 3 shortcut nodes"
+PRELOADED_AH2_SETUP_LABEL = "Preloaded AH2 setup"
+PRELOADED_AF3_SETUP_LABEL = "Preloaded AF3 setup"
+PRELOADED_AH2_WIDGET_LABEL = "Preloaded AH2 widgets"
+PRELOADED_AF3_WIDGET_LABEL = "Preloaded AF3 shortcut nodes"
+PRELOADED_AH2_SETTINGS_LABEL = "MacBook Arctic Horizon 2 settings"
 PRELOADED_AF3_SETTINGS_LABEL = "MacBook Arctic Fuse 3 settings"
 SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
@@ -50,7 +54,7 @@ SKINVARIABLES_SKIP_FILES = {
 }
 PRELOADED_WIDGET_SOURCES = [
     (
-        "DutchTech AH2 preloaded widgets",
+        PRELOADED_AH2_WIDGET_LABEL,
         "https://e.pcloud.link/publink/show?code=8Vdy6alK",
     ),
     (
@@ -72,7 +76,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.12 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.13 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -224,9 +228,13 @@ def main() -> None:
             import_preloaded_skin_settings(ui)
             return
         complete_af3_setup = action == "preloaded_af3_setup"
+        complete_ah2_setup = action == "preloaded_ah2_setup"
         if complete_af3_setup:
             source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
-            ui.log("Using built-in AF3 setup source")
+            ui.log("Using preloaded AF3 setup source")
+        elif complete_ah2_setup:
+            source = preloaded_widget_source(PRELOADED_AH2_WIDGET_LABEL)
+            ui.log("Using preloaded AH2 setup source")
         else:
             source = choose_source(ui)
 
@@ -305,12 +313,21 @@ def main() -> None:
             )
 
         video_rewrite = choose_video_addon_rewrite(package, ui)
-        import_mode = choose_import_mode(ui)
+        import_mode = IMPORT_MODE_OVERWRITE if complete_ah2_setup else choose_import_mode(ui)
 
-        if not confirm_import(package, target_skin, video_rewrite, import_mode, ui):
+        if not confirm_import(
+            package, target_skin, video_rewrite, import_mode, complete_ah2_setup, ui
+        ):
             return
 
         backup_dir = import_shortcuts(package.files, target_skin, video_rewrite, import_mode, ui)
+        settings_backup_dir = ""
+        if complete_ah2_setup:
+            preset = skin_settings_preset_by_label(PRELOADED_AH2_SETTINGS_LABEL)
+            settings_payload = read_skin_settings_payload(skin_settings_preset_path(preset))
+            if video_rewrite:
+                settings_payload = rewrite_video_addons_in_bytes(settings_payload, video_rewrite)
+            settings_backup_dir = import_skin_settings_payload(settings_payload, target_skin, ui)
         save_last_source(source)
 
         include_note = ""
@@ -333,10 +350,20 @@ def main() -> None:
             final_note = "{} {}".format(rewrite_note, include_note)
         elif rewrite_note or include_note:
             final_note = rewrite_note or include_note
+        settings_note = ""
+        if settings_backup_dir:
+            settings_note = "Settings backup: {}".format(settings_backup_dir)
+            if final_note:
+                final_note = "{} {}".format(final_note, settings_note)
+            else:
+                final_note = settings_note
+        imported_note = "Imported {} Skin Shortcuts files.".format(len(package.files))
+        if complete_ah2_setup:
+            imported_note = "{} Imported MacBook AH2 skin settings.".format(imported_note)
 
         ui.ok(
             ADDON_NAME,
-            "Imported {} Skin Shortcuts files.".format(len(package.files)),
+            imported_note,
             "Backup: {}".format(backup_dir),
             final_note,
         )
@@ -352,9 +379,9 @@ def main() -> None:
 
 def choose_action(ui: KodiUI) -> str:
     options = [
-        "Import built-in AF3 setup",
+        PRELOADED_AF3_SETUP_LABEL,
         "Import widgets from source",
-        "Import preloaded skin settings",
+        PRELOADED_AH2_SETUP_LABEL,
     ]
     choice = ui.select(ADDON_NAME, options)
     if choice < 0:
@@ -362,7 +389,7 @@ def choose_action(ui: KodiUI) -> str:
     if choice == 0:
         return "preloaded_af3_setup"
     if choice == 2:
-        return "skin_settings"
+        return "preloaded_ah2_setup"
     return "widgets"
 
 
@@ -552,6 +579,7 @@ def confirm_import(
     target_skin: str,
     video_rewrite: Optional[VideoAddonRewrite],
     import_mode: str,
+    include_skin_settings: bool,
     ui: KodiUI,
 ) -> bool:
     data_count = len([item for item in package.files if item.kind == "data"])
@@ -564,12 +592,15 @@ def confirm_import(
     mode_note = "Mode: overwrite matching local files"
     if import_mode == IMPORT_MODE_APPEND:
         mode_note = "Mode: add onto existing local files"
+    settings_note = ""
+    if include_skin_settings:
+        settings_note = " MacBook AH2 skin settings.xml will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
         "Target skin: {}".format(target_skin),
-        "{}. {}. Import {} DATA and {} properties file(s)?".format(
-            mode_note, rewrite_note, data_count, prop_count
+        "{}. {}. Import {} DATA and {} properties file(s)?{}".format(
+            mode_note, rewrite_note, data_count, prop_count, settings_note
         ),
     )
 
