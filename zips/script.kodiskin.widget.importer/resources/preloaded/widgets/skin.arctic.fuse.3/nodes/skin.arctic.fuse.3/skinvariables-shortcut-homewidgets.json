@@ -1,0 +1,98 @@
+[
+    {
+        "label": "Trending",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Trending&mode=build_tvshow_list&action=trakt_tv_trending&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FrVq7so0.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2frVq7so0.png/",
+        "target": "videos",
+        "guid": "guid-e319247d",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Amazon",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=1024&name=Amazon&iconImage=https%3A%2F%2Fi.imgur.com%2Fru9DDlL.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fru9DDlL.png/",
+        "target": "videos",
+        "guid": "guid-f849ac42",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Disney+",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=2739&name=Disney%2B&iconImage=https%3A%2F%2Fi.imgur.com%2FDVrPgbM.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fDVrPgbM.png/",
+        "target": "videos",
+        "guid": "guid-3f8d43d1",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Apple TV+",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=2552&name=Apple%20TV%2B&iconImage=https%3A%2F%2Fi.imgur.com%2FfAQMVNp.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2ffAQMVNp.png/",
+        "target": "videos",
+        "guid": "guid-0f5cb15a",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "HBO Max",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=3186&name=HBO%20Max&iconImage=https%3A%2F%2Fi.imgur.com%2FmmRMG75.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fmmRMG75.png/",
+        "target": "videos",
+        "guid": "guid-7d8c2e91",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Hulu",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=453&name=Hulu&iconImage=https%3A%2F%2Fi.imgur.com%2FuSD2Cdw.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fuSD2Cdw.png/",
+        "target": "videos",
+        "guid": "guid-ec515cea",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Paramount+",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=4330&name=Paramount%2B&iconImage=https%3A%2F%2Fi.imgur.com%2FdmUjWmU.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fdmUjWmU.png/",
+        "target": "videos",
+        "guid": "guid-5e1bc640",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "HBO",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=49&name=HBO&iconImage=https%3A%2F%2Fi.imgur.com%2FHyu8ZGq.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fHyu8ZGq.png/",
+        "target": "videos",
+        "guid": "guid-27c752fd",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Netflix",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=213&name=Netflix&iconImage=https%3A%2F%2Fi.imgur.com%2FjI5c3bw.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fjI5c3bw.png/",
+        "target": "videos",
+        "guid": "guid-6b7dd74b",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Paramount Network",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=2076&name=Paramount%20Network&iconImage=https%3A%2F%2Fi.imgur.com%2Fez3U6NV.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fez3U6NV.png/",
+        "target": "videos",
+        "guid": "guid-b59cf2fd",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "AMC",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=174&name=AMC&iconImage=https%3A%2F%2Fi.imgur.com%2FndorJxi.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fndorJxi.png/",
+        "target": "videos",
+        "guid": "guid-73612024",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Showtime",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=67&name=Showtime&iconImage=https%3A%2F%2Fi.imgur.com%2FSawAYkO.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fSawAYkO.png/",
+        "target": "videos",
+        "guid": "guid-a11f7db0",
+        "widget_style": "Poster"
+    }
+]

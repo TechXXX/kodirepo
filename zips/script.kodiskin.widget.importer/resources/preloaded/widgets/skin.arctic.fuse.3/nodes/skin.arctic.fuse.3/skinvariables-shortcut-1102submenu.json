@@ -1,0 +1,18 @@
+[
+    {
+        "label": "",
+        "icon": "",
+        "path": "",
+        "target": "",
+        "submenu": [],
+        "widgets": [],
+        "guid": "guid-5418cded"
+    },
+    {
+        "label": "Trending User Lists",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.get_trakt_trending_popular_lists&list_type=trending&category_name=Trending+User+Lists&iconImage=https%3A%2F%2Fi.imgur.com%2FsGq3ifV.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-2e224230"
+    }
+]

@@ -1,6 +1,6 @@
 # KodiSkin Widget Importer
 
-Kodi script add-on for importing Skin Shortcuts and Arctic Fuse 3 widget backups from a preloaded DutchTech source, ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link. It can also import bundled MacBook skin settings presets for AH2 and AF3.
+Kodi script add-on for importing Skin Shortcuts and Arctic Fuse 3 widget backups from preloaded sources, ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link. It can also import bundled MacBook skin settings presets for AH2 and AF3.
 
 ## What it imports
 
@@ -14,6 +14,7 @@ For Arctic Fuse 3 / Skin Variables skins:
 
 - `skinvariables-shortcut-*widgets.json` files from `userdata/addon_data/script.skinvariables/nodes/<skin-id>`
 - widget defaults from an AF3 skin package `shortcuts/` folder
+- bundled MacBook AF3 widget nodes
 
 For skin settings:
 
@@ -61,10 +62,11 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 7. For skin settings, choose the MacBook AH2 or AF3 preset and confirm the active target skin.
 8. Reload the skin or restart Kodi if the skin does not refresh immediately.
 
-The built-in preloaded source currently points to:
+The built-in preloaded widget sources are:
 
 ```text
-https://e.pcloud.link/publink/show?code=8Vdy6alK
+DutchTech AH2 preloaded widgets: https://e.pcloud.link/publink/show?code=8Vdy6alK
+MacBook Arctic Fuse 3 widgets: bundled with the add-on
 ```
 
 The built-in preloaded skin settings presets are:

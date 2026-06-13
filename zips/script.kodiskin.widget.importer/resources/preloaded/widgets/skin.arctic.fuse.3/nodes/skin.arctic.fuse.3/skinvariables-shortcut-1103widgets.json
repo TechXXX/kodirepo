@@ -1,0 +1,345 @@
+[
+    {
+        "label": "MARVEL CINEMATIC UNIVERSE | [I]donxy (x216)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=donxy&slug=marvel-cinematic-universe&list_type=user_lists&list_name=MARVEL+Cinematic+Universe",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-6a809dc6"
+    },
+    {
+        "label": "IMDB: TOP RATED TV SHOWS | [I]justin (x241)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-top-rated-tv-shows&list_type=user_lists&list_name=IMDB%3A+Top+Rated+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-693d2b47"
+    },
+    {
+        "label": "BEST MINDFUCKS | [I]benfranklin (x116)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=benfranklin&slug=best-mindfucks&list_type=user_lists&list_name=Best+Mindfucks",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-6cdde034"
+    },
+    {
+        "label": "1001 GREATEST MOVIES OF ALL TIME | [I]captainnapalm (x1001)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=captainnapalm&slug=1001-greatest-movies-of-all-time&list_type=user_lists&list_name=1001+Greatest+Movies+of+All+Time",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-6e620d8e"
+    },
+    {
+        "label": "1001 MOVIES YOU MUST SEE BEFORE YOU DIE | [I]sp1ti (x1002)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sp1ti&slug=1001-movies-you-must-see-before-you-die&list_type=user_lists&list_name=1001+Movies+You+Must+See+Before+You+Die",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-4bc3f1fc"
+    },
+    {
+        "label": "MINDFUCK | [I]lish408 (x315)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=mindfuck&list_type=user_lists&list_name=Mindfuck",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-24a53de7"
+    },
+    {
+        "label": "GREAT MOVIES YOU MAY HAVE NEVER HEARD OF | [I]_aenema (x443)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=_aenema&slug=great-movies-you-may-have-never-heard-of&list_type=user_lists&list_name=Great+Movies+You+May+Have+Never+Heard+Of",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c28d4b33"
+    },
+    {
+        "label": "DC UNIVERSE | [I]tetharion (x15)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=tetharion&slug=dc-universe&list_type=user_lists&list_name=DC+Universe",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-33d6d561"
+    },
+    {
+        "label": "STAR WARS CANON TIMELINE | [I]sonicwarrior (x330)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sonicwarrior&slug=star-wars-canon-timeline&list_type=user_lists&list_name=Star+Wars+Canon+timeline",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-51a7ceae"
+    },
+    {
+        "label": "BASED ON A TRUE STORY | [I]benfranklin (x264)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=benfranklin&slug=based-on-a-true-story&list_type=user_lists&list_name=Based+on+a+TRUE+STORY",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-f589a869"
+    },
+    {
+        "label": "TRUE CRIME DOCUMENTARY SERIES & FILM | [I]lish408 (x490)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=true-crime-documentary-series-film&list_type=user_lists&list_name=True+Crime+Documentary+Series+%26+Film",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-0228ec9b"
+    },
+    {
+        "label": "SUBREDDIT SELECTIONS | [I]giladg (x179)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=subreddit-selections&list_type=user_lists&list_name=Subreddit+Selections",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-b4ccfcad"
+    },
+    {
+        "label": "ROLLING STONE'S 100 GREATEST TV SHOWS OF ALL TIME | [I]redouaaane (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=redouaaane&slug=rolling-stone-s-100-greatest-tv-shows-of-all-time&list_type=user_lists&list_name=Rolling+Stone%27s+100+Greatest+TV+Shows+of+All+Time",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7c8325bb"
+    },
+    {
+        "label": "ACADEMY AWARDS - BEST PICTURE WINNERS | [I]thefork (x98)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=thefork&slug=academy-awards-best-picture-winners&list_type=user_lists&list_name=Academy+Awards+-+Best+Picture+Winners",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-75219a6b"
+    },
+    {
+        "label": "HORROR | [I]movistapp (x200)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=horror&list_type=user_lists&list_name=Horror",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-3cadc68f"
+    },
+    {
+        "label": "GREAT POPULAR SHOWS | [I]spell3ound (x535)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=spell3ound&slug=great-popular-shows&list_type=user_lists&list_name=Great+Popular+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-933bf134"
+    },
+    {
+        "label": "SHUT UP, AND WATCH | [I]canconfirm (x128)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=canconfirm&slug=shut-up-and-watch&list_type=user_lists&list_name=Shut+Up%2C+And+Watch",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c36601cc"
+    },
+    {
+        "label": "ROTTEN TOMATOES: BEST OF 2019 | [I]lish408 (x101)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=rotten-tomatoes-best-of-2019&list_type=user_lists&list_name=Rotten+Tomatoes%3A+Best+of+2019",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-07027f03"
+    },
+    {
+        "label": "100 GREATEST SCI-FI MOVIES | [I]codermike (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=codermike&slug=100-greatest-sci-fi-movies&list_type=user_lists&list_name=100+Greatest+Sci-Fi+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-158e3c38"
+    },
+    {
+        "label": "A24 | [I]fidel-cb (x216)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=fidel-cb&slug=a24&list_type=user_lists&list_name=A24",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c6305309"
+    },
+    {
+        "label": "MOVIES BEING RELEASED ON 4K UHD BLU RAY | [I]lish408 (x3128)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=movies-being-released-on-4k-uhd-blu-ray&list_type=user_lists&list_name=Movies+Being+Released+on+4K+UHD+Blu+Ray",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-2cfcbce4"
+    },
+    {
+        "label": "STAR TREK (CANON) | [I]dgw (x27)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=dgw&slug=star-trek-canon&list_type=user_lists&list_name=Star+Trek+%28canon%29",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-448d4c9e"
+    },
+    {
+        "label": "STUDIO GHIBLI FEATURE FILMS | [I]draackje (x25)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=draackje&slug=studio-ghibli-feature-films&list_type=user_lists&list_name=Studio+Ghibli+Feature+Films",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-4941fab0"
+    },
+    {
+        "label": "TRAKT: POPULAR TV SHOWS | [I]justin (x250)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=trakt-popular-tv-shows&list_type=user_lists&list_name=Trakt%3A+Popular+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-5b2952ed"
+    },
+    {
+        "label": "TRAKT: MOVIE - DECADE: 1990S | [I]felix66 (x1103)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=felix66&slug=trakt-movie-decade-1990s&list_type=user_lists&list_name=Trakt%3A+Movie+-+Decade%3A+1990s",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7770241d"
+    },
+    {
+        "label": "DOCUMENTARY | [I]movistapp (x190)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=documentary&list_type=user_lists&list_name=Documentary",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-ebc07ed8"
+    },
+    {
+        "label": "REDDIT TOP 250 (2018 EDITION) | [I]philrivers (x250)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=philrivers&slug=reddit-top-250-2018-edition&list_type=user_lists&list_name=Reddit+Top+250+%282018+Edition%29",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-1792fba7"
+    },
+    {
+        "label": "ANIMATION | [I]giladg (x316)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=animation&list_type=user_lists&list_name=Animation",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-95d45e10"
+    },
+    {
+        "label": "ALL OF THESE FILMS ARE WORTH SEEING (1400 TITLES) | [I]xilfneps (x1400)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=xilfneps&slug=all-of-these-films-are-worth-seeing-1400-titles&list_type=user_lists&list_name=All+of+these+Films+are+Worth+Seeing+%281400+Titles%29",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-e00227df"
+    },
+    {
+        "label": "PIXAR FEATURE FILMS | [I]draackje (x31)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=draackje&slug=pixar-feature-films&list_type=user_lists&list_name=Pixar+Feature+Films",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-f48874bf"
+    },
+    {
+        "label": "THE BEST MOVIE YOU NEVER SAW | [I]giladg (x181)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=the-best-movie-you-never-saw&list_type=user_lists&list_name=The+Best+Movie+You+Never+Saw",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-30a939c6"
+    },
+    {
+        "label": "IMDB: POPULAR TV SHOWS | [I]justin (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-popular-tv-shows&list_type=user_lists&list_name=IMDB%3A+Popular+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-512382f4"
+    },
+    {
+        "label": "007 | [I]movistapp (x24)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=007&list_type=user_lists&list_name=007",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-05ac5d93"
+    },
+    {
+        "label": "ATTENBOROUGH DOCUMENTARIES | [I]hammers-lists (x93)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=hammers-lists&slug=attenborough-documentaries&list_type=user_lists&list_name=Attenborough+Documentaries",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7da70c3e"
+    },
+    {
+        "label": "WAR | [I]movistapp (x202)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=war&list_type=user_lists&list_name=War",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c570da24"
+    },
+    {
+        "label": "SCIENCE FICTION | [I]movistapp (x200)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=science-fiction&list_type=user_lists&list_name=Science+Fiction",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-09d2b494"
+    },
+    {
+        "label": "COMEDY | [I]movistapp (x200)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=comedy&list_type=user_lists&list_name=Comedy",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-a40a836a"
+    },
+    {
+        "label": "TOP 10 PIRATED MOVIES OF THE WEEK | [I]linaspurinis (x10)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=linaspurinis&slug=top-10-pirated-movies-of-the-week&list_type=user_lists&list_name=Top+10+Pirated+Movies+of+The+Week",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-6a5e377b"
+    },
+    {
+        "label": "ARROWVERSE | [I]donxy (x598)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=donxy&slug=arrowverse&list_type=user_lists&list_name=Arrowverse",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-5c59224d"
+    },
+    {
+        "label": "DREAMWORKS FEATURE FILMS | [I]draackje (x53)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=draackje&slug=dreamworks-feature-films&list_type=user_lists&list_name=Dreamworks+Feature+Films",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7618bfd2"
+    },
+    {
+        "label": "ROTTEN TOMATOES: BEST OF 2018 | [I]lish408 (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=rotten-tomatoes-best-of-2018&list_type=user_lists&list_name=Rotten+Tomatoes%3A+Best+of+2018",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-862e6585"
+    },
+    {
+        "label": "COMEDY MOVIES | [I]ljransom (x237)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=ljransom&slug=comedy-movies&list_type=user_lists&list_name=Comedy+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-9f72ebff"
+    },
+    {
+        "label": "KIDS | [I]canconfirm (x402)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=canconfirm&slug=kids&list_type=user_lists&list_name=Kids",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-1ddc1d1b"
+    },
+    {
+        "label": "MARVEL CINEMATIC UNIVERSE TIMELINE | [I]geekritique (x42)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=geekritique&slug=marvel-cinematic-universe-timeline&list_type=user_lists&list_name=Marvel+Cinematic+Universe+Timeline",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-1d23e4b6"
+    },
+    {
+        "label": "THE COMPLETE CRITERION COLLECTION | [I]twentywashere (x1518)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=twentywashere&slug=the-complete-criterion-collection&list_type=user_lists&list_name=The+Complete+Criterion+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-f29d4f4a"
+    },
+    {
+        "label": "QUENTIN TARANTINO COLLECTION | [I]movistapp (x9)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=quentin-tarantino-collection&list_type=user_lists&list_name=Quentin+Tarantino+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-5369bd10"
+    },
+    {
+        "label": "IMDB HIGHEST RATED TV SERIES | [I]hulkhorgen (x49)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=hulkhorgen&slug=imdb-highest-rated-tv-series&list_type=user_lists&list_name=IMDB+Highest+Rated+TV+Series",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-9707dea7"
+    },
+    {
+        "label": "MOVIE BOXSETS & COLLECTIONS | [I]crims7392 (x1277)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=crims7392&slug=movie-boxsets-collections&list_type=user_lists&list_name=Movie+Boxsets+%26+Collections",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-eaaa67bb"
+    },
+    {
+        "label": "Next Page (2) >>",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.get_trakt_trending_popular_lists&list_type=trending&new_page=2",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fD2wG9Ak.png/",
+        "target": "videos",
+        "guid": "guid-f3e57b05"
+    }
+]

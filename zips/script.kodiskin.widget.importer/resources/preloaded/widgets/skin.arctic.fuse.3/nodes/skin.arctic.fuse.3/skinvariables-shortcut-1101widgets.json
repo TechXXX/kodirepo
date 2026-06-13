@@ -1,0 +1,26 @@
+[
+    {
+        "label": "",
+        "icon": "",
+        "path": "",
+        "target": "",
+        "submenu": [],
+        "widgets": [],
+        "guid": "guid-27d841c7"
+    },
+    {
+        "label": "Trending Recent",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Trending+Recent&mode=build_movie_list&action=trakt_movies_trending_recent&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FvBwrjLV.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fvBwrjLV.png/",
+        "target": "videos",
+        "guid": "guid-aed703fc",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Trending",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Trending&mode=build_movie_list&action=trakt_movies_trending&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FrVq7so0.png",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2frVq7so0.png/",
+        "target": "videos",
+        "guid": "guid-3caaaf2f"
+    }
+]

@@ -36,6 +36,7 @@ SHORTCUTS_DATA = "special://profile/addon_data/script.skinshortcuts/"
 SKINVARIABLES_NODES_DATA = "special://profile/addon_data/script.skinvariables/nodes/"
 SKIN_ADDON_DATA = "special://profile/addon_data/{}/"
 ADDON_DATA = "special://profile/addon_data/{}/".format(ADDON_ID)
+ADDON_RESOURCE_PREFIX = "addon-resource://"
 INCLUDE_NAME = "script-skinshortcuts-includes.xml"
 SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
@@ -47,8 +48,12 @@ SKINVARIABLES_SKIP_FILES = {
 }
 PRELOADED_WIDGET_SOURCES = [
     (
-        "DutchTech preloaded widgets",
+        "DutchTech AH2 preloaded widgets",
         "https://e.pcloud.link/publink/show?code=8Vdy6alK",
+    ),
+    (
+        "MacBook Arctic Fuse 3 widgets",
+        "{}resources/preloaded/widgets/skin.arctic.fuse.3".format(ADDON_RESOURCE_PREFIX),
     ),
 ]
 PRELOADED_SKIN_SETTINGS = [
@@ -65,7 +70,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.8 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.9 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -328,17 +333,17 @@ def choose_action(ui: KodiUI) -> str:
 
 def choose_source(ui: KodiUI) -> str:
     last_source = load_last_source()
-    options: List[str] = []
+    options: List[str] = ["Preloaded widgets"]
     if last_source:
-        options.append("Use last source")
-    options.extend(["Preloaded widgets", "Paste URL or path", "Browse for ZIP"])
+        options.append("Use last widget source")
+    options.extend(["Paste URL or path", "Browse for ZIP"])
 
     choice = ui.select(ADDON_NAME, options)
     if choice < 0:
         raise ImportCancelled()
 
     label = options[choice]
-    if label == "Use last source":
+    if label == "Use last widget source":
         return last_source
     if label == "Preloaded widgets":
         return choose_preloaded_source(ui)
@@ -528,6 +533,9 @@ def make_work_dir() -> Path:
 def prepare_source(source: str, work_dir: Path, ui: KodiUI) -> Path:
     if not source:
         raise ImportCancelled()
+
+    if is_addon_resource_source(source):
+        return addon_resource_path(source)
 
     if is_pcloud_public_link(source):
         ui.log("Resolving pCloud public link")
@@ -1413,6 +1421,18 @@ def is_directory_source(source: str) -> bool:
             return False
     path = Path(translate_path(source))
     return path.is_dir()
+
+
+def is_addon_resource_source(source: str) -> bool:
+    return source.startswith(ADDON_RESOURCE_PREFIX)
+
+
+def addon_resource_path(source: str) -> Path:
+    relative = source[len(ADDON_RESOURCE_PREFIX) :].strip("/")
+    path = ADDON_ROOT / relative
+    if not path.exists():
+        raise ImportErrorWithMessage("Bundled preloaded source is missing: {}".format(path))
+    return path
 
 
 def copy_source_to_local(source: str, dest: Path) -> None:
