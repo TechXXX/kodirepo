@@ -42,7 +42,8 @@ SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
-PRELOADED_AF3_WIDGET_LABEL = "MacBook Arctic Fuse 3 widgets"
+PRELOADED_AF3_WIDGET_LABEL = "MacBook Arctic Fuse 3 shortcut nodes"
+PRELOADED_AF3_SETTINGS_LABEL = "MacBook Arctic Fuse 3 settings"
 SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
     "skinvariables-shortcut-context.json",
@@ -71,7 +72,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.10 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.11 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -222,9 +223,10 @@ def main() -> None:
         if action == "skin_settings":
             import_preloaded_skin_settings(ui)
             return
-        if action == "preloaded_af3_widgets":
+        complete_af3_setup = action == "preloaded_af3_setup"
+        if complete_af3_setup:
             source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
-            ui.log("Using preloaded widget source: {}".format(PRELOADED_AF3_WIDGET_LABEL))
+            ui.log("Using built-in AF3 setup source")
         else:
             source = choose_source(ui)
 
@@ -240,29 +242,48 @@ def main() -> None:
         skinvariables_package = discover_skinvariables_package(package_root, target_skin, ui)
         if skinvariables_package.files and skin_supports_skinvariables(target_skin):
             video_rewrite = choose_video_addon_rewrite(skinvariables_package, ui)
-            import_mode = choose_import_mode(ui)
+            import_mode = IMPORT_MODE_OVERWRITE if complete_af3_setup else choose_import_mode(ui)
 
             if not confirm_skinvariables_import(
-                skinvariables_package, target_skin, video_rewrite, import_mode, ui
+                skinvariables_package,
+                target_skin,
+                video_rewrite,
+                import_mode,
+                complete_af3_setup,
+                ui,
             ):
                 return
 
             backup_dir = import_skinvariables_shortcuts(
                 skinvariables_package.files, target_skin, video_rewrite, import_mode, ui
             )
+            settings_backup_dir = ""
+            if complete_af3_setup:
+                preset = skin_settings_preset_by_label(PRELOADED_AF3_SETTINGS_LABEL)
+                settings_payload = read_skin_settings_payload(skin_settings_preset_path(preset))
+                if video_rewrite:
+                    settings_payload = rewrite_video_addons_in_bytes(settings_payload, video_rewrite)
+                settings_backup_dir = import_skin_settings_payload(settings_payload, target_skin, ui)
             save_last_source(source)
             rebuild_skinvariables_shortcuts(ui)
 
             rewrite_note = ""
             if video_rewrite:
-                rewrite_note = "Retargeted widgets to {}. ".format(video_rewrite.target_id)
+                rewrite_note = "Retargeted Fen-style paths to {}. ".format(video_rewrite.target_id)
+            settings_note = ""
+            if settings_backup_dir:
+                settings_note = "Settings backup: {}".format(settings_backup_dir)
+            imported_note = "Imported {} Arctic Fuse 3 shortcut node file(s).".format(
+                len(skinvariables_package.files)
+            )
+            if complete_af3_setup:
+                imported_note = "{} Imported MacBook AF3 skin settings.".format(imported_note)
 
             ui.ok(
                 ADDON_NAME,
-                "Imported {} Arctic Fuse 3 widget file(s).".format(
-                    len(skinvariables_package.files)
-                ),
-                "Backup: {}".format(backup_dir),
+                imported_note,
+                "Node backup: {}".format(backup_dir),
+                settings_note,
                 "{}Skin Variables rebuild was triggered.".format(rewrite_note),
             )
             return
@@ -275,7 +296,7 @@ def main() -> None:
                     "but the active skin does not look like an AF3 Skin Variables skin."
                 )
             raise ImportErrorWithMessage(
-                "No Skin Shortcuts DATA/properties or Arctic Fuse 3 widget JSON files were found in that ZIP."
+                "No Skin Shortcuts DATA/properties or Arctic Fuse 3 shortcut JSON files were found in that ZIP."
             )
         if skin_supports_skinvariables(target_skin):
             raise ImportErrorWithMessage(
@@ -331,7 +352,7 @@ def main() -> None:
 
 def choose_action(ui: KodiUI) -> str:
     options = [
-        "Import built-in AF3 widgets",
+        "Import built-in AF3 setup",
         "Import widgets from source",
         "Import preloaded skin settings",
     ]
@@ -339,7 +360,7 @@ def choose_action(ui: KodiUI) -> str:
     if choice < 0:
         raise ImportCancelled()
     if choice == 0:
-        return "preloaded_af3_widgets"
+        return "preloaded_af3_setup"
     if choice == 2:
         return "skin_settings"
     return "widgets"
@@ -382,6 +403,14 @@ def preloaded_widget_source(label: str) -> str:
         if source_label == label:
             return source
     raise ImportErrorWithMessage("Preloaded widget source is missing: {}".format(label))
+
+
+def skin_settings_preset_by_label(label: str) -> SkinSettingsPreset:
+    for item in PRELOADED_SKIN_SETTINGS:
+        preset = SkinSettingsPreset(*item)
+        if preset.label == label:
+            return preset
+    raise ImportErrorWithMessage("Preloaded skin settings preset is missing: {}".format(label))
 
 
 def import_preloaded_skin_settings(ui: KodiUI) -> None:
@@ -516,6 +545,7 @@ def confirm_skinvariables_import(
     target_skin: str,
     video_rewrite: Optional[VideoAddonRewrite],
     import_mode: str,
+    include_skin_settings: bool,
     ui: KodiUI,
 ) -> bool:
     rewrite_note = "Video add-ons: unchanged"
@@ -527,12 +557,15 @@ def confirm_skinvariables_import(
     if import_mode == IMPORT_MODE_APPEND:
         mode_note = "Mode: add onto existing local files"
     menu_note = ", ".join(item.menu_name for item in package.files)
+    settings_note = ""
+    if include_skin_settings:
+        settings_note = " MacBook AF3 skin settings.xml will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
         "Target AF3 skin: {}".format(target_skin),
-        "{}. {}. Import {} widget menu file(s): {}".format(
-            mode_note, rewrite_note, len(package.files), menu_note
+        "{}. {}. Import {} shortcut node file(s): {}.{}".format(
+            mode_note, rewrite_note, len(package.files), menu_note, settings_note
         ),
     )
 
@@ -624,7 +657,7 @@ def discover_skinvariables_package_once(
         if not path.is_file() or any(part == "__MACOSX" for part in path.parts):
             continue
 
-        menu_name = parse_skinvariables_widget_filename(path.name)
+        menu_name = parse_skinvariables_shortcut_filename(path.name)
         if not menu_name:
             continue
         if not is_skinvariables_shortcut_node_file(path):
@@ -915,7 +948,7 @@ def import_skinvariables_shortcuts(
         source_data = read_import_bytes(item.source_path, video_rewrite)
         if import_mode == IMPORT_MODE_APPEND and vfs_exists(dest):
             added = merge_skinvariables_data(dest, source_data)
-            ui.log("Merged {} widget row(s) into {}".format(added, item.target_name))
+            ui.log("Merged {} shortcut row(s) into {}".format(added, item.target_name))
         else:
             write_skinvariables_data(dest, source_data)
             ui.log("Imported {}".format(item.target_name))
@@ -1074,9 +1107,9 @@ def load_skinvariables_rows(data: bytes) -> List[object]:
     try:
         rows = json.loads(data.decode("utf-8-sig", "replace"))
     except Exception as exc:
-        raise ImportErrorWithMessage("Could not read Skin Variables widget JSON: {}".format(exc))
+        raise ImportErrorWithMessage("Could not read Skin Variables shortcut JSON: {}".format(exc))
     if not isinstance(rows, list):
-        raise ImportErrorWithMessage("Expected Skin Variables widget JSON to be a list.")
+        raise ImportErrorWithMessage("Expected Skin Variables shortcut JSON to be a list.")
     return rows
 
 
@@ -1310,7 +1343,7 @@ def parse_data_filename(name: str) -> Optional[Tuple[str, str]]:
     return source_skin, menu_name
 
 
-def parse_skinvariables_widget_filename(name: str) -> str:
+def parse_skinvariables_shortcut_filename(name: str) -> str:
     if name in SKINVARIABLES_SKIP_FILES:
         return ""
     if not name.startswith(SKINVARIABLES_SHORTCUT_PREFIX):
@@ -1318,8 +1351,6 @@ def parse_skinvariables_widget_filename(name: str) -> str:
     if not name.endswith(SKINVARIABLES_SHORTCUT_SUFFIX):
         return ""
     menu_name = name[len(SKINVARIABLES_SHORTCUT_PREFIX) : -len(SKINVARIABLES_SHORTCUT_SUFFIX)]
-    if not menu_name.endswith("widgets"):
-        return ""
     if not re.match(r"^[A-Za-z0-9_.-]+$", menu_name):
         return ""
     return menu_name
