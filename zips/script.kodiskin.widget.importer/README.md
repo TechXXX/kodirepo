@@ -41,7 +41,7 @@ For Arctic Fuse 3, generated Skin Variables include XML is not imported. The add
 
 Skin Shortcuts XML backups are not converted into Arctic Fuse 3 Skin Variables JSON. To import into AF3, use an AF3/Skin Variables shortcut backup.
 
-Skin settings imports overwrite the active skin's `settings.xml` after making a backup. The preset can be imported into compatible forks because the add-on writes to the currently active skin id.
+Skin settings imports overwrite the active skin's `settings.xml` after making a backup. When the target skin is active, the add-on also applies the imported settings through Kodi skin builtins so Kodi's in-memory settings do not overwrite the imported file on shutdown. The preset can be imported into compatible forks because the add-on writes to the currently active skin id.
 
 The built-in AF3 setup import overwrites matching AF3 shortcut node files and also replaces the active skin's `settings.xml` with the bundled MacBook AF3 settings after making backups.
 

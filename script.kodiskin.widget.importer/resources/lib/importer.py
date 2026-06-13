@@ -72,7 +72,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.11 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.12 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -501,8 +501,42 @@ def import_skin_settings_payload(payload: bytes, target_skin: str, ui: KodiUI) -
     if vfs_exists(target):
         copy_vfs(target, vfs_join(backup_dir, SKIN_SETTINGS_NAME))
     write_bytes_vfs(target, payload)
+    apply_active_skin_settings(payload, target_skin, ui)
     ui.log("Imported skin settings for {}".format(target_skin))
     return backup_dir
+
+
+def apply_active_skin_settings(payload: bytes, target_skin: str, ui: KodiUI) -> None:
+    if not xbmc or target_skin != get_current_skin():
+        return
+
+    try:
+        root = ET.fromstring(payload)
+    except ET.ParseError as exc:
+        raise ImportErrorWithMessage("Could not apply skin settings XML: {}".format(exc))
+
+    applied = 0
+    for setting in root.findall("setting"):
+        setting_id = setting.attrib.get("id")
+        if not setting_id:
+            continue
+        setting_type = setting.attrib.get("type", "string")
+        value = setting.text or ""
+        if setting_type == "bool":
+            if value.lower() == "true":
+                xbmc.executebuiltin("Skin.SetBool({})".format(setting_id))
+            else:
+                xbmc.executebuiltin("Skin.Reset({})".format(setting_id))
+        else:
+            if value:
+                xbmc.executebuiltin(
+                    "Skin.SetString({},{})".format(setting_id, escape_builtin_arg(value))
+                )
+            else:
+                xbmc.executebuiltin("Skin.Reset({})".format(setting_id))
+        applied += 1
+
+    ui.log("Applied {} skin setting(s) to the active skin".format(applied))
 
 
 def skin_settings_family(skin_id: str) -> str:
@@ -1517,6 +1551,10 @@ def strip_quotes(value: str) -> str:
     if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
         return value[1:-1]
     return value
+
+
+def escape_builtin_arg(value: str) -> str:
+    return value.replace("\r", " ").replace("\n", " ")
 
 
 def translate_path(path: str) -> Path:
