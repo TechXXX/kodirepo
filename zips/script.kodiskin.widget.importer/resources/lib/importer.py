@@ -42,6 +42,7 @@ SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
+PRELOADED_AF3_WIDGET_LABEL = "MacBook Arctic Fuse 3 widgets"
 SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
     "skinvariables-shortcut-context.json",
@@ -52,7 +53,7 @@ PRELOADED_WIDGET_SOURCES = [
         "https://e.pcloud.link/publink/show?code=8Vdy6alK",
     ),
     (
-        "MacBook Arctic Fuse 3 widgets",
+        PRELOADED_AF3_WIDGET_LABEL,
         "{}resources/preloaded/widgets/skin.arctic.fuse.3".format(ADDON_RESOURCE_PREFIX),
     ),
 ]
@@ -70,7 +71,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.9 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.10 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -217,11 +218,16 @@ def main() -> None:
     work_dir: Optional[Path] = None
     try:
         action = choose_action(ui)
+        ui.log("Selected action: {}".format(action))
         if action == "skin_settings":
             import_preloaded_skin_settings(ui)
             return
+        if action == "preloaded_af3_widgets":
+            source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
+            ui.log("Using preloaded widget source: {}".format(PRELOADED_AF3_WIDGET_LABEL))
+        else:
+            source = choose_source(ui)
 
-        source = choose_source(ui)
         if not source:
             return
 
@@ -324,11 +330,19 @@ def main() -> None:
 
 
 def choose_action(ui: KodiUI) -> str:
-    options = ["Import widgets", "Import preloaded skin settings"]
+    options = [
+        "Import built-in AF3 widgets",
+        "Import widgets from source",
+        "Import preloaded skin settings",
+    ]
     choice = ui.select(ADDON_NAME, options)
     if choice < 0:
         raise ImportCancelled()
-    return "skin_settings" if choice == 1 else "widgets"
+    if choice == 0:
+        return "preloaded_af3_widgets"
+    if choice == 2:
+        return "skin_settings"
+    return "widgets"
 
 
 def choose_source(ui: KodiUI) -> str:
@@ -361,6 +375,13 @@ def choose_preloaded_source(ui: KodiUI) -> str:
     if choice < 0:
         raise ImportCancelled()
     return PRELOADED_WIDGET_SOURCES[choice][1]
+
+
+def preloaded_widget_source(label: str) -> str:
+    for source_label, source in PRELOADED_WIDGET_SOURCES:
+        if source_label == label:
+            return source
+    raise ImportErrorWithMessage("Preloaded widget source is missing: {}".format(label))
 
 
 def import_preloaded_skin_settings(ui: KodiUI) -> None:
