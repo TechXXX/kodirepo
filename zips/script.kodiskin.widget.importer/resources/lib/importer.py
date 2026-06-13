@@ -31,10 +31,13 @@ except ImportError:  # Allows local syntax/unit checks outside Kodi.
 
 ADDON_ID = "script.kodiskin.widget.importer"
 ADDON_NAME = "KodiSkin Widget Importer"
+ADDON_ROOT = Path(__file__).resolve().parents[2]
 SHORTCUTS_DATA = "special://profile/addon_data/script.skinshortcuts/"
 SKINVARIABLES_NODES_DATA = "special://profile/addon_data/script.skinvariables/nodes/"
+SKIN_ADDON_DATA = "special://profile/addon_data/{}/"
 ADDON_DATA = "special://profile/addon_data/{}/".format(ADDON_ID)
 INCLUDE_NAME = "script-skinshortcuts-includes.xml"
+SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
@@ -48,7 +51,21 @@ PRELOADED_WIDGET_SOURCES = [
         "https://e.pcloud.link/publink/show?code=8Vdy6alK",
     ),
 ]
-USER_AGENT = "{}/0.1.7 Kodi".format(ADDON_ID)
+PRELOADED_SKIN_SETTINGS = [
+    (
+        "MacBook Arctic Horizon 2 settings",
+        "skin.arctic.horizon.2.patched",
+        "ah2",
+        "resources/preloaded/skin-settings/skin.arctic.horizon.2.patched/settings.xml",
+    ),
+    (
+        "MacBook Arctic Fuse 3 settings",
+        "skin.arctic.fuse.3",
+        "af3",
+        "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
+    ),
+]
+USER_AGENT = "{}/0.1.8 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -111,6 +128,14 @@ class SkinVariablesPackage:
 class VideoAddonRewrite:
     source_ids: Tuple[str, ...]
     target_id: str
+
+
+@dataclass(frozen=True)
+class SkinSettingsPreset:
+    label: str
+    source_skin: str
+    family: str
+    relative_path: str
 
 
 class KodiUI:
@@ -186,6 +211,11 @@ def main() -> None:
     ui = KodiUI()
     work_dir: Optional[Path] = None
     try:
+        action = choose_action(ui)
+        if action == "skin_settings":
+            import_preloaded_skin_settings(ui)
+            return
+
         source = choose_source(ui)
         if not source:
             return
@@ -288,6 +318,14 @@ def main() -> None:
             shutil.rmtree(str(work_dir), ignore_errors=True)
 
 
+def choose_action(ui: KodiUI) -> str:
+    options = ["Import widgets", "Import preloaded skin settings"]
+    choice = ui.select(ADDON_NAME, options)
+    if choice < 0:
+        raise ImportCancelled()
+    return "skin_settings" if choice == 1 else "widgets"
+
+
 def choose_source(ui: KodiUI) -> str:
     last_source = load_last_source()
     options: List[str] = []
@@ -318,6 +356,106 @@ def choose_preloaded_source(ui: KodiUI) -> str:
     if choice < 0:
         raise ImportCancelled()
     return PRELOADED_WIDGET_SOURCES[choice][1]
+
+
+def import_preloaded_skin_settings(ui: KodiUI) -> None:
+    target_skin = get_current_skin()
+    if not target_skin:
+        raise ImportErrorWithMessage("Could not detect the active Kodi skin.")
+
+    preset = choose_skin_settings_preset(target_skin, ui)
+    source_path = skin_settings_preset_path(preset)
+    payload = read_skin_settings_payload(source_path)
+
+    if not confirm_skin_settings_import(preset, target_skin, ui):
+        return
+
+    backup_dir = import_skin_settings_payload(payload, target_skin, ui)
+    ui.ok(
+        ADDON_NAME,
+        "Imported skin settings.",
+        "Preset: {}".format(preset.label),
+        "Backup: {}".format(backup_dir),
+        "Reload the skin or restart Kodi so settings are applied.",
+    )
+
+
+def choose_skin_settings_preset(target_skin: str, ui: KodiUI) -> SkinSettingsPreset:
+    presets = [SkinSettingsPreset(*item) for item in PRELOADED_SKIN_SETTINGS]
+    target_family = skin_settings_family(target_skin)
+    labels = []
+    for preset in presets:
+        label = preset.label
+        if target_family and preset.family == target_family:
+            label = "{} [matches active skin]".format(label)
+        labels.append(label)
+
+    choice = ui.select("Preloaded skin settings", labels)
+    if choice < 0:
+        raise ImportCancelled()
+    return presets[choice]
+
+
+def confirm_skin_settings_import(
+    preset: SkinSettingsPreset, target_skin: str, ui: KodiUI
+) -> bool:
+    compatibility_note = "Preset matches the active skin family."
+    target_family = skin_settings_family(target_skin)
+    if not target_family:
+        compatibility_note = "Warning: the active skin is not recognised as AH2 or AF3."
+    elif target_family != preset.family:
+        compatibility_note = "Warning: preset family does not match the active skin."
+
+    return ui.yesno(
+        ADDON_NAME,
+        "Preset skin: {}".format(preset.source_skin),
+        "Target skin: {}".format(target_skin),
+        "{} Replace the target skin settings.xml after making a backup?".format(
+            compatibility_note
+        ),
+    )
+
+
+def skin_settings_preset_path(preset: SkinSettingsPreset) -> Path:
+    path = ADDON_ROOT / preset.relative_path
+    if not path.exists():
+        raise ImportErrorWithMessage("Bundled skin settings preset is missing: {}".format(path))
+    return path
+
+
+def read_skin_settings_payload(source_path: Path) -> bytes:
+    payload = source_path.read_bytes()
+    try:
+        root = ET.fromstring(payload)
+    except ET.ParseError as exc:
+        raise ImportErrorWithMessage("Bundled skin settings XML is invalid: {}".format(exc))
+    if root.tag != "settings":
+        raise ImportErrorWithMessage("Bundled skin settings XML must have a settings root.")
+    return payload
+
+
+def import_skin_settings_payload(payload: bytes, target_skin: str, ui: KodiUI) -> str:
+    target_dir = vfs_join(SKIN_ADDON_DATA.format(target_skin))
+    target = vfs_join(target_dir, SKIN_SETTINGS_NAME)
+    ensure_vfs_dir(target_dir)
+
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    backup_dir = vfs_join(ADDON_DATA, "backups", stamp, "skin-settings", target_skin)
+    ensure_vfs_dir(backup_dir)
+
+    if vfs_exists(target):
+        copy_vfs(target, vfs_join(backup_dir, SKIN_SETTINGS_NAME))
+    write_bytes_vfs(target, payload)
+    ui.log("Imported skin settings for {}".format(target_skin))
+    return backup_dir
+
+
+def skin_settings_family(skin_id: str) -> str:
+    if is_arctic_fuse_3_skin(skin_id):
+        return "af3"
+    if re.search(r"\.horizon\.2(?:\.|$)", skin_id or ""):
+        return "ah2"
+    return ""
 
 
 def confirm_import(

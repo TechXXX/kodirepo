@@ -1,6 +1,6 @@
 # KodiSkin Widget Importer
 
-Kodi script add-on for importing Skin Shortcuts and Arctic Fuse 3 widget backups from a preloaded DutchTech source, ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link.
+Kodi script add-on for importing Skin Shortcuts and Arctic Fuse 3 widget backups from a preloaded DutchTech source, ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link. It can also import bundled MacBook skin settings presets for AH2 and AF3.
 
 ## What it imports
 
@@ -14,6 +14,11 @@ For Arctic Fuse 3 / Skin Variables skins:
 
 - `skinvariables-shortcut-*widgets.json` files from `userdata/addon_data/script.skinvariables/nodes/<skin-id>`
 - widget defaults from an AF3 skin package `shortcuts/` folder
+
+For skin settings:
+
+- preloaded MacBook `settings.xml` for `skin.arctic.horizon.2.patched`
+- preloaded MacBook `settings.xml` for `skin.arctic.fuse.3`
 
 The add-on imports AF3 widget JSON into the active skin's Skin Variables node folder. This supports AF3 forks with their own add-on IDs, such as `skin.dutchtech.fuse.3` and `skin.dutchtech.fuse.3.kodienglish`.
 
@@ -35,6 +40,8 @@ For Arctic Fuse 3, generated Skin Variables include XML is not imported. The add
 
 Skin Shortcuts XML backups are not converted into Arctic Fuse 3 Skin Variables JSON. To import into AF3, use an AF3/Skin Variables widget backup.
 
+Skin settings imports overwrite the active skin's `settings.xml` after making a backup. The preset can be imported into compatible forks because the add-on writes to the currently active skin id.
+
 ## Video add-on retargeting
 
 Before import, the add-on scans widget paths for Fen-style video add-ons. If it finds one, it asks whether to keep the original add-on IDs or retarget those widget links to another video add-on.
@@ -47,16 +54,24 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
-4. Choose whether to keep or retarget detected video add-on widget paths.
-5. Choose whether to overwrite matching local widget files or add onto them.
-6. Confirm the source skin and target skin shown by the add-on.
-7. Reload the skin or restart Kodi if the skin does not refresh immediately.
+3. Choose **Import widgets** or **Import preloaded skin settings**.
+4. For widgets, choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
+5. For widgets, choose whether to keep or retarget detected video add-on widget paths.
+6. For widgets, choose whether to overwrite matching local widget files or add onto them.
+7. For skin settings, choose the MacBook AH2 or AF3 preset and confirm the active target skin.
+8. Reload the skin or restart Kodi if the skin does not refresh immediately.
 
 The built-in preloaded source currently points to:
 
 ```text
 https://e.pcloud.link/publink/show?code=8Vdy6alK
+```
+
+The built-in preloaded skin settings presets are:
+
+```text
+MacBook Arctic Horizon 2 settings
+MacBook Arctic Fuse 3 settings
 ```
 
 ## Import modes
