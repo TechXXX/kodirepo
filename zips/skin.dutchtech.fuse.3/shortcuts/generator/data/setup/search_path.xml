@@ -137,6 +137,26 @@
             <value>plugin://plugin.audio.spotify/?action=search_playlists&amp;amp;playlistid=</value>
         </rule>
         <rule>
+            <condition>{item_path}==DefaultSearch-FenlightMovies</condition>
+            <value>plugin://plugin.video.fenlight.patched/?mode=build_movie_list&amp;amp;action=tmdb_movies_search&amp;amp;query=</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightShows</condition>
+            <value>plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&amp;amp;action=tmdb_tv_search&amp;amp;query=</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightGemini</condition>
+            <value>plugin://plugin.video.fenlight.patched/?mode=ai_search.widget&amp;amp;query=</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-Gemini</condition>
+            <value>plugin://plugin.video.fenlight.patched/?mode=ai_search.widget&amp;amp;query=</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightCollections</condition>
+            <value>plugin://plugin.video.fenlight.patched/?mode=build_movie_list&amp;amp;action=tmdb_movies_search_sets&amp;amp;query=</value>
+        </rule>
+        <rule>
             <condition>{item_path}==DefaultSearch-TMDBMovies</condition>
             <value>plugin://plugin.video.themoviedb.helper.patched?info=search&amp;amp;tmdb_type=movie&amp;amp;query=</value>
         </rule>
@@ -265,6 +285,26 @@
         <rule>
             <condition>{item_path}==DefaultSearch-Netflix</condition>
             <value>/</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightMovies</condition>
+            <value></value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightShows</condition>
+            <value></value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightGemini</condition>
+            <value></value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-Gemini</condition>
+            <value></value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightCollections</condition>
+            <value></value>
         </rule>
         <rule>
             <condition>{item_path}==DefaultSearch-TMDBMovies</condition>
@@ -439,6 +479,26 @@
         <rule>
             <condition>{item_path}==DefaultSearch-SpotifyPlaylists</condition>
             <value>music</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightMovies</condition>
+            <value>videos</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightShows</condition>
+            <value>videos</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightGemini</condition>
+            <value>videos</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-Gemini</condition>
+            <value>videos</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightCollections</condition>
+            <value>videos</value>
         </rule>
         <rule>
             <condition>{item_path}==DefaultSearch-TMDBMovies</condition>
@@ -616,6 +676,26 @@
         </rule>
         <rule>
             <condition>{item_path}==DefaultSearch-SpotifyPlaylists</condition>
+            <value>Path_SearchTerm_SingleEncoded</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightMovies</condition>
+            <value>Path_SearchTerm_SingleEncoded</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightShows</condition>
+            <value>Path_SearchTerm_SingleEncoded</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightGemini</condition>
+            <value>Path_SearchTerm_SingleEncoded</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-Gemini</condition>
+            <value>Path_SearchTerm_SingleEncoded</value>
+        </rule>
+        <rule>
+            <condition>{item_path}==DefaultSearch-FenlightCollections</condition>
             <value>Path_SearchTerm_SingleEncoded</value>
         </rule>
         <rule>
