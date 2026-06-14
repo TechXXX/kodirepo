@@ -59,22 +59,24 @@
 
     <include name="Background_Blur_Quadrants">
         <param name="visible">true</param>
-        <control type="group">
-            <visible>$PARAM[visible]</visible>
-            <top>0</top>
-            <right>0</right>
-            <width>$PARAM[flixart_size_w]</width>
-            <height>$PARAM[flixart_size_h]</height>
-            <control type="image">
+        <definition>
+            <control type="group">
+                <visible>$PARAM[visible]</visible>
                 <top>0</top>
                 <right>0</right>
-                <width>200%</width>
-                <height>200%</height>
-                <fadetime>$PARAM[fadetime]</fadetime>
-                <aspectratio>scale</aspectratio>
-                <texture background="true">$VAR[Image_Background_Tiled]</texture>
+                <width>$PARAM[flixart_size_w]</width>
+                <height>$PARAM[flixart_size_h]</height>
+                <control type="image">
+                    <top>0</top>
+                    <right>0</right>
+                    <width>200%</width>
+                    <height>200%</height>
+                    <fadetime>$PARAM[fadetime]</fadetime>
+                    <aspectratio>scale</aspectratio>
+                    <texture background="true">$VAR[Image_Background_Tiled]</texture>
+                </control>
             </control>
-        </control>
+        </definition>
     </include>
 
     <include name="Background_Blur">
