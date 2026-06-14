@@ -742,6 +742,7 @@
             <animation effect="fade" start="0" end="0" time="600" reversible="false">Focus</animation>
             <include content="List_Widget_Row_HiddenButton_OnFocus">
                 <param name="id">$PARAM[id]</param>
+                <param name="container">Container($PARAM[id]).</param>
             </include>
         </control>
     </include>
@@ -749,6 +750,8 @@
     <include name="List_Widget_Row_HiddenButton_OnFocus">
         <param name="condition">true</param>
         <definition>
+            <onfocus condition="$PARAM[condition] + ![String.Contains($PARAM[container]ListItem.Art(icon),nextpage) | String.Contains($PARAM[container]ListItem.Art(landscape),nextpage) | String.Contains($PARAM[container]ListItem.Art(icon),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(poster),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(thumb),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(fanart),YpaXaLM) | String.Contains($PARAM[container]ListItem.Art(banner),YpaXaLM) | String.Contains($PARAM[container]ListItem.Property(fanart),YpaXaLM) | String.Contains($PARAM[container]ListItem.Label,Next Page) | String.Contains($PARAM[container]ListItem.Title,Next Page) | String.IsEqual($PARAM[container]ListItem.Property(specialsort),bottom) | String.Contains($PARAM[container]ListItem.FolderPath,page=) | String.Contains($PARAM[container]ListItem.FileNameAndPath,page=) | String.Contains($PARAM[container]ListItem.FolderPath,new_page=) | String.Contains($PARAM[container]ListItem.FileNameAndPath,new_page=) | String.Contains($PARAM[container]ListItem.FolderPath,new_page%3D) | String.Contains($PARAM[container]ListItem.FileNameAndPath,new_page%3D)]">ClearProperty(NextPage.Widget,Home)</onfocus>
+            <onfocus condition="$PARAM[condition] + [String.Contains($PARAM[container]ListItem.Art(icon),nextpage) | String.Contains($PARAM[container]ListItem.Art(landscape),nextpage) | String.Contains($PARAM[container]ListItem.Art(icon),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(poster),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(thumb),D2wG9Ak) | String.Contains($PARAM[container]ListItem.Art(fanart),YpaXaLM) | String.Contains($PARAM[container]ListItem.Art(banner),YpaXaLM) | String.Contains($PARAM[container]ListItem.Property(fanart),YpaXaLM) | String.Contains($PARAM[container]ListItem.Label,Next Page) | String.Contains($PARAM[container]ListItem.Title,Next Page) | String.IsEqual($PARAM[container]ListItem.Property(specialsort),bottom) | String.Contains($PARAM[container]ListItem.FolderPath,new_page=) | String.Contains($PARAM[container]ListItem.FileNameAndPath,new_page=) | String.Contains($PARAM[container]ListItem.FolderPath,new_page%3D) | String.Contains($PARAM[container]ListItem.FileNameAndPath,new_page%3D)]">SetProperty(NextPage.Widget,True,Home)</onfocus>
             <onfocus condition="$PARAM[condition]">SetProperty(WidgetMeta.$PARAM[id].Label,$ESCINFO[$PARAM[container]ListItem.Label])</onfocus>
             <onfocus condition="$PARAM[condition]">SetProperty(WidgetMeta.$PARAM[id].Title,$ESCINFO[$PARAM[container]ListItem.Title])</onfocus>
             <onfocus condition="$PARAM[condition]">SetProperty(WidgetMeta.$PARAM[id].TVShowTitle,$ESCINFO[$PARAM[container]ListItem.TVShowTitle])</onfocus>

@@ -124,12 +124,14 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.1`
+- `skin.dutchtech.fuse.3` `3.2.9.3`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
   this repo: Skin Variables, Texture Maker, the patched TMDb Helper, weather
-  icons, studio icons, and the Roboto CJK font resource.
+  icons, studio icons, and the Roboto CJK font resource. It now also gives
+  Next Page widget rows a dedicated fallback background and suppresses ordinary
+  artwork/foreground layers while those pagination items are focused.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current

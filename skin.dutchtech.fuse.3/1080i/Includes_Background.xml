@@ -24,8 +24,10 @@
         <param name="diffuse">diffuse/flixart/flixart.png</param>
         <param name="aspectratio">scale</param>
         <param name="fadetime">background_fadetime</param>
+        <param name="visible">true</param>
         <definition>
             <control type="image">
+                <visible>$PARAM[visible]</visible>
                 <fadetime>$PARAM[fadetime]</fadetime>
                 <right>$PARAM[right]</right>
                 <top>0</top>
@@ -43,18 +45,22 @@
     <include name="Background_Artwork">
         <param name="fadetime">background_fadetime</param>
         <definition>
-            <include content="Background_FlixArt" condition="$EXP[Exp_TMDbHelper_IsBlur]">
+            <include content="Background_FlixArt">
                 <param name="fadetime">$PARAM[fadetime]</param>
+                <param name="visible">$EXP[Exp_TMDbHelper_IsBlur] + !$EXP[Exp_NextPageBackground]</param>
             </include>
-            <include content="Background_FlixArt" condition="!$EXP[Exp_TMDbHelper_IsBlur]">
+            <include content="Background_FlixArt">
                 <param name="fadetime">$PARAM[fadetime]</param>
                 <param name="diffuse">diffuse/flixart/flixart_new.png</param>
+                <param name="visible">!$EXP[Exp_TMDbHelper_IsBlur] + !$EXP[Exp_NextPageBackground]</param>
             </include>
         </definition>
     </include>
 
     <include name="Background_Blur_Quadrants">
+        <param name="visible">true</param>
         <control type="group">
+            <visible>$PARAM[visible]</visible>
             <top>0</top>
             <right>0</right>
             <width>$PARAM[flixart_size_w]</width>
@@ -66,7 +72,7 @@
                 <height>200%</height>
                 <fadetime>$PARAM[fadetime]</fadetime>
                 <aspectratio>scale</aspectratio>
-                <texture background="true">$VAR[Image_Background,,-tiled.jpg]</texture>
+                <texture background="true">$VAR[Image_Background_Tiled]</texture>
             </control>
         </control>
     </include>
@@ -82,12 +88,38 @@
                     <param name="flixart_size_w">$PARAM[flixart_size_w]</param>
                     <param name="flixart_size_h">$PARAM[flixart_size_h]</param>
                     <param name="fadetime">$PARAM[fadetime]</param>
+                    <param name="visible">!$EXP[Exp_NextPageBackground]</param>
+                </include>
+                <include content="Background_Image" condition="$EXP[Exp_TMDbHelper_IsBlur] + $EXP[Exp_NextPageBackground]">
+                    <param name="fadetime">$PARAM[fadetime]</param>
+                    <param name="texture">$VAR[Image_Background]</param>
+                </include>
+                <include content="Background_Image" condition="!$EXP[Exp_TMDbHelper_IsBlur] + $EXP[Exp_NextPageBackground]">
+                    <param name="fadetime">$PARAM[fadetime]</param>
+                    <param name="texture">$VAR[Image_Background]</param>
                 </include>
                 <include content="Background_Image" condition="!$EXP[Exp_TMDbHelper_IsBlur]">
                     <param name="fadetime">$PARAM[fadetime]</param>
+                    <param name="visible">!$EXP[Exp_NextPageBackground]</param>
                 </include>
+                <include>Background_NextPage_PageMarker</include>
             </control>
         </definition>
+    </include>
+
+    <include name="Background_NextPage_PageMarker">
+        <control type="label">
+            <visible>$EXP[Exp_NextPageBackground]</visible>
+            <right>410</right>
+            <top>373</top>
+            <width>260</width>
+            <height>40</height>
+            <font>font_tiny_bold</font>
+            <align>center</align>
+            <aligny>center</aligny>
+            <textcolor>main_fg_70</textcolor>
+            <label>$VAR[Label_NextPageIndicator]</label>
+        </control>
     </include>
 
     <include name="Background_StartUp">
@@ -108,8 +140,10 @@
 
     <include name="Background_Image">
         <param name="texture">$VAR[Image_SimpleBackground]</param>
+        <param name="visible">true</param>
         <definition>
             <control type="image">
+                <visible>$PARAM[visible]</visible>
                 <fadetime>$PARAM[fadetime]</fadetime>
                 <aspectratio align="left">scale</aspectratio>
                 <texture background="true">$PARAM[texture]</texture>
@@ -199,6 +233,12 @@
             <include content="Background_Artwork">
                 <param name="fadetime">0</param>
             </include>
+            <include content="Background_Image">
+                <param name="fadetime">0</param>
+                <param name="texture">fallback/next-page-background.png</param>
+                <param name="visible">$EXP[Exp_NextPageBackground]</param>
+            </include>
+            <include>Background_NextPage_PageMarker</include>
         </control>
     </include>
 
@@ -208,6 +248,12 @@
             <animation effect="fade" start="100" end="0" time="background_fadetime">Hidden</animation>
             <include>Background_Blur</include>
             <include>Background_Artwork</include>
+            <include content="Background_Image">
+                <param name="fadetime">0</param>
+                <param name="texture">fallback/next-page-background.png</param>
+                <param name="visible">$EXP[Exp_NextPageBackground]</param>
+            </include>
+            <include>Background_NextPage_PageMarker</include>
         </control>
     </include>
 
@@ -249,7 +295,7 @@
         <param name="plain_background">false</param>
         <param name="video_background">!Skin.HasSetting(Background.DisableVideo)</param>
         <param name="include_layer">Object_Null</param>
-        <param name="condition_zoomer">[!$EXP[Exp_InfoDialogs] + $EXP[Hub_Spotlight_Visible_Expression]]</param>
+        <param name="condition_zoomer">[!$EXP[Exp_InfoDialogs] + $EXP[Hub_Spotlight_Visible_Expression] + !$EXP[Exp_NextPageBackground]]</param>
         <param name="include_zoomer">Window.IsVisible(Home) | Window.IsVisible(1101) | Window.IsVisible(1102) | Window.IsVisible(1103) | Window.IsVisible(1104)</param>
         <definition>
             <include condition="![$PARAM[video_background]]">Background_Video_Offscreen</include>

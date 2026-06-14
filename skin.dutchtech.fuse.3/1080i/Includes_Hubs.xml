@@ -92,6 +92,8 @@
                 <visible allowhiddenfocus="$PARAM[allowhiddenfocus]">$PARAM[visible]</visible>
                 <include content="$PARAM[include]">
                     <param name="id">$PARAM[id]</param>
+                    <param name="hidden_button_enabled">true</param>
+                    <param name="hidden_button">List_Widget_Row_HiddenButton</param>
                     <param name="control">panel</param>
                     <param name="orientation">vertical</param>
                     <param name="offset_y">40</param>
@@ -114,6 +116,8 @@
 
                     <ondown>ActivateWindow(1180)</ondown>
                     <onfocus>SetProperty(TMDbHelper.WidgetContainer,$PARAM[id])</onfocus>
+                    <onfocus>ClearProperty(NextPage.Widget,Home)</onfocus>
+                    <onfocus condition="String.Contains(Container($PARAM[id]).ListItem.Art(icon),nextpage) | String.Contains(Container($PARAM[id]).ListItem.Art(landscape),nextpage) | String.Contains(Container($PARAM[id]).ListItem.Art(icon),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(poster),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(thumb),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(fanart),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Art(banner),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Property(fanart),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Label,Next Page) | String.Contains(Container($PARAM[id]).ListItem.Title,Next Page) | String.IsEqual(Container($PARAM[id]).ListItem.Property(specialsort),bottom) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,page=) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,page=) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,new_page=) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,new_page=) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,new_page%3D) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,new_page%3D)">SetProperty(NextPage.Widget,True,Home)</onfocus>
                     <onfocus>SetProperty(Background.ShowOverlay,True,Home)</onfocus>
                     <onfocus condition="![$PARAM[home_switcher]]">ClearProperty(HomeSwitcher.IsVisible,Home)</onfocus>
                     <onfocus condition="$PARAM[home_switcher]">SetProperty(HomeSwitcher.IsVisible,True,Home)</onfocus>
@@ -145,6 +149,8 @@
         <definition>
             <include content="$PARAM[include]">
                 <param name="id">$PARAM[id]</param>
+                <param name="hidden_button_enabled">true</param>
+                <param name="hidden_button">List_Widget_Row_HiddenButton</param>
                 <top>510</top>
                 <bottom>-40</bottom>
                 <onup>601</onup>
@@ -160,6 +166,8 @@
                 <include>Hub_Grouplist_OnLeftRight</include>
                 <ondown>ActivateWindow(1180)</ondown>
                 <onfocus>SetProperty(TMDbHelper.WidgetContainer,$PARAM[id])</onfocus>
+                <onfocus>ClearProperty(NextPage.Widget,Home)</onfocus>
+                <onfocus condition="String.Contains(Container($PARAM[id]).ListItem.Art(icon),nextpage) | String.Contains(Container($PARAM[id]).ListItem.Art(landscape),nextpage) | String.Contains(Container($PARAM[id]).ListItem.Art(icon),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(poster),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(thumb),D2wG9Ak) | String.Contains(Container($PARAM[id]).ListItem.Art(fanart),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Art(banner),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Property(fanart),YpaXaLM) | String.Contains(Container($PARAM[id]).ListItem.Label,Next Page) | String.Contains(Container($PARAM[id]).ListItem.Title,Next Page) | String.IsEqual(Container($PARAM[id]).ListItem.Property(specialsort),bottom) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,page=) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,page=) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,new_page=) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,new_page=) | String.Contains(Container($PARAM[id]).ListItem.FolderPath,new_page%3D) | String.Contains(Container($PARAM[id]).ListItem.FileNameAndPath,new_page%3D)">SetProperty(NextPage.Widget,True,Home)</onfocus>
                 <onfocus>ClearProperty(Background.ShowOverlay,Home)</onfocus>
                 <onfocus>ClearProperty(HomeSwitcher.IsVisible,Home)</onfocus>
                 <onfocus>ClearProperty(InfoPanel.FullSwitch,Home)</onfocus>
