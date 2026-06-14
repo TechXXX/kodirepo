@@ -117,6 +117,28 @@
         <value>$INFO[Container(22001).ListItemNoWrap(-1).Label]</value>
     </variable>
 
+    <variable name="Label_NextPageIndicator">
+        <value condition="String.Contains(ListItem.Label,Next Page (20)) | String.Contains(ListItem.Title,Next Page (20)) | String.Contains(Container.ListItem.Label,Next Page (20)) | String.Contains(Container.ListItem.Title,Next Page (20))">Page 19</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (19)) | String.Contains(ListItem.Title,Next Page (19)) | String.Contains(Container.ListItem.Label,Next Page (19)) | String.Contains(Container.ListItem.Title,Next Page (19))">Page 18</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (18)) | String.Contains(ListItem.Title,Next Page (18)) | String.Contains(Container.ListItem.Label,Next Page (18)) | String.Contains(Container.ListItem.Title,Next Page (18))">Page 17</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (17)) | String.Contains(ListItem.Title,Next Page (17)) | String.Contains(Container.ListItem.Label,Next Page (17)) | String.Contains(Container.ListItem.Title,Next Page (17))">Page 16</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (16)) | String.Contains(ListItem.Title,Next Page (16)) | String.Contains(Container.ListItem.Label,Next Page (16)) | String.Contains(Container.ListItem.Title,Next Page (16))">Page 15</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (15)) | String.Contains(ListItem.Title,Next Page (15)) | String.Contains(Container.ListItem.Label,Next Page (15)) | String.Contains(Container.ListItem.Title,Next Page (15))">Page 14</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (14)) | String.Contains(ListItem.Title,Next Page (14)) | String.Contains(Container.ListItem.Label,Next Page (14)) | String.Contains(Container.ListItem.Title,Next Page (14))">Page 13</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (13)) | String.Contains(ListItem.Title,Next Page (13)) | String.Contains(Container.ListItem.Label,Next Page (13)) | String.Contains(Container.ListItem.Title,Next Page (13))">Page 12</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (12)) | String.Contains(ListItem.Title,Next Page (12)) | String.Contains(Container.ListItem.Label,Next Page (12)) | String.Contains(Container.ListItem.Title,Next Page (12))">Page 11</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (11)) | String.Contains(ListItem.Title,Next Page (11)) | String.Contains(Container.ListItem.Label,Next Page (11)) | String.Contains(Container.ListItem.Title,Next Page (11))">Page 10</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (10)) | String.Contains(ListItem.Title,Next Page (10)) | String.Contains(Container.ListItem.Label,Next Page (10)) | String.Contains(Container.ListItem.Title,Next Page (10))">Page 9</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (9)) | String.Contains(ListItem.Title,Next Page (9)) | String.Contains(Container.ListItem.Label,Next Page (9)) | String.Contains(Container.ListItem.Title,Next Page (9))">Page 8</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (8)) | String.Contains(ListItem.Title,Next Page (8)) | String.Contains(Container.ListItem.Label,Next Page (8)) | String.Contains(Container.ListItem.Title,Next Page (8))">Page 7</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (7)) | String.Contains(ListItem.Title,Next Page (7)) | String.Contains(Container.ListItem.Label,Next Page (7)) | String.Contains(Container.ListItem.Title,Next Page (7))">Page 6</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (6)) | String.Contains(ListItem.Title,Next Page (6)) | String.Contains(Container.ListItem.Label,Next Page (6)) | String.Contains(Container.ListItem.Title,Next Page (6))">Page 5</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (5)) | String.Contains(ListItem.Title,Next Page (5)) | String.Contains(Container.ListItem.Label,Next Page (5)) | String.Contains(Container.ListItem.Title,Next Page (5))">Page 4</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (4)) | String.Contains(ListItem.Title,Next Page (4)) | String.Contains(Container.ListItem.Label,Next Page (4)) | String.Contains(Container.ListItem.Title,Next Page (4))">Page 3</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (3)) | String.Contains(ListItem.Title,Next Page (3)) | String.Contains(Container.ListItem.Label,Next Page (3)) | String.Contains(Container.ListItem.Title,Next Page (3))">Page 2</value>
+        <value condition="String.Contains(ListItem.Label,Next Page (2)) | String.Contains(ListItem.Title,Next Page (2)) | String.Contains(Container.ListItem.Label,Next Page (2)) | String.Contains(Container.ListItem.Title,Next Page (2))">Page 1</value>
+    </variable>
+
     <variable name="Label_Settings_InfoText">
         <value condition="System.HasVisibleModalDialog | Control.HasFocus(60) | Control.HasFocus(20)">$INFO[System.BuildVersion,Kodi ,]$INFO[System.AddonVersion(skin.dutchtech.fuse.3), • DTF3 v,]</value>
         <value condition="Window.IsVisible(SettingsCategory.xml) + [ControlGroup(3).HasFocus() | ControlGroup(5).HasFocus()]">$INFO[Control.GetLabel(6)]</value>

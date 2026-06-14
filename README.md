@@ -124,7 +124,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.3`
+- `skin.dutchtech.fuse.3` `3.2.9.4`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by

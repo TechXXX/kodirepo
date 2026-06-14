@@ -1155,6 +1155,7 @@
 
             <control type="grouplist">
                 <visible>$PARAM[visible]</visible>
+                <visible>!$EXP[Exp_NextPageBackground]</visible>
                 <top>-20</top>
                 <left>-40</left>
                 <hitrect x="0" y="0" w="0" h="0" />
