@@ -1,26 +1,34 @@
 [
     {
         "label": "Movies",
-        "path": "DefaultSearch-FenlightMovies",
+        "path": "plugin://plugin.video.fenlight/?mode=build_movie_list&action=tmdb_movies_search&query=",
         "icon": "special://skin/extras/icons/film.png",
-        "target": "",
+        "target": "videos",
         "guid": "guid-a1dbc824",
         "widget_style": "Poster"
     },
     {
         "label": "TV Shows ",
-        "path": "DefaultSearch-FenlightShows",
+        "path": "plugin://plugin.video.fenlight/?mode=build_tvshow_list&action=tmdb_tv_search&query=",
         "icon": "special://skin/extras/icons/tv.png",
-        "target": "",
+        "target": "videos",
         "guid": "guid-daf3f435",
         "widget_style": "Poster"
     },
     {
         "label": "Gemini",
-        "path": "DefaultSearch-Gemini",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=ai_search.widget&query=",
         "icon": "special://skin/extras/icons/wand-magic.png",
-        "target": "",
+        "target": "videos",
         "guid": "guid-385d4221",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Collections",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_movie_list&action=tmdb_movies_search_sets&query=",
+        "icon": "special://skin/extras/icons/sets.png",
+        "target": "videos",
+        "guid": "guid-fenlight-collections",
         "widget_style": "Poster"
     },
     {

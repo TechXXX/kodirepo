@@ -456,7 +456,7 @@ v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
-    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.13" provider-name="Kalter">
+    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.14" provider-name="Kalter">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
