@@ -1,7 +1,7 @@
 [
     {
         "label": "Movies",
-        "path": "plugin://plugin.video.fenlight/?mode=build_movie_list&action=tmdb_movies_search&query=",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_movie_list&action=tmdb_movies_search&query=",
         "icon": "special://skin/extras/icons/film.png",
         "target": "videos",
         "guid": "guid-a1dbc824",
@@ -9,7 +9,7 @@
     },
     {
         "label": "TV Shows ",
-        "path": "plugin://plugin.video.fenlight/?mode=build_tvshow_list&action=tmdb_tv_search&query=",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_search&query=",
         "icon": "special://skin/extras/icons/tv.png",
         "target": "videos",
         "guid": "guid-daf3f435",
