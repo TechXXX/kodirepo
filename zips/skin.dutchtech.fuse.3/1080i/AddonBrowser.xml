@@ -51,6 +51,13 @@
                                 <visible>!Integer.IsEqual(Container(6301).NumItems,0)</visible>
                             </item>
                             <item>
+                                <label>$LOCALIZE[24034]</label>
+                                <property name="folderpath">addons://</property>
+                                <property name="skipupdate">true</property>
+                                <icon>special://skin/extras/icons/update.png</icon>
+                                <onclick>SendClick(9)</onclick>
+                            </item>
+                            <item>
                                 <label>$LOCALIZE[24996]</label>
                                 <property name="folderpath">addons://dependencies/</property>
                                 <icon>DefaultAddonService.png</icon>
@@ -126,6 +133,15 @@
             <itemlayout width="1" height="1" />
             <focusedlayout width="1" height="1" />
             <content>addons://outdated/</content>
+        </control>
+
+        <control type="button" id="9">
+            <description>Check for repository updates</description>
+            <left>-1000</left>
+            <top>-1000</top>
+            <width>1</width>
+            <height>1</height>
+            <label>$LOCALIZE[24034]</label>
         </control>
 
     </controls>
