@@ -82,6 +82,32 @@ architecture:
 
 This is the replacement for the older per-source probing experiment.
 
+### Cross-Addon Contract With Fen Light Patched
+
+Patched Fen uses this addon in two phases.
+
+Before playback, Fen imports `A4kSubtitlesApi` from the installed patched a4k
+addon path and calls `search(...)` in API mode. a4k returns subtitle result
+dictionaries; Fen's bundled selector ranks those against Fen source
+dictionaries. a4k should not know or care which source Fen will eventually
+resolve.
+
+During playback, Fen publishes Kodi window properties:
+
+- `subs.player_filename`
+- `subs.selector_source_key`
+- `subs.selector_payload`
+- `script.trakt.ids`
+
+`a4kSubtitles/service.py` reads the selector properties. If the payload still
+matches the current source key, the service can force the exact selector
+matched subtitle instead of doing a fresh broad runtime search. It still checks
+for an already available preferred-language Kodi subtitle stream first.
+
+Keep this property contract stable. If the payload shape changes, update Fen's
+`resources/lib/fenlightsubs/integration.py`, Fen's `modules/player.py`, and
+this service loop together.
+
 ### Translation-Aware Results
 
 OpenSubtitles rows can carry:

@@ -387,6 +387,29 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
             </assets>
         </extension>
     </addon>
+    <addon id="plugin.video.torbox.cdn.test" name="TorBox CDN Test" provider-name="DutchTech" version="0.1.0">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.requests" version="2.19.1" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="default.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en">Test TorBox CDN and real resolved download throughput.</summary>
+            <description lang="en">Utility add-on that measures TorBox CDN speedtest URLs and real TorBox requestdl links resolved from your existing Fen Light TorBox cloud settings.</description>
+            <platform>all</platform>
+            <license>MIT</license>
+            <assets>
+                <icon>resources/media/icon.png</icon>
+                <fanart>resources/media/fanart.jpg</fanart>
+            </assets>
+            <news>v0.1.0
+- Add TorBox CDN speedtest runner using the TorBox speedtest API.
+- Add real TorBox cloud-file testing using Fen Light's TorBox token and requestdl flow.
+- Add latest Kodi-log resolved URL testing with token redaction in reports.</news>
+        </extension>
+    </addon>
     <addon id="resource.font.robotocjksc" name="Roboto CJKSC" version="0.0.3" provider-name="jurialmunkey">
         <requires>
             <import addon="kodi.resource" version="1.0.0" />

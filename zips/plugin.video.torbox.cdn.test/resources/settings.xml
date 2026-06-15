@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <category label="TorBox CDN Test">
+    <setting id="fenlight_addon_id" type="text" label="Fen Light add-on id for TorBox token" default="plugin.video.fenlight.patched"/>
+    <setting id="torbox_token" type="text" option="hidden" label="Optional TorBox API token override" default=""/>
+    <setting id="target_file_gb" type="number" label="Target real file size in GB" default="5"/>
+    <setting id="test_limit_mb" type="number" label="Maximum MB per download sample" default="256"/>
+    <setting id="test_duration_seconds" type="number" label="Maximum seconds per download sample" default="30"/>
+    <setting id="cloud_scan_limit" type="number" label="Max cloud folders to scan per type" default="50"/>
+    <setting id="speedtest_length" type="select" label="TorBox speedtest file size" values="short|long" default="short"/>
+    <setting id="cdn_region_filter" type="text" label="Optional TorBox CDN region filter" default=""/>
+  </category>
+</settings>

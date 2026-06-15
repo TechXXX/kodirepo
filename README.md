@@ -193,13 +193,49 @@ For selector, AI-search, or packaging work in this repo, read:
 
 1. `README.md`
 2. `scripts/README.md`
-3. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
-4. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
-5. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
-6. `service.subtitles.a4ksubtitles.patched/README.md`
-7. `plugin.video.themoviedb.helper.patched/Readme.md`
-8. `skin.arctic.horizon.2.patched/Readme.md`
-9. `skin.arctic.horizon.2.1/Readme.md`
+3. `plugin.video.fenlight.patched/README.md`
+4. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
+5. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+6. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+7. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
+8. `service.subtitles.a4ksubtitles.patched/README.md`
+9. `plugin.video.themoviedb.helper.patched/Readme.md`
+10. `skin.arctic.horizon.2.patched/Readme.md`
+11. `skin.arctic.horizon.2.1/Readme.md`
+
+## Fen / a4k / TMDb Helper Handoff
+
+The production playback triangle is:
+
+- TMDb Helper Patched builds list/widget/player routes and launches Fen Light
+  Patched through bundled player JSON files.
+- Fen Light Patched owns metadata lookup, source scraping, source ordering,
+  resolving, playback, watched/progress updates, and pre-play subtitle-aware
+  retry-pool promotion.
+- a4kSubtitles Patched owns subtitle provider searches, manual subtitle UI,
+  runtime subtitle attachment, built-in subtitle preference, and full-file AI
+  subtitle translation fallback.
+
+TMDb Helper's Fen player JSONs use `is_resolvable=false`. They pass
+`mode=playback.media`, `tmdb_id`, season/episode, title/year hints, and an
+`autoplay` flag to Fen. From that point Fen owns the scrape and playback. TMDb
+Helper Trakt authorization is useful inside TMDb Helper, but it is not a
+universal Trakt token for Fen, Magneto, POV, Umbrella, or other launched
+players.
+
+Patched Fen talks to patched a4k twice:
+
+- before playback, through `A4kSubtitlesApi.search(...)`, so Fen can rank the
+  full source list against the full subtitle result list
+- during playback, through Kodi window properties such as
+  `subs.player_filename`, `subs.selector_source_key`, and
+  `subs.selector_payload`
+
+Current guard rail: do not add individual-title code paths to paper over bad
+provider metadata. The 2026 `The Terror: Devil in Silver` standalone TMDb entry
+is a known anthology/source-naming edge case; source providers may index it as
+parent show `The Terror` season 3. Treat that as an honest no-source result for
+the standalone route unless a generic metadata/cache fix is justified.
 
 ## Selector-Relevant Addon Responsibilities
 
