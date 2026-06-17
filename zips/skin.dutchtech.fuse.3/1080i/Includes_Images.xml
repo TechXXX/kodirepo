@@ -152,7 +152,7 @@
         <value condition="!String.IsEmpty(Container.ListItem.Art(landscape)) + !Skin.HasSetting(DisableLandscapeArt)">$INFO[Container.ListItem.Art(landscape)]</value>
         <value condition="!String.IsEmpty(Container.ListItem.Art(season.landscape)) + !Skin.HasSetting(DisableLandscapeArt)">$INFO[Container.ListItem.Art(season.landscape)]</value>
         <value condition="!String.IsEmpty(Container.ListItem.Art(tvshow.landscape)) + !Skin.HasSetting(DisableLandscapeArt)">$INFO[Container.ListItem.Art(tvshow.landscape)]</value>
-        <value condition="!String.IsEmpty(Container.ListItem.Art(fanart))">$INFO[Container.ListItem.Art(fanart)]</value>
+        <value condition="!Control.HasFocus(300) + !Control.HasFocus(601) + !ControlGroup(600).HasFocus() + !String.IsEmpty(Container.ListItem.Art(fanart))">$INFO[Container.ListItem.Art(fanart)]</value>
         <value condition="!String.IsEmpty(Container.ListItem.Art(tvshow.fanart))">$INFO[Container.ListItem.Art(tvshow.fanart)]</value>
     </variable>
 
@@ -252,12 +252,14 @@
 
     <variable name="Image_Current_Background">
         <value condition="$EXP[Exp_NextPageBackground]">fallback/next-page-background.png</value>
+        <value condition="$EXP[Exp_NextPageBlurImage]">common/_none.png</value>
         <value condition="$EXP[Exp_BackgroundArtwork_IsSimple]">$INFO[Window(Home).Property(TMDbHelper.SimpleBackground.BlurImage)]</value>
         <value>$INFO[Window(Home).Property(TMDbHelper.ListItem.Current.BlurImage)]</value>
     </variable>
 
     <variable name="Image_Background">
         <value condition="$EXP[Exp_NextPageBackground]">fallback/next-page-background.png</value>
+        <value condition="$EXP[Exp_NextPageBlurImage]">common/_none.png</value>
         <value condition="$EXP[Exp_BackgroundArtwork_IsSimple]">$INFO[Window(Home).Property(TMDbHelper.SimpleBackground.BlurImage)]</value>
         <value condition="!String.IsEmpty(Window.Property(TMDbHelper.ListItem.BlurImage))">$INFO[Window.Property(TMDbHelper.ListItem.BlurImage)]</value>
         <value>$INFO[Window(Home).Property(TMDbHelper.ListItem.Current.BlurImage)]</value>
@@ -265,12 +267,13 @@
 
     <variable name="Image_Background_Tiled">
         <value condition="$EXP[Exp_NextPageBackground]">fallback/next-page-background.png</value>
+        <value condition="$EXP[Exp_NextPageBlurImage]">common/_none.png</value>
         <value>$VAR[Image_Background,,-tiled.jpg]</value>
     </variable>
 
     <variable name="Image_Foreground_NoService">
         <value condition="$EXP[Exp_NextPageBackground]">common/_none.png</value>
-        <value condition="!String.IsEmpty(Container.ListItem.Art(fanart))">$INFO[Container.ListItem.Art(fanart)]</value>
+        <value condition="!Control.HasFocus(300) + !Control.HasFocus(601) + !ControlGroup(600).HasFocus() + !String.IsEmpty(Container.ListItem.Art(fanart))">$INFO[Container.ListItem.Art(fanart)]</value>
         <value condition="Integer.IsEqual(Window.Property(TMDbHelper.WidgetContainer),301)">$INFO[Container(301).ListItem.Art(fanart)]</value>
         <value condition="Integer.IsEqual(Window.Property(TMDbHelper.WidgetContainer),501)">$INFO[Container(501).ListItem.Art(fanart)]</value>
         <value condition="Integer.IsEqual(Window.Property(TMDbHelper.WidgetContainer),502)">$INFO[Container(502).ListItem.Art(fanart)]</value>
@@ -326,6 +329,7 @@
 
     <variable name="Image_Foreground">
         <value condition="$EXP[Exp_NextPageBackground]">common/_none.png</value>
+        <value condition="$EXP[Exp_NextPageBlurImage]">common/_none.png</value>
         <value condition="$EXP[Exp_BackgroundArtwork_IsSimple]">$INFO[Window(Home).Property(TMDbHelper.SimpleBackground.BlurImage.Original)]</value>
         <value condition="!$EXP[Exp_TMDbHelper_IsBlur]">$VAR[Image_Foreground_NoService]</value>
         <value condition="!String.IsEmpty(Window.Property(TMDbHelper.ListItem.BlurImage.Original))">$INFO[Window.Property(TMDbHelper.ListItem.BlurImage.Original)]</value>

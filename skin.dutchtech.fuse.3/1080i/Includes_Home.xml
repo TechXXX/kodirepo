@@ -243,6 +243,7 @@
                 <ondown condition="Skin.HasSetting(HomeSwitcher.Vertical)">$INFO[Container(399).ListItem(1).Property(action)]</ondown>
 
                 <onfocus>SetProperty(HomeSwitcher.IsVisible,True,Home)</onfocus>
+                <onfocus>ClearProperty(NextPage.Widget,Home)</onfocus>
                 <onfocus condition="$PARAM[overlay]">SetProperty(InfoPanel.FullSwitch,Wall,Home)</onfocus>
                 <onfocus condition="![$PARAM[overlay]]">ClearProperty(InfoPanel.FullSwitch,Home)</onfocus>
                 <onfocus condition="$PARAM[overlay]">SetProperty(Background.ShowOverlay,True,Home)</onfocus>
@@ -619,6 +620,8 @@
                         <onright>61$PARAM[id]</onright>
                         <orientation>vertical</orientation>
                         <pagecontrol>61$PARAM[id]</pagecontrol>
+                        <onfocus>ClearProperty(NextPage.Widget,Home)</onfocus>
+                        <onfocus>SetProperty(TMDbHelper.WidgetContainer,80$PARAM[id])</onfocus>
                         <content>
                             <include>skinvariables-$PARAM[window]submenu-staticitems</include>
                         </content>

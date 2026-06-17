@@ -224,6 +224,8 @@
                     <onback condition="Player.HasMedia">SetProperty(FullscreenRefocus,SetFocus(601))</onback>
                     <onback condition="Player.HasMedia">309</onback>
                     <ondown>SetFocus($INFO[Container(601).ListItem.Property(widget_id)])</ondown>
+                    <onfocus>SetProperty(TMDbHelper.WidgetContainer,601)</onfocus>
+                    <onfocus>ClearProperty(NextPage.Widget,Home)</onfocus>
                     <onfocus condition="$PARAM[wall]">SetProperty(InfoPanel.FullSwitch,Wall,Home)</onfocus>
                     <onfocus condition="![$PARAM[wall]]">ClearProperty(InfoPanel.FullSwitch,Home)</onfocus>
                     <onfocus condition="![$PARAM[home_switcher]]">ClearProperty(HomeSwitcher.IsVisible,Home)</onfocus>
@@ -250,7 +252,7 @@
             <include>Home_Info_Animation</include>
             <include>Info_Panel_Dimensions</include>
             <include content="Info_Panel">
-                <param name="visible">[!$EXP[Exp_InfoDialogs] + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
+                <param name="visible">[!$EXP[Exp_InfoDialogs] + !Control.HasFocus(300) + !Control.HasFocus(601) + !ControlGroup(600).HasFocus() + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
                 <param name="visible_line">false</param>
                 <param name="visible_plot">false</param>
                 <param name="visible_meta">false</param>
@@ -269,7 +271,7 @@
                 <control type="group">
                     <top>200</top>
                     <include content="Info_Panel">
-                        <param name="visible">[!$EXP[Exp_InfoDialogs] + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
+                        <param name="visible">[!$EXP[Exp_InfoDialogs] + !Control.HasFocus(300) + !Control.HasFocus(601) + !ControlGroup(600).HasFocus() + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
                         <param name="visible_line">false</param>
                         <param name="visible_plot">false</param>
                         <param name="visible_meta">false</param>
@@ -283,7 +285,7 @@
                 <include>Info_Panel_Dimensions</include>
                 <include>Home_Info_Animation</include>
                 <include content="Info_Panel">
-                    <param name="visible">[!$EXP[Exp_InfoDialogs] + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
+                    <param name="visible">[!$EXP[Exp_InfoDialogs] + !Control.HasFocus(300) + !Control.HasFocus(601) + !ControlGroup(600).HasFocus() + Integer.IsEqual(Window.Property(TMDBHelper.WidgetContainer),$PARAM[id])]</param>
                     <param name="visible_line">true</param>
                     <param name="visible_plot">true</param>
                     <param name="visible_meta">true</param>
