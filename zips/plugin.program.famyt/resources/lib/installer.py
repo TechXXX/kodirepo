@@ -69,7 +69,7 @@ def _addon():
 
 
 def _log(message, level=xbmc.LOGINFO):
-    xbmc.log("[famYT] %s" % message, level)
+    xbmc.log("[Kodi Setup Kit] %s" % message, level)
 
 
 def _translate_path(path):
@@ -94,7 +94,7 @@ def _set_setting(addon, key, value):
     addon.setSetting(key, value)
 
 
-def _notify(message, heading="famYT", icon=xbmcgui.NOTIFICATION_INFO, ms=5000):
+def _notify(message, heading="Kodi Setup Kit", icon=xbmcgui.NOTIFICATION_INFO, ms=5000):
     xbmcgui.Dialog().notification(heading, message, icon, ms)
 
 
@@ -131,7 +131,7 @@ def _menu_url(action):
 def _show_menu():
     handle = _plugin_handle()
     if handle < 0:
-        xbmcgui.Dialog().ok("famYT", "Open famYT from Kodi's program add-ons menu.")
+        xbmcgui.Dialog().ok("Kodi Setup Kit", "Open Kodi Setup Kit from Kodi's program add-ons menu.")
         return
 
     import xbmcplugin
@@ -151,7 +151,7 @@ def _prompt_password():
     dialog = xbmcgui.Dialog()
     hidden_option = getattr(xbmcgui, "ALPHANUM_HIDE_INPUT", 0)
     return dialog.input(
-        "famYT password",
+        "Kodi Setup Kit password",
         type=getattr(xbmcgui, "INPUT_ALPHANUM", 0),
         option=hidden_option,
     )
@@ -169,7 +169,7 @@ def _read_bridge_response(api_url, password):
         headers={
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "famYT Kodi add-on",
+            "User-Agent": "Kodi Setup Kit Kodi add-on",
         },
         method="POST",
     )
@@ -186,9 +186,9 @@ def _read_bridge_response(api_url, password):
             message = exc.reason
         raise _json_response(exc.code, message)
     except urllib.error.URLError as exc:
-        raise RuntimeError("Could not reach famYT bridge: %s" % exc.reason)
+        raise RuntimeError("Could not reach Kodi Setup Kit bridge: %s" % exc.reason)
     except ValueError:
-        raise RuntimeError("famYT bridge returned invalid JSON")
+        raise RuntimeError("Kodi Setup Kit bridge returned invalid JSON")
 
 
 def _pick(data, *keys):
@@ -215,7 +215,7 @@ def _extract_youtube_keys(data):
     if not client_secret:
         missing.append("client_secret")
     if missing:
-        raise RuntimeError("famYT bridge response is missing: %s" % ", ".join(missing))
+        raise RuntimeError("Kodi Setup Kit bridge response is missing: %s" % ", ".join(missing))
 
     if client_id.endswith(CLIENT_ID_SUFFIX):
         client_id = client_id[: -len(CLIENT_ID_SUFFIX)]
@@ -234,7 +234,7 @@ def _extract_torbox_key(data):
         api_key = _pick(data, "torbox_api_key", "torboxApiKey", "torbox_token", "torboxToken")
     if not api_key:
         raise RuntimeError(
-            "famYT bridge response is missing torbox.api_key. "
+            "Kodi Setup Kit bridge response is missing torbox.api_key. "
             "Add TORBOX_API_KEY to the Vercel environment and redeploy."
         )
     return api_key
@@ -310,7 +310,7 @@ def _extract_a4ksubtitles_settings(data):
         missing.append("a4ksubtitles.ai.api_key")
     if missing:
         raise RuntimeError(
-            "famYT bridge response is missing: %s. "
+            "Kodi Setup Kit bridge response is missing: %s. "
             "Add the A4KSUBS_* values to the Vercel environment and redeploy."
             % ", ".join(missing)
         )
@@ -576,7 +576,7 @@ def _addon_resource_path(*parts):
 def _keymap_source_files():
     source_dir = _addon_resource_path(KEYMAPS_SOURCE_DIR)
     if not os.path.isdir(source_dir):
-        raise RuntimeError("famYT keymap bundle was not found.")
+        raise RuntimeError("Kodi Setup Kit keymap bundle was not found.")
 
     keymap_files = []
     for name in sorted(os.listdir(source_dir)):
@@ -586,7 +586,7 @@ def _keymap_source_files():
         if os.path.isfile(path):
             keymap_files.append((name, path))
     if not keymap_files:
-        raise RuntimeError("famYT keymap bundle is empty.")
+        raise RuntimeError("Kodi Setup Kit keymap bundle is empty.")
     return keymap_files
 
 
@@ -923,12 +923,12 @@ def _run_action(action):
 
     if action == "install_cocoscrapers":
         progress = xbmcgui.DialogProgress()
-        progress.create("famYT", "Installing Cocoscrapers filters...")
+        progress.create("Kodi Setup Kit", "Installing Cocoscrapers filters...")
         try:
             message = _install_cocoscrapers(addon)
             progress.update(100, "Done")
             progress.close()
-            xbmcgui.Dialog().ok("famYT", message)
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
         except Exception as exc:
             progress.close()
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
@@ -937,12 +937,12 @@ def _run_action(action):
 
     if action == "install_advanced_network":
         progress = xbmcgui.DialogProgress()
-        progress.create("famYT", "Installing Kodi network advanced settings...")
+        progress.create("Kodi Setup Kit", "Installing Kodi network advanced settings...")
         try:
             message = _install_advanced_network_settings(addon)
             progress.update(100, "Done")
             progress.close()
-            xbmcgui.Dialog().ok("famYT", message)
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
         except Exception as exc:
             progress.close()
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
@@ -951,12 +951,12 @@ def _run_action(action):
 
     if action == "install_keymaps":
         progress = xbmcgui.DialogProgress()
-        progress.create("famYT", "Installing Kodi keymaps...")
+        progress.create("Kodi Setup Kit", "Installing Kodi keymaps...")
         try:
             message = _install_keymaps(addon)
             progress.update(100, "Done")
             progress.close()
-            xbmcgui.Dialog().ok("famYT", message)
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
         except Exception as exc:
             progress.close()
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
@@ -965,7 +965,7 @@ def _run_action(action):
 
     api_url = _get_setting(addon, "api_url").strip()
     if not api_url or "YOUR-VERCEL-PROJECT" in api_url:
-        xbmcgui.Dialog().ok("famYT", "Set the famYT bridge URL in the add-on settings first.")
+        xbmcgui.Dialog().ok("Kodi Setup Kit", "Set the Kodi Setup Kit bridge URL in the add-on settings first.")
         return
 
     password = _prompt_password()
@@ -973,7 +973,7 @@ def _run_action(action):
         return
 
     progress = xbmcgui.DialogProgress()
-    progress.create("famYT", "Contacting famYT bridge...")
+    progress.create("Kodi Setup Kit", "Contacting Kodi Setup Kit bridge...")
 
     try:
         bridge_data = _read_bridge_response(api_url, password)
@@ -1032,7 +1032,7 @@ def _run_action(action):
         if action in ("install_youtube", "install_all"):
             summary += "\n\nFamily members can still sign in to YouTube with their own Google account."
         xbmcgui.Dialog().ok(
-            "famYT",
+            "Kodi Setup Kit",
             summary,
         )
     except Exception as exc:

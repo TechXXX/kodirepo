@@ -1,10 +1,10 @@
 # Kodi Media Center language file
-# Addon Name: famYT
+# Addon Name: Kodi Setup Kit
 # Addon id: plugin.program.famyt
 # Addon Provider: DutchTech
 msgid ""
 msgstr ""
-"Project-Id-Version: famYT\n"
+"Project-Id-Version: Kodi Setup Kit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-04 12:15+0200\n"
 "PO-Revision-Date: 2026-06-04 12:15+0200\n"

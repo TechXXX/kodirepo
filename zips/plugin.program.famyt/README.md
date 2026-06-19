@@ -1,4 +1,4 @@
-# famYT
+# Kodi Setup Kit
 
 Private setup helper for a configured family Kodi environment.
 

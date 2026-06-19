@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
-       name="famYT"
-       version="0.6.1"
+       name="Kodi Setup Kit"
+       version="0.6.2"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -11,8 +11,8 @@
     <provides>executable</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Private family setup helper</summary>
-    <description lang="en_GB">Private setup helper for a configured family Kodi environment. Contains no credentials.</description>
+    <summary lang="en_GB">Kodi setup helper</summary>
+    <description lang="en_GB">Setup kit for a configured family Kodi environment. Contains no credentials.</description>
     <assets>
       <icon>resources/icon.png</icon>
       <fanart>resources/fanart.jpg</fanart>
@@ -20,7 +20,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.6.1
+<news>v0.6.2
+- Rename add-on to Kodi Setup Kit
+
+v0.6.1
 - Fix the English language placeholder so Kodi's PO parser accepts the add-on cleanly.
 
 v0.6.0
