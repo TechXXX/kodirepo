@@ -8,6 +8,7 @@ import sys
 import traceback
 import urllib.error
 import urllib.request
+import zipfile
 import xml.etree.ElementTree as ET
 from urllib.parse import parse_qsl, urlencode, urlparse
 
@@ -29,6 +30,32 @@ GUISETTINGS_PATH = "special://profile/guisettings.xml"
 GUISETTINGS_BACKUP_DIR = os.path.join("backups", "guisettings")
 GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings.xml")
 GUISETTINGS_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+SKIN_SETTINGS_SOURCE_DIR = os.path.join("resources", "skinsettings")
+SKIN_SETTINGS_BACKUP_DIR = os.path.join("backups", "skinsettings")
+SKIN_SETTINGS_DOWNLOAD_MAX_BYTES = 5 * 1024 * 1024
+SKIN_SETTINGS_ADDONS = (
+    ("skin.dutchtech.fuse.3", "DutchTech Fuse 3", "skin.dutchtech.fuse.3"),
+    (
+        "skin.dutchtech.fuse.3.kodienglish",
+        "Kodi English Fuse 3",
+        "skin.dutchtech.fuse.3",
+    ),
+    (
+        "skin.arctic.horizon.2.patched",
+        "Arctic Horizon 2 Patched",
+        "skin.arctic.horizon.2.patched",
+    ),
+    (
+        "skin.arctic.horizon.2.patched.kodienglish",
+        "Arctic Horizon 2 Patched English",
+        "skin.arctic.horizon.2.patched",
+    ),
+    (
+        "skin.arctic.horizon.2.1",
+        "Arctic Horizon 2.1",
+        "skin.arctic.horizon.2.patched",
+    ),
+)
 
 FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight",
@@ -67,6 +94,9 @@ MENU_ITEMS = (
     ("Back up Kodi GUI settings", "backup_guisettings"),
     ("Restore GUI settings from URL", "restore_guisettings_url"),
     ("Restore built-in GUI settings", "restore_guisettings_builtin"),
+    ("Back up skin settings", "backup_skinsettings"),
+    ("Restore skin settings from URL", "restore_skinsettings_url"),
+    ("Restore built-in skin settings", "restore_skinsettings_builtin"),
     ("Install everything", "install_all"),
 )
 
@@ -820,6 +850,295 @@ def _restore_guisettings_message(source_label, guisettings_path, backup_path, ap
     return message
 
 
+def _skin_settings_path(data_path):
+    return os.path.join(data_path, "settings.xml")
+
+
+def _skin_settings_targets(include_missing=False):
+    targets = []
+    for addon_id, label, builtin_id in SKIN_SETTINGS_ADDONS:
+        data_path = _addon_data_path(addon_id)
+        settings_path = _skin_settings_path(data_path)
+        if (
+            include_missing
+            or _addon_installed(addon_id)
+            or os.path.exists(settings_path)
+            or os.path.isdir(data_path)
+        ):
+            targets.append((addon_id, label, builtin_id, data_path))
+    return targets
+
+
+def _skin_settings_target_by_addon_id(addon_id):
+    for target in _skin_settings_targets(include_missing=True):
+        if target[0] == addon_id:
+            return target
+    return None
+
+
+def _parse_skin_settings_payload(payload):
+    try:
+        root = ET.fromstring(payload)
+    except Exception as exc:
+        raise RuntimeError("Skin settings XML is invalid: %s" % exc)
+    if root.tag != "settings":
+        raise RuntimeError("Skin settings XML must have a <settings> root.")
+    if not root.findall("./setting"):
+        raise RuntimeError("Skin settings XML does not contain any <setting> entries.")
+    return root
+
+
+def _skin_settings_backup_path(addon_id, prefix):
+    backup_dir = _addon_data_dir(SKIN_SETTINGS_BACKUP_DIR)
+    filename = "%s-%s-%s.xml" % (addon_id, prefix, _utc_timestamp())
+    return os.path.join(backup_dir, filename)
+
+
+def _backup_one_skin_settings(addon_id, source_path, prefix):
+    target_path = _skin_settings_backup_path(addon_id, prefix)
+    _copy_binary_file(source_path, target_path)
+    _log("Backed up %s skin settings to %s" % (addon_id, target_path))
+    return target_path
+
+
+def _backup_current_skin_settings():
+    backups = []
+    for addon_id, label, _builtin_id, data_path in _skin_settings_targets():
+        source_path = _skin_settings_path(data_path)
+        if not os.path.exists(source_path):
+            continue
+        backup_path = _backup_one_skin_settings(addon_id, source_path, "settings")
+        backups.append((addon_id, label, backup_path))
+    if not backups:
+        raise RuntimeError(
+            "No supported skin settings were found. Install or open DutchTech Fuse 3 or Arctic Horizon 2 first."
+        )
+    return backups
+
+
+def _read_builtin_skin_settings_payload(builtin_id):
+    source_path = _addon_resource_path(SKIN_SETTINGS_SOURCE_DIR, builtin_id, "settings.xml")
+    if not os.path.exists(source_path):
+        raise RuntimeError("Built-in skin settings were not found for %s." % builtin_id)
+    with io.open(source_path, "rb") as handle:
+        payload = handle.read()
+    _parse_skin_settings_payload(payload)
+    return payload
+
+
+def _apply_skin_settings_live(addon_id, root):
+    try:
+        skin = xbmcaddon.Addon(addon_id)
+    except Exception:
+        return 0, 0
+
+    applied = 0
+    failed = 0
+    for node in root.findall("./setting"):
+        setting_id = node.get("id")
+        if not setting_id:
+            continue
+        value = node.text if node.text is not None else ""
+        try:
+            _set_setting(skin, setting_id, value)
+            applied += 1
+        except Exception:
+            failed += 1
+    return applied, failed
+
+
+def _write_skin_settings_payload(target, payload, source_label):
+    addon_id, label, _builtin_id, data_path = target
+    root = _parse_skin_settings_payload(payload)
+    if not os.path.isdir(data_path):
+        os.makedirs(data_path)
+
+    settings_path = _skin_settings_path(data_path)
+    backup_path = ""
+    if os.path.exists(settings_path):
+        backup_path = _backup_one_skin_settings(
+            addon_id, settings_path, "settings-before-restore"
+        )
+
+    applied, failed = _apply_skin_settings_live(addon_id, root)
+
+    tmp_path = settings_path + ".tmp"
+    with io.open(tmp_path, "wb") as handle:
+        handle.write(payload)
+    if os.path.exists(settings_path):
+        os.remove(settings_path)
+    os.rename(tmp_path, settings_path)
+
+    _log("Restored %s skin settings from %s to %s" % (addon_id, source_label, settings_path))
+    return {
+        "addon_id": addon_id,
+        "label": label,
+        "settings_path": settings_path,
+        "backup_path": backup_path,
+        "applied": applied,
+        "failed": failed,
+    }
+
+
+def _prompt_skin_settings_target():
+    targets = _skin_settings_targets()
+    if not targets:
+        targets = _skin_settings_targets(include_missing=True)
+    labels = ["%s (%s)" % (target[1], target[0]) for target in targets]
+    index = xbmcgui.Dialog().select("Skin settings target", labels)
+    if index < 0:
+        return None
+    return targets[index]
+
+
+def _download_skin_settings_payload(url):
+    url = (url or "").strip()
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise RuntimeError("Enter a valid http or https URL.")
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/zip,application/xml,text/xml,*/*",
+            "User-Agent": "Kodi Setup Kit Kodi add-on",
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = response.read(SKIN_SETTINGS_DOWNLOAD_MAX_BYTES + 1)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError("Could not download skin settings: HTTP %s" % exc.code)
+    except urllib.error.URLError as exc:
+        raise RuntimeError("Could not download skin settings: %s" % exc.reason)
+
+    if len(payload) > SKIN_SETTINGS_DOWNLOAD_MAX_BYTES:
+        raise RuntimeError("Skin settings download is too large.")
+    return payload
+
+
+def _skin_settings_payloads_from_zip(payload):
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(payload))
+    except zipfile.BadZipFile:
+        raise RuntimeError("Skin settings ZIP is invalid.")
+
+    items = []
+    seen = set()
+    try:
+        for info in archive.infolist():
+            name = info.filename.replace("\\", "/")
+            parts = [part for part in name.split("/") if part]
+            if not parts or parts[-1] != "settings.xml":
+                continue
+            if any(part == "__MACOSX" or part.startswith("._") for part in parts):
+                continue
+            if info.file_size > SKIN_SETTINGS_DOWNLOAD_MAX_BYTES:
+                raise RuntimeError("A skin settings XML inside the ZIP is too large.")
+
+            matched_addon_id = ""
+            for addon_id, _label, _builtin_id in SKIN_SETTINGS_ADDONS:
+                if addon_id in parts:
+                    matched_addon_id = addon_id
+                    break
+            if not matched_addon_id or matched_addon_id in seen:
+                continue
+
+            item_payload = archive.read(info)
+            _parse_skin_settings_payload(item_payload)
+            target = _skin_settings_target_by_addon_id(matched_addon_id)
+            if target is None:
+                continue
+            items.append((target, item_payload, name))
+            seen.add(matched_addon_id)
+    finally:
+        archive.close()
+
+    if not items:
+        raise RuntimeError(
+            "No supported skin settings were found in the ZIP. Use paths like skin.dutchtech.fuse.3/settings.xml."
+        )
+    return items
+
+
+def _skin_settings_payload_items_from_url(url):
+    payload = _download_skin_settings_payload(url)
+    if zipfile.is_zipfile(io.BytesIO(payload)):
+        return _skin_settings_payloads_from_zip(payload), "ZIP URL"
+
+    _parse_skin_settings_payload(payload)
+    target = _prompt_skin_settings_target()
+    if target is None:
+        raise RuntimeError("Skin settings restore was canceled.")
+    return [(target, payload, url)], "XML URL"
+
+
+def _prompt_skin_settings_url():
+    return xbmcgui.Dialog().input(
+        "Skin settings URL",
+        type=getattr(xbmcgui, "INPUT_ALPHANUM", 0),
+    )
+
+
+def _confirm_skin_settings_restore(source_label):
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Restore skin settings from %s?" % source_label,
+        "DutchTech Fuse 3 / Arctic Horizon 2 settings will be backed up first.",
+        "Restart Kodi or reload the skin after restore.",
+    )
+
+
+def _restore_skin_settings_message(source_label, results):
+    labels = [result["label"] for result in results]
+    applied = sum(result["applied"] for result in results)
+    failed = sum(result["failed"] for result in results)
+    backups = [result["backup_path"] for result in results if result["backup_path"]]
+
+    message = (
+        "Skin settings restored from %s for: %s. Restart Kodi or reload the skin."
+        % (source_label, ", ".join(labels))
+    )
+    if backups:
+        message += "\n\nBackups saved: %s" % len(backups)
+    message += "\n\nLive settings applied: %s" % applied
+    if failed:
+        message += " (%s could not be applied live)." % failed
+    return message
+
+
+def _restore_builtin_skin_settings(addon):
+    targets = _skin_settings_targets()
+    if not targets:
+        target = _prompt_skin_settings_target()
+        if target is None:
+            raise RuntimeError("Skin settings restore was canceled.")
+        targets = [target]
+
+    results = []
+    for target in targets:
+        payload = _read_builtin_skin_settings_payload(target[2])
+        results.append(_write_skin_settings_payload(target, payload, "built-in copy"))
+
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_skin_settings_message("built-in copy", results)
+
+
+def _restore_skin_settings_from_url(addon, url):
+    items, source_label = _skin_settings_payload_items_from_url(url)
+    results = []
+    for target, payload, item_label in items:
+        results.append(_write_skin_settings_payload(target, payload, item_label))
+
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_skin_settings_message(source_label, results)
+
+
 def _write_kodi_settings_xml(data_path, values):
     if not os.path.isdir(data_path):
         os.makedirs(data_path)
@@ -1128,6 +1447,15 @@ def _restore_guisettings_from_url(addon, url):
     )
 
 
+def _backup_skin_settings(addon):
+    backups = _backup_current_skin_settings()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_backup", now)
+    _set_setting(addon, "last_install", now)
+    labels = [backup[1] for backup in backups]
+    return "Skin settings backed up for: %s." % ", ".join(labels)
+
+
 def _run_install_all_step(messages, label, install_func):
     try:
         messages.append(install_func())
@@ -1150,6 +1478,9 @@ def _run_action(action):
         "backup_guisettings",
         "restore_guisettings_url",
         "restore_guisettings_builtin",
+        "backup_skinsettings",
+        "restore_skinsettings_url",
+        "restore_skinsettings_builtin",
         "install_all",
     ):
         _show_menu()
@@ -1239,6 +1570,55 @@ def _run_action(action):
         progress.create("Kodi Setup Kit", "Restoring GUI settings from URL...")
         try:
             message = _restore_guisettings_from_url(addon, url)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "backup_skinsettings":
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Backing up skin settings...")
+        try:
+            message = _backup_skin_settings(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_skinsettings_builtin":
+        if not _confirm_skin_settings_restore("the built-in copy"):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring built-in skin settings...")
+        try:
+            message = _restore_builtin_skin_settings(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_skinsettings_url":
+        url = _prompt_skin_settings_url()
+        if not url:
+            return
+        if not _confirm_skin_settings_restore("the URL"):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring skin settings from URL...")
+        try:
+            message = _restore_skin_settings_from_url(addon, url)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
