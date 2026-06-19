@@ -9,7 +9,7 @@ import traceback
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
-from urllib.parse import parse_qsl, urlencode
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 import xbmc
 import xbmcaddon
@@ -25,6 +25,10 @@ CLIENT_ID_SUFFIX = ".apps.googleusercontent.com"
 ADVANCEDSETTINGS_PATH = "special://profile/advancedsettings.xml"
 KEYMAPS_SOURCE_DIR = os.path.join("resources", "keymaps")
 KEYMAPS_TARGET_PATH = "special://profile/keymaps"
+GUISETTINGS_PATH = "special://profile/guisettings.xml"
+GUISETTINGS_BACKUP_DIR = os.path.join("backups", "guisettings")
+GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings.xml")
+GUISETTINGS_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
 
 FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight",
@@ -60,6 +64,9 @@ MENU_ITEMS = (
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
+    ("Back up Kodi GUI settings", "backup_guisettings"),
+    ("Restore GUI settings from URL", "restore_guisettings_url"),
+    ("Restore built-in GUI settings", "restore_guisettings_builtin"),
     ("Install everything", "install_all"),
 )
 
@@ -493,11 +500,22 @@ def _parse_xml(path):
         return ET.parse(path)
 
 
+def _utc_timestamp():
+    return datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+
+
 def _backup_file(path):
-    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-    backup_path = "%s.famyt-backup-%s" % (path, timestamp)
+    backup_path = "%s.famyt-backup-%s" % (path, _utc_timestamp())
     os.replace(path, backup_path)
     return backup_path
+
+
+def _copy_binary_file(source_path, target_path):
+    with io.open(source_path, "rb") as source:
+        payload = source.read()
+    with io.open(target_path, "wb") as target:
+        target.write(payload)
+    return target_path
 
 
 def _same_file_bytes(path, payload):
@@ -619,6 +637,187 @@ def _install_keymap_files():
 
     _log("Installed Kodi keymaps at %s: %s" % (target_dir, ", ".join(installed)))
     return installed, backups
+
+
+def _addon_data_dir(*parts):
+    data_dir = _translate_path("special://profile/addon_data/%s" % ADDON_ID)
+    if parts:
+        data_dir = os.path.join(data_dir, *parts)
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+    return data_dir
+
+
+def _guisettings_path():
+    return _translate_path(GUISETTINGS_PATH)
+
+
+def _parse_guisettings_payload(payload):
+    try:
+        root = ET.fromstring(payload)
+    except Exception as exc:
+        raise RuntimeError("GUI settings XML is invalid: %s" % exc)
+    if root.tag != "settings":
+        raise RuntimeError("GUI settings XML must have a <settings> root.")
+    if not root.findall("./setting"):
+        raise RuntimeError("GUI settings XML does not contain any <setting> entries.")
+    return root
+
+
+def _guisettings_backup_path(prefix):
+    backup_dir = _addon_data_dir(GUISETTINGS_BACKUP_DIR)
+    return os.path.join(backup_dir, "%s-%s.xml" % (prefix, _utc_timestamp()))
+
+
+def _backup_current_guisettings(prefix="guisettings"):
+    source_path = _guisettings_path()
+    if not os.path.exists(source_path):
+        raise RuntimeError("guisettings.xml was not found in this Kodi profile.")
+    target_path = _guisettings_backup_path(prefix)
+    _copy_binary_file(source_path, target_path)
+    _log("Backed up guisettings.xml to %s" % target_path)
+    return target_path
+
+
+def _jsonrpc_guisetting_value(text):
+    if text is None:
+        return ""
+    value = text.strip()
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    if value and value.lstrip("-").isdigit():
+        try:
+            return int(value)
+        except Exception:
+            return value
+    if value and "." in value:
+        try:
+            return float(value)
+        except Exception:
+            return value
+    return value
+
+
+def _apply_guisettings_live(root):
+    execute_jsonrpc = getattr(xbmc, "executeJSONRPC", None)
+    if not callable(execute_jsonrpc):
+        return 0, 0
+
+    applied = 0
+    failed = 0
+    for node in root.findall("./setting"):
+        setting_id = node.get("id")
+        if not setting_id:
+            continue
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "Settings.SetSettingValue",
+            "params": {
+                "setting": setting_id,
+                "value": _jsonrpc_guisetting_value(node.text),
+            },
+            "id": 1,
+        }
+        try:
+            response = json.loads(execute_jsonrpc(json.dumps(payload)))
+            if response.get("result") == "OK":
+                applied += 1
+            else:
+                failed += 1
+        except Exception:
+            failed += 1
+    return applied, failed
+
+
+def _write_guisettings_payload(payload, source_label):
+    root = _parse_guisettings_payload(payload)
+    userdata_path = _translate_path("special://profile")
+    if not os.path.isdir(userdata_path):
+        os.makedirs(userdata_path)
+
+    guisettings_path = _guisettings_path()
+    backup_path = ""
+    if os.path.exists(guisettings_path):
+        backup_path = _backup_current_guisettings("guisettings-before-restore")
+
+    applied, failed = _apply_guisettings_live(root)
+
+    tmp_path = guisettings_path + ".tmp"
+    with io.open(tmp_path, "wb") as handle:
+        handle.write(payload)
+    if os.path.exists(guisettings_path):
+        os.remove(guisettings_path)
+    os.rename(tmp_path, guisettings_path)
+
+    _log("Restored guisettings.xml from %s to %s" % (source_label, guisettings_path))
+    return guisettings_path, backup_path, applied, failed
+
+
+def _read_builtin_guisettings_payload():
+    source_path = _addon_resource_path(GUISETTINGS_BUILTIN_PATH)
+    if not os.path.exists(source_path):
+        raise RuntimeError("Built-in guisettings.xml was not found in Kodi Setup Kit.")
+    with io.open(source_path, "rb") as handle:
+        return handle.read()
+
+
+def _download_guisettings_payload(url):
+    url = (url or "").strip()
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise RuntimeError("Enter a valid http or https URL.")
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/xml,text/xml,*/*",
+            "User-Agent": "Kodi Setup Kit Kodi add-on",
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = response.read(GUISETTINGS_DOWNLOAD_MAX_BYTES + 1)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError("Could not download GUI settings: HTTP %s" % exc.code)
+    except urllib.error.URLError as exc:
+        raise RuntimeError("Could not download GUI settings: %s" % exc.reason)
+
+    if len(payload) > GUISETTINGS_DOWNLOAD_MAX_BYTES:
+        raise RuntimeError("GUI settings download is too large.")
+    _parse_guisettings_payload(payload)
+    return payload
+
+
+def _prompt_guisettings_url():
+    return xbmcgui.Dialog().input(
+        "GUI settings URL",
+        type=getattr(xbmcgui, "INPUT_ALPHANUM", 0),
+    )
+
+
+def _confirm_guisettings_restore(source_label):
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Restore Kodi GUI settings from %s?" % source_label,
+        "The current guisettings.xml will be backed up first.",
+        "Restart Kodi immediately after restore.",
+    )
+
+
+def _restore_guisettings_message(source_label, guisettings_path, backup_path, applied, failed):
+    message = (
+        "GUI settings restored from %s. Restart Kodi immediately for the safest result."
+        % source_label
+    )
+    if backup_path:
+        message += "\n\nBackup saved to: %s" % backup_path
+    message += "\n\nLive settings applied: %s" % applied
+    if failed:
+        message += " (%s could not be applied live)." % failed
+    return message
 
 
 def _write_kodi_settings_xml(data_path, values):
@@ -895,6 +1094,40 @@ def _install_keymaps(addon):
     return message
 
 
+def _backup_guisettings(addon):
+    backup_path = _backup_current_guisettings()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_backup", now)
+    _set_setting(addon, "last_install", now)
+    return "GUI settings backed up to: %s" % backup_path
+
+
+def _restore_builtin_guisettings(addon):
+    payload = _read_builtin_guisettings_payload()
+    guisettings_path, backup_path, applied, failed = _write_guisettings_payload(
+        payload, "built-in copy"
+    )
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_guisettings_message(
+        "built-in copy", guisettings_path, backup_path, applied, failed
+    )
+
+
+def _restore_guisettings_from_url(addon, url):
+    payload = _download_guisettings_payload(url)
+    guisettings_path, backup_path, applied, failed = _write_guisettings_payload(
+        payload, "URL"
+    )
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_guisettings_message(
+        "URL", guisettings_path, backup_path, applied, failed
+    )
+
+
 def _run_install_all_step(messages, label, install_func):
     try:
         messages.append(install_func())
@@ -914,6 +1147,9 @@ def _run_action(action):
         "install_cocoscrapers",
         "install_advanced_network",
         "install_keymaps",
+        "backup_guisettings",
+        "restore_guisettings_url",
+        "restore_guisettings_builtin",
         "install_all",
     ):
         _show_menu()
@@ -954,6 +1190,55 @@ def _run_action(action):
         progress.create("Kodi Setup Kit", "Installing Kodi keymaps...")
         try:
             message = _install_keymaps(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "backup_guisettings":
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Backing up Kodi GUI settings...")
+        try:
+            message = _backup_guisettings(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_guisettings_builtin":
+        if not _confirm_guisettings_restore("the built-in copy"):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring built-in GUI settings...")
+        try:
+            message = _restore_builtin_guisettings(addon)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_guisettings_url":
+        url = _prompt_guisettings_url()
+        if not url:
+            return
+        if not _confirm_guisettings_restore("the URL"):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring GUI settings from URL...")
+        try:
+            message = _restore_guisettings_from_url(addon, url)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
