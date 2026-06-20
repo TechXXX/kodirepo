@@ -20,6 +20,7 @@ import xbmcvfs
 
 
 ADDON_ID = "plugin.program.famyt"
+WIDGET_IMPORTER_ADDON_ID = "script.kodiskin.widget.importer"
 YOUTUBE_ADDON_ID = "plugin.video.youtube"
 YOUTUBE_DATA_PATH = "special://profile/addon_data/plugin.video.youtube"
 API_KEYS_FILENAME = "api_keys.json"
@@ -97,6 +98,7 @@ MENU_ITEMS = (
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
+    ("KodiSkin Widget Importer", "launch_widget_importer"),
     ("Kodi GUI settings", "menu_guisettings", True),
     ("Skin settings", "menu_skinsettings", True),
     ("Install everything", "install_all"),
@@ -1852,6 +1854,24 @@ def _install_keymaps(addon):
     return message
 
 
+def _launch_widget_importer(addon):
+    if not _addon_installed(WIDGET_IMPORTER_ADDON_ID):
+        if not xbmcgui.Dialog().yesno(
+            "Kodi Setup Kit",
+            "KodiSkin Widget Importer is not installed.",
+            "Open Kodi's installer for it now?",
+        ):
+            return "KodiSkin Widget Importer was not opened."
+        xbmc.executebuiltin("InstallAddon(%s)" % WIDGET_IMPORTER_ADDON_ID)
+        return "Kodi opened the installer for KodiSkin Widget Importer."
+
+    xbmc.executebuiltin("RunScript(%s)" % WIDGET_IMPORTER_ADDON_ID)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_widget_importer_launch", now)
+    _set_setting(addon, "last_install", now)
+    return "KodiSkin Widget Importer opened."
+
+
 def _backup_guisettings(addon):
     backup_path = _backup_current_guisettings()
     now = datetime.datetime.utcnow().isoformat() + "Z"
@@ -1922,6 +1942,7 @@ def _run_action(action):
         "install_cocoscrapers",
         "install_advanced_network",
         "install_keymaps",
+        "launch_widget_importer",
         "backup_guisettings",
         "save_guisettings_preset",
         "rename_guisettings_preset",
@@ -1979,6 +2000,15 @@ def _run_action(action):
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
         except Exception as exc:
             progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "launch_widget_importer":
+        try:
+            message = _launch_widget_importer(addon)
+            _notify(message)
+        except Exception as exc:
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
         return

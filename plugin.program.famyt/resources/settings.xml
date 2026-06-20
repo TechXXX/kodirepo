@@ -9,6 +9,7 @@
     <setting id="last_cocoscrapers_install" type="text" label="Last Cocoscrapers install cache" default="" visible="false"/>
     <setting id="last_advanced_network_install" type="text" label="Last advanced network install cache" default="" visible="false"/>
     <setting id="last_keymaps_install" type="text" label="Last keymaps install cache" default="" visible="false"/>
+    <setting id="last_widget_importer_launch" type="text" label="Last widget importer launch cache" default="" visible="false"/>
     <setting id="last_guisettings_backup" type="text" label="Last GUI settings backup cache" default="" visible="false"/>
     <setting id="last_guisettings_preset_save" type="text" label="Last GUI settings preset save cache" default="" visible="false"/>
     <setting id="last_guisettings_preset_manage" type="text" label="Last GUI settings preset manage cache" default="" visible="false"/>
