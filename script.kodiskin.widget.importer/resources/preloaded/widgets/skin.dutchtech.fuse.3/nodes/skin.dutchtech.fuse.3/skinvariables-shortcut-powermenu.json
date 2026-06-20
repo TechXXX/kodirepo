@@ -7,6 +7,13 @@
         "guid": "guid-d9408149"
     },
     {
+        "label": "Add-ons",
+        "path": "ActivateWindow(addonbrowser)",
+        "icon": "special://skin/extras/icons/addons.png",
+        "target": "",
+        "guid": "guid-79bc96d2"
+    },
+    {
         "label": "Skin Settings",
         "path": "ActivateWindow(skinsettings)",
         "icon": "special://skin/extras/icons/paintbrush.png",
@@ -26,13 +33,6 @@
         "path": "ActivateWindow(filemanager)",
         "target": "",
         "guid": "guid-72980faa"
-    },
-    {
-        "icon": "special://skin/extras/icons/address-card.png",
-        "label": "$LOCALIZE[31359]",
-        "path": "ActivateWindow(1195)",
-        "target": "",
-        "guid": "guid-0e88a9ed"
     },
     {
         "icon": "special://skin/extras/icons/power.png",

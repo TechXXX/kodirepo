@@ -59,7 +59,7 @@ PRELOADED_WIDGET_SOURCES = [
     ),
     (
         PRELOADED_AF3_WIDGET_LABEL,
-        "{}resources/preloaded/widgets/skin.arctic.fuse.3".format(ADDON_RESOURCE_PREFIX),
+        "{}resources/preloaded/widgets/skin.dutchtech.fuse.3".format(ADDON_RESOURCE_PREFIX),
     ),
 ]
 PRELOADED_SKIN_SETTINGS = [
@@ -76,7 +76,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.15 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.16 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
