@@ -10,8 +10,10 @@
     <setting id="last_advanced_network_install" type="text" label="Last advanced network install cache" default="" visible="false"/>
     <setting id="last_keymaps_install" type="text" label="Last keymaps install cache" default="" visible="false"/>
     <setting id="last_guisettings_backup" type="text" label="Last GUI settings backup cache" default="" visible="false"/>
+    <setting id="last_guisettings_preset_save" type="text" label="Last GUI settings preset save cache" default="" visible="false"/>
     <setting id="last_guisettings_restore" type="text" label="Last GUI settings restore cache" default="" visible="false"/>
     <setting id="last_skinsettings_backup" type="text" label="Last skin settings backup cache" default="" visible="false"/>
+    <setting id="last_skinsettings_preset_save" type="text" label="Last skin settings preset save cache" default="" visible="false"/>
     <setting id="last_skinsettings_restore" type="text" label="Last skin settings restore cache" default="" visible="false"/>
   </category>
 </settings>

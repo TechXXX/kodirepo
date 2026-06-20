@@ -29,8 +29,13 @@ KEYMAPS_TARGET_PATH = "special://profile/keymaps"
 GUISETTINGS_PATH = "special://profile/guisettings.xml"
 GUISETTINGS_BACKUP_DIR = os.path.join("backups", "guisettings")
 GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings.xml")
+GUISETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "guisettings", "presets")
+GUISETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "guisettings")
 GUISETTINGS_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+PRESET_MANIFEST_FILENAME = "preset.json"
 SKIN_SETTINGS_SOURCE_DIR = os.path.join("resources", "skinsettings")
+SKIN_SETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "skinsettings", "presets")
+SKIN_SETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "skinsettings")
 SKIN_SETTINGS_BACKUP_DIR = os.path.join("backups", "skinsettings")
 SKIN_SETTINGS_DOWNLOAD_MAX_BYTES = 5 * 1024 * 1024
 SKIN_SETTINGS_ADDONS = (
@@ -92,11 +97,13 @@ MENU_ITEMS = (
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
     ("Back up Kodi GUI settings", "backup_guisettings"),
+    ("Save current GUI settings as preset", "save_guisettings_preset"),
     ("Restore GUI settings from URL", "restore_guisettings_url"),
-    ("Restore built-in GUI settings", "restore_guisettings_builtin"),
+    ("Restore GUI settings preset", "restore_guisettings_builtin"),
     ("Back up skin settings", "backup_skinsettings"),
+    ("Save current skin settings as preset", "save_skinsettings_preset"),
     ("Restore skin settings from URL", "restore_skinsettings_url"),
-    ("Restore built-in skin settings", "restore_skinsettings_builtin"),
+    ("Restore skin settings preset", "restore_skinsettings_builtin"),
     ("Install everything", "install_all"),
 )
 
@@ -621,6 +628,131 @@ def _addon_resource_path(*parts):
     return os.path.join(_translate_path(addon_path), *parts)
 
 
+def _preset_id_from_name(name):
+    cleaned = []
+    previous_dash = False
+    name = (name or "").strip().encode("ascii", "ignore").decode("ascii")
+    for char in name.lower():
+        if char.isalnum():
+            cleaned.append(char)
+            previous_dash = False
+        elif char in (" ", "-", "_", "."):
+            if not previous_dash:
+                cleaned.append("-")
+                previous_dash = True
+    preset_id = "".join(cleaned).strip("-")
+    if not preset_id:
+        raise RuntimeError("Enter a preset name using letters or numbers.")
+    return preset_id
+
+
+def _preset_name_from_id(preset_id):
+    return " ".join(part.capitalize() for part in preset_id.replace("_", "-").split("-") if part)
+
+
+def _prompt_preset_name(kind):
+    return xbmcgui.Dialog().input(
+        "%s preset name" % kind,
+        type=getattr(xbmcgui, "INPUT_ALPHANUM", 0),
+    ).strip()
+
+
+def _write_json_file(path, data):
+    tmp_path = path + ".tmp"
+    with io.open(tmp_path, "w", encoding="utf-8") as handle:
+        json.dump(data, handle, ensure_ascii=False, indent=4, sort_keys=True)
+        handle.write("\n")
+    if os.path.exists(path):
+        os.remove(path)
+    os.rename(tmp_path, path)
+
+
+def _write_binary_payload(path, payload):
+    parent = os.path.dirname(path)
+    if parent and not os.path.isdir(parent):
+        os.makedirs(parent)
+    tmp_path = path + ".tmp"
+    with io.open(tmp_path, "wb") as handle:
+        handle.write(payload)
+    if os.path.exists(path):
+        os.remove(path)
+    os.rename(tmp_path, path)
+    return path
+
+
+def _read_preset_name(preset_dir, fallback_id):
+    manifest_path = os.path.join(preset_dir, PRESET_MANIFEST_FILENAME)
+    if os.path.exists(manifest_path):
+        try:
+            with io.open(manifest_path, "r", encoding="utf-8") as handle:
+                manifest = json.load(handle)
+            name = manifest.get("name")
+            if isinstance(name, str) and name.strip():
+                return name.strip()
+        except Exception as exc:
+            _log("Could not read preset manifest %s: %s" % (manifest_path, exc), xbmc.LOGWARNING)
+    return _preset_name_from_id(fallback_id)
+
+
+def _write_preset_manifest(preset_dir, preset_id, preset_name, preset_type):
+    if not os.path.isdir(preset_dir):
+        os.makedirs(preset_dir)
+    _write_json_file(
+        os.path.join(preset_dir, PRESET_MANIFEST_FILENAME),
+        {
+            "id": preset_id,
+            "name": preset_name,
+            "type": preset_type,
+            "saved_at": datetime.datetime.utcnow().isoformat() + "Z",
+        },
+    )
+
+
+def _preset_label(preset):
+    origin = "Built-in" if preset["origin"] == "builtin" else "Saved"
+    return "%s [%s]" % (preset["name"], origin)
+
+
+def _prompt_preset(presets, heading):
+    if not presets:
+        raise RuntimeError("No presets were found.")
+    labels = [_preset_label(preset) for preset in presets]
+    index = xbmcgui.Dialog().select(heading, labels)
+    if index < 0:
+        return None
+    return presets[index]
+
+
+def _preset_dirs(root_dir, payload_exists):
+    presets = []
+    if not os.path.isdir(root_dir):
+        return presets
+    for preset_id in sorted(os.listdir(root_dir)):
+        if preset_id.startswith("."):
+            continue
+        preset_dir = os.path.join(root_dir, preset_id)
+        if not os.path.isdir(preset_dir) or not payload_exists(preset_dir):
+            continue
+        presets.append((preset_id, preset_dir, _read_preset_name(preset_dir, preset_id)))
+    return presets
+
+
+def _save_payload_to_roots(roots, preset_id, preset_name, preset_type, writer):
+    saved = []
+    errors = []
+    for origin, preset_dir in roots:
+        try:
+            _write_preset_manifest(preset_dir, preset_id, preset_name, preset_type)
+            writer(preset_dir)
+            saved.append((origin, preset_dir))
+        except Exception as exc:
+            errors.append("%s: %s" % (origin, exc))
+            _log("Could not save %s preset to %s: %s" % (preset_type, preset_dir, exc), xbmc.LOGWARNING)
+    if not saved:
+        raise RuntimeError("Could not save preset: %s" % "; ".join(errors))
+    return saved, errors
+
+
 def _keymap_source_files():
     source_dir = _addon_resource_path(KEYMAPS_SOURCE_DIR)
     if not os.path.isdir(source_dir):
@@ -785,12 +917,105 @@ def _write_guisettings_payload(payload, source_label):
     return guisettings_path, backup_path, applied, failed
 
 
-def _read_builtin_guisettings_payload():
-    source_path = _addon_resource_path(GUISETTINGS_BUILTIN_PATH)
+def _guisettings_payload_exists(preset_dir):
+    return os.path.exists(os.path.join(preset_dir, "guisettings.xml"))
+
+
+def _guisettings_builtin_presets():
+    presets = []
+    root_dir = _addon_resource_path(GUISETTINGS_BUILTIN_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _guisettings_payload_exists):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+                "payload_path": os.path.join(preset_dir, "guisettings.xml"),
+            }
+        )
+
+    legacy_path = _addon_resource_path(GUISETTINGS_BUILTIN_PATH)
+    if not presets and os.path.exists(legacy_path):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": "built-in",
+                "name": "Built-in",
+                "dir": os.path.dirname(legacy_path),
+                "payload_path": legacy_path,
+            }
+        )
+    return presets
+
+
+def _guisettings_saved_presets():
+    presets = []
+    root_dir = _addon_data_dir(GUISETTINGS_SAVED_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _guisettings_payload_exists):
+        presets.append(
+            {
+                "origin": "saved",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+                "payload_path": os.path.join(preset_dir, "guisettings.xml"),
+            }
+        )
+    return presets
+
+
+def _guisettings_presets():
+    return _guisettings_builtin_presets() + _guisettings_saved_presets()
+
+
+def _prompt_guisettings_preset():
+    return _prompt_preset(_guisettings_presets(), "GUI settings preset")
+
+
+def _read_guisettings_preset_payload(preset):
+    source_path = preset["payload_path"]
     if not os.path.exists(source_path):
-        raise RuntimeError("Built-in guisettings.xml was not found in Kodi Setup Kit.")
+        raise RuntimeError("GUI settings preset is missing guisettings.xml.")
     with io.open(source_path, "rb") as handle:
-        return handle.read()
+        payload = handle.read()
+    _parse_guisettings_payload(payload)
+    return payload
+
+
+def _save_guisettings_preset(addon, preset_name):
+    preset_id = _preset_id_from_name(preset_name)
+    source_path = _guisettings_path()
+    if not os.path.exists(source_path):
+        raise RuntimeError("guisettings.xml was not found in this Kodi profile.")
+    with io.open(source_path, "rb") as handle:
+        payload = handle.read()
+    _parse_guisettings_payload(payload)
+
+    roots = (
+        (
+            "built-in",
+            _addon_resource_path(GUISETTINGS_BUILTIN_PRESETS_DIR, preset_id),
+        ),
+        (
+            "saved",
+            _addon_data_dir(GUISETTINGS_SAVED_PRESETS_DIR, preset_id),
+        ),
+    )
+
+    def writer(preset_dir):
+        _write_binary_payload(os.path.join(preset_dir, "guisettings.xml"), payload)
+
+    saved, errors = _save_payload_to_roots(roots, preset_id, preset_name, "guisettings", writer)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_preset_save", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "GUI settings preset saved as %s." % preset_name
+    message += "\n\nSaved locations: %s" % ", ".join(origin for origin, _path in saved)
+    if errors:
+        message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
+    return message
 
 
 def _download_guisettings_payload(url):
@@ -916,10 +1141,9 @@ def _backup_current_skin_settings():
     return backups
 
 
-def _read_builtin_skin_settings_payload(builtin_id):
-    source_path = _addon_resource_path(SKIN_SETTINGS_SOURCE_DIR, builtin_id, "settings.xml")
+def _read_skin_settings_payload(source_path, addon_id):
     if not os.path.exists(source_path):
-        raise RuntimeError("Built-in skin settings were not found for %s." % builtin_id)
+        raise RuntimeError("Skin settings preset is missing settings.xml for %s." % addon_id)
     with io.open(source_path, "rb") as handle:
         payload = handle.read()
     _parse_skin_settings_payload(payload)
@@ -1108,7 +1332,74 @@ def _restore_skin_settings_message(source_label, results):
     return message
 
 
-def _restore_builtin_skin_settings(addon):
+def _skin_settings_preset_has_payload(preset_dir):
+    for addon_id, _label, _builtin_id in SKIN_SETTINGS_ADDONS:
+        if os.path.exists(os.path.join(preset_dir, addon_id, "settings.xml")):
+            return True
+    return False
+
+
+def _skin_settings_legacy_builtin_has_payload(preset_dir):
+    return any(
+        os.path.exists(os.path.join(preset_dir, builtin_id, "settings.xml"))
+        for _addon_id, _label, builtin_id in SKIN_SETTINGS_ADDONS
+    )
+
+
+def _skin_settings_builtin_presets():
+    presets = []
+    root_dir = _addon_resource_path(SKIN_SETTINGS_BUILTIN_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _skin_settings_preset_has_payload):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+
+    legacy_dir = _addon_resource_path(SKIN_SETTINGS_SOURCE_DIR)
+    if not presets and os.path.isdir(legacy_dir) and _skin_settings_legacy_builtin_has_payload(legacy_dir):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": "built-in",
+                "name": "Built-in",
+                "dir": legacy_dir,
+            }
+        )
+    return presets
+
+
+def _skin_settings_saved_presets():
+    presets = []
+    root_dir = _addon_data_dir(SKIN_SETTINGS_SAVED_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _skin_settings_preset_has_payload):
+        presets.append(
+            {
+                "origin": "saved",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+    return presets
+
+
+def _skin_settings_presets():
+    return _skin_settings_builtin_presets() + _skin_settings_saved_presets()
+
+
+def _prompt_skin_settings_preset():
+    return _prompt_preset(_skin_settings_presets(), "Skin settings preset")
+
+
+def _skin_settings_preset_payload_path(preset, builtin_id):
+    return os.path.join(preset["dir"], builtin_id, "settings.xml")
+
+
+def _restore_skin_settings_preset(addon, preset):
     targets = _skin_settings_targets()
     if not targets:
         target = _prompt_skin_settings_target()
@@ -1118,13 +1409,69 @@ def _restore_builtin_skin_settings(addon):
 
     results = []
     for target in targets:
-        payload = _read_builtin_skin_settings_payload(target[2])
-        results.append(_write_skin_settings_payload(target, payload, "built-in copy"))
+        builtin_id = target[2]
+        source_path = _skin_settings_preset_payload_path(preset, builtin_id)
+        if not os.path.exists(source_path):
+            continue
+        payload = _read_skin_settings_payload(source_path, builtin_id)
+        results.append(_write_skin_settings_payload(target, payload, _preset_label(preset)))
+
+    if not results:
+        raise RuntimeError("The selected skin settings preset does not match any supported installed skin.")
 
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_skinsettings_restore", now)
     _set_setting(addon, "last_install", now)
-    return _restore_skin_settings_message("built-in copy", results)
+    return _restore_skin_settings_message(_preset_label(preset), results)
+
+
+def _save_skin_settings_preset(addon, preset_name):
+    preset_id = _preset_id_from_name(preset_name)
+    payloads = []
+    seen = set()
+    for addon_id, label, builtin_id, data_path in _skin_settings_targets():
+        if builtin_id in seen:
+            continue
+        source_path = _skin_settings_path(data_path)
+        if not os.path.exists(source_path):
+            continue
+        with io.open(source_path, "rb") as handle:
+            payload = handle.read()
+        _parse_skin_settings_payload(payload)
+        payloads.append((builtin_id, label, payload))
+        seen.add(builtin_id)
+
+    if not payloads:
+        raise RuntimeError("No supported skin settings were found in this Kodi profile.")
+
+    roots = (
+        (
+            "built-in",
+            _addon_resource_path(SKIN_SETTINGS_BUILTIN_PRESETS_DIR, preset_id),
+        ),
+        (
+            "saved",
+            _addon_data_dir(SKIN_SETTINGS_SAVED_PRESETS_DIR, preset_id),
+        ),
+    )
+
+    def writer(preset_dir):
+        for builtin_id, _label, payload in payloads:
+            _write_binary_payload(os.path.join(preset_dir, builtin_id, "settings.xml"), payload)
+
+    saved, errors = _save_payload_to_roots(roots, preset_id, preset_name, "skinsettings", writer)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_preset_save", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "Skin settings preset saved as %s for: %s." % (
+        preset_name,
+        ", ".join(label for _builtin_id, label, _payload in payloads),
+    )
+    message += "\n\nSaved locations: %s" % ", ".join(origin for origin, _path in saved)
+    if errors:
+        message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
+    return message
 
 
 def _restore_skin_settings_from_url(addon, url):
@@ -1421,16 +1768,16 @@ def _backup_guisettings(addon):
     return "GUI settings backed up to: %s" % backup_path
 
 
-def _restore_builtin_guisettings(addon):
-    payload = _read_builtin_guisettings_payload()
+def _restore_guisettings_preset(addon, preset):
+    payload = _read_guisettings_preset_payload(preset)
     guisettings_path, backup_path, applied, failed = _write_guisettings_payload(
-        payload, "built-in copy"
+        payload, _preset_label(preset)
     )
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_guisettings_restore", now)
     _set_setting(addon, "last_install", now)
     return _restore_guisettings_message(
-        "built-in copy", guisettings_path, backup_path, applied, failed
+        _preset_label(preset), guisettings_path, backup_path, applied, failed
     )
 
 
@@ -1476,9 +1823,11 @@ def _run_action(action):
         "install_advanced_network",
         "install_keymaps",
         "backup_guisettings",
+        "save_guisettings_preset",
         "restore_guisettings_url",
         "restore_guisettings_builtin",
         "backup_skinsettings",
+        "save_skinsettings_preset",
         "restore_skinsettings_url",
         "restore_skinsettings_builtin",
         "install_all",
@@ -1544,13 +1893,34 @@ def _run_action(action):
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
         return
 
-    if action == "restore_guisettings_builtin":
-        if not _confirm_guisettings_restore("the built-in copy"):
+    if action == "save_guisettings_preset":
+        preset_name = _prompt_preset_name("GUI settings")
+        if not preset_name:
             return
         progress = xbmcgui.DialogProgress()
-        progress.create("Kodi Setup Kit", "Restoring built-in GUI settings...")
+        progress.create("Kodi Setup Kit", "Saving GUI settings preset...")
         try:
-            message = _restore_builtin_guisettings(addon)
+            message = _save_guisettings_preset(addon, preset_name)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_guisettings_builtin":
+        preset = _prompt_guisettings_preset()
+        if preset is None:
+            return
+        preset_label = _preset_label(preset)
+        if not _confirm_guisettings_restore(preset_label):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring GUI settings preset...")
+        try:
+            message = _restore_guisettings_preset(addon, preset)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
@@ -1593,13 +1963,34 @@ def _run_action(action):
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
         return
 
-    if action == "restore_skinsettings_builtin":
-        if not _confirm_skin_settings_restore("the built-in copy"):
+    if action == "save_skinsettings_preset":
+        preset_name = _prompt_preset_name("Skin settings")
+        if not preset_name:
             return
         progress = xbmcgui.DialogProgress()
-        progress.create("Kodi Setup Kit", "Restoring built-in skin settings...")
+        progress.create("Kodi Setup Kit", "Saving skin settings preset...")
         try:
-            message = _restore_builtin_skin_settings(addon)
+            message = _save_skin_settings_preset(addon, preset_name)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "restore_skinsettings_builtin":
+        preset = _prompt_skin_settings_preset()
+        if preset is None:
+            return
+        preset_label = _preset_label(preset)
+        if not _confirm_skin_settings_restore(preset_label):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Restoring skin settings preset...")
+        try:
+            message = _restore_skin_settings_preset(addon, preset)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
