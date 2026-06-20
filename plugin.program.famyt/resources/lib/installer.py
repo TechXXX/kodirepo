@@ -3,6 +3,7 @@ import datetime
 import io
 import json
 import os
+import shutil
 import sqlite3
 import sys
 import traceback
@@ -98,10 +99,14 @@ MENU_ITEMS = (
     ("Install Kodi keymaps", "install_keymaps"),
     ("Back up Kodi GUI settings", "backup_guisettings"),
     ("Save current GUI settings as preset", "save_guisettings_preset"),
+    ("Rename GUI settings preset", "rename_guisettings_preset"),
+    ("Delete GUI settings preset", "delete_guisettings_preset"),
     ("Restore GUI settings from URL", "restore_guisettings_url"),
     ("Restore GUI settings preset", "restore_guisettings_builtin"),
     ("Back up skin settings", "backup_skinsettings"),
     ("Save current skin settings as preset", "save_skinsettings_preset"),
+    ("Rename skin settings preset", "rename_skinsettings_preset"),
+    ("Delete skin settings preset", "delete_skinsettings_preset"),
     ("Restore skin settings from URL", "restore_skinsettings_url"),
     ("Restore skin settings preset", "restore_skinsettings_builtin"),
     ("Install everything", "install_all"),
@@ -723,6 +728,51 @@ def _prompt_preset(presets, heading):
     return presets[index]
 
 
+def _manageable_preset(preset):
+    if preset.get("id") == "built-in":
+        raise RuntimeError("The legacy built-in preset cannot be renamed or deleted.")
+    return preset
+
+
+def _rename_preset(preset, new_name, preset_type):
+    _manageable_preset(preset)
+    new_id = _preset_id_from_name(new_name)
+    old_dir = preset["dir"]
+    parent_dir = os.path.dirname(old_dir)
+    new_dir = os.path.join(parent_dir, new_id)
+
+    if os.path.normcase(os.path.abspath(old_dir)) == os.path.normcase(os.path.abspath(new_dir)):
+        _write_preset_manifest(old_dir, new_id, new_name, preset_type)
+        return old_dir
+
+    if os.path.exists(new_dir):
+        raise RuntimeError("A preset named %s already exists." % new_name)
+
+    os.rename(old_dir, new_dir)
+    _write_preset_manifest(new_dir, new_id, new_name, preset_type)
+    _log("Renamed %s preset %s to %s" % (preset_type, preset["id"], new_id))
+    return new_dir
+
+
+def _delete_preset(preset, preset_type):
+    _manageable_preset(preset)
+    preset_dir = preset["dir"]
+    if not os.path.isdir(preset_dir):
+        raise RuntimeError("Preset folder was not found.")
+    shutil.rmtree(preset_dir)
+    _log("Deleted %s preset %s from %s" % (preset_type, preset["id"], preset_dir))
+    return preset_dir
+
+
+def _confirm_delete_preset(preset):
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Delete preset %s?" % _preset_label(preset),
+        "This removes that preset from %s storage." % preset["origin"],
+        "It does not change current Kodi settings.",
+    )
+
+
 def _preset_dirs(root_dir, payload_exists):
     presets = []
     if not os.path.isdir(root_dir):
@@ -1016,6 +1066,22 @@ def _save_guisettings_preset(addon, preset_name):
     if errors:
         message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
     return message
+
+
+def _rename_guisettings_preset(addon, preset, new_name):
+    _rename_preset(preset, new_name, "guisettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "GUI settings preset renamed to %s." % new_name
+
+
+def _delete_guisettings_preset(addon, preset):
+    _delete_preset(preset, "guisettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_guisettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "GUI settings preset deleted: %s." % preset["name"]
 
 
 def _download_guisettings_payload(url):
@@ -1474,6 +1540,22 @@ def _save_skin_settings_preset(addon, preset_name):
     return message
 
 
+def _rename_skin_settings_preset(addon, preset, new_name):
+    _rename_preset(preset, new_name, "skinsettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Skin settings preset renamed to %s." % new_name
+
+
+def _delete_skin_settings_preset(addon, preset):
+    _delete_preset(preset, "skinsettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_skinsettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Skin settings preset deleted: %s." % preset["name"]
+
+
 def _restore_skin_settings_from_url(addon, url):
     items, source_label = _skin_settings_payload_items_from_url(url)
     results = []
@@ -1824,10 +1906,14 @@ def _run_action(action):
         "install_keymaps",
         "backup_guisettings",
         "save_guisettings_preset",
+        "rename_guisettings_preset",
+        "delete_guisettings_preset",
         "restore_guisettings_url",
         "restore_guisettings_builtin",
         "backup_skinsettings",
         "save_skinsettings_preset",
+        "rename_skinsettings_preset",
+        "delete_skinsettings_preset",
         "restore_skinsettings_url",
         "restore_skinsettings_builtin",
         "install_all",
@@ -1910,6 +1996,43 @@ def _run_action(action):
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
         return
 
+    if action == "rename_guisettings_preset":
+        preset = _prompt_guisettings_preset()
+        if preset is None:
+            return
+        new_name = _prompt_preset_name("New GUI settings")
+        if not new_name:
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Renaming GUI settings preset...")
+        try:
+            message = _rename_guisettings_preset(addon, preset, new_name)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "delete_guisettings_preset":
+        preset = _prompt_guisettings_preset()
+        if preset is None or not _confirm_delete_preset(preset):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Deleting GUI settings preset...")
+        try:
+            message = _delete_guisettings_preset(addon, preset)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
     if action == "restore_guisettings_builtin":
         preset = _prompt_guisettings_preset()
         if preset is None:
@@ -1971,6 +2094,43 @@ def _run_action(action):
         progress.create("Kodi Setup Kit", "Saving skin settings preset...")
         try:
             message = _save_skin_settings_preset(addon, preset_name)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "rename_skinsettings_preset":
+        preset = _prompt_skin_settings_preset()
+        if preset is None:
+            return
+        new_name = _prompt_preset_name("New skin settings")
+        if not new_name:
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Renaming skin settings preset...")
+        try:
+            message = _rename_skin_settings_preset(addon, preset, new_name)
+            progress.update(100, "Done")
+            progress.close()
+            xbmcgui.Dialog().ok("Kodi Setup Kit", message)
+        except Exception as exc:
+            progress.close()
+            _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+            _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "delete_skinsettings_preset":
+        preset = _prompt_skin_settings_preset()
+        if preset is None or not _confirm_delete_preset(preset):
+            return
+        progress = xbmcgui.DialogProgress()
+        progress.create("Kodi Setup Kit", "Deleting skin settings preset...")
+        try:
+            message = _delete_skin_settings_preset(addon, preset)
             progress.update(100, "Done")
             progress.close()
             xbmcgui.Dialog().ok("Kodi Setup Kit", message)
