@@ -97,19 +97,27 @@ MENU_ITEMS = (
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
+    ("Kodi GUI settings", "menu_guisettings", True),
+    ("Skin settings", "menu_skinsettings", True),
+    ("Install everything", "install_all"),
+)
+
+GUISETTINGS_MENU_ITEMS = (
     ("Back up Kodi GUI settings", "backup_guisettings"),
     ("Save current GUI settings as preset", "save_guisettings_preset"),
     ("Rename GUI settings preset", "rename_guisettings_preset"),
     ("Delete GUI settings preset", "delete_guisettings_preset"),
     ("Restore GUI settings from URL", "restore_guisettings_url"),
     ("Restore GUI settings preset", "restore_guisettings_builtin"),
+)
+
+SKINSETTINGS_MENU_ITEMS = (
     ("Back up skin settings", "backup_skinsettings"),
     ("Save current skin settings as preset", "save_skinsettings_preset"),
     ("Rename skin settings preset", "rename_skinsettings_preset"),
     ("Delete skin settings preset", "delete_skinsettings_preset"),
     ("Restore skin settings from URL", "restore_skinsettings_url"),
     ("Restore skin settings preset", "restore_skinsettings_builtin"),
-    ("Install everything", "install_all"),
 )
 
 
@@ -177,7 +185,7 @@ def _menu_url(action):
     return "%s?%s" % (sys.argv[0], urlencode({"action": action}))
 
 
-def _show_menu():
+def _show_menu(items=MENU_ITEMS):
     handle = _plugin_handle()
     if handle < 0:
         xbmcgui.Dialog().ok("Kodi Setup Kit", "Open Kodi Setup Kit from Kodi's program add-ons menu.")
@@ -185,13 +193,15 @@ def _show_menu():
 
     import xbmcplugin
 
-    for label, action in MENU_ITEMS:
+    for entry in items:
+        label, action = entry[0], entry[1]
+        is_folder = bool(entry[2]) if len(entry) > 2 else False
         item = xbmcgui.ListItem(label=label)
         try:
             item.setArt({"icon": "DefaultAddonProgram.png"})
         except Exception:
             pass
-        xbmcplugin.addDirectoryItem(handle, _menu_url(action), item, False)
+        xbmcplugin.addDirectoryItem(handle, _menu_url(action), item, is_folder)
 
     xbmcplugin.endOfDirectory(handle, succeeded=True)
 
@@ -1897,6 +1907,14 @@ def _run_install_all_step(messages, label, install_func):
 
 
 def _run_action(action):
+    if action == "menu_guisettings":
+        _show_menu(GUISETTINGS_MENU_ITEMS)
+        return
+
+    if action == "menu_skinsettings":
+        _show_menu(SKINSETTINGS_MENU_ITEMS)
+        return
+
     if action not in (
         "install_youtube",
         "install_torbox",
