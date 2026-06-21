@@ -203,6 +203,22 @@
         <description>None</description>
     </include>
 
+    <include name="Settings_ScrollSpeed_40">
+        <scrollspeed>40</scrollspeed>
+    </include>
+
+    <include name="Settings_ScrollSpeed_80">
+        <scrollspeed>80</scrollspeed>
+    </include>
+
+    <include name="Settings_ScrollSpeed_120">
+        <scrollspeed>120</scrollspeed>
+    </include>
+
+    <include name="Settings_ScrollSpeed_160">
+        <scrollspeed>160</scrollspeed>
+    </include>
+
     <include name="Settings_Visible_Level">
         <param name="slevel">0</param>
         <param name="altvisible">false</param>
@@ -227,6 +243,10 @@
                 <texturenofocus />
                 <alttexturenofocus />
                 <include condition="$PARAM[dialog]">defs_dialog_$PARAM[control]</include>
+                <include condition="$PARAM[dialog] + Window.IsVisible(DialogSettings.xml) + String.IsEqual(Control.GetLabel(2),$LOCALIZE[24133]) + Skin.String(OSD.SubtitleSettings.ScrollSpeed,40)">Settings_ScrollSpeed_40</include>
+                <include condition="$PARAM[dialog] + Window.IsVisible(DialogSettings.xml) + String.IsEqual(Control.GetLabel(2),$LOCALIZE[24133]) + [String.IsEmpty(Skin.String(OSD.SubtitleSettings.ScrollSpeed)) | Skin.String(OSD.SubtitleSettings.ScrollSpeed,80)]">Settings_ScrollSpeed_80</include>
+                <include condition="$PARAM[dialog] + Window.IsVisible(DialogSettings.xml) + String.IsEqual(Control.GetLabel(2),$LOCALIZE[24133]) + Skin.String(OSD.SubtitleSettings.ScrollSpeed,120)">Settings_ScrollSpeed_120</include>
+                <include condition="$PARAM[dialog] + Window.IsVisible(DialogSettings.xml) + String.IsEqual(Control.GetLabel(2),$LOCALIZE[24133]) + Skin.String(OSD.SubtitleSettings.ScrollSpeed,160)">Settings_ScrollSpeed_160</include>
                 <include content="Settings_Button_$PARAM[window]">
                     <param name="id">$PARAM[id]</param>
                     <param name="baseid">$PARAM[baseid]</param>

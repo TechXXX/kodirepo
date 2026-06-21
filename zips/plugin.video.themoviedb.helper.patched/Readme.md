@@ -34,6 +34,10 @@ This patched fork is part of the local Fen Light Patched / a4kSubtitles
 Patched setup. For playback, TMDb Helper is usually the launcher, not the
 source resolver.
 
+For the broader cross-addon handover, including Fen Light Patched, POV,
+Umbrella, FenLight AM, IntroDB, Trakt/resume boundaries, and known no-source
+edge cases, read `../AGENT_HANDOVER.md`.
+
 Bundled Fen Light Patched player definitions live in:
 
 - `resources/players/fenlight.patched.auto.json`

@@ -1,10 +1,14 @@
 # Fen Light Patched Agent Notes
 
-Last reviewed: 2026-06-14 against `plugin.video.fenlight.patched` `2.0.84`.
+Last reviewed: 2026-06-21 against `plugin.video.fenlight.patched` `2.0.85`.
 
 This is the production-facing patched Fen Light addon in `kodirepo`. Future
 agents should read this before changing scraping, playback, subtitle pairing,
 TMDb Helper player handoff, or Trakt/resume behavior.
+
+For cross-addon handover notes covering POV, Umbrella, FenLight AM, IntroDB,
+TheIntroDB, TMDb Helper, Trakt boundaries, and known no-source edge cases, read
+`../AGENT_HANDOVER.md`.
 
 ## What Fen Owns
 

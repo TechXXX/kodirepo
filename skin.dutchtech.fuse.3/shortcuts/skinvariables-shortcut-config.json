@@ -455,6 +455,12 @@
     ],
     "grouping://shortcuts/addons/": [
         {
+            "name": "Add-ons",
+            "path": "ActivateWindow(addonbrowser)",
+            "icon": "special://skin/extras/icons/addons.png",
+            "link": "true"
+        },
+        {
             "name": "Video Add-ons",
             "path": "addons://sources/video/",
             "icon": "special://skin/extras/icons/addon.png",

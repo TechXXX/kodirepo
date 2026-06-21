@@ -1,9 +1,9 @@
-<addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.7">
+<addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.8">
     <requires>
         <import addon="xbmc.gui" version="5.17.0" />
         <import addon="script.skinvariables" version="2.2.1" />
         <import addon="script.texturemaker" version="0.2.11" />
-        <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.11" />
+        <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.13" />
         <import addon="resource.images.weathericons.white" version="0.0.6" />
         <import addon="resource.images.studios.coloured" version="0.0.23" />
         <import addon="resource.font.robotocjksc" version="0.0.3" />

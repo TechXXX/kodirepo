@@ -532,6 +532,20 @@
             <label2>$INFO[Skin.String(OSD_Timeout),,s]</label2>
             <onclick>Skin.SetNumeric(OSD_Timeout)</onclick>
         </include>
+        <include content="Settings_Button" description="OSD subtitle settings title scroll speed">
+            <param name="dialog">false</param>
+            <param name="window">skinsettings</param>
+            <param name="baseid">$PARAM[baseid]</param>
+            <param name="id">019</param>
+            <param name="control">button</param>
+            <param name="slevel">2</param>
+            <label>Subtitle title scroll speed</label>
+            <label2>$VAR[Label_Setting_OSDSubtitleScrollSpeed]</label2>
+            <onclick condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,160)">Skin.SetString(OSD.SubtitleSettings.ScrollSpeed,40)</onclick>
+            <onclick condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,120)">Skin.SetString(OSD.SubtitleSettings.ScrollSpeed,160)</onclick>
+            <onclick condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,40)">Skin.Reset(OSD.SubtitleSettings.ScrollSpeed)</onclick>
+            <onclick condition="String.IsEmpty(Skin.String(OSD.SubtitleSettings.ScrollSpeed)) | Skin.String(OSD.SubtitleSettings.ScrollSpeed,80)">Skin.SetString(OSD.SubtitleSettings.ScrollSpeed,120)</onclick>
+        </include>
 
         <include content="Settings_Button" description="Autohide seekbar after pausing">
             <param name="dialog">false</param>

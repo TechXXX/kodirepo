@@ -171,7 +171,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.84">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.85">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -192,7 +192,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.84]:
+            <news>[v2.0.85]:
+  * Add optional TheIntroDB timing lookups for intro/recap skip buttons and Fen's existing next-episode timing.
+  * Add TheIntroDB settings without shipping a default API token.
+
+[v2.0.84]:
   * Migrate old ElfHosted AIOStreams manifest settings to the Midnight endpoint, use TMDb-to-IMDb fallback for AIOStreams ids, and guard non-JSON AIOStreams responses.
 
 [v2.0.83]:
@@ -370,7 +374,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.12" name="TMDb Helper Patched" provider-name="DutchTech">
+    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.13" name="TMDb Helper Patched" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
             <import addon="script.module.requests" version="2.9.1" />
@@ -1095,12 +1099,12 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.7">
+    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.8">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="script.skinvariables" version="2.2.1" />
             <import addon="script.texturemaker" version="0.2.11" />
-            <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.11" />
+            <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.13" />
             <import addon="resource.images.weathericons.white" version="0.0.6" />
             <import addon="resource.images.studios.coloured" version="0.0.23" />
             <import addon="resource.font.robotocjksc" version="0.0.3" />

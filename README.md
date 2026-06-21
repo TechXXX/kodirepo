@@ -33,7 +33,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.84`
+- `plugin.video.fenlight.patched` `2.0.85`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -79,7 +79,10 @@ Current source-tree versions when this document was updated:
   also migrates the old ElfHosted AIOStreams manifest URL to the Midnight
   endpoint, falls back from TMDb ids to IMDb ids for AIOStreams lookups, and
   logs non-JSON AIOStreams responses without crashing the source scrape.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.11`
+  It now also adds optional TheIntroDB lookups for episode intro/recap skip
+  buttons and credits/outro/preview timing for Fen's existing next-episode
+  flow, with no default API token committed to the repo.
+- `plugin.video.themoviedb.helper.patched` `6.15.2.13`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
@@ -124,7 +127,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.5`
+- `skin.dutchtech.fuse.3` `3.2.9.8`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
@@ -133,6 +136,8 @@ Current source-tree versions when this document was updated:
   Next Page widget rows a dedicated fallback background and suppresses ordinary
   artwork/foreground layers while those pagination items are focused. It also
   restores a direct Check for updates action inside the skin's add-on browser.
+  It now also adds a configurable subtitle settings title scroll speed for the
+  OSD and restores a direct Add-ons shortcut target.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
@@ -192,16 +197,17 @@ Current source-tree versions when this document was updated:
 For selector, AI-search, or packaging work in this repo, read:
 
 1. `README.md`
-2. `scripts/README.md`
-3. `plugin.video.fenlight.patched/README.md`
-4. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
-5. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
-6. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
-7. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
-8. `service.subtitles.a4ksubtitles.patched/README.md`
-9. `plugin.video.themoviedb.helper.patched/Readme.md`
-10. `skin.arctic.horizon.2.patched/Readme.md`
-11. `skin.arctic.horizon.2.1/Readme.md`
+2. `AGENT_HANDOVER.md`
+3. `scripts/README.md`
+4. `plugin.video.fenlight.patched/README.md`
+5. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
+6. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+7. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+8. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
+9. `service.subtitles.a4ksubtitles.patched/README.md`
+10. `plugin.video.themoviedb.helper.patched/Readme.md`
+11. `skin.arctic.horizon.2.patched/Readme.md`
+12. `skin.arctic.horizon.2.1/Readme.md`
 
 ## Fen / a4k / TMDb Helper Handoff
 

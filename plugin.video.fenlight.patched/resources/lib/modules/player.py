@@ -83,6 +83,7 @@ class FenLightPlayer(xbmc_player):
 		self.set_constants(url, obj)
 		volume_checker()
 		listing = self.make_listing()
+		self.start_introdb_lookup()
 		self._hybrid_resolve_handoff(listing)
 		if not self.isPlayingVideo():
 			self.play(self.url, listing)
@@ -154,6 +155,7 @@ class FenLightPlayer(xbmc_player):
 						if audio_language_decision == 'skip': return
 						ensure_dialog_dead = True
 						self.playback_close_dialogs()
+					self.introdb_handle_skip_segments()
 					sleep(1000)
 					self.current_point = round(float(self.curr_time/self.total_time * 100), 1)
 					if self.current_point >= set_watched:
@@ -161,6 +163,7 @@ class FenLightPlayer(xbmc_player):
 						if not self.media_marked: self.media_watched_marker()
 					if self.autoplay_nextep or self.autoscrape_nextep:
 						if not self.nextep_info_gathered: self.info_next_ep()
+						else: self.apply_introdb_next_episode_timing()
 						if round(self.total_time - self.curr_time) <= self.start_prep: self.run_next_ep(); break
 				except: pass
 			hide_busy_dialog()
@@ -374,12 +377,14 @@ class FenLightPlayer(xbmc_player):
 			nextep_settings = auto_nextep_settings(play_type)
 			use_window = nextep_settings['alert_method'] == 0
 			default_action = nextep_settings['default_action']
+			scraper_time = nextep_settings['scraper_time']
 			chapter_data = get_infolabel('Player.Chapters') if nextep_settings['use_chapters'] else ''
 			final_chapter = self.final_chapter(chapter_data) if nextep_settings['use_chapters'] else None
 			percentage = 100 - final_chapter if final_chapter is not None else nextep_settings['window_percentage']
 			window_time = max(0, round((percentage/100) * self.total_time))
-			self.start_prep = nextep_settings['scraper_time'] + window_time
-			self.nextep_settings = {'use_window': use_window, 'window_time': window_time, 'default_action': default_action, 'play_type': play_type}
+			self.start_prep = scraper_time + window_time
+			self.nextep_settings = {'use_window': use_window, 'window_time': window_time, 'default_action': default_action, 'play_type': play_type, 'scraper_time': scraper_time}
+			self.apply_introdb_next_episode_timing()
 		except:
 			self.start_prep = 0
 			self.nextep_settings = {'use_window': True, 'window_time': 0, 'default_action': 'cancel', 'play_type': play_type}
@@ -415,6 +420,82 @@ class FenLightPlayer(xbmc_player):
 		except: pass
 		return None
 
+	def start_introdb_lookup(self):
+		try:
+			if self.is_generic or self.media_type != 'episode' or not st.introdb_enabled(): return
+			if self.introdb_lookup_started: return
+			self.introdb_lookup_started = True
+			Thread(target=self._introdb_lookup, args=(dict(self.meta),)).start()
+		except: pass
+
+	def _introdb_lookup(self, meta):
+		try:
+			from apis.introdb_api import IntroDBAPI
+			self.introdb_segments = IntroDBAPI().query_episode_segments(meta) or {}
+		except:
+			self.introdb_segments = {}
+			logger('Fen Light IntroDB', 'lookup exception | error=%s' % traceback.format_exc().strip())
+		self.introdb_lookup_done = True
+
+	def introdb_handle_skip_segments(self):
+		try:
+			if not st.introdb_enabled() or not self.introdb_lookup_done or not self.introdb_segments: return
+			if st.introdb_skip_intro(): self.introdb_maybe_show_skip('intro')
+			if st.introdb_skip_recap(): self.introdb_maybe_show_skip('recap')
+		except:
+			logger('Fen Light IntroDB', 'skip handler exception | error=%s' % traceback.format_exc().strip())
+
+	def introdb_maybe_show_skip(self, segment_type):
+		segment = self.introdb_segments.get(segment_type)
+		if not segment: return
+		state = self.introdb_skip_state.setdefault(segment_type, {'shown': False})
+		if state.get('shown'): return
+		try:
+			start_time = float(segment.get('start', 0) or 0)
+			end_time = float(segment.get('end', 0) or 0)
+			current_time = float(self.curr_time)
+			total_time = float(self.total_time)
+		except: return
+		if end_time <= start_time or current_time < start_time or current_time >= end_time - 0.5: return
+		state['shown'] = True
+		skip_target = end_time + 1.0
+		if total_time and skip_target >= total_time: skip_target = max(end_time, total_time - 5)
+		from windows.base_window import open_window
+		action = open_window(('windows.intro_skip', 'IntroSkip'), 'intro_skip.xml', meta=self.meta, segment_type=segment_type,
+							start_time=start_time, end_time=end_time, skip_target=skip_target)
+		if action == 'skip':
+			logger('Fen Light IntroDB', 'skip %s | start=%.1f | end=%.1f | target=%.1f' % (segment_type, start_time, end_time, skip_target))
+
+	def apply_introdb_next_episode_timing(self):
+		try:
+			if self.introdb_next_timing_applied: return
+			if not st.introdb_enabled() or not st.introdb_next_episode_timing(): return
+			if not self.introdb_lookup_done: return
+			segment = (self.introdb_segments or {}).get('next_episode')
+			if not segment:
+				self.introdb_next_timing_applied = True
+				return
+			window_time = self.introdb_next_window_time(segment)
+			self.introdb_next_timing_applied = True
+			if window_time is None: return
+			scraper_time = int(self.nextep_settings.get('scraper_time', 0) or 0)
+			self.nextep_settings['window_time'] = window_time
+			self.nextep_settings['introdb_timing'] = segment.get('type', 'end')
+			self.start_prep = scraper_time + window_time
+			logger('Fen Light IntroDB', 'using %s timing for next episode | start=%.1f | window_time=%s | start_prep=%s' % (
+				segment.get('type', 'end'), float(segment.get('start')), window_time, self.start_prep))
+		except:
+			logger('Fen Light IntroDB', 'next episode timing exception | error=%s' % traceback.format_exc().strip())
+
+	def introdb_next_window_time(self, segment):
+		try:
+			start_time = float(segment.get('start'))
+			total_time = float(self.total_time)
+			if start_time <= 0 or total_time <= 0 or start_time >= total_time: return None
+			if start_time < max(60, total_time * 0.5): return None
+			return max(0, round(total_time - start_time))
+		except: return None
+
 	def kill_dialog(self):
 		try: self.sources_object._kill_progress_dialog()
 		except: close_all_dialog()
@@ -430,6 +511,9 @@ class FenLightPlayer(xbmc_player):
 			self.media_marked, self.nextep_info_gathered = False, False
 			self.audio_language_checked, self.audio_language_rejected = False, False
 			self.audio_language_check_attempts = 0
+			self.introdb_lookup_started, self.introdb_lookup_done = False, False
+			self.introdb_segments, self.introdb_skip_state = {}, {}
+			self.introdb_next_timing_applied = False
 			self.playback_started = False
 			self.playback_successful, self.cancel_all_playback = None, False
 			self.playing_item = self.sources_object.playing_item

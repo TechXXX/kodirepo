@@ -297,6 +297,13 @@
         <value>3s</value>
     </variable>
 
+    <variable name="Label_Setting_OSDSubtitleScrollSpeed">
+        <value condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,40)">Normal</value>
+        <value condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,120)">Faster</value>
+        <value condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,160)">Very fast</value>
+        <value>Fast</value>
+    </variable>
+
     <variable name="Label_PVR_Episode">
         <value condition="!String.IsEmpty(ListItem.Episode) + !String.IsEmpty(ListItem.EpisodeName)">$INFO[ListItem.Season,,x]$INFO[ListItem.Episode,,. ]$INFO[ListItem.EpisodeName]</value>
         <value condition="!String.IsEmpty(ListItem.Episode) + !String.IsEmpty(ListItem.Title)">$INFO[ListItem.Season,,x]$INFO[ListItem.Episode,,. ]$INFO[ListItem.Title]</value>

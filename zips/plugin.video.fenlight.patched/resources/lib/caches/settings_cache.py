@@ -306,6 +306,8 @@ default_settings = [
 {'setting_id': 'ai_search.strict_language_filters', 'setting_type': 'boolean', 'setting_default': 'false'},
 #==================== OMDb
 {'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': '987d3ba9'},
+#==================== TheIntroDB
+{'setting_id': 'introdb.api_key', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== External
 {'setting_id': 'provider.external', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'external_scraper.name', 'setting_type': 'string', 'setting_default': 'CocoScrapers Module'},
@@ -453,6 +455,12 @@ default_settings = [
 {'setting_id': 'autoscrape_next_window_percentage', 'setting_type': 'action', 'setting_default': '95', 'min_value': '75', 'max_value': '99'},
 {'setting_id': 'autoscrape_use_chapters', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'auto_resume_episode', 'setting_type': 'action', 'setting_default': '1', 'settings_options': {'0': 'Never', '1': 'Always', '2': 'Autoplay Only'}},
+#==================== TheIntroDB
+{'setting_id': 'introdb.enabled', 'setting_type': 'boolean', 'setting_default': 'false'},
+{'setting_id': 'introdb.skip_intro', 'setting_type': 'boolean', 'setting_default': 'false'},
+{'setting_id': 'introdb.skip_recap', 'setting_type': 'boolean', 'setting_default': 'false'},
+{'setting_id': 'introdb.next_episode_timing', 'setting_type': 'boolean', 'setting_default': 'false'},
+{'setting_id': 'introdb.debug', 'setting_type': 'boolean', 'setting_default': 'false'},
 #==================== Playback Utilities
 {'setting_id': 'playback.limit_resolve', 'setting_type': 'boolean', 'setting_default': 'false'},
 {'setting_id': 'playback.volumecheck_enabled', 'setting_type': 'boolean', 'setting_default': 'false'},

@@ -35,6 +35,21 @@ def gemini_api_key():
 def ai_search_strict_language_filters():
 	return get_setting('fenlight.ai_search.strict_language_filters', 'false') == 'true'
 
+def introdb_enabled():
+	return get_setting('fenlight.introdb.enabled', 'false') == 'true'
+
+def introdb_skip_intro():
+	return get_setting('fenlight.introdb.skip_intro', 'false') == 'true'
+
+def introdb_skip_recap():
+	return get_setting('fenlight.introdb.skip_recap', 'false') == 'true'
+
+def introdb_next_episode_timing():
+	return get_setting('fenlight.introdb.next_episode_timing', 'false') == 'true'
+
+def introdb_api_key():
+	return get_setting('fenlight.introdb.api_key', 'empty_setting')
+
 def trakt_client():
 	return get_setting('fenlight.trakt.client', '')
 

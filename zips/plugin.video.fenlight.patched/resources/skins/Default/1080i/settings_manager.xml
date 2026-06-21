@@ -1244,6 +1244,21 @@
                           <property name="setting_description">Enter here your OMDb API key. This will allow you to utilize extra ratings information in Fen Light Patcheds Extras window</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=omdb_api)</onclick>
                       </item>
+        <!-- TheIntroDB -->
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">TheIntroDB</property>
+                          <property name="setting_type">separator</property>
+                          <onclick>noop</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">API Key</property>
+                          <property name="setting_type">numeric</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.api_key)]</property>
+                          <property name="setting_description">Optional TheIntroDB API key used for intro, recap, and end-credit timing lookups</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=introdb.api_key)</onclick>
+                      </item>
         <!-- External Scrapers -->
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
@@ -2524,6 +2539,48 @@
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.auto_resume_episode_name)]</property>
                           <property name="setting_description">Choose when Fen Light Patched will automatically resume playback of an in-progress Episode</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_from_list&amp;setting_id=auto_resume_episode)</onclick>
+                      </item>
+        <!-- TheIntroDB -->
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <property name="setting_label">TheIntroDB</property>
+                          <property name="setting_type">separator</property>
+                          <onclick>noop</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <property name="setting_label">IntroDB Support</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.enabled)]</property>
+                          <property name="setting_description">Enable TheIntroDB lookups for episode intro, recap, and end-credit timing</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=introdb.enabled)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <visible>String.IsEqual(Window(10000).Property(fenlight.introdb.enabled),true)</visible>
+                          <property name="setting_label">    - Skip Intro Button</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.skip_intro)]</property>
+                          <property name="setting_description">Show a Fen Light skip button when TheIntroDB has intro timing for the current episode</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=introdb.skip_intro)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <visible>String.IsEqual(Window(10000).Property(fenlight.introdb.enabled),true)</visible>
+                          <property name="setting_label">    - Skip Recap Button</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.skip_recap)]</property>
+                          <property name="setting_description">Show a Fen Light skip button when TheIntroDB has recap timing for the current episode</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=introdb.skip_recap)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <visible>String.IsEqual(Window(10000).Property(fenlight.introdb.enabled),true)</visible>
+                          <property name="setting_label">    - Use End Timing for Next Episode</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.next_episode_timing)]</property>
+                          <property name="setting_description">Use the earliest TheIntroDB credits, outro, or preview timing to trigger Fen Light's existing Next Episode flow</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=introdb.next_episode_timing)</onclick>
                       </item>
         <!-- Playback Utilities -->
                       <item>
