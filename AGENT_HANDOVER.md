@@ -43,9 +43,24 @@ Allowed without asking first:
 
 Ask the user before making coding changes, including Python, XML behavior,
 skin behavior, provider logic, playback logic, scraper logic, settings logic,
-or any feature implementation. If a publish request reveals source-code changes
-already present in the worktree, inspect and report them; do not add new code
-on top unless the user explicitly approves it.
+or any feature implementation.
+
+Important distinction:
+
+- assume existing worktree changes were made by the user unless there is clear
+  evidence otherwise
+- when the user asks to publish/push changes, package and push those existing
+  user-authored changes after normal inspection, version bumps, generated
+  output refresh, and sanity checks
+- do not block or reclassify an existing user-authored setting/code change as
+  "agent coding"; the maintainer is committing the user's work
+- if an existing change is risky, surprising, secret-bearing, or unrelated to
+  the requested publish scope, report that clearly before pushing
+- do not add new code or alter behavior beyond the existing worktree changes
+  unless the user explicitly asks for that implementation
+- maintainer-created edits should be limited to release mechanics and docs:
+  version bumps, changelog/news text, handover notes, generated package output,
+  repo metadata, and checksum refreshes
 
 ## Live Kodi Paths On This Mac
 
