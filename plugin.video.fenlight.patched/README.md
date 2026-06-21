@@ -1,6 +1,6 @@
 # Fen Light Patched Agent Notes
 
-Last reviewed: 2026-06-21 against `plugin.video.fenlight.patched` `2.0.86`.
+Last reviewed: 2026-06-21 against `plugin.video.fenlight.patched` `2.0.87`.
 
 This is the production-facing patched Fen Light addon in `kodirepo`. Future
 agents should read this before changing scraping, playback, subtitle pairing,
