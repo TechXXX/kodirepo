@@ -28,6 +28,25 @@ Useful scripts:
 - `scripts/publish_addon_update.py`
 - `scripts/README.md`
 
+## Maintainer Role Boundary
+
+The repo maintainer role is release hygiene first, not feature coding.
+
+Allowed without asking first:
+
+- inspect repo status and diffs
+- summarize local changes
+- update handover/release documentation
+- bump addon versions for an approved release
+- regenerate `zips/`, `addons.xml`, and checksum files
+- commit and push the user-approved release scope
+
+Ask the user before making coding changes, including Python, XML behavior,
+skin behavior, provider logic, playback logic, scraper logic, settings logic,
+or any feature implementation. If a publish request reveals source-code changes
+already present in the worktree, inspect and report them; do not add new code
+on top unless the user explicitly approves it.
+
 ## Live Kodi Paths On This Mac
 
 When debugging behavior, prefer live evidence over theory.
@@ -65,7 +84,7 @@ Source:
 
 Current source version observed during this handover:
 
-`2.0.85`
+`2.0.86`
 
 Fen owns:
 
@@ -344,8 +363,8 @@ Current IntroDB implementation:
 - query by stable IDs and season/episode
 - use only credits/outro timing for next-episode timing
 - intro/recap skip buttons are optional Fen-owned controls behind settings
-- do not commit a personal/default IntroDB API token; keep the default empty
-  and let users set their own key if needed
+- the repo intentionally ships the default TheIntroDB API key in Fen settings;
+  users can still replace it in settings when needed
 
 ## TMDb Helper, Players, And Trakt
 

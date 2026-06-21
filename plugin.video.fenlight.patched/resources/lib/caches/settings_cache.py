@@ -307,7 +307,7 @@ default_settings = [
 #==================== OMDb
 {'setting_id': 'omdb_api', 'setting_type': 'string', 'setting_default': '987d3ba9'},
 #==================== TheIntroDB
-{'setting_id': 'introdb.api_key', 'setting_type': 'string', 'setting_default': 'empty_setting'},
+{'setting_id': 'introdb.api_key', 'setting_type': 'string', 'setting_default': 'theintrodb:user_3FPNGy5GsmygafofvZVtaClYgqC:zw2mD7IyUBpi-sFfMae5P1VLlc5llIXqPrIVtesZmAY'},
 #==================== External
 {'setting_id': 'provider.external', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'external_scraper.name', 'setting_type': 'string', 'setting_default': 'CocoScrapers Module'},

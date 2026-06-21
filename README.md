@@ -33,7 +33,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.85`
+- `plugin.video.fenlight.patched` `2.0.86`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -81,7 +81,7 @@ Current source-tree versions when this document was updated:
   logs non-JSON AIOStreams responses without crashing the source scrape.
   It now also adds optional TheIntroDB lookups for episode intro/recap skip
   buttons and credits/outro/preview timing for Fen's existing next-episode
-  flow, with no default API token committed to the repo.
+  flow, and ships a default TheIntroDB API key for repo installs.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.13`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
