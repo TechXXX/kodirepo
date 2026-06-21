@@ -16,7 +16,8 @@ from modules import kodi_utils
 
 logger = kodi_utils.logger
 
-api_base = 'https://api.theintrodb.org/v3'
+app_api_base = 'https://api.introdb.app'
+org_api_base = 'https://api.theintrodb.org/v3'
 empty_settings = ('', None, 'empty_setting')
 request_timeout = 5
 min_request_gap = 0.4
@@ -127,27 +128,36 @@ class IntroDBAPI:
 		key = _cache_key(tmdb_id if _valid_tmdb(tmdb_id) else '', imdb_id, season, episode)
 		if key in _episode_cache:
 			return _episode_cache[key]
-		url = self._build_url(tmdb_id, imdb_id, season, episode)
-		if not url: return {}
-		data = self._request(url)
-		result = self._parse_response(data)
+		requests = self._build_requests(tmdb_id, imdb_id, season, episode)
+		if not requests: return {}
+		result = {}
+		source = ''
+		for source, url, use_api_key in requests:
+			data = self._request(url, source, use_api_key)
+			result = self._parse_response(data)
+			if result: break
 		_episode_cache[key] = result
 		if result:
-			_log('segments found | tmdb=%s | imdb=%s | season=%s | episode=%s | keys=%s' % (
-				tmdb_id, imdb_id or '', season, episode, ','.join(sorted(result.keys()))), force=True)
+			_log('segments found | source=%s | tmdb=%s | imdb=%s | season=%s | episode=%s | keys=%s' % (
+				source, tmdb_id, imdb_id or '', season, episode, ','.join(sorted(result.keys()))), force=True)
 		else:
 			_log('no usable segments | tmdb=%s | imdb=%s | season=%s | episode=%s' % (
 				tmdb_id, imdb_id or '', season, episode))
 		return result
 
-	def _build_url(self, tmdb_id, imdb_id, season, episode):
+	def _build_requests(self, tmdb_id, imdb_id, season, episode):
+		requests = []
+		if imdb_id:
+			app_params = {'imdb_id': imdb_id, 'season': season, 'episode': episode}
+			requests.append(('introdb.app', '%s/segments?%s' % (app_api_base, urlencode(app_params)), False))
 		params = {'season': season, 'episode': episode}
 		if _valid_tmdb(tmdb_id): params['tmdb_id'] = str(tmdb_id).strip()
 		elif imdb_id: params['imdb_id'] = imdb_id
-		else: return None
-		return '%s/media?%s' % (api_base, urlencode(params))
+		else: return requests
+		requests.append(('theintrodb.org', '%s/media?%s' % (org_api_base, urlencode(params)), True))
+		return requests
 
-	def _request(self, url):
+	def _request(self, url, source='', use_api_key=True):
 		global _last_request_time
 		try:
 			gap = time.time() - _last_request_time
@@ -156,19 +166,19 @@ class IntroDBAPI:
 			request = Request(url)
 			request.add_header('Accept', 'application/json')
 			request.add_header('User-Agent', 'Fen Light Patched IntroDB/1.0')
-			if self.api_key:
+			if use_api_key and self.api_key:
 				request.add_header('Authorization', 'Bearer %s' % self.api_key)
 			response = urlopen(request, timeout=request_timeout)
 			body = response.read().decode('utf-8')
-			if introdb_debug(): _log('response: %s' % body[:500])
+			if introdb_debug(): _log('%s response: %s' % (source or 'IntroDB', body[:500]))
 			return json.loads(body)
 		except HTTPError as error:
-			if error.code == 404: _log('HTTP 404: episode not in IntroDB')
-			else: _log('HTTP %s during lookup' % error.code, force=True)
+			if error.code == 404: _log('%s HTTP 404: episode not in IntroDB' % (source or 'IntroDB'))
+			else: _log('%s HTTP %s during lookup' % (source or 'IntroDB', error.code))
 		except URLError as error:
-			_log('network error during lookup: %s' % getattr(error, 'reason', error), force=True)
+			_log('%s network error during lookup: %s' % (source or 'IntroDB', getattr(error, 'reason', error)))
 		except:
-			_log('lookup exception: %s' % traceback.format_exc().strip(), force=True)
+			_log('%s lookup exception: %s' % (source or 'IntroDB', traceback.format_exc().strip()))
 		return None
 
 	def _parse_response(self, data):
@@ -180,7 +190,9 @@ class IntroDBAPI:
 				return {}
 			raw_segments = []
 			for segment_type in ('intro', 'recap', 'credits', 'outro', 'preview'):
-				for item in data.get(segment_type, []) or []:
+				value = data.get(segment_type)
+				if isinstance(value, dict): value = [value]
+				for item in value or []:
 					if isinstance(item, dict):
 						item = dict(item)
 						item['segment_type'] = item.get('segment_type') or item.get('type') or segment_type
