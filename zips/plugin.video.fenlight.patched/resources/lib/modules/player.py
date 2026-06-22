@@ -544,6 +544,8 @@ class FenLightPlayer(xbmc_player):
 			else: clear_property('subs.selector_source_key')
 			if selector_payload: set_property('subs.selector_payload', json.dumps(selector_payload))
 			else: clear_property('subs.selector_payload')
+			if selector_source_key or selector_payload: set_property('subs.selector_playback_url', self.url)
+			else: clear_property('subs.selector_playback_url')
 		except: pass
 
 	def set_next_episode_property(self, meta=None, tmdb_id='', season='', episode=''):
@@ -573,6 +575,7 @@ class FenLightPlayer(xbmc_player):
 		clear_property('subs.player_filename')
 		clear_property('subs.selector_source_key')
 		clear_property('subs.selector_payload')
+		clear_property('subs.selector_playback_url')
 
 	def clear_playing_item(self):
 		playing_item = getattr(self, 'playing_item', {}) or {}

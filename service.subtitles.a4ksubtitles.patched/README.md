@@ -97,12 +97,16 @@ During playback, Fen publishes Kodi window properties:
 - `subs.player_filename`
 - `subs.selector_source_key`
 - `subs.selector_payload`
+- `subs.selector_playback_url`
 - `script.trakt.ids`
 
 `a4kSubtitles/service.py` reads the selector properties. If the payload still
-matches the current source key, the service can force the exact selector
-matched subtitle instead of doing a fresh broad runtime search. It still checks
-for an already available preferred-language Kodi subtitle stream first.
+matches the current patched-Fen playback URL, player filename, or selector
+source key, the service can force the exact selector matched subtitle instead
+of doing a fresh broad runtime search. If playback has moved to another addon
+or a different source, a4k clears the stale selector props and temp subtitle
+files instead of attaching the old Fen subtitle. It still checks for an already
+available preferred-language Kodi subtitle stream first.
 
 Keep this property contract stable. If the payload shape changes, update Fen's
 `resources/lib/fenlightsubs/integration.py`, Fen's `modules/player.py`, and

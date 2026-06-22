@@ -171,7 +171,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.88">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.89">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -192,7 +192,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.88]:
+            <news>[v2.0.89]:
+  * Publish the selector playback URL during Fen playback so a4k can reject stale selector subtitle payloads from unrelated videos.
+
+[v2.0.88]:
   * Try IntroDB's app segments endpoint before the TheIntroDB.org fallback and parse single segment objects from either endpoint.
 
 [v2.0.87]:
@@ -910,7 +913,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.39" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.40" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -935,6 +938,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.40]:
+  * Ignore stale Fen selector subtitle payloads when playback no longer belongs to the matching Fen source, and clear stale selector temp files before global runtime subtitle handling.
+
 [v3.23.39]:
   * Pass OpenSubtitles file names through as subtitle filenames while preserving release aliases separately for selector context.
 

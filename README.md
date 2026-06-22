@@ -3,14 +3,13 @@
 This repository is the main GitHub Pages distribution channel for DutchTech
 Kodi packages.
 
-Production version rule:
+Active workflow rule:
 
-- for any addon id also present in `DutchTechTestRepo`, main must always
-  advertise a strictly higher version than test
-- never publish the same version number to test and main, even when promoting
-  identical code, because the Android box has both repositories installed
-- usual pattern: test ships version `N`, main ships the promoted build as
-  version `N+1` or higher
+- `DutchTechTestRepo` is retired from the normal workflow and should be treated
+  as historical context only
+- `kodirepo` is the active packaging and publishing repo
+- when the user says `push to main`, publish directly from this repo with fresh
+  addon version bumps, regenerated package output, `addons.xml`, and checksum
 
 For subtitle-selector and AI-search promotion work, this repo matters because
 it is the production-facing package source for the patched Fenlight, the
@@ -33,7 +32,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.87`
+- `plugin.video.fenlight.patched` `2.0.89`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -83,7 +82,9 @@ Current source-tree versions when this document was updated:
   buttons and credits/outro/preview timing for Fen's existing next-episode
   flow, ships a default TheIntroDB API key for repo installs, and enables
   IntroDB support, intro skip, recap skip, and IntroDB next-episode timing by
-  default.
+  default. It now also publishes a selector playback URL during playback so
+  a4k can reject stale selector subtitle payloads after unrelated add-ons start
+  new videos.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.13`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -93,7 +94,7 @@ Current source-tree versions when this document was updated:
   repo installs, includes bundled Fen Light / Fen Light Patched TMDb player
   definitions for default installs, and adds the refreshed Trakt QR auth dialog
   support promoted from the test repo.
-- `service.subtitles.a4ksubtitles.patched` `3.23.38`
+- `service.subtitles.a4ksubtitles.patched` `3.23.40`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build keeps AI subtitle translation off until an API key is
   configured, leaves the API key field editable while AI is off, and disables
@@ -114,7 +115,10 @@ Current source-tree versions when this document was updated:
   `3.8.15`. It now accepts Fen Light's exact retry metadata with parent show
   TMDb/IMDb ids, validates cached subtitle rows against the requested media
   identity, and keeps AI or machine-translated OpenSubtitles rows as a ranked
-  Dutch fallback before GPT translates an English subtitle.
+  Dutch fallback before GPT translates an English subtitle. It now also rejects
+  stale Fen selector subtitle payloads when the current playback no longer
+  matches the Fen source that created them, preventing old runtime subtitles
+  from attaching to videos launched by other add-ons.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
 - `plugin.program.famyt` `0.4.2`
@@ -277,7 +281,7 @@ This addon now owns:
 - TMDb-backed result rendering from structured intent
 - its own updater path and settings surface
 
-It should stay aligned with the tested search behavior in the test repo, while
+It should stay aligned with the Fen Light Patched behavior in this repo while
 keeping production updater defaults pointed at `kodirepo`.
 
 That production-specific updater default matters because the shipped main build

@@ -1,6 +1,6 @@
 # Kodi Repo Agent Handover
 
-Last updated: 2026-06-21.
+Last updated: 2026-06-22.
 
 This is the broad handover for future agents taking over Fen Light Patched,
 TMDb Helper Patched, a4kSubtitles Patched, and nearby Kodi debugging work in
@@ -17,6 +17,10 @@ this repo. Read this with:
 `/Users/kalter/Documents/CODEX/kodirepo` is the maintained Kodi repository.
 Addon source trees live at repo root. Generated package mirrors and zips live
 under `zips/`, with repo metadata in `addons.xml` and `addons.xml.md5`.
+
+`DutchTechTestRepo` is retired from the normal workflow. Treat it as historical
+context only unless the user explicitly revives it. Approved publish work should
+go directly through this repo.
 
 Do not hand-edit generated output unless the user explicitly asks for a package
 mirror edit. Normal flow is source edit first, then regenerate package output
@@ -99,7 +103,7 @@ Source:
 
 Current source version observed during this handover:
 
-`2.0.87`
+`2.0.89`
 
 Fen owns:
 
@@ -156,8 +160,9 @@ Fen talks to patched a4k in two phases:
 - Before playback, Fen gathers subtitle candidates and uses
   `resources/lib/fenlightsubs` to promote subtitle-backed sources.
 - During playback, Fen sets properties such as `subs.player_filename`,
-  `subs.selector_source_key`, and `subs.selector_payload`; the a4k service then
-  attaches the chosen subtitle when appropriate.
+  `subs.selector_source_key`, `subs.selector_payload`, and
+  `subs.selector_playback_url`; the a4k service then attaches the chosen
+  subtitle only when the current playback still matches the Fen handoff.
 
 The subtitle selector policy belongs in:
 

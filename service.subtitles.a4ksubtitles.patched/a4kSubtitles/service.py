@@ -2,6 +2,8 @@
 
 selector_source_key_prop = 'subs.selector_source_key'
 selector_payload_prop = 'subs.selector_payload'
+selector_player_filename_prop = 'subs.player_filename'
+selector_playback_url_prop = 'subs.selector_playback_url'
 OPENAI_TRANSLATION_MODEL = 'gpt-4.1-mini-2025-04-14'
 
 def _pinned_ai_model(core, ai_provider, configured_model):
@@ -48,6 +50,146 @@ def _selector_matched_subtitle_name(result):
     action_args = result.get('action_args') or {}
     return result.get('name') or action_args.get('filename') or result.get('filename') or ''
 
+def _selector_clear_runtime_state(core, clear_temp=False):
+    for prop in (
+        selector_source_key_prop,
+        selector_payload_prop,
+        selector_player_filename_prop,
+        selector_playback_url_prop,
+    ):
+        try:
+            core.kodi.clear_property(prop)
+        except:
+            pass
+
+    if clear_temp:
+        try:
+            core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
+        except:
+            pass
+
+def _selector_playback_labels(core):
+    labels = []
+    for label in ('Player.FilenameAndPath', 'Player.Filenameandpath', 'Player.Filename'):
+        try:
+            value = core.kodi.xbmc.getInfoLabel(label)
+        except:
+            value = ''
+        if value:
+            labels.append(str(value))
+    try:
+        value = core.kodi.xbmc.Player().getPlayingFile()
+    except:
+        value = ''
+    if value:
+        labels.append(str(value))
+    return labels
+
+def _selector_is_fen_playback(labels):
+    fen_prefixes = (
+        'plugin://plugin.video.fenlight.patched/',
+    )
+    for label in labels:
+        lowered = str(label or '').strip().lower()
+        for prefix in fen_prefixes:
+            if lowered.startswith(prefix):
+                return True
+    return False
+
+def _selector_path_leaf(value):
+    value = str(value or '').strip()
+    for separator in ('?', '#'):
+        if separator in value:
+            value = value.split(separator, 1)[0]
+    value = value.replace('\\', '/')
+    if '/' in value:
+        value = value.rsplit('/', 1)[-1]
+    return value
+
+def _selector_release_key(value):
+    value = _selector_path_leaf(value).lower()
+    for encoded, replacement in (
+        ('%20', ' '),
+        ('%2e', '.'),
+        ('%2d', '-'),
+        ('%5f', '_'),
+        ('+', ' '),
+    ):
+        value = value.replace(encoded, replacement)
+    for extension in ('.mkv', '.mp4', '.avi', '.m2ts', '.ts', '.srt', '.sub', '.ass', '.ssa', '.vtt'):
+        if value.endswith(extension):
+            value = value[:-len(extension)]
+            break
+    for separator in ('.', '_', '-', '[', ']', '(', ')'):
+        value = value.replace(separator, ' ')
+    return ' '.join(value.split())
+
+def _selector_text_matches_current_playback(expected, labels):
+    expected_key = _selector_release_key(expected)
+    if len(expected_key) < 8:
+        return False
+
+    for label in labels:
+        label_key = _selector_release_key(label)
+        if len(label_key) < 8:
+            continue
+        if expected_key == label_key:
+            return True
+        if len(expected_key) >= 12 and expected_key in label_key:
+            return True
+        if len(label_key) >= 12 and label_key in expected_key:
+            return True
+    return False
+
+def _selector_value_matches_current_label(expected, labels):
+    expected = str(expected or '').strip()
+    if len(expected) < 12:
+        return False
+
+    expected_lower = expected.lower()
+    for label in labels:
+        label = str(label or '').strip()
+        label_lower = label.lower()
+        if expected_lower == label_lower:
+            return True
+        if len(expected_lower) >= 40 and len(label_lower) >= 40 and (
+            expected_lower in label_lower or label_lower in expected_lower
+        ):
+            return True
+    return False
+
+def _selector_source_key_matches_current_playback(source_key, labels):
+    for part in str(source_key or '').split('|'):
+        if _selector_text_matches_current_playback(part, labels):
+            return True
+    return False
+
+def _selector_payload_matches_current_playback(core, current_source_key, payload):
+    labels = _selector_playback_labels(core)
+    if not labels:
+        return True
+
+    if _selector_is_fen_playback(labels):
+        return True
+
+    if _selector_value_matches_current_label(core.kodi.get_property(selector_playback_url_prop), labels):
+        return True
+
+    fen_player_filename = core.kodi.get_property(selector_player_filename_prop)
+    if _selector_text_matches_current_playback(fen_player_filename, labels):
+        return True
+
+    if _selector_source_key_matches_current_playback(current_source_key, labels):
+        return True
+
+    return _selector_source_key_matches_current_playback(payload.get('source_key', ''), labels)
+
+def _selector_short_text(value, limit=180):
+    value = str(value or '')
+    if len(value) <= limit:
+        return value
+    return value[:limit] + '...'
+
 def _selector_forced_subtitle_result(core):
     payload_text = core.kodi.get_property(selector_payload_prop)
     if not payload_text:
@@ -55,12 +197,15 @@ def _selector_forced_subtitle_result(core):
 
     current_source_key = core.kodi.get_property(selector_source_key_prop)
     if not current_source_key:
+        core.logger.debug('selector subtitle payload ignored because source key is missing')
+        _selector_clear_runtime_state(core, clear_temp=True)
         return (None, None)
 
     try:
         payload = core.json.loads(payload_text)
     except Exception as exc:
         core.logger.debug('selector subtitle payload parse failed: %s' % exc)
+        _selector_clear_runtime_state(core, clear_temp=True)
         return (None, None)
 
     payload_source_key = payload.get('source_key', '')
@@ -71,6 +216,18 @@ def _selector_forced_subtitle_result(core):
                 current_source_key,
             )
         )
+        _selector_clear_runtime_state(core, clear_temp=True)
+        return (None, payload)
+
+    if not _selector_payload_matches_current_playback(core, current_source_key, payload):
+        core.logger.debug(
+            'selector subtitle payload ignored for non-Fen/current playback | player=%s | fen_player_filename=%s | source_key=%s' % (
+                _selector_short_text(' || '.join(_selector_playback_labels(core))),
+                _selector_short_text(core.kodi.get_property(selector_player_filename_prop)),
+                _selector_short_text(current_source_key),
+            )
+        )
+        _selector_clear_runtime_state(core, clear_temp=True)
         return (None, payload)
 
     matched_subtitle = payload.get('matched_subtitle')
