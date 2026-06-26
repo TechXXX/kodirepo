@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.4"
+       version="0.9.5"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.4
+<news>v0.9.5
+- Add fullscreen video Back button stop keymap
+
+v0.9.4
 - Update the bundled AF3 widget preset from the active MacBook skin
 
 v0.9.3
