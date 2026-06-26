@@ -10,6 +10,13 @@
     <setting id="last_advanced_network_install" type="text" label="Last advanced network install cache" default="" visible="false"/>
     <setting id="last_keymaps_install" type="text" label="Last keymaps install cache" default="" visible="false"/>
     <setting id="last_widget_importer_launch" type="text" label="Last widget importer launch cache" default="" visible="false"/>
+    <setting id="last_status_check" type="text" label="Last setup status cache" default="" visible="false"/>
+    <setting id="last_debug_bundle" type="text" label="Last debug bundle cache" default="" visible="false"/>
+    <setting id="last_thumbnail_clear" type="text" label="Last thumbnail clear cache" default="" visible="false"/>
+    <setting id="last_package_cache_clear" type="text" label="Last package cache clear cache" default="" visible="false"/>
+    <setting id="last_backup_cleanup" type="text" label="Last backup cleanup cache" default="" visible="false"/>
+    <setting id="last_skin_reload" type="text" label="Last skin reload cache" default="" visible="false"/>
+    <setting id="last_restart_request" type="text" label="Last restart request cache" default="" visible="false"/>
     <setting id="last_guisettings_backup" type="text" label="Last GUI settings backup cache" default="" visible="false"/>
     <setting id="last_guisettings_preset_save" type="text" label="Last GUI settings preset save cache" default="" visible="false"/>
     <setting id="last_guisettings_preset_manage" type="text" label="Last GUI settings preset manage cache" default="" visible="false"/>

@@ -28,6 +28,9 @@ CLIENT_ID_SUFFIX = ".apps.googleusercontent.com"
 ADVANCEDSETTINGS_PATH = "special://profile/advancedsettings.xml"
 KEYMAPS_SOURCE_DIR = os.path.join("resources", "keymaps")
 KEYMAPS_TARGET_PATH = "special://profile/keymaps"
+THUMBNAILS_PATH = "special://profile/Thumbnails"
+TEXTURES_DATABASE_DIR = "special://profile/Database"
+PACKAGES_CACHE_PATH = "special://home/addons/packages"
 GUISETTINGS_PATH = "special://profile/guisettings.xml"
 GUISETTINGS_BACKUP_DIR = os.path.join("backups", "guisettings")
 GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings.xml")
@@ -99,6 +102,7 @@ MENU_ITEMS = (
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
     ("KodiSkin Widget Importer", "launch_widget_importer"),
+    ("Utilities", "menu_utilities", True),
     ("Kodi GUI settings", "menu_guisettings", True),
     ("Skin settings", "menu_skinsettings", True),
     ("Install everything", "install_all"),
@@ -121,6 +125,18 @@ SKINSETTINGS_MENU_ITEMS = (
     ("Restore skin settings from URL", "restore_skinsettings_url"),
     ("Restore skin settings preset", "restore_skinsettings_builtin"),
 )
+
+UTILITIES_MENU_ITEMS = (
+    ("Show setup status", "show_setup_status"),
+    ("Export debug bundle", "export_debug_bundle"),
+    ("Clear thumbnail cache", "clear_thumbnail_cache"),
+    ("Clear add-on package cache", "clear_package_cache"),
+    ("Clean Setup Kit backups", "clean_setup_backups"),
+    ("Reload skin", "reload_skin"),
+    ("Restart Kodi", "restart_kodi"),
+)
+
+UTILITY_ACTIONS = tuple(item[1] for item in UTILITIES_MENU_ITEMS)
 
 
 def _addon():
@@ -153,8 +169,25 @@ def _set_setting(addon, key, value):
     addon.setSetting(key, value)
 
 
+def _set_timestamp(addon, key, touch_last_install=False):
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, key, now)
+    if touch_last_install:
+        _set_setting(addon, "last_install", now)
+    return now
+
+
 def _notify(message, heading="Kodi Setup Kit", icon=xbmcgui.NOTIFICATION_INFO, ms=5000):
     xbmcgui.Dialog().notification(heading, message, icon, ms)
+
+
+def _show_text(heading, text):
+    dialog = xbmcgui.Dialog()
+    textviewer = getattr(dialog, "textviewer", None)
+    if callable(textviewer):
+        textviewer(heading, text)
+        return
+    dialog.ok(heading, text)
 
 
 def _plugin_handle():
@@ -864,11 +897,16 @@ def _install_keymap_files():
 
 
 def _addon_data_dir(*parts):
+    data_dir = _addon_data_path(*parts)
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+    return data_dir
+
+
+def _addon_data_path(*parts):
     data_dir = _translate_path("special://profile/addon_data/%s" % ADDON_ID)
     if parts:
         data_dir = os.path.join(data_dir, *parts)
-    if not os.path.isdir(data_dir):
-        os.makedirs(data_dir)
     return data_dir
 
 
@@ -1854,6 +1892,348 @@ def _install_keymaps(addon):
     return message
 
 
+def _empty_cleanup_result():
+    return {"files": 0, "dirs": 0, "bytes": 0, "errors": []}
+
+
+def _merge_cleanup_result(target, source):
+    target["files"] += source.get("files", 0)
+    target["dirs"] += source.get("dirs", 0)
+    target["bytes"] += source.get("bytes", 0)
+    target["errors"].extend(source.get("errors", []))
+    return target
+
+
+def _path_stats(path):
+    stats = _empty_cleanup_result()
+    if not os.path.lexists(path):
+        return stats
+
+    if os.path.isfile(path) or os.path.islink(path):
+        stats["files"] = 1
+        try:
+            stats["bytes"] = os.path.getsize(path)
+        except Exception:
+            stats["bytes"] = 0
+        return stats
+
+    if os.path.isdir(path):
+        stats["dirs"] = 1
+        for root, dirs, files in os.walk(path):
+            stats["dirs"] += len(dirs)
+            for filename in files:
+                file_path = os.path.join(root, filename)
+                stats["files"] += 1
+                try:
+                    stats["bytes"] += os.path.getsize(file_path)
+                except Exception:
+                    pass
+    return stats
+
+
+def _delete_path(path, result):
+    stats = _path_stats(path)
+    if not stats["files"] and not stats["dirs"]:
+        return result
+    try:
+        if os.path.isdir(path) and not os.path.islink(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
+        _merge_cleanup_result(result, stats)
+    except Exception as exc:
+        result["errors"].append("%s: %s" % (path, exc))
+    return result
+
+
+def _delete_directory_contents(path):
+    result = _empty_cleanup_result()
+    if not os.path.isdir(path):
+        return result
+    for name in sorted(os.listdir(path)):
+        _delete_path(os.path.join(path, name), result)
+    return result
+
+
+def _delete_matching_children(path, predicate):
+    result = _empty_cleanup_result()
+    if not os.path.isdir(path):
+        return result
+    for name in sorted(os.listdir(path)):
+        if predicate(name):
+            _delete_path(os.path.join(path, name), result)
+    return result
+
+
+def _directory_contents_stats(path):
+    result = _empty_cleanup_result()
+    if not os.path.isdir(path):
+        return result
+    for name in sorted(os.listdir(path)):
+        _merge_cleanup_result(result, _path_stats(os.path.join(path, name)))
+    return result
+
+
+def _matching_children_stats(path, predicate):
+    result = _empty_cleanup_result()
+    if not os.path.isdir(path):
+        return result
+    for name in sorted(os.listdir(path)):
+        if predicate(name):
+            _merge_cleanup_result(result, _path_stats(os.path.join(path, name)))
+    return result
+
+
+def _format_bytes(size):
+    size = float(size or 0)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024.0 or unit == "GB":
+            if unit == "B":
+                return "%d %s" % (int(size), unit)
+            return "%.1f %s" % (size, unit)
+        size /= 1024.0
+    return "%.1f GB" % size
+
+
+def _format_cleanup_result(result):
+    message = "Deleted %s file(s), %s folder(s), %s." % (
+        result["files"],
+        result["dirs"],
+        _format_bytes(result["bytes"]),
+    )
+    if result["errors"]:
+        message += "\n\nCould not delete:\n%s" % "\n".join(result["errors"][:8])
+        if len(result["errors"]) > 8:
+            message += "\n...and %s more." % (len(result["errors"]) - 8)
+    return message
+
+
+def _is_textures_database_name(name):
+    return name.startswith("Textures") and ".db" in name
+
+
+def _is_setup_backup_name(name):
+    return ".famyt-backup-" in name
+
+
+def _confirm_clear_thumbnail_cache():
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Clear Kodi thumbnail cache?",
+        "This deletes cached artwork in Thumbnails and Textures*.db.",
+        "Kodi will rebuild artwork afterward; restart Kodi when this finishes.",
+    )
+
+
+def _confirm_clear_package_cache():
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Clear Kodi add-on package cache?",
+        "This deletes cached add-on ZIP downloads from addons/packages.",
+        "Installed add-ons are not removed.",
+    )
+
+
+def _confirm_clean_setup_backups():
+    return xbmcgui.Dialog().yesno(
+        "Kodi Setup Kit",
+        "Clean Setup Kit backups?",
+        "This deletes backups created by Kodi Setup Kit.",
+        "Current Kodi settings and saved presets are not removed.",
+    )
+
+
+def _clear_thumbnail_cache(addon):
+    result = _delete_directory_contents(_translate_path(THUMBNAILS_PATH))
+    textures_result = _delete_matching_children(
+        _translate_path(TEXTURES_DATABASE_DIR),
+        _is_textures_database_name,
+    )
+    _merge_cleanup_result(result, textures_result)
+    _set_timestamp(addon, "last_thumbnail_clear", True)
+    return "Thumbnail cache cleared.\n%s\n\nRestart Kodi so the texture database is rebuilt cleanly." % (
+        _format_cleanup_result(result)
+    )
+
+
+def _clear_package_cache(addon):
+    result = _delete_directory_contents(_translate_path(PACKAGES_CACHE_PATH))
+    _set_timestamp(addon, "last_package_cache_clear", True)
+    return "Add-on package cache cleared.\n%s" % _format_cleanup_result(result)
+
+
+def _clean_setup_backups(addon):
+    result = _empty_cleanup_result()
+    backup_dir = _addon_data_path("backups")
+    _delete_path(backup_dir, result)
+    _merge_cleanup_result(
+        result,
+        _delete_matching_children(_translate_path("special://profile"), _is_setup_backup_name),
+    )
+    _merge_cleanup_result(
+        result,
+        _delete_matching_children(_translate_path(KEYMAPS_TARGET_PATH), _is_setup_backup_name),
+    )
+    _set_timestamp(addon, "last_backup_cleanup", True)
+    return "Setup Kit backups cleaned.\n%s" % _format_cleanup_result(result)
+
+
+def _reload_skin(addon):
+    xbmc.executebuiltin("ReloadSkin()")
+    _set_timestamp(addon, "last_skin_reload", True)
+    return "Skin reload requested."
+
+
+def _restart_kodi(addon):
+    _set_timestamp(addon, "last_restart_request", True)
+    xbmc.executebuiltin("RestartApp")
+    return "Kodi restart requested."
+
+
+def _advanced_network_status():
+    path = _translate_path(ADVANCEDSETTINGS_PATH)
+    if not os.path.exists(path):
+        return "missing"
+    try:
+        root = _parse_xml(path).getroot()
+        network = _direct_child(root, "network")
+        if network is None:
+            return "present, network settings missing"
+        disablehttp2_node = _direct_child(network, "disablehttp2")
+        disableipv6_node = _direct_child(network, "disableipv6")
+        disablehttp2 = (
+            (disablehttp2_node.text if disablehttp2_node is not None else "") or ""
+        ).strip().lower()
+        disableipv6 = (
+            (disableipv6_node.text if disableipv6_node is not None else "") or ""
+        ).strip().lower()
+        if disablehttp2 == "true" and disableipv6 == "true":
+            return "installed"
+        return "present, values differ"
+    except Exception as exc:
+        return "invalid: %s" % exc
+
+
+def _bundled_keymaps_status():
+    try:
+        source_files = _keymap_source_files()
+    except Exception as exc:
+        return "bundle unavailable: %s" % exc
+    target_dir = _translate_path(KEYMAPS_TARGET_PATH)
+    installed = 0
+    stale = []
+    for name, source_path in source_files:
+        with io.open(source_path, "rb") as handle:
+            payload = handle.read()
+        target_path = os.path.join(target_dir, name)
+        if _same_file_bytes(target_path, payload):
+            installed += 1
+        else:
+            stale.append(name)
+    status = "%s/%s bundled keymap(s) installed" % (installed, len(source_files))
+    if stale:
+        status += "; missing or outdated: %s" % ", ".join(stale)
+    return status
+
+
+def _cache_status(path, label):
+    stats = _directory_contents_stats(_translate_path(path))
+    return "%s: %s file(s), %s folder(s), %s" % (
+        label,
+        stats["files"],
+        stats["dirs"],
+        _format_bytes(stats["bytes"]),
+    )
+
+
+def _thumbnail_status():
+    thumbs = _directory_contents_stats(_translate_path(THUMBNAILS_PATH))
+    textures = _matching_children_stats(
+        _translate_path(TEXTURES_DATABASE_DIR),
+        _is_textures_database_name,
+    )
+    return "Thumbnail cache: %s file(s), %s folder(s), %s; texture DB: %s file(s), %s" % (
+        thumbs["files"],
+        thumbs["dirs"],
+        _format_bytes(thumbs["bytes"]),
+        textures["files"],
+        _format_bytes(textures["bytes"]),
+    )
+
+
+def _setup_status_text(addon):
+    timestamp_keys = (
+        ("YouTube", "last_youtube_install"),
+        ("TorBox", "last_torbox_install"),
+        ("a4kSubtitles", "last_a4ksubtitles_install"),
+        ("Cocoscrapers", "last_cocoscrapers_install"),
+        ("Advanced network", "last_advanced_network_install"),
+        ("Keymaps", "last_keymaps_install"),
+        ("Thumbnails cleared", "last_thumbnail_clear"),
+        ("Package cache cleared", "last_package_cache_clear"),
+        ("Backups cleaned", "last_backup_cleanup"),
+    )
+    lines = [
+        "Profile: %s" % _translate_path("special://profile"),
+        "Skin: %s" % xbmc.getSkinDir(),
+        "Advanced network: %s" % _advanced_network_status(),
+        "Keymaps: %s" % _bundled_keymaps_status(),
+        _thumbnail_status(),
+        _cache_status(PACKAGES_CACHE_PATH, "Package cache"),
+        "",
+        "Last runs:",
+    ]
+    for label, key in timestamp_keys:
+        lines.append("- %s: %s" % (label, _get_setting(addon, key) or "never"))
+    return "\n".join(lines)
+
+
+def _zip_file_if_exists(zip_handle, path, arcname):
+    if os.path.isfile(path):
+        zip_handle.write(path, arcname)
+        return True
+    return False
+
+
+def _zip_keymap_files(zip_handle):
+    keymaps_dir = _translate_path(KEYMAPS_TARGET_PATH)
+    if not os.path.isdir(keymaps_dir):
+        return
+    for name in sorted(os.listdir(keymaps_dir)):
+        if name.startswith("._") or not name.lower().endswith(".xml"):
+            continue
+        _zip_file_if_exists(
+            zip_handle,
+            os.path.join(keymaps_dir, name),
+            "profile/keymaps/%s" % name,
+        )
+
+
+def _export_debug_bundle(addon):
+    debug_dir = _addon_data_dir("debug")
+    bundle_path = os.path.join(debug_dir, "kodi-setup-kit-debug-%s.zip" % _utc_timestamp())
+    log_dir = _translate_path("special://logpath")
+
+    with zipfile.ZipFile(bundle_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_handle:
+        zip_handle.writestr("diagnostics/status.txt", _setup_status_text(addon))
+        _zip_file_if_exists(zip_handle, os.path.join(log_dir, "kodi.log"), "logs/kodi.log")
+        _zip_file_if_exists(zip_handle, os.path.join(log_dir, "kodi.old.log"), "logs/kodi.old.log")
+        _zip_file_if_exists(
+            zip_handle,
+            _translate_path(ADVANCEDSETTINGS_PATH),
+            "profile/advancedsettings.xml",
+        )
+        _zip_file_if_exists(
+            zip_handle,
+            _translate_path("special://profile/addon_data/%s/settings.xml" % ADDON_ID),
+            "profile/addon_data/%s/settings.xml" % ADDON_ID,
+        )
+        _zip_keymap_files(zip_handle)
+
+    _set_timestamp(addon, "last_debug_bundle", True)
+    return "Debug bundle exported to:\n%s" % bundle_path
+
+
 def _launch_widget_importer(addon):
     if not _addon_installed(WIDGET_IMPORTER_ADDON_ID):
         if not xbmcgui.Dialog().yesno(
@@ -1926,6 +2306,79 @@ def _run_install_all_step(messages, label, install_func):
         return False
 
 
+def _run_progress_action(progress_title, progress_message, action_func):
+    progress = xbmcgui.DialogProgress()
+    progress.create("Kodi Setup Kit", progress_message)
+    try:
+        message = action_func()
+        progress.update(100, "Done")
+        progress.close()
+        xbmcgui.Dialog().ok(progress_title, message)
+    except Exception as exc:
+        progress.close()
+        _log("Action failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
+        _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+
+
+def _run_utility_action(action, addon):
+    if action == "show_setup_status":
+        _set_timestamp(addon, "last_status_check")
+        _show_text("Kodi Setup Kit status", _setup_status_text(addon))
+        return
+
+    if action == "export_debug_bundle":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Exporting debug bundle...",
+            lambda: _export_debug_bundle(addon),
+        )
+        return
+
+    if action == "clear_thumbnail_cache":
+        if not _confirm_clear_thumbnail_cache():
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Clearing thumbnail cache...",
+            lambda: _clear_thumbnail_cache(addon),
+        )
+        return
+
+    if action == "clear_package_cache":
+        if not _confirm_clear_package_cache():
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Clearing add-on package cache...",
+            lambda: _clear_package_cache(addon),
+        )
+        return
+
+    if action == "clean_setup_backups":
+        if not _confirm_clean_setup_backups():
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Cleaning Setup Kit backups...",
+            lambda: _clean_setup_backups(addon),
+        )
+        return
+
+    if action == "reload_skin":
+        if not xbmcgui.Dialog().yesno("Kodi Setup Kit", "Reload the active Kodi skin now?"):
+            return
+        _notify(_reload_skin(addon))
+        return
+
+    if action == "restart_kodi":
+        if not xbmcgui.Dialog().yesno("Kodi Setup Kit", "Restart Kodi now?"):
+            return
+        _notify(_restart_kodi(addon))
+        return
+
+    _show_menu(UTILITIES_MENU_ITEMS)
+
+
 def _run_action(action):
     if action == "menu_guisettings":
         _show_menu(GUISETTINGS_MENU_ITEMS)
@@ -1933,6 +2386,10 @@ def _run_action(action):
 
     if action == "menu_skinsettings":
         _show_menu(SKINSETTINGS_MENU_ITEMS)
+        return
+
+    if action == "menu_utilities":
+        _show_menu(UTILITIES_MENU_ITEMS)
         return
 
     if action not in (
@@ -1956,11 +2413,15 @@ def _run_action(action):
         "restore_skinsettings_url",
         "restore_skinsettings_builtin",
         "install_all",
-    ):
+    ) + UTILITY_ACTIONS:
         _show_menu()
         return
 
     addon = _addon()
+
+    if action in UTILITY_ACTIONS:
+        _run_utility_action(action, addon)
+        return
 
     if action == "install_cocoscrapers":
         progress = xbmcgui.DialogProgress()
