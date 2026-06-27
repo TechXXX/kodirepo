@@ -1,6 +1,6 @@
 # Kodi Repo Agent Handover
 
-Last updated: 2026-06-22.
+Last updated: 2026-06-27.
 
 This is the broad handover for future agents taking over Fen Light Patched,
 TMDb Helper Patched, a4kSubtitles Patched, and nearby Kodi debugging work in
@@ -11,6 +11,7 @@ this repo. Read this with:
 - `plugin.video.themoviedb.helper.patched/Readme.md`
 - `service.subtitles.a4ksubtitles.patched/README.md`
 - `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
+- `KODI_SETUP_KIT_HANDOVER.md`
 
 ## Repo Shape
 
@@ -31,6 +32,20 @@ Useful scripts:
 - `scripts/build_repo.py`
 - `scripts/publish_addon_update.py`
 - `scripts/README.md`
+
+## Kodi Setup Kit / famYT
+
+`plugin.program.famyt` is now user-facing as Kodi Setup Kit. It is the private
+family bootstrap add-on for YouTube credentials, TorBox, a4kSubtitles Patched,
+Cocoscrapers filters, sources, keymaps, GUI/skin/Fen Light presets, and cleanup
+utilities.
+
+Read `KODI_SETUP_KIT_HANDOVER.md` before changing it. That document captures
+the current Vercel bridge contract, `Install everything` order, preset storage,
+secret boundary, live-testing paths, and the key ordering footguns. In short:
+do not put secrets in this repo, keep Vercel as the private credential source,
+restore Fen Light/a4k presets before installing their credentials, and preserve
+the `[ALL]` menu marking for items included in `Install everything`.
 
 ## Maintainer Role Boundary
 

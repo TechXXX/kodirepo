@@ -121,9 +121,11 @@ Current source-tree versions when this document was updated:
   from attaching to videos launched by other add-ons.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `plugin.program.famyt` `0.4.2`
-  Private family setup helper. It contains no credentials; operational notes
-  are kept outside the public repository.
+- `plugin.program.famyt` `0.9.15`
+  Kodi Setup Kit, the private family bootstrap helper. It contains no
+  credentials; the matching Vercel bridge supplies YouTube, TorBox,
+  a4kSubtitles, and Kodi webserver secrets after the shared password is
+  provided. Read `KODI_SETUP_KIT_HANDOVER.md` before changing its install flow.
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
@@ -176,8 +178,8 @@ Current source-tree versions when this document was updated:
 - `service.kodi.favourites.sync/`
   Favourites sync service source.
 - `plugin.program.famyt/`
-  Private family setup helper source. Credentials are not stored in this
-  repository.
+  Kodi Setup Kit source. Credentials are not stored in this repository; the
+  matching Vercel bridge is documented in `KODI_SETUP_KIT_HANDOVER.md`.
 - `plugin.program.autocompletion/`
   Bundled virtual keyboard autocomplete helper source.
 - `script.module.autocompletion/`
@@ -205,15 +207,16 @@ For selector, AI-search, or packaging work in this repo, read:
 1. `README.md`
 2. `AGENT_HANDOVER.md`
 3. `scripts/README.md`
-4. `plugin.video.fenlight.patched/README.md`
-5. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
-6. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
-7. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
-8. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
-9. `service.subtitles.a4ksubtitles.patched/README.md`
-10. `plugin.video.themoviedb.helper.patched/Readme.md`
-11. `skin.arctic.horizon.2.patched/Readme.md`
-12. `skin.arctic.horizon.2.1/Readme.md`
+4. `KODI_SETUP_KIT_HANDOVER.md`
+5. `plugin.video.fenlight.patched/README.md`
+6. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
+7. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+8. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+9. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
+10. `service.subtitles.a4ksubtitles.patched/README.md`
+11. `plugin.video.themoviedb.helper.patched/Readme.md`
+12. `skin.arctic.horizon.2.patched/Readme.md`
+13. `skin.arctic.horizon.2.1/Readme.md`
 
 ## Fen / a4k / TMDb Helper Handoff
 
