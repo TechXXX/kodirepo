@@ -1,0 +1,24 @@
+<settings version="2">
+    <setting id="general.timeout">5</setting>
+    <setting id="general.results_limit" default="true">20</setting>
+    <setting id="general.auto_search">true</setting>
+    <setting id="general.auto_download">true</setting>
+    <setting id="general.use_chardet" default="true">true</setting>
+    <setting id="general.auto_select" default="true">true</setting>
+    <setting id="general.prefer_sdh" default="true">false</setting>
+    <setting id="general.prefer_forced">false</setting>
+    <setting id="general.ai_api_key" />
+    <setting id="general.use_ai" default="true">false</setting>
+    <setting id="general.ai_provider" default="true">0</setting>
+    <setting id="general.ai_model" default="true">gpt-4.1-mini-2025-04-14</setting>
+    <setting id="addic7ed.enabled">false</setting>
+    <setting id="bsplayer.enabled">false</setting>
+    <setting id="opensubtitles.enabled" default="true">true</setting>
+    <setting id="podnadpisi.enabled">false</setting>
+    <setting id="subdl.enabled">false</setting>
+    <setting id="subsource.enabled">false</setting>
+    <setting id="opensubtitles.username" />
+    <setting id="opensubtitles.password" />
+    <setting id="subdl.apikey" />
+    <setting id="subsource.apikey" />
+</settings>

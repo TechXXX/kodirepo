@@ -94,7 +94,14 @@ FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
 )
+A4KSUBTITLES_ADDON_LABELS = {
+    "service.subtitles.a4ksubtitles.patched": "a4kSubtitles Patched",
+}
 A4KSUBTITLES_AI_MODEL = "gpt-4.1-mini-2025-04-14"
+A4KSUBTITLES_SETTINGS_XML = "settings.xml"
+A4KSUBTITLES_BUILTIN_PRESETS_DIR = os.path.join("resources", "a4ksubtitlessettings", "presets")
+A4KSUBTITLES_SAVED_PRESETS_DIR = os.path.join("presets", "a4ksubtitlessettings")
+A4KSUBTITLES_BACKUP_DIR = os.path.join("backups", "a4ksubtitlessettings")
 COCOSCRAPERS_ADDON_IDS = (
     "script.module.cocoscrapers",
 )
@@ -114,6 +121,7 @@ MENU_ITEMS = (
     ("Install YouTube credentials", "install_youtube"),
     ("Install TorBox API key and Manifest URL", "install_torbox"),
     ("Install a4kSubtitles settings", "install_a4ksubtitles"),
+    ("a4kSubtitles backup/restore", "menu_a4ksubtitlessettings", True),
     ("Install Cocoscrapers filters", "install_cocoscrapers"),
     ("Install Kodi network advanced settings", "install_advanced_network"),
     ("Install Kodi keymaps", "install_keymaps"),
@@ -150,6 +158,14 @@ FENLIGHTSETTINGS_MENU_ITEMS = (
     ("Rename Fen Light settings preset", "rename_fenlightsettings_preset"),
     ("Delete Fen Light settings preset", "delete_fenlightsettings_preset"),
     ("Restore Fen Light settings preset", "restore_fenlightsettings_builtin"),
+)
+
+A4KSUBTITLESSETTINGS_MENU_ITEMS = (
+    ("Back up a4kSubtitles settings", "backup_a4ksubtitlessettings"),
+    ("Save current a4kSubtitles settings as preset", "save_a4ksubtitlessettings_preset"),
+    ("Rename a4kSubtitles settings preset", "rename_a4ksubtitlessettings_preset"),
+    ("Delete a4kSubtitles settings preset", "delete_a4ksubtitlessettings_preset"),
+    ("Restore a4kSubtitles settings preset", "restore_a4ksubtitlessettings_builtin"),
 )
 
 SKINSETTINGS_MENU_ITEMS = (
@@ -1775,6 +1791,306 @@ def _restore_fenlight_settings_message(source_label, result):
     return message
 
 
+def _a4ksubtitles_label(addon_id):
+    return A4KSUBTITLES_ADDON_LABELS.get(addon_id, addon_id)
+
+
+def _a4ksubtitles_settings_path(data_path):
+    return os.path.join(data_path, A4KSUBTITLES_SETTINGS_XML)
+
+
+def _a4ksubtitles_targets(include_missing=False):
+    targets = []
+    for addon_id in A4KSUBTITLES_ADDON_IDS:
+        data_path = _addon_data_path(addon_id)
+        settings_path = _a4ksubtitles_settings_path(data_path)
+        if (
+            include_missing
+            or _addon_installed(addon_id)
+            or os.path.exists(settings_path)
+            or os.path.isdir(data_path)
+        ):
+            targets.append((addon_id, _a4ksubtitles_label(addon_id), data_path))
+    return targets
+
+
+def _prompt_a4ksubtitles_target():
+    targets = _a4ksubtitles_targets()
+    if not targets:
+        targets = _a4ksubtitles_targets(include_missing=True)
+    labels = ["%s (%s)" % (target[1], target[0]) for target in targets]
+    index = xbmcgui.Dialog().select("a4kSubtitles settings target", labels)
+    if index < 0:
+        return None
+    return targets[index]
+
+
+def _parse_a4ksubtitles_payload(payload):
+    try:
+        root = ET.fromstring(payload)
+    except Exception as exc:
+        raise RuntimeError("a4kSubtitles settings XML is invalid: %s" % exc)
+    if root.tag != "settings":
+        raise RuntimeError("a4kSubtitles settings XML must have a <settings> root.")
+    if not root.findall("./setting"):
+        raise RuntimeError("a4kSubtitles settings XML does not contain any <setting> entries.")
+    return root
+
+
+def _a4ksubtitles_backup_path(addon_id, prefix):
+    backup_dir = _addon_data_dir(A4KSUBTITLES_BACKUP_DIR)
+    safe_addon_id = addon_id.replace(".", "-")
+    filename = "%s-%s-%s.xml" % (safe_addon_id, prefix, _utc_timestamp())
+    return os.path.join(backup_dir, filename)
+
+
+def _backup_one_a4ksubtitles_settings(addon_id, source_path, prefix):
+    if not os.path.exists(source_path):
+        raise RuntimeError("%s settings.xml was not found." % _a4ksubtitles_label(addon_id))
+    with io.open(source_path, "rb") as handle:
+        _parse_a4ksubtitles_payload(handle.read())
+    target_path = _a4ksubtitles_backup_path(addon_id, prefix)
+    _copy_binary_file(source_path, target_path)
+    _log("Backed up %s a4kSubtitles settings to %s" % (addon_id, target_path))
+    return target_path
+
+
+def _backup_current_a4ksubtitles_settings():
+    backups = []
+    for addon_id, label, data_path in _a4ksubtitles_targets():
+        source_path = _a4ksubtitles_settings_path(data_path)
+        if not os.path.exists(source_path):
+            continue
+        backups.append((addon_id, label, _backup_one_a4ksubtitles_settings(addon_id, source_path, "settings")))
+    if not backups:
+        raise RuntimeError("No a4kSubtitles settings.xml files were found in this Kodi profile.")
+    return backups
+
+
+def _a4ksubtitles_preset_has_payload(preset_dir):
+    for addon_id in A4KSUBTITLES_ADDON_IDS:
+        if os.path.exists(os.path.join(preset_dir, addon_id, A4KSUBTITLES_SETTINGS_XML)):
+            return True
+    return os.path.exists(os.path.join(preset_dir, A4KSUBTITLES_SETTINGS_XML))
+
+
+def _a4ksubtitles_builtin_presets():
+    presets = []
+    root_dir = _addon_resource_path(A4KSUBTITLES_BUILTIN_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _a4ksubtitles_preset_has_payload):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+    return presets
+
+
+def _a4ksubtitles_saved_presets():
+    presets = []
+    root_dir = _addon_data_dir(A4KSUBTITLES_SAVED_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _a4ksubtitles_preset_has_payload):
+        presets.append(
+            {
+                "origin": "saved",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+    return presets
+
+
+def _a4ksubtitles_presets():
+    return _a4ksubtitles_builtin_presets() + _a4ksubtitles_saved_presets()
+
+
+def _prompt_a4ksubtitles_preset():
+    return _prompt_preset(_a4ksubtitles_presets(), "a4kSubtitles settings preset")
+
+
+def _a4ksubtitles_preset_payloads(preset):
+    payloads = []
+    preset_dir = preset["dir"]
+    for addon_id in A4KSUBTITLES_ADDON_IDS:
+        settings_path = os.path.join(preset_dir, addon_id, A4KSUBTITLES_SETTINGS_XML)
+        if not os.path.exists(settings_path):
+            continue
+        with io.open(settings_path, "rb") as handle:
+            _parse_a4ksubtitles_payload(handle.read())
+        payloads.append((addon_id, settings_path))
+
+    legacy_path = os.path.join(preset_dir, A4KSUBTITLES_SETTINGS_XML)
+    if not payloads and os.path.exists(legacy_path):
+        with io.open(legacy_path, "rb") as handle:
+            _parse_a4ksubtitles_payload(handle.read())
+        payloads.append(("", legacy_path))
+
+    if not payloads:
+        raise RuntimeError("a4kSubtitles settings preset is missing settings.xml.")
+    return payloads
+
+
+def _choose_a4ksubtitles_payload(preset, target):
+    payloads = _a4ksubtitles_preset_payloads(preset)
+    target_addon_id = target[0]
+    for payload in payloads:
+        if payload[0] == target_addon_id:
+            return payload
+    if len(payloads) == 1:
+        return payloads[0]
+
+    labels = ["%s (%s)" % (_a4ksubtitles_label(addon_id), addon_id) for addon_id, _path in payloads]
+    index = xbmcgui.Dialog().select("a4kSubtitles preset source", labels)
+    if index < 0:
+        return None
+    return payloads[index]
+
+
+def _apply_a4ksubtitles_settings_live(addon_id, root):
+    try:
+        subtitle_addon = xbmcaddon.Addon(addon_id)
+    except Exception:
+        return 0, 0
+
+    applied = 0
+    failed = 0
+    for node in root.findall("./setting"):
+        setting_id = node.get("id")
+        if not setting_id:
+            continue
+        value = node.text if node.text is not None else ""
+        try:
+            _set_setting(subtitle_addon, setting_id, value)
+            applied += 1
+        except Exception:
+            failed += 1
+    return applied, failed
+
+
+def _write_a4ksubtitles_payload(target, source_path, source_label):
+    addon_id, label, data_path = target
+    with io.open(source_path, "rb") as handle:
+        payload = handle.read()
+    root = _parse_a4ksubtitles_payload(payload)
+    if not os.path.isdir(data_path):
+        os.makedirs(data_path)
+
+    settings_path = _a4ksubtitles_settings_path(data_path)
+    backup_path = ""
+    if os.path.exists(settings_path):
+        backup_path = _backup_one_a4ksubtitles_settings(addon_id, settings_path, "settings-before-restore")
+
+    applied, failed = _apply_a4ksubtitles_settings_live(addon_id, root)
+    _write_binary_payload(settings_path, payload)
+    _clear_a4ksubtitles_tokens(data_path)
+
+    _log("Restored %s a4kSubtitles settings from %s to %s" % (addon_id, source_label, settings_path))
+    return {
+        "addon_id": addon_id,
+        "label": label,
+        "settings_path": settings_path,
+        "backup_path": backup_path,
+        "applied": applied,
+        "failed": failed,
+        "row_count": len(root.findall("./setting")),
+    }
+
+
+def _save_a4ksubtitles_preset(addon, preset_name):
+    preset_id = _preset_id_from_name(preset_name)
+    payloads = []
+    for addon_id, label, data_path in _a4ksubtitles_targets():
+        settings_path = _a4ksubtitles_settings_path(data_path)
+        if not os.path.exists(settings_path):
+            continue
+        with io.open(settings_path, "rb") as handle:
+            _parse_a4ksubtitles_payload(handle.read())
+        payloads.append((addon_id, label, settings_path))
+
+    if not payloads:
+        raise RuntimeError("No a4kSubtitles settings.xml files were found in this Kodi profile.")
+
+    roots = (
+        (
+            "built-in",
+            _addon_resource_path(A4KSUBTITLES_BUILTIN_PRESETS_DIR, preset_id),
+        ),
+        (
+            "saved",
+            _addon_data_dir(A4KSUBTITLES_SAVED_PRESETS_DIR, preset_id),
+        ),
+    )
+
+    def writer(preset_dir):
+        for addon_id, _label, settings_path in payloads:
+            _copy_binary_file(
+                settings_path,
+                os.path.join(preset_dir, addon_id, A4KSUBTITLES_SETTINGS_XML),
+            )
+
+    saved, errors = _save_payload_to_roots(roots, preset_id, preset_name, "a4ksubtitlessettings", writer)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_preset_save", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "a4kSubtitles settings preset saved as %s for: %s." % (
+        preset_name,
+        ", ".join(label for _addon_id, label, _settings_path in payloads),
+    )
+    message += "\n\nSaved locations: %s" % ", ".join(origin for origin, _path in saved)
+    if errors:
+        message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
+    return message
+
+
+def _rename_a4ksubtitles_preset(addon, preset, new_name):
+    _rename_preset(preset, new_name, "a4ksubtitlessettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "a4kSubtitles settings preset renamed to %s." % new_name
+
+
+def _delete_a4ksubtitles_preset(addon, preset):
+    _delete_preset(preset, "a4ksubtitlessettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "a4kSubtitles settings preset deleted: %s." % preset["name"]
+
+
+def _confirm_a4ksubtitles_restore(source_label, target_label):
+    return _yesno(
+        "Kodi Setup Kit",
+        (
+            "Restore a4kSubtitles settings from %s to %s?\n\n"
+            "The current settings.xml will be backed up first.\n\n"
+            "Cached OpenSubtitles tokens will be cleared."
+        )
+        % (source_label, target_label),
+        yes_label="Restore",
+        no_label="Cancel",
+    )
+
+
+def _restore_a4ksubtitles_message(source_label, result):
+    message = "a4kSubtitles settings restored from %s to %s." % (
+        source_label,
+        result["label"],
+    )
+    message += "\n\nSettings restored: %s" % result["row_count"]
+    message += "\nLive settings applied: %s" % result["applied"]
+    if result["failed"]:
+        message += " (%s could not be applied live)." % result["failed"]
+    if result["backup_path"]:
+        message += "\n\nBackup saved to: %s" % result["backup_path"]
+    return message
+
+
 def _skin_settings_path(data_path):
     return os.path.join(data_path, "settings.xml")
 
@@ -2767,6 +3083,24 @@ def _fenlight_settings_status():
     return "; ".join(statuses)
 
 
+def _a4ksubtitles_settings_status():
+    statuses = []
+    for addon_id, label, data_path in _a4ksubtitles_targets():
+        settings_path = _a4ksubtitles_settings_path(data_path)
+        if not os.path.exists(settings_path):
+            statuses.append("%s: missing" % label)
+            continue
+        try:
+            with io.open(settings_path, "rb") as handle:
+                root = _parse_a4ksubtitles_payload(handle.read())
+            statuses.append("%s: %s setting(s)" % (label, len(root.findall("./setting"))))
+        except Exception as exc:
+            statuses.append("%s: invalid: %s" % (label, exc))
+    if not statuses:
+        return "not found"
+    return "; ".join(statuses)
+
+
 def _cache_status(path, label):
     stats = _directory_contents_stats(_translate_path(path))
     return "%s: %s file(s), %s folder(s), %s" % (
@@ -2804,6 +3138,8 @@ def _setup_status_text(addon):
         ("Sources restore", "last_sources_restore"),
         ("Fen Light settings backup", "last_fenlightsettings_backup"),
         ("Fen Light settings restore", "last_fenlightsettings_restore"),
+        ("a4kSubtitles settings backup", "last_a4ksubtitlessettings_backup"),
+        ("a4kSubtitles settings restore", "last_a4ksubtitlessettings_restore"),
         ("Thumbnails cleared", "last_thumbnail_clear"),
         ("Package cache cleared", "last_package_cache_clear"),
         ("Backups cleaned", "last_backup_cleanup"),
@@ -2815,6 +3151,7 @@ def _setup_status_text(addon):
         "Keymaps: %s" % _bundled_keymaps_status(),
         "Sources: %s" % _sources_status(),
         "Fen Light settings: %s" % _fenlight_settings_status(),
+        "a4kSubtitles settings: %s" % _a4ksubtitles_settings_status(),
         _thumbnail_status(),
         _cache_status(PACKAGES_CACHE_PATH, "Package cache"),
         "",
@@ -2981,6 +3318,27 @@ def _restore_fenlight_settings_preset(addon, preset, target):
     return _restore_fenlight_settings_message(_preset_label(preset), result)
 
 
+def _backup_a4ksubtitles_settings(addon):
+    backups = _backup_current_a4ksubtitles_settings()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_backup", now)
+    _set_setting(addon, "last_install", now)
+    labels = [backup[1] for backup in backups]
+    return "a4kSubtitles settings backed up for: %s." % ", ".join(labels)
+
+
+def _restore_a4ksubtitles_preset(addon, preset, target):
+    payload = _choose_a4ksubtitles_payload(preset, target)
+    if payload is None:
+        raise RuntimeError("a4kSubtitles settings restore was canceled.")
+    _source_addon_id, source_path = payload
+    result = _write_a4ksubtitles_payload(target, source_path, _preset_label(preset))
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_a4ksubtitles_message(_preset_label(preset), result)
+
+
 def _backup_skin_settings(addon):
     backups = _backup_current_skin_settings()
     now = datetime.datetime.utcnow().isoformat() + "Z"
@@ -3097,6 +3455,10 @@ def _run_action(action):
         _show_menu(FENLIGHTSETTINGS_MENU_ITEMS)
         return
 
+    if action == "menu_a4ksubtitlessettings":
+        _show_menu(A4KSUBTITLESSETTINGS_MENU_ITEMS)
+        return
+
     if action == "menu_skinsettings":
         _show_menu(SKINSETTINGS_MENU_ITEMS)
         return
@@ -3130,6 +3492,11 @@ def _run_action(action):
         "rename_fenlightsettings_preset",
         "delete_fenlightsettings_preset",
         "restore_fenlightsettings_builtin",
+        "backup_a4ksubtitlessettings",
+        "save_a4ksubtitlessettings_preset",
+        "rename_a4ksubtitlessettings_preset",
+        "delete_a4ksubtitlessettings_preset",
+        "restore_a4ksubtitlessettings_builtin",
         "backup_skinsettings",
         "save_skinsettings_preset",
         "rename_skinsettings_preset",
@@ -3434,6 +3801,67 @@ def _run_action(action):
             "Kodi Setup Kit",
             "Restoring Fen Light settings preset...",
             lambda: _restore_fenlight_settings_preset(addon, preset, target),
+        )
+        return
+
+    if action == "backup_a4ksubtitlessettings":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Backing up a4kSubtitles settings...",
+            lambda: _backup_a4ksubtitles_settings(addon),
+        )
+        return
+
+    if action == "save_a4ksubtitlessettings_preset":
+        preset_name = _prompt_preset_name("a4kSubtitles settings")
+        if not preset_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Saving a4kSubtitles settings preset...",
+            lambda: _save_a4ksubtitles_preset(addon, preset_name),
+        )
+        return
+
+    if action == "rename_a4ksubtitlessettings_preset":
+        preset = _prompt_a4ksubtitles_preset()
+        if preset is None:
+            return
+        new_name = _prompt_preset_name("New a4kSubtitles settings")
+        if not new_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Renaming a4kSubtitles settings preset...",
+            lambda: _rename_a4ksubtitles_preset(addon, preset, new_name),
+        )
+        return
+
+    if action == "delete_a4ksubtitlessettings_preset":
+        preset = _prompt_a4ksubtitles_preset()
+        if preset is None or not _confirm_delete_preset(preset):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Deleting a4kSubtitles settings preset...",
+            lambda: _delete_a4ksubtitles_preset(addon, preset),
+        )
+        return
+
+    if action == "restore_a4ksubtitlessettings_builtin":
+        preset = _prompt_a4ksubtitles_preset()
+        if preset is None:
+            return
+        target = _prompt_a4ksubtitles_target()
+        if target is None:
+            return
+        preset_label = _preset_label(preset)
+        if not _confirm_a4ksubtitles_restore(preset_label, target[1]):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring a4kSubtitles settings preset...",
+            lambda: _restore_a4ksubtitles_preset(addon, preset, target),
         )
         return
 
