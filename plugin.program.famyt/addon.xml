@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.6"
+       version="0.9.7"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.6
+<news>v0.9.7
+- Fix confirmation dialogs so warning text is readable in Kodi skins
+
+v0.9.6
 - Add Utilities menu with cache cleanup, status, debug export, skin reload, and restart actions
 
 v0.9.5

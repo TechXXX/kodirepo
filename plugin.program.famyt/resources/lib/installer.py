@@ -190,6 +190,17 @@ def _show_text(heading, text):
     dialog.ok(heading, text)
 
 
+def _yesno(heading, message, yes_label="Yes", no_label="No"):
+    dialog = xbmcgui.Dialog()
+    try:
+        return dialog.yesno(heading, message, nolabel=no_label, yeslabel=yes_label)
+    except TypeError:
+        try:
+            return dialog.yesno(heading, message, no_label, yes_label)
+        except TypeError:
+            return dialog.yesno(heading, message)
+
+
 def _plugin_handle():
     try:
         return int(sys.argv[1])
@@ -810,11 +821,16 @@ def _delete_preset(preset, preset_type):
 
 
 def _confirm_delete_preset(preset):
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Delete preset %s?" % _preset_label(preset),
-        "This removes that preset from %s storage." % preset["origin"],
-        "It does not change current Kodi settings.",
+        (
+            "Delete preset %s?\n\n"
+            "This removes that preset from %s storage.\n\n"
+            "It does not change current Kodi settings."
+        )
+        % (_preset_label(preset), preset["origin"]),
+        yes_label="Delete",
+        no_label="Cancel",
     )
 
 
@@ -1170,11 +1186,16 @@ def _prompt_guisettings_url():
 
 
 def _confirm_guisettings_restore(source_label):
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Restore Kodi GUI settings from %s?" % source_label,
-        "The current guisettings.xml will be backed up first.",
-        "Restart Kodi immediately after restore.",
+        (
+            "Restore Kodi GUI settings from %s?\n\n"
+            "The current guisettings.xml will be backed up first.\n\n"
+            "Restart Kodi immediately after restore."
+        )
+        % source_label,
+        yes_label="Restore",
+        no_label="Cancel",
     )
 
 
@@ -1422,11 +1443,16 @@ def _prompt_skin_settings_url():
 
 
 def _confirm_skin_settings_restore(source_label):
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Restore skin settings from %s?" % source_label,
-        "DutchTech Fuse 3 / Arctic Horizon 2 settings will be backed up first.",
-        "Restart Kodi or reload the skin after restore.",
+        (
+            "Restore skin settings from %s?\n\n"
+            "DutchTech Fuse 3 / Arctic Horizon 2 settings will be backed up first.\n\n"
+            "Restart Kodi or reload the skin after restore."
+        )
+        % source_label,
+        yes_label="Restore",
+        no_label="Cancel",
     )
 
 
@@ -2017,29 +2043,41 @@ def _is_setup_backup_name(name):
 
 
 def _confirm_clear_thumbnail_cache():
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Clear Kodi thumbnail cache?",
-        "This deletes cached artwork in Thumbnails and Textures*.db.",
-        "Kodi will rebuild artwork afterward; restart Kodi when this finishes.",
+        (
+            "Clear Kodi thumbnail cache?\n\n"
+            "This deletes cached artwork in Thumbnails and Textures*.db.\n\n"
+            "Kodi will rebuild artwork afterward. Restart Kodi when this finishes."
+        ),
+        yes_label="Clear",
+        no_label="Cancel",
     )
 
 
 def _confirm_clear_package_cache():
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Clear Kodi add-on package cache?",
-        "This deletes cached add-on ZIP downloads from addons/packages.",
-        "Installed add-ons are not removed.",
+        (
+            "Clear Kodi add-on package cache?\n\n"
+            "This deletes cached add-on ZIP downloads from addons/packages.\n\n"
+            "Installed add-ons are not removed."
+        ),
+        yes_label="Clear",
+        no_label="Cancel",
     )
 
 
 def _confirm_clean_setup_backups():
-    return xbmcgui.Dialog().yesno(
+    return _yesno(
         "Kodi Setup Kit",
-        "Clean Setup Kit backups?",
-        "This deletes backups created by Kodi Setup Kit.",
-        "Current Kodi settings and saved presets are not removed.",
+        (
+            "Clean Setup Kit backups?\n\n"
+            "This deletes backups created by Kodi Setup Kit.\n\n"
+            "Current Kodi settings and saved presets are not removed."
+        ),
+        yes_label="Clean",
+        no_label="Cancel",
     )
 
 
@@ -2236,10 +2274,11 @@ def _export_debug_bundle(addon):
 
 def _launch_widget_importer(addon):
     if not _addon_installed(WIDGET_IMPORTER_ADDON_ID):
-        if not xbmcgui.Dialog().yesno(
+        if not _yesno(
             "Kodi Setup Kit",
-            "KodiSkin Widget Importer is not installed.",
-            "Open Kodi's installer for it now?",
+            "KodiSkin Widget Importer is not installed.\n\nOpen Kodi's installer for it now?",
+            yes_label="Open",
+            no_label="Cancel",
         ):
             return "KodiSkin Widget Importer was not opened."
         xbmc.executebuiltin("InstallAddon(%s)" % WIDGET_IMPORTER_ADDON_ID)
@@ -2365,13 +2404,23 @@ def _run_utility_action(action, addon):
         return
 
     if action == "reload_skin":
-        if not xbmcgui.Dialog().yesno("Kodi Setup Kit", "Reload the active Kodi skin now?"):
+        if not _yesno(
+            "Kodi Setup Kit",
+            "Reload the active Kodi skin now?",
+            yes_label="Reload",
+            no_label="Cancel",
+        ):
             return
         _notify(_reload_skin(addon))
         return
 
     if action == "restart_kodi":
-        if not xbmcgui.Dialog().yesno("Kodi Setup Kit", "Restart Kodi now?"):
+        if not _yesno(
+            "Kodi Setup Kit",
+            "Restart Kodi now?",
+            yes_label="Restart",
+            no_label="Cancel",
+        ):
             return
         _notify(_restart_kodi(addon))
         return
