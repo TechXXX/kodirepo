@@ -24,7 +24,7 @@ def rd_cloud():
 				cm_append = cm.append
 				folder_name, folder_id = item['filename'], item['id']
 				clean_folder_name = clean_file_name(normalize(folder_name)).upper()
-				display = '%02d | [B]FOLDER[/B] | [I]%s [/I]' % (count, clean_folder_name)
+				display = '%02d | [I]%s [/I]' % (count, clean_folder_name)
 				url_params = {'mode': 'real_debrid.browse_rd_cloud', 'id': folder_id}
 				delete_params = {'mode': 'real_debrid.delete', 'id': folder_id, 'cache_type': 'torrent'}
 				cm_append(('[B]Delete Folder[/B]','RunPlugin(%s)' % build_url(delete_params)))

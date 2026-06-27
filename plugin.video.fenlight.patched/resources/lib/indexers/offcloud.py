@@ -24,7 +24,7 @@ def oc_cloud():
 				request_id, folder_name, server = item['requestId'], item['fileName'], item['server']
 				delete_params = {'mode': 'offcloud.delete', 'folder_id': request_id}
 				if is_folder:
-					display = '%02d | [B]FOLDER[/B] | [I]%s [/I]' % (count, clean_file_name(normalize(folder_name)).upper())
+					display = '%02d | [I]%s [/I]' % (count, clean_file_name(normalize(folder_name)).upper())
 					url_params = {'mode': 'offcloud.browse_oc_cloud', 'folder_id': request_id}
 					cm_append(('[B]Delete Folder[/B]', 'RunPlugin(%s)' % build_url(delete_params)))
 				else:

@@ -23,7 +23,7 @@ def ad_cloud(folder_id=None):
 				cm = []
 				folder_name, folder_id = item['filename'], item['id']
 				clean_folder_name = clean_file_name(normalize(folder_name)).upper()
-				display = '%02d | [B]FOLDER[/B] | [I]%s [/I]' % (count, clean_folder_name)
+				display = '%02d | [I]%s [/I]' % (count, clean_folder_name)
 				url_params = {'mode': 'alldebrid.browse_ad_cloud', 'id': folder_id, 'folder': json.dumps(item['links'])}
 				delete_params = {'mode': 'alldebrid.delete', 'id': folder_id}
 				cm.append(('[B]Delete Folder[/B]','RunPlugin(%s)' % build_url(delete_params)))

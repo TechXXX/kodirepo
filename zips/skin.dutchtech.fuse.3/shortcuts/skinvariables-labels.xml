@@ -52,15 +52,14 @@
         <value condition="!String.IsEmpty({listitem}.Genre)">$INFO[{listitem}.Genre]</value>
         <value condition="!String.IsEmpty({listitem}.Premiered)">$INFO[{listitem}.Premiered]</value>
         <value condition="!String.IsEmpty({listitem}.PictureResolution)">$INFO[{listitem}.PictureResolution]</value>
-        <value condition="!String.IsEmpty({listitem}.Label2)">$INFO[{listitem}.Label2]</value>
+        <value condition="!String.IsEmpty({listitem}.Label2) + !{listitem}.IsFolder">$INFO[{listitem}.Label2]</value>
         <value condition="!String.IsEmpty({listitem}.Date)">$INFO[{listitem}.Date]</value>
         <value condition="!String.IsEmpty({listitem}.AddonType)">$INFO[{listitem}.AddonType]</value>
         <value condition="!String.IsEmpty({listitem}.AddonVersion)">$INFO[{listitem}.AddonVersion]</value>
         <value condition="!String.IsEmpty({listitem}.DBType)">$INFO[{listitem}.DBType,[CAPITALIZE],[/CAPITALIZE]]</value>
         <value condition="!String.IsEmpty({listitem}.Property(widget))">$INFO[{listitem}.Property(widget)]</value>
         <value condition="!String.IsEmpty({listitem}.ChannelNumberLabel)">$LOCALIZE[19029]</value>
-        <value condition="{listitem}.IsFolder">$LOCALIZE[19076]</value>
-        <value>$LOCALIZE[31025]</value>
+        <value condition="!{listitem}.IsFolder">$LOCALIZE[31025]</value>
     </variable>
 
         <variable name="Label_Directing" containers="7000">

@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.90">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.91">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -19,7 +19,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.90]:
+        <news>[v2.0.91]:
+  * Tidy debrid cloud folder rows by removing the redundant FOLDER label from folder names.
+
+[v2.0.90]:
   * Add local decade and provider artwork for navigator menus, with poster art support where available.
 
 [v2.0.89]:

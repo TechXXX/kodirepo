@@ -668,15 +668,14 @@
         <value condition="!String.IsEmpty(Container(450).ListItem.Genre)">$INFO[Container(450).ListItem.Genre]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.Premiered)">$INFO[Container(450).ListItem.Premiered]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.PictureResolution)">$INFO[Container(450).ListItem.PictureResolution]</value>
-        <value condition="!String.IsEmpty(Container(450).ListItem.Label2)">$INFO[Container(450).ListItem.Label2]</value>
+        <value condition="!String.IsEmpty(Container(450).ListItem.Label2) + !Container(450).ListItem.IsFolder">$INFO[Container(450).ListItem.Label2]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.Date)">$INFO[Container(450).ListItem.Date]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.AddonType)">$INFO[Container(450).ListItem.AddonType]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.AddonVersion)">$INFO[Container(450).ListItem.AddonVersion]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.DBType)">$INFO[Container(450).ListItem.DBType,[CAPITALIZE],[/CAPITALIZE]]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.Property(widget))">$INFO[Container(450).ListItem.Property(widget)]</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.ChannelNumberLabel)">$LOCALIZE[19029]</value>
-        <value condition="Container(450).ListItem.IsFolder">$LOCALIZE[19076]</value>
-        <value condition="True">$LOCALIZE[31025]</value>
+        <value condition="!Container(450).ListItem.IsFolder">$LOCALIZE[31025]</value>
     </variable>
     <variable name="Label_Landscape_Lower">
         <value condition="!String.IsEmpty(ListItem.Property(job))">$INFO[ListItem.Property(job)]$INFO[ListItem.Property(episodes), (,)]</value>
@@ -691,15 +690,14 @@
         <value condition="!String.IsEmpty(ListItem.Genre)">$INFO[ListItem.Genre]</value>
         <value condition="!String.IsEmpty(ListItem.Premiered)">$INFO[ListItem.Premiered]</value>
         <value condition="!String.IsEmpty(ListItem.PictureResolution)">$INFO[ListItem.PictureResolution]</value>
-        <value condition="!String.IsEmpty(ListItem.Label2)">$INFO[ListItem.Label2]</value>
+        <value condition="!String.IsEmpty(ListItem.Label2) + !ListItem.IsFolder">$INFO[ListItem.Label2]</value>
         <value condition="!String.IsEmpty(ListItem.Date)">$INFO[ListItem.Date]</value>
         <value condition="!String.IsEmpty(ListItem.AddonType)">$INFO[ListItem.AddonType]</value>
         <value condition="!String.IsEmpty(ListItem.AddonVersion)">$INFO[ListItem.AddonVersion]</value>
         <value condition="!String.IsEmpty(ListItem.DBType)">$INFO[ListItem.DBType,[CAPITALIZE],[/CAPITALIZE]]</value>
         <value condition="!String.IsEmpty(ListItem.Property(widget))">$INFO[ListItem.Property(widget)]</value>
         <value condition="!String.IsEmpty(ListItem.ChannelNumberLabel)">$LOCALIZE[19029]</value>
-        <value condition="ListItem.IsFolder">$LOCALIZE[19076]</value>
-        <value condition="True">$LOCALIZE[31025]</value>
+        <value condition="!ListItem.IsFolder">$LOCALIZE[31025]</value>
     </variable>
     <variable name="Label_Directing_C7000">
         <value condition="!String.IsEmpty(Container(7000).ListItem.Property(Director.1.Name))">$INFO[Container(7000).ListItem.Property(Director.1.Name)]$INFO[Container(7000).ListItem.Property(Director.1.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.2.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.2.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.3.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.3.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.4.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.4.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.5.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.5.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.6.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.6.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.7.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.7.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.8.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.8.Role), (,)]$INFO[Container(7000).ListItem.Property(Director.9.Name),[CR],]$INFO[Container(7000).ListItem.Property(Director.9.Role), (,)]</value>

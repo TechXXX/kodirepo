@@ -27,7 +27,7 @@ def tb_cloud():
 			try:
 				cm = []
 				cm_append = cm.append
-				display = '%02d | [B]FOLDER[/B] | [I]%s [/I]' % (count, clean_file_name(normalize(item['name'])).upper())
+				display = '%02d | [I]%s [/I]' % (count, clean_file_name(normalize(item['name'])).upper())
 				url_params = {'mode': 'torbox.browse_tb_cloud', 'folder_id': item['id'], 'media_type': item['media_type']}
 				delete_params = {'mode': 'torbox.delete', 'folder_id': item['id'], 'media_type': item['media_type']}
 				cm_append(('[B]Delete Folder[/B]', 'RunPlugin(%s)' % build_url(delete_params)))

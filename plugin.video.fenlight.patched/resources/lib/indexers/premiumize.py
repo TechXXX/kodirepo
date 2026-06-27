@@ -31,7 +31,7 @@ def pm_cloud(folder_id=None, folder_name=None):
 				listitem = make_listitem()
 				if file_type == 'folder':
 					is_folder = True
-					display = '%02d | [B]FOLDER[/B] | [I]%s [/I]' % (count, name)
+					display = '%02d | [I]%s [/I]' % (count, name)
 					url_params = {'mode': 'premiumize.pm_cloud', 'id': item['id'], 'folder_name': normalize(item['name']), 'name': item['name']}
 					delete_params['file_type'] = 'folder'
 				else:
@@ -79,7 +79,7 @@ def pm_transfers():
 					except: progress = ''
 				if file_type == 'folder':
 					is_folder = True if status == 'finished' else False
-					display = '%02d | %s%% | [B]FOLDER[/B] | [I]%s [/I]' % (count, str(progress), name)
+					display = '%02d | %s%% | [I]%s [/I]' % (count, str(progress), name)
 					url_params = {'mode': 'premiumize.pm_cloud', 'id': item['folder_id'], 'folder_name': normalize(item['name'])}
 				else:
 					is_folder = False
