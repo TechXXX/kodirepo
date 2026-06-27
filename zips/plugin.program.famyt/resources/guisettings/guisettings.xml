@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <settings version="2">
     <setting id="gamesgeneral.enable" default="true">true</setting>
     <setting id="gamesgeneral.showosdhelp" default="true">true</setting>
@@ -16,11 +17,11 @@
     <setting id="lookandfeel.stereostrength" default="true">5</setting>
     <setting id="lookandfeel.enablerssfeeds" default="true">false</setting>
     <setting id="lookandfeel.rssedit" default="true" />
-    <setting id="locale.language" default="true">resource.language.en_gb</setting>
+    <setting id="locale.language">resource.language.nl_nl</setting>
     <setting id="locale.charset" default="true">DEFAULT</setting>
     <setting id="locale.keyboardlayouts" default="true">English QWERTY</setting>
     <setting id="locale.activekeyboardlayout" default="true">English QWERTY</setting>
-    <setting id="locale.country">Australia (12h)</setting>
+    <setting id="locale.country">NL</setting>
     <setting id="locale.timezonecountry" default="true">?</setting>
     <setting id="locale.timezone" default="true">Europe/Berlin</setting>
     <setting id="locale.shortdateformat" default="true">regional</setting>
@@ -244,14 +245,14 @@
     <setting id="pvrparental.pin" default="true" />
     <setting id="pvrparental.duration" default="true">300</setting>
     <setting id="pvrtimers.hidedisabledtimers" default="true">false</setting>
-    <setting id="services.devicename">KodiMacbook</setting>
+    <setting id="services.devicename">KodiDutch</setting>
     <setting id="services.zeroconf" default="true">true</setting>
     <setting id="services.deviceuuid">d39a6d96-6ad8-4b25-83d5-8db37e178345</setting>
     <setting id="services.webserver">true</setting>
     <setting id="services.webserverport" default="true">8080</setting>
     <setting id="services.webserverauthentication" default="true">true</setting>
     <setting id="services.webserverusername" default="true" />
-    <setting id="services.webserverpassword" default="true" />
+    <setting id="services.webserverpassword" />
     <setting id="services.webserverssl" default="true">false</setting>
     <setting id="services.webskin" default="true">webinterface.default</setting>
     <setting id="services.esenabled" default="true">true</setting>
@@ -283,7 +284,7 @@
     <setting id="nfs.version" default="true">3</setting>
     <setting id="nfs.chunksize" default="true">128</setting>
     <setting id="filecache.buffermode" default="true">4</setting>
-    <setting id="filecache.memorysize">32</setting>
+    <setting id="filecache.memorysize">96</setting>
     <setting id="filecache.readfactor" default="true">400</setting>
     <setting id="filecache.chunksize" default="true">131072</setting>
     <setting id="weather.currentlocation" default="true">1</setting>
@@ -491,7 +492,7 @@
             <level>0</level>
             <showhigherlevels>true</showhigherlevels>
         </eventlog>
-        <systemtotaluptime>23031</systemtotaluptime>
+        <systemtotaluptime>23340</systemtotaluptime>
     </general>
     <resolutions />
     <defaultvideosettings>
@@ -519,7 +520,7 @@
     </defaultvideosettings>
     <defaultaudiosettings />
     <defaultgamesettings>
-        <videofilter></videofilter>
+        <videofilter />
         <stretchmode>normal</stretchmode>
         <rotation>0</rotation>
     </defaultgamesettings>

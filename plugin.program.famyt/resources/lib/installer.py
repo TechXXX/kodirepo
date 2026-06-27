@@ -126,7 +126,7 @@ MENU_ITEMS = (
     ("[ALL] TorBox API key and Manifest URL", "install_torbox"),
     ("[ALL] a4kSubtitles credentials", "install_a4ksubtitles"),
     ("[ALL] Cocoscrapers filters", "install_cocoscrapers"),
-    ("[ALL] Kodi network settings", "install_advanced_network"),
+    ("[ALL] Kodi network/webserver settings", "install_advanced_network"),
     ("[ALL] Kodi keymaps", "install_keymaps"),
     ("Install everything", "install_all"),
     ("KodiSkin Widget Importer", "launch_widget_importer"),
@@ -484,6 +484,64 @@ def _extract_a4ksubtitles_settings(data):
         "general.ai_provider": "0",
         "general.ai_model": A4KSUBTITLES_AI_MODEL,
     }
+
+
+def _extract_kodi_webserver_settings(data):
+    kodi = data.get("kodi") if isinstance(data.get("kodi"), dict) else {}
+    webserver = kodi.get("webserver") if isinstance(kodi.get("webserver"), dict) else {}
+
+    username = _pick(webserver, "username", "user") or _pick(
+        kodi,
+        "webserver_username",
+        "webserverUsername",
+    ) or _pick(
+        data,
+        "kodi_webserver_username",
+        "kodiWebserverUsername",
+    )
+    password = _pick(webserver, "password", "pass") or _pick(
+        kodi,
+        "webserver_password",
+        "webserverPassword",
+    ) or _pick(
+        data,
+        "kodi_webserver_password",
+        "kodiWebserverPassword",
+    )
+    port = _pick(webserver, "port") or _pick(
+        kodi,
+        "webserver_port",
+        "webserverPort",
+    ) or _pick(
+        data,
+        "kodi_webserver_port",
+        "kodiWebserverPort",
+    )
+
+    if not username and not password and not port:
+        return {}
+
+    missing = []
+    if not username:
+        missing.append("kodi.webserver.username")
+    if not password:
+        missing.append("kodi.webserver.password")
+    if missing:
+        raise RuntimeError(
+            "Kodi Setup Kit bridge response is missing: %s. "
+            "Add KODI_WEBSERVER_USERNAME and KODI_WEBSERVER_PASSWORD to the Vercel environment and redeploy."
+            % ", ".join(missing)
+        )
+
+    values = {
+        "services.webserver": "true",
+        "services.webserverauthentication": "true",
+        "services.webserverusername": username,
+        "services.webserverpassword": password,
+    }
+    if port:
+        values["services.webserverport"] = port
+    return values
 
 
 def _write_api_keys(keys):
@@ -1055,6 +1113,13 @@ def _jsonrpc_guisetting_value(text):
     return value
 
 
+def _jsonrpc_setting_succeeded(response):
+    if not isinstance(response, dict) or response.get("error"):
+        return False
+    result = response.get("result")
+    return result is True or result == "OK"
+
+
 def _apply_guisettings_live(root):
     execute_jsonrpc = getattr(xbmc, "executeJSONRPC", None)
     if not callable(execute_jsonrpc):
@@ -1077,7 +1142,7 @@ def _apply_guisettings_live(root):
         }
         try:
             response = json.loads(execute_jsonrpc(json.dumps(payload)))
-            if response.get("result") == "OK":
+            if _jsonrpc_setting_succeeded(response):
                 applied += 1
             else:
                 failed += 1
@@ -1108,6 +1173,46 @@ def _write_guisettings_payload(payload, source_label):
 
     _log("Restored guisettings.xml from %s to %s" % (source_label, guisettings_path))
     return guisettings_path, backup_path, applied, failed
+
+
+def _settings_root_from_values(values):
+    root = ET.Element("settings")
+    for setting_id, value in values.items():
+        node = ET.SubElement(root, "setting", {"id": setting_id})
+        node.text = value
+    return root
+
+
+def _set_guisettings_file_values(values, source_label):
+    userdata_path = _translate_path("special://profile")
+    if not os.path.isdir(userdata_path):
+        os.makedirs(userdata_path)
+
+    guisettings_path = _guisettings_path()
+    if os.path.exists(guisettings_path):
+        tree = _parse_xml(guisettings_path)
+        root = tree.getroot()
+        if root.tag != "settings":
+            raise RuntimeError("guisettings.xml must have a <settings> root.")
+    else:
+        root = ET.Element("settings")
+        tree = ET.ElementTree(root)
+
+    for setting_id, value in values.items():
+        node = root.find("./setting[@id='%s']" % setting_id)
+        if node is None:
+            node = ET.SubElement(root, "setting", {"id": setting_id})
+        node.text = value
+
+    _indent_xml(root)
+    tmp_path = guisettings_path + ".tmp"
+    tree.write(tmp_path, encoding="utf-8", xml_declaration=True)
+    if os.path.exists(guisettings_path):
+        os.remove(guisettings_path)
+    os.rename(tmp_path, guisettings_path)
+
+    _log("Updated guisettings.xml values from %s at %s" % (source_label, guisettings_path))
+    return guisettings_path
 
 
 def _guisettings_payload_exists(preset_dir):
@@ -2790,7 +2895,26 @@ def _install_cocoscrapers(addon):
     return "Cocoscrapers filters installed for: %s." % ", ".join(updated)
 
 
-def _install_advanced_network_settings(addon):
+def _install_kodi_webserver_settings(addon, bridge_data):
+    values = _extract_kodi_webserver_settings(bridge_data)
+    if not values:
+        return ""
+
+    applied, failed = _apply_guisettings_live(_settings_root_from_values(values))
+    _set_guisettings_file_values(values, "Kodi Setup Kit bridge")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_kodi_webserver_install", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "Kodi webserver credentials installed."
+    message += " Live settings applied: %s" % applied
+    if failed:
+        message += " (%s could not be applied live)." % failed
+    message += " Restart Kodi if the webserver settings do not appear immediately."
+    return message
+
+
+def _install_advanced_network_settings(addon, bridge_data=None):
     advancedsettings_path, backup_path = _write_advanced_network_settings()
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_advanced_network_install", now)
@@ -2802,6 +2926,10 @@ def _install_advanced_network_settings(addon):
     )
     if backup_path:
         message += " Existing invalid advancedsettings.xml was backed up."
+    if bridge_data:
+        webserver_message = _install_kodi_webserver_settings(addon, bridge_data)
+        if webserver_message:
+            message += "\n\n" + webserver_message
     return message
 
 
@@ -3156,6 +3284,7 @@ def _setup_status_text(addon):
         ("a4kSubtitles", "last_a4ksubtitles_install"),
         ("Cocoscrapers", "last_cocoscrapers_install"),
         ("Advanced network", "last_advanced_network_install"),
+        ("Kodi webserver credentials", "last_kodi_webserver_install"),
         ("Keymaps", "last_keymaps_install"),
         ("Sources backup", "last_sources_backup"),
         ("Sources restore", "last_sources_restore"),
@@ -4145,9 +4274,9 @@ def _run_action(action):
                 ),
                 (
                     88,
-                    "Installing Kodi network advanced settings...",
-                    "Kodi network advanced settings",
-                    lambda: _install_advanced_network_settings(addon),
+                    "Installing Kodi network and webserver settings...",
+                    "Kodi network/webserver settings",
+                    lambda: _install_advanced_network_settings(addon, bridge_data),
                 ),
                 (
                     96,
