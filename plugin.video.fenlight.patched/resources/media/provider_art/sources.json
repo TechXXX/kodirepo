@@ -1,0 +1,3354 @@
+{
+  "generated_at": "2026-06-27T06:44:05.204Z",
+  "provider_count": 232,
+  "square_canvas": "512x512 PNG, provider_<tmdb_provider_id>.png",
+  "poster_canvas": "512x768 PNG in poster/provider_<tmdb_provider_id>.png",
+  "assets": [
+    {
+      "id": 156,
+      "name": "A&E",
+      "file": "provider_156.png",
+      "poster_file": "poster/provider_156.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/f/f8/A%26E_%281995%29.svg/revision/latest?cb=20180313093028",
+      "source_title": "File:A&E (1995).svg",
+      "source_page": "A&E",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x682"
+    },
+    {
+      "id": 148,
+      "name": "ABC",
+      "file": "provider_148.png",
+      "poster_file": "poster/provider_148.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/2f/ABC-2021-LOGO.svg/revision/latest?cb=20220228011330",
+      "source_title": "File:ABC-2021-LOGO.svg",
+      "source_page": "ABC (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x1000"
+    },
+    {
+      "id": 87,
+      "name": "Acorn TV",
+      "file": "provider_87.png",
+      "poster_file": "poster/provider_87.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/ef/Acorn_TV_logo_2024.svg/revision/latest?cb=20250614142600",
+      "source_title": "File:Acorn TV logo 2024.svg",
+      "source_page": "Acorn TV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x94"
+    },
+    {
+      "id": 196,
+      "name": "AcornTV Amazon",
+      "file": "provider_196.png",
+      "poster_file": "poster/provider_196.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/ef/Acorn_TV_logo_2024.svg/revision/latest?cb=20250614142600",
+      "source_title": "File:Acorn TV logo 2024.svg",
+      "source_page": "Acorn TV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x94"
+    },
+    {
+      "id": 1958,
+      "name": "AD tv",
+      "file": "provider_1958.png",
+      "poster_file": "poster/provider_1958.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/30/AD_TV.jpg/revision/latest?cb=20200808174400",
+      "source_title": "File:AD TV.jpg",
+      "source_page": "AD TV",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "283x170"
+    },
+    {
+      "id": 318,
+      "name": "Adult Swim",
+      "file": "provider_318.png",
+      "poster_file": "poster/provider_318.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/91/Adult_Swim.svg/revision/latest?cb=20201128112724",
+      "source_title": "File:Adult Swim.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x95"
+    },
+    {
+      "id": 532,
+      "name": "aha",
+      "file": "provider_532.png",
+      "poster_file": "poster/provider_532.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/m3NWxxR23l1w1e156fyTuw931gx.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 398,
+      "name": "AHCTV",
+      "file": "provider_398.png",
+      "poster_file": "poster/provider_398.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/gxCvG3STez0PrDqi05LSYyWjLPk.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 547,
+      "name": "Alamo on Demand",
+      "file": "provider_547.png",
+      "poster_file": "poster/provider_547.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/1UP7ysjKolfD0rmp2fLmvyRHkdn.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 9,
+      "name": "Amazon Prime Video",
+      "file": "provider_9.png",
+      "poster_file": "poster/provider_9.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "prime_video"
+    },
+    {
+      "id": 10,
+      "name": "Amazon Video",
+      "file": "provider_10.png",
+      "poster_file": "poster/provider_10.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "prime_video"
+    },
+    {
+      "id": 80,
+      "name": "AMC",
+      "file": "provider_80.png",
+      "poster_file": "poster/provider_80.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/45/AMC_%282019%29.svg/revision/latest?cb=20230222103343",
+      "source_title": "File:AMC (2019).svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x563"
+    },
+    {
+      "id": 352,
+      "name": "AMC on Demand",
+      "file": "provider_352.png",
+      "poster_file": "poster/provider_352.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/45/AMC_%282019%29.svg/revision/latest?cb=20230222103343",
+      "source_title": "File:AMC (2019).svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x563"
+    },
+    {
+      "id": 1854,
+      "name": "AMC Plus Apple TV ",
+      "file": "provider_1854.png",
+      "poster_file": "poster/provider_1854.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/9f/Amc%2B_2020.svg/revision/latest?cb=20211011215021",
+      "source_title": "File:Amc+ 2020.svg",
+      "source_page": "AMC+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1800x933"
+    },
+    {
+      "id": 526,
+      "name": "AMC+",
+      "file": "provider_526.png",
+      "poster_file": "poster/provider_526.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/9f/Amc%2B_2020.svg/revision/latest?cb=20211011215021",
+      "source_title": "File:Amc+ 2020.svg",
+      "source_page": "AMC+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1800x933"
+    },
+    {
+      "id": 528,
+      "name": "AMC+ Amazon",
+      "file": "provider_528.png",
+      "poster_file": "poster/provider_528.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/9f/Amc%2B_2020.svg/revision/latest?cb=20211011215021",
+      "source_title": "File:Amc+ 2020.svg",
+      "source_page": "AMC+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1800x933"
+    },
+    {
+      "id": 635,
+      "name": "AMC+ Roku Premium",
+      "file": "provider_635.png",
+      "poster_file": "poster/provider_635.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/9f/Amc%2B_2020.svg/revision/latest?cb=20211011215021",
+      "source_title": "File:Amc+ 2020.svg",
+      "source_page": "AMC+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1800x933"
+    },
+    {
+      "id": 1956,
+      "name": "Angel Studios",
+      "file": "provider_1956.png",
+      "poster_file": "poster/provider_1956.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/1/19/Angel_Studios_film.svg/revision/latest?cb=20230816162527",
+      "source_title": "File:Angel Studios film.svg",
+      "source_page": "Angel Studios",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "90x32"
+    },
+    {
+      "id": 399,
+      "name": "Animal Planet",
+      "file": "provider_399.png",
+      "poster_file": "poster/provider_399.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.animalplanet.com",
+      "simple_slug": "animalplanet",
+      "simple_title": "Animal Planet"
+    },
+    {
+      "id": 2,
+      "name": "Apple TV",
+      "file": "provider_2.png",
+      "poster_file": "poster/provider_2.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "apple_tv"
+    },
+    {
+      "id": 350,
+      "name": "Apple TV Plus",
+      "file": "provider_350.png",
+      "poster_file": "poster/provider_350.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "apple_tv_plus"
+    },
+    {
+      "id": 529,
+      "name": "ARROW",
+      "file": "provider_529.png",
+      "poster_file": "poster/provider_529.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/4UfmxLzph9Aso9pr9bXohp0V3sr.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 514,
+      "name": "AsianCrush",
+      "file": "provider_514.png",
+      "poster_file": "poster/provider_514.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/3VxDqUk25KU5860XxHKwV9cy3L8.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 397,
+      "name": "BBC America",
+      "file": "provider_397.png",
+      "poster_file": "poster/provider_397.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/df/BBC_America_logo_2022.svg/revision/latest?cb=20220520234715",
+      "source_title": "File:BBC America logo 2022.svg",
+      "source_page": "BBC America",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "572x577"
+    },
+    {
+      "id": 1759,
+      "name": "Bet+",
+      "file": "provider_1759.png",
+      "poster_file": "poster/provider_1759.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/31/BET%2B_2021.svg/revision/latest?cb=20211204232033",
+      "source_title": "File:BET+ 2021.svg",
+      "source_page": "BET+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "983x1000"
+    },
+    {
+      "id": 343,
+      "name": "Bet+ Amazon",
+      "file": "provider_343.png",
+      "poster_file": "poster/provider_343.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/31/BET%2B_2021.svg/revision/latest?cb=20211204232033",
+      "source_title": "File:BET+ 2021.svg",
+      "source_page": "BET+",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "983x1000"
+    },
+    {
+      "id": 248,
+      "name": "Boomerang",
+      "file": "provider_248.png",
+      "poster_file": "poster/provider_248.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/8/82/Boomerang.svg/revision/latest?cb=20250919111038",
+      "source_title": "File:Boomerang.svg",
+      "source_page": "Boomerang (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "642x240"
+    },
+    {
+      "id": 288,
+      "name": "Boomerang Amazon",
+      "file": "provider_288.png",
+      "poster_file": "poster/provider_288.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/8/82/Boomerang.svg/revision/latest?cb=20250919111038",
+      "source_title": "File:Boomerang.svg",
+      "source_page": "Boomerang (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "642x240"
+    },
+    {
+      "id": 365,
+      "name": "Bravo TV",
+      "file": "provider_365.png",
+      "poster_file": "poster/provider_365.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/22/Bravo_2024.svg/revision/latest?cb=20240508041547",
+      "source_title": "File:Bravo 2024.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x388"
+    },
+    {
+      "id": 151,
+      "name": "BritBox",
+      "file": "provider_151.png",
+      "poster_file": "poster/provider_151.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/42/BritBox_2026.svg/revision/latest?cb=20260123211648",
+      "source_title": "File:BritBox 2026.svg",
+      "source_page": "BritBox",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x243"
+    },
+    {
+      "id": 197,
+      "name": "BritBox Amazon",
+      "file": "provider_197.png",
+      "poster_file": "poster/provider_197.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/42/BritBox_2026.svg/revision/latest?cb=20260123211648",
+      "source_title": "File:BritBox 2026.svg",
+      "source_page": "BritBox",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x243"
+    },
+    {
+      "id": 1852,
+      "name": "Britbox Apple TV ",
+      "file": "provider_1852.png",
+      "poster_file": "poster/provider_1852.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/42/BritBox_2026.svg/revision/latest?cb=20260123211648",
+      "source_title": "File:BritBox 2026.svg",
+      "source_page": "BritBox",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x243"
+    },
+    {
+      "id": 554,
+      "name": "BroadwayHD",
+      "file": "provider_554.png",
+      "poster_file": "poster/provider_554.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/c/cf/BroadwayHD_logo.png",
+      "source_title": "File:BroadwayHD logo.png"
+    },
+    {
+      "id": 317,
+      "name": "Cartoon Network",
+      "file": "provider_317.png",
+      "poster_file": "poster/provider_317.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/ee/Cartoon_Network_2010.svg/revision/latest?cb=20210726224754",
+      "source_title": "File:Cartoon Network 2010.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x598"
+    },
+    {
+      "id": 438,
+      "name": "Chai Flicks",
+      "file": "provider_438.png",
+      "poster_file": "poster/provider_438.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/3tCqvc5hPm5nl8Hm8o2koDRZlPo.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 289,
+      "name": "Cinemax",
+      "file": "provider_289.png",
+      "poster_file": "poster/provider_289.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/66/Cinemax_2016.svg/revision/latest?cb=20171203110447",
+      "source_title": "File:Cinemax 2016.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x347"
+    },
+    {
+      "id": 1957,
+      "name": "Cineverse",
+      "file": "provider_1957.png",
+      "poster_file": "poster/provider_1957.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/99/Cineverse_logo.svg/revision/latest?cb=20250620035935",
+      "source_title": "File:Cineverse logo.svg",
+      "source_page": "Cineverse",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "500x172"
+    },
+    {
+      "id": 1985,
+      "name": "Citytv",
+      "file": "provider_1985.png",
+      "poster_file": "poster/provider_1985.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/9e/Citytv_logo.svg/revision/latest?cb=20100815075727",
+      "source_title": "File:Citytv logo.svg",
+      "source_page": "Citytv",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "664x217"
+    },
+    {
+      "id": 445,
+      "name": "Classix",
+      "file": "provider_445.png",
+      "poster_file": "poster/provider_445.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/iaMw6nOyxUzXSacrLQ0Au6CfZkc.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1811,
+      "name": "Cohen Media Amazon",
+      "file": "provider_1811.png",
+      "poster_file": "poster/provider_1811.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/69/Cohen_Media_Group_2012.png/revision/latest?cb=20210707161203",
+      "source_title": "File:Cohen Media Group 2012.png",
+      "source_page": "Cohen Media Group",
+      "source_mime": "image/png",
+      "source_dimensions": "510x202"
+    },
+    {
+      "id": 243,
+      "name": "Comedy Central",
+      "file": "provider_243.png",
+      "poster_file": "poster/provider_243.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/aa/Comedy_Central_2018.svg/revision/latest?cb=20251109214436",
+      "source_title": "File:Comedy Central 2018.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x344"
+    },
+    {
+      "id": 400,
+      "name": "Cooking Channel",
+      "file": "provider_400.png",
+      "poster_file": "poster/provider_400.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/39/Cooking_Channel.svg/revision/latest?cb=20180329192431",
+      "source_title": "File:Cooking Channel.svg",
+      "source_page": "Cooking Channel (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "751x177"
+    },
+    {
+      "id": 12,
+      "name": "Crackle",
+      "file": "provider_12.png",
+      "poster_file": "poster/provider_12.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/2b/Crackle_logo_r_k_5.png/revision/latest?cb=20170806174447",
+      "source_title": "File:Crackle logo r k 5.png",
+      "source_page": "Crackle",
+      "source_mime": "image/png",
+      "source_dimensions": "6871x1800"
+    },
+    {
+      "id": 258,
+      "name": "Criterion Channel",
+      "file": "provider_258.png",
+      "poster_file": "poster/provider_258.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/90/The_Criterion_Channel_logo.svg/revision/latest?cb=20240401001113",
+      "source_title": "File:The Criterion Channel logo.svg",
+      "source_page": "The Criterion Channel",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "665x210"
+    },
+    {
+      "id": 283,
+      "name": "Crunchyroll",
+      "file": "provider_283.png",
+      "poster_file": "poster/provider_283.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "crunchyroll"
+    },
+    {
+      "id": 1968,
+      "name": "Crunchyroll Amazon",
+      "file": "provider_1968.png",
+      "poster_file": "poster/provider_1968.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "crunchyroll"
+    },
+    {
+      "id": 692,
+      "name": "Cultpix",
+      "file": "provider_692.png",
+      "poster_file": "poster/provider_692.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/59azlQKUgFdYq6QI5QEAxIeecyL.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 190,
+      "name": "Curiosity Stream",
+      "file": "provider_190.png",
+      "poster_file": "poster/provider_190.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/43/CuriosityStream_logo.svg/revision/latest?cb=20210106165929",
+      "source_title": "File:CuriosityStream logo.svg",
+      "source_page": "Curiosity Stream",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "531x102"
+    },
+    {
+      "id": 206,
+      "name": "CW Seed",
+      "file": "provider_206.png",
+      "poster_file": "poster/provider_206.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/cb/CW_Seed_2017.svg/revision/latest?cb=20200116051841",
+      "source_title": "File:CW Seed 2017.svg",
+      "source_page": "CW Seed",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x299"
+    },
+    {
+      "id": 355,
+      "name": "Darkmatter TV",
+      "file": "provider_355.png",
+      "poster_file": "poster/provider_355.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/x4AFz5koB2R8BRn8WNh6EqXUGHc.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 444,
+      "name": "Dekkoo",
+      "file": "provider_444.png",
+      "poster_file": "poster/provider_444.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/u2H29LCxRzjZVUoZUQAHKm5P8Zc.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 402,
+      "name": "Destination America",
+      "file": "provider_402.png",
+      "poster_file": "poster/provider_402.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/a1/Destination_America_2015_%28Print%29.svg/revision/latest?cb=20180422181012",
+      "source_title": "File:Destination America 2015 (Print).svg",
+      "source_page": "Destination America",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "300x253"
+    },
+    {
+      "id": 358,
+      "name": "DIRECTV",
+      "file": "provider_358.png",
+      "poster_file": "poster/provider_358.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/8/8a/DIRECTV_STREAM_2021_logo.svg/revision/latest?cb=20210812141105",
+      "source_title": "File:DIRECTV STREAM 2021 logo.svg",
+      "source_page": "DirecTV Stream",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x173"
+    },
+    {
+      "id": 403,
+      "name": "Discovery",
+      "file": "provider_403.png",
+      "poster_file": "poster/provider_403.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/40/Discovery%2C_Inc_logo.svg/revision/latest?cb=20220408230209",
+      "source_title": "File:Discovery, Inc logo.svg",
+      "source_page": "Discovery, Inc.",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1476x283"
+    },
+    {
+      "id": 404,
+      "name": "Discovery Life",
+      "file": "provider_404.png",
+      "poster_file": "poster/provider_404.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/d5/Discovery_Life_2016_logo.svg/revision/latest?cb=20170826004537",
+      "source_title": "File:Discovery Life 2016 logo.svg",
+      "source_page": "Discovery Life (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x662"
+    },
+    {
+      "id": 520,
+      "name": "Discovery Plus",
+      "file": "provider_520.png",
+      "poster_file": "poster/provider_520.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/0c/Discovery_Plus_logo_Horizontal.png/revision/latest?cb=20201227090716",
+      "source_title": "File:Discovery Plus logo Horizontal.png",
+      "source_page": "Discovery+ (India)",
+      "source_mime": "image/png",
+      "source_dimensions": "1172x235"
+    },
+    {
+      "id": 584,
+      "name": "Discovery Plus Amazon",
+      "file": "provider_584.png",
+      "poster_file": "poster/provider_584.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/0c/Discovery_Plus_logo_Horizontal.png/revision/latest?cb=20201227090716",
+      "source_title": "File:Discovery Plus logo Horizontal.png",
+      "source_page": "Discovery+ (India)",
+      "source_mime": "image/png",
+      "source_dimensions": "1172x235"
+    },
+    {
+      "id": 337,
+      "name": "Disney Plus",
+      "file": "provider_337.png",
+      "poster_file": "poster/provider_337.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "disney_plus"
+    },
+    {
+      "id": 508,
+      "name": "DisneyNOW",
+      "file": "provider_508.png",
+      "poster_file": "poster/provider_508.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/ca/DisneyNOW.svg/revision/latest?cb=20201220144924",
+      "source_title": "File:DisneyNOW.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "2399x1250"
+    },
+    {
+      "id": 1971,
+      "name": "DistroTV",
+      "file": "provider_1971.png",
+      "poster_file": "poster/provider_1971.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/4a/DistroTV.png/revision/latest?cb=20210419015351",
+      "source_title": "File:DistroTV.png",
+      "source_page": "DistroTV",
+      "source_mime": "image/png",
+      "source_dimensions": "2674x760"
+    },
+    {
+      "id": 405,
+      "name": "DIY Network",
+      "file": "provider_405.png",
+      "poster_file": "poster/provider_405.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/odh8CexN7yXa7IX4aIYtsUc0vHY.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 569,
+      "name": "DocAlliance Films",
+      "file": "provider_569.png",
+      "poster_file": "poster/provider_569.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/aQ1ritN00jXc7RAFfUoQKGAAfp7.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 475,
+      "name": "DOCSVILLE",
+      "file": "provider_475.png",
+      "poster_file": "poster/provider_475.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/bvcdVO7SDHKEa6D40g1jntXKNj.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 536,
+      "name": "Dogwoof On Demand",
+      "file": "provider_536.png",
+      "poster_file": "poster/provider_536.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/9sk88OAxDZSdMOzg8VuqtGpgWQ3.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 254,
+      "name": "Dove Channel",
+      "file": "provider_254.png",
+      "poster_file": "poster/provider_254.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/64/Dove_Channel_logo.png/revision/latest?cb=20230101152323",
+      "source_title": "File:Dove Channel logo.png",
+      "source_page": "Dove Channel",
+      "source_mime": "image/png",
+      "source_dimensions": "451x221"
+    },
+    {
+      "id": 263,
+      "name": "DreamWorksTV Amazon",
+      "file": "provider_263.png",
+      "poster_file": "poster/provider_263.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/1Vzd0eRyJJ7djh0GuZczx4ap8PK.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 218,
+      "name": "Eros Now",
+      "file": "provider_218.png",
+      "poster_file": "poster/provider_218.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/d2/ErosNow.png/revision/latest?cb=20200422061542",
+      "source_title": "File:ErosNow.png",
+      "source_page": "Eros Now",
+      "source_mime": "image/png",
+      "source_dimensions": "512x512"
+    },
+    {
+      "id": 1768,
+      "name": "ESPN Plus",
+      "file": "provider_1768.png",
+      "poster_file": "poster/provider_1768.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/ca/ESPN_Plus.png/revision/latest?cb=20111129182009",
+      "source_title": "File:ESPN Plus.png",
+      "source_page": "ESPN Plus",
+      "source_mime": "image/png",
+      "source_dimensions": "800x186"
+    },
+    {
+      "id": 677,
+      "name": "Eventive",
+      "file": "provider_677.png",
+      "poster_file": "poster/provider_677.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/fadQYOyKL0tqfyj012nYJxm3N2I.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 25,
+      "name": "Fandor",
+      "file": "provider_25.png",
+      "poster_file": "poster/provider_25.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/2/20/Logo_fandor.png",
+      "source_title": "File:Logo fandor.png"
+    },
+    {
+      "id": 199,
+      "name": "Fandor Amazon",
+      "file": "provider_199.png",
+      "poster_file": "poster/provider_199.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/2/20/Logo_fandor.png",
+      "source_title": "File:Logo fandor.png"
+    },
+    {
+      "id": 579,
+      "name": "Film Movement Plus",
+      "file": "provider_579.png",
+      "poster_file": "poster/provider_579.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/tKJdVrC0fjEtQtYYjlVwX9rmqrj.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 701,
+      "name": "FilmBox+",
+      "file": "provider_701.png",
+      "poster_file": "poster/provider_701.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/3f/FilmBox%2B_2026.svg/revision/latest?cb=20260610204330",
+      "source_title": "File:FilmBox+ 2026.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1180x168"
+    },
+    {
+      "id": 471,
+      "name": "FILMRISE",
+      "file": "provider_471.png",
+      "poster_file": "poster/provider_471.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/23/FilmRise.svg/revision/latest?cb=20200925212753",
+      "source_title": "File:FilmRise.svg",
+      "source_page": "FilmRise",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x367"
+    },
+    {
+      "id": 559,
+      "name": "Filmzie",
+      "file": "provider_559.png",
+      "poster_file": "poster/provider_559.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/olmH7t5tEng8Yuq33KmvpvaaVIg.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 432,
+      "name": "Flix Premiere",
+      "file": "provider_432.png",
+      "poster_file": "poster/provider_432.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/6fX0J6x7zXsUCvPFczgOW4oD34D.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 331,
+      "name": "FlixFling",
+      "file": "provider_331.png",
+      "poster_file": "poster/provider_331.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/4U02VrbgLfUKJAUCHKzxWFtnPx4.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 366,
+      "name": "Food Network",
+      "file": "provider_366.png",
+      "poster_file": "poster/provider_366.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/auXCWejtQmZL7DplgokLXYq73Ed.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 328,
+      "name": "Fox",
+      "file": "provider_328.png",
+      "poster_file": "poster/provider_328.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.fox.com",
+      "simple_slug": "fox",
+      "simple_title": "FOX"
+    },
+    {
+      "id": 211,
+      "name": "Freeform",
+      "file": "provider_211.png",
+      "poster_file": "poster/provider_211.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/a3/Freeform_2022.svg/revision/latest?cb=20250821180823",
+      "source_title": "File:Freeform 2022.svg",
+      "source_page": "Freeform (TV channel)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x177"
+    },
+    {
+      "id": 613,
+      "name": "Freevee",
+      "file": "provider_613.png",
+      "poster_file": "poster/provider_613.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/eb/Amazon_Freevee_%282022%29.svg/revision/latest?cb=20220513140632",
+      "source_title": "File:Amazon Freevee (2022).svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1098x343"
+    },
+    {
+      "id": 257,
+      "name": "fuboTV",
+      "file": "provider_257.png",
+      "poster_file": "poster/provider_257.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/cb/Fubo_2023.svg/revision/latest?cb=20230914162921",
+      "source_title": "File:Fubo 2023.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "500x202"
+    },
+    {
+      "id": 269,
+      "name": "Funimation Now",
+      "file": "provider_269.png",
+      "poster_file": "poster/provider_269.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/fWq61Fy4onav0wZJTA3c2fs0G66.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 123,
+      "name": "FXNow",
+      "file": "provider_123.png",
+      "poster_file": "poster/provider_123.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/5/55/FXNOW.svg/revision/latest?cb=20210604114428",
+      "source_title": "File:FXNOW.svg",
+      "source_page": "FX Now",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x212"
+    },
+    {
+      "id": 1962,
+      "name": "FYI Network",
+      "file": "provider_1962.png",
+      "poster_file": "poster/provider_1962.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/ac/FYI.svg/revision/latest?cb=20140710000601",
+      "source_title": "File:FYI.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x677"
+    },
+    {
+      "id": 3,
+      "name": "Google Play Movies",
+      "file": "provider_3.png",
+      "poster_file": "poster/provider_3.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "google_play"
+    },
+    {
+      "id": 100,
+      "name": "GuideDoc",
+      "file": "provider_100.png",
+      "poster_file": "poster/provider_100.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/iX0pvJ2GFATbVIH5IHMwG0ffIdV.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 290,
+      "name": "Hallmark Amazon",
+      "file": "provider_290.png",
+      "poster_file": "poster/provider_290.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/06/Hallmark_Channel_2nd_Logo.svg/revision/latest?cb=20160808165807",
+      "source_title": "File:Hallmark Channel 2nd Logo.svg",
+      "source_page": "Hallmark Channel",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1001x268"
+    },
+    {
+      "id": 281,
+      "name": "Hallmark Movies",
+      "file": "provider_281.png",
+      "poster_file": "poster/provider_281.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/69/Hallmark_Movies_Now.svg/revision/latest?cb=20210405143001",
+      "source_title": "File:Hallmark Movies Now.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x467"
+    },
+    {
+      "id": 1966,
+      "name": "Hallmark Movies & Mysteries",
+      "file": "provider_1966.png",
+      "poster_file": "poster/provider_1966.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/4/43/Hallmark_movies_mysteries.png",
+      "source_title": "File:Hallmark movies mysteries.png"
+    },
+    {
+      "id": 384,
+      "name": "HBO Max",
+      "file": "provider_384.png",
+      "poster_file": "poster/provider_384.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "user_supplied",
+      "source": "/Users/kalter/Downloads/hbomax.jpg",
+      "source_title": "User supplied HBO Max logo",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "447x447"
+    },
+    {
+      "id": 417,
+      "name": "Here TV",
+      "file": "provider_417.png",
+      "poster_file": "poster/provider_417.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/sa10pK4Jwr5aA7rvafFP2zyLFjh.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 406,
+      "name": "HGTV",
+      "file": "provider_406.png",
+      "poster_file": "poster/provider_406.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/8/88/HGTV-Logo-1994-500x281.png/revision/latest?cb=20260417235829",
+      "source_title": "File:HGTV-Logo-1994-500x281.png",
+      "source_page": "HGTV (United States)",
+      "source_mime": "image/png",
+      "source_dimensions": "500x281"
+    },
+    {
+      "id": 503,
+      "name": "Hi-YAH",
+      "file": "provider_503.png",
+      "poster_file": "poster/provider_503.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/mB2eDIncwSAlyl8WAtfV24qEIkk.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 430,
+      "name": "HiDive",
+      "file": "provider_430.png",
+      "poster_file": "poster/provider_430.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/e7/HIDIVE_2017.svg/revision/latest?cb=20230718154809",
+      "source_title": "File:HIDIVE 2017.svg",
+      "source_page": "HIDIVE",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x481"
+    },
+    {
+      "id": 155,
+      "name": "History",
+      "file": "provider_155.png",
+      "poster_file": "poster/provider_155.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/4d/History_Channel_logo.svg/revision/latest?cb=20180121170122",
+      "source_title": "File:History Channel logo.svg",
+      "source_page": "History (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x920"
+    },
+    {
+      "id": 268,
+      "name": "History Vault",
+      "file": "provider_268.png",
+      "poster_file": "poster/provider_268.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/3bm7P1O8WRqK6CYqfffJv4fba2p.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 315,
+      "name": "Hoichoi",
+      "file": "provider_315.png",
+      "poster_file": "poster/provider_315.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/1/12/Hoichoi_logo.jpg/revision/latest?cb=20200222164443",
+      "source_title": "File:Hoichoi logo.jpg",
+      "source_page": "Hoichoi",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "379x352"
+    },
+    {
+      "id": 212,
+      "name": "Hoopla",
+      "file": "provider_212.png",
+      "poster_file": "poster/provider_212.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/aJ0b9BLU1Cvv5hIz9fEhKKc1x1D.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 267,
+      "name": "Hopster TV",
+      "file": "provider_267.png",
+      "poster_file": "poster/provider_267.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/gYC72bT1nz4NvOFe7pPuCsNdKch.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 15,
+      "name": "Hulu",
+      "file": "provider_15.png",
+      "poster_file": "poster/provider_15.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "hulu"
+    },
+    {
+      "id": 368,
+      "name": "IndieFlix",
+      "file": "provider_368.png",
+      "poster_file": "poster/provider_368.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/2NRn6OApVKfDTKLuHDRN8UadLRw.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 408,
+      "name": "Investigation Discovery",
+      "file": "provider_408.png",
+      "poster_file": "poster/provider_408.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/a9/Investigation_Discovery_2012.svg/revision/latest?cb=20180406033021",
+      "source_title": "File:Investigation Discovery 2012.svg",
+      "source_page": "Investigation Discovery (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1292x1417"
+    },
+    {
+      "id": 581,
+      "name": "iQIYI",
+      "file": "provider_581.png",
+      "poster_file": "poster/provider_581.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/a3/IQIYI_%282022%29.svg/revision/latest?cb=20250215105959",
+      "source_title": "File:IQIYI (2022).svg",
+      "source_page": "IQIYI",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "798x124"
+    },
+    {
+      "id": 191,
+      "name": "Kanopy",
+      "file": "provider_191.png",
+      "poster_file": "poster/provider_191.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/1/10/Kanopy_logo.png",
+      "source_title": "File:Kanopy logo.png"
+    },
+    {
+      "id": 640,
+      "name": "Kino Now",
+      "file": "provider_640.png",
+      "poster_file": "poster/provider_640.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/ttxbDVmHMuNTKcSLOyIHFs7TdRh.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1793,
+      "name": "Klassiki",
+      "file": "provider_1793.png",
+      "poster_file": "poster/provider_1793.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/fXGdolQR7QlHgdx2hPCxoVQG8eP.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 464,
+      "name": "Kocowa",
+      "file": "provider_464.png",
+      "poster_file": "poster/provider_464.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/0f/Kocowa_logo.png/revision/latest?cb=20230820012832",
+      "source_title": "File:Kocowa logo.png",
+      "source_page": "Kocowa",
+      "source_mime": "image/png",
+      "source_dimensions": "300x55"
+    },
+    {
+      "id": 575,
+      "name": "KoreaOnDemand",
+      "file": "provider_575.png",
+      "poster_file": "poster/provider_575.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/uHv6Y4YSsr4cj7q4cBbAg7WXKEI.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 275,
+      "name": "Laugh Out Loud",
+      "file": "provider_275.png",
+      "poster_file": "poster/provider_275.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/w4GTJ1EDrgJku49XKSnRag9kKCT.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 157,
+      "name": "Lifetime",
+      "file": "provider_157.png",
+      "poster_file": "poster/provider_157.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/7/79/Lifetime_logo_1984.svg/revision/latest?cb=20200819180912",
+      "source_title": "File:Lifetime logo 1984.svg",
+      "source_page": "Lifetime",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "863x205"
+    },
+    {
+      "id": 284,
+      "name": "Lifetime Movie Club",
+      "file": "provider_284.png",
+      "poster_file": "poster/provider_284.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/e3/Lifetime_Movie_Club_-_2017.jpg/revision/latest?cb=20251116233154",
+      "source_title": "File:Lifetime Movie Club - 2017.jpg",
+      "source_page": "Lifetime Movie Club",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "119x104"
+    },
+    {
+      "id": 420,
+      "name": "Logo TV",
+      "file": "provider_420.png",
+      "poster_file": "poster/provider_420.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/2f/Logo_TV_2015.svg/revision/latest?cb=20201210025054",
+      "source_title": "File:Logo TV 2015.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "970x1000"
+    },
+    {
+      "id": 551,
+      "name": "Magellan TV",
+      "file": "provider_551.png",
+      "poster_file": "poster/provider_551.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/gekkP93StjYdiMAInViVmrnldNY.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 259,
+      "name": "Magnolia Selects",
+      "file": "provider_259.png",
+      "poster_file": "poster/provider_259.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/foT1TtL67MgEOWR6Cib8dKyCvJI.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1899,
+      "name": "Max",
+      "file": "provider_1899.png",
+      "poster_file": "poster/provider_1899.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "max"
+    },
+    {
+      "id": 1825,
+      "name": "Max Amazon",
+      "file": "provider_1825.png",
+      "poster_file": "poster/provider_1825.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "max"
+    },
+    {
+      "id": 585,
+      "name": "Metrograph",
+      "file": "provider_585.png",
+      "poster_file": "poster/provider_585.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/8PmpsrVDLJ3m8I37W6UNFEymhm7.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 583,
+      "name": "MGM + Amazon",
+      "file": "provider_583.png",
+      "poster_file": "poster/provider_583.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/hoqk74y8HTJTMWcVes1ZVwohCue.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 636,
+      "name": "MGM + Roku Premium",
+      "file": "provider_636.png",
+      "poster_file": "poster/provider_636.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/3sE2JNYZJRD9Le1P8B6oVEqarad.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 34,
+      "name": "MGM Plus",
+      "file": "provider_34.png",
+      "poster_file": "poster/provider_34.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/6A1gRIJqLfFHOoTvbTxDAbuU2nQ.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 427,
+      "name": "Mhz Choice",
+      "file": "provider_427.png",
+      "poster_file": "poster/provider_427.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/21/MHz_Choice.svg/revision/latest?cb=20251205235732",
+      "source_title": "File:MHz Choice.svg",
+      "source_page": "MHz Choice",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "500x500"
+    },
+    {
+      "id": 68,
+      "name": "Microsoft Store",
+      "file": "provider_68.png",
+      "poster_file": "poster/provider_68.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/b/bf/Microsoft_Store_2021_Dark.svg/revision/latest?cb=20220620132705",
+      "source_title": "File:Microsoft Store 2021 Dark.svg",
+      "source_page": "Microsoft Store (Windows)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "248x248"
+    },
+    {
+      "id": 1960,
+      "name": "Midnight Pulp",
+      "file": "provider_1960.png",
+      "poster_file": "poster/provider_1960.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/pHwuJc9HFgK229r4C3f1AajjGA2.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 410,
+      "name": "Motor Trend",
+      "file": "provider_410.png",
+      "poster_file": "poster/provider_410.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/d9/Motor-trend-group.svg/revision/latest?cb=20181123163203",
+      "source_title": "File:Motor-trend-group.svg",
+      "source_page": "Motor Trend (magazine)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "553x160"
+    },
+    {
+      "id": 562,
+      "name": "MovieSaints",
+      "file": "provider_562.png",
+      "poster_file": "poster/provider_562.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/fdWE8jpmQqkZrwg2ZMuCLz6ms5P.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 453,
+      "name": "MTV",
+      "file": "provider_453.png",
+      "poster_file": "poster/provider_453.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/c2/MTV_Logo_1981.svg/revision/latest?cb=20210730182659",
+      "source_title": "File:MTV Logo 1981.svg",
+      "source_page": "MTV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1272x971"
+    },
+    {
+      "id": 11,
+      "name": "MUBI",
+      "file": "provider_11.png",
+      "poster_file": "poster/provider_11.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "mubi"
+    },
+    {
+      "id": 201,
+      "name": "MUBI Amazon",
+      "file": "provider_201.png",
+      "poster_file": "poster/provider_201.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "mubi"
+    },
+    {
+      "id": 1972,
+      "name": "myfilmfriend",
+      "file": "provider_1972.png",
+      "poster_file": "poster/provider_1972.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/u6RDPCBgkTpM5OIJ1LXO2KeekiX.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 264,
+      "name": "MyOutdoorTV",
+      "file": "provider_264.png",
+      "poster_file": "poster/provider_264.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/tTLB4xkjrKXxdtiWTeeS6qQB1v9.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 291,
+      "name": "MZ Choice Amazon",
+      "file": "provider_291.png",
+      "poster_file": "poster/provider_291.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/21/MHz_Choice.svg/revision/latest?cb=20251205235732",
+      "source_title": "File:MHz Choice.svg",
+      "source_page": "MHz Choice",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "500x500"
+    },
+    {
+      "id": 1964,
+      "name": "National Geographic",
+      "file": "provider_1964.png",
+      "poster_file": "poster/provider_1964.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/c6/National_Geographic_2008.svg/revision/latest?cb=20170701154034",
+      "source_title": "File:National Geographic 2008.svg",
+      "source_page": "National Geographic",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x294"
+    },
+    {
+      "id": 79,
+      "name": "NBC",
+      "file": "provider_79.png",
+      "poster_file": "poster/provider_79.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.nbcnews.com",
+      "simple_slug": "nbc",
+      "simple_title": "NBC"
+    },
+    {
+      "id": 8,
+      "name": "Netflix",
+      "file": "provider_8.png",
+      "poster_file": "poster/provider_8.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "netflix"
+    },
+    {
+      "id": 1796,
+      "name": "Netflix basic with Ads",
+      "file": "provider_1796.png",
+      "poster_file": "poster/provider_1796.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "netflix"
+    },
+    {
+      "id": 175,
+      "name": "Netflix Kids",
+      "file": "provider_175.png",
+      "poster_file": "poster/provider_175.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "netflix"
+    },
+    {
+      "id": 261,
+      "name": "Nickhits",
+      "file": "provider_261.png",
+      "poster_file": "poster/provider_261.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/1/1a/NickHits_Flat_logo_%28remake%29.png/revision/latest?cb=20221201012518",
+      "source_title": "File:NickHits Flat logo (remake).png",
+      "source_page": "Nick Hits (Latin America)",
+      "source_mime": "image/png",
+      "source_dimensions": "3165x1665"
+    },
+    {
+      "id": 455,
+      "name": "Night Flight Plus",
+      "file": "provider_455.png",
+      "poster_file": "poster/provider_455.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/ba8l0e5CkpVnrdFgzBySP7ckZnZ.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 262,
+      "name": "Noggin",
+      "file": "provider_262.png",
+      "poster_file": "poster/provider_262.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/5/59/Noggin-logo-2019.svg/revision/latest?cb=20200825192252",
+      "source_title": "File:Noggin-logo-2019.svg",
+      "source_page": "Noggin",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x360"
+    },
+    {
+      "id": 555,
+      "name": "Oprah Winfrey Network",
+      "file": "provider_555.png",
+      "poster_file": "poster/provider_555.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/0f/Oprah_Winfrey_Network.svg/revision/latest?cb=20230818231437",
+      "source_title": "File:Oprah Winfrey Network.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "412x176"
+    },
+    {
+      "id": 1976,
+      "name": "Outside Watch",
+      "file": "provider_1976.png",
+      "poster_file": "poster/provider_1976.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/7N6w9Hz541qNhlHEHjHgEGCjKDh.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1953,
+      "name": "Ovation TV",
+      "file": "provider_1953.png",
+      "poster_file": "poster/provider_1953.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/ua5RmU2I9tkmpPR6IenXUPxnkzC.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 433,
+      "name": "OVID",
+      "file": "provider_433.png",
+      "poster_file": "poster/provider_433.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/nXi2nRDPMNivJyFOifEa2t15Xuu.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 487,
+      "name": "OXYGEN",
+      "file": "provider_487.png",
+      "poster_file": "poster/provider_487.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://oxygenbuilder.com",
+      "simple_slug": "oxygen",
+      "simple_title": "Oxygen"
+    },
+    {
+      "id": 177,
+      "name": "Pantaflix",
+      "file": "provider_177.png",
+      "poster_file": "poster/provider_177.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/2tAjxjo1n3H7fsXqMsxWFMeFUWp.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 247,
+      "name": "Pantaya",
+      "file": "provider_247.png",
+      "poster_file": "poster/provider_247.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/94IdHexespnJs96kmGiJlflfiwU.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 292,
+      "name": "Pantaya Amazon",
+      "file": "provider_292.png",
+      "poster_file": "poster/provider_292.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/fvSJ17mOt3MxKfnSgQVrtXTuepq.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 418,
+      "name": "Paramount Network",
+      "file": "provider_418.png",
+      "poster_file": "poster/provider_418.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/5/57/Paramount_Network_2024.svg/revision/latest?cb=20250311152653",
+      "source_title": "File:Paramount Network 2024.svg",
+      "source_page": "Paramount Network",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "850x565"
+    },
+    {
+      "id": 531,
+      "name": "Paramount Plus",
+      "file": "provider_531.png",
+      "poster_file": "poster/provider_531.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "paramount_plus"
+    },
+    {
+      "id": 582,
+      "name": "Paramount+ Amazon",
+      "file": "provider_582.png",
+      "poster_file": "poster/provider_582.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "paramount_plus"
+    },
+    {
+      "id": 1853,
+      "name": "Paramount+ AppleTV ",
+      "file": "provider_1853.png",
+      "poster_file": "poster/provider_1853.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "paramount_plus"
+    },
+    {
+      "id": 633,
+      "name": "Paramount+ Roku Premium",
+      "file": "provider_633.png",
+      "poster_file": "poster/provider_633.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "paramount_plus"
+    },
+    {
+      "id": 1770,
+      "name": "Paramount+ Showtime",
+      "file": "provider_1770.png",
+      "poster_file": "poster/provider_1770.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "paramount_plus"
+    },
+    {
+      "id": 209,
+      "name": "PBS",
+      "file": "provider_209.png",
+      "poster_file": "poster/provider_209.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/c8/PBS_2019.svg/revision/latest?cb=20230301034412",
+      "source_title": "File:PBS 2019.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1126x469"
+    },
+    {
+      "id": 293,
+      "name": "PBS Kids Amazon",
+      "file": "provider_293.png",
+      "poster_file": "poster/provider_293.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/c8/PBS_Kids_logo_1993_P-Pals.svg/revision/latest?cb=20201107080256",
+      "source_title": "File:PBS Kids logo 1993 P-Pals.svg",
+      "source_page": "PBS Kids",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x378"
+    },
+    {
+      "id": 294,
+      "name": "PBS Masterpiece Amazon",
+      "file": "provider_294.png",
+      "poster_file": "poster/provider_294.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/mMALQK52OFGoYUKOSCZILZkfGWs.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 386,
+      "name": "Peacock",
+      "file": "provider_386.png",
+      "poster_file": "poster/provider_386.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "peacock"
+    },
+    {
+      "id": 387,
+      "name": "Peacock Premium",
+      "file": "provider_387.png",
+      "poster_file": "poster/provider_387.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "peacock"
+    },
+    {
+      "id": 538,
+      "name": "Plex",
+      "file": "provider_538.png",
+      "poster_file": "poster/provider_538.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://brand.plex.tv",
+      "simple_slug": "plex",
+      "simple_title": "Plex"
+    },
+    {
+      "id": 1945,
+      "name": "Plex Player",
+      "file": "provider_1945.png",
+      "poster_file": "poster/provider_1945.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/2qHTjqMoBxpa2gJPbbEDvqpLZJS.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 300,
+      "name": "Pluto TV",
+      "file": "provider_300.png",
+      "poster_file": "poster/provider_300.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/26/Pluto_TV_2024.svg/revision/latest?cb=20240126205307",
+      "source_title": "File:Pluto TV 2024.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "709x528"
+    },
+    {
+      "id": 241,
+      "name": "Popcornflix",
+      "file": "provider_241.png",
+      "poster_file": "poster/provider_241.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/b/bf/Popcornflix_old_logo.png/revision/latest?cb=20241007130321",
+      "source_title": "File:Popcornflix old logo.png",
+      "source_page": "Popcornflix",
+      "source_mime": "image/png",
+      "source_dimensions": "1144x143"
+    },
+    {
+      "id": 1832,
+      "name": "Popflick",
+      "file": "provider_1832.png",
+      "poster_file": "poster/provider_1832.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/wbKHI2d5417yAAY7QestC3qnXyo.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 638,
+      "name": "Public Domain Movies",
+      "file": "provider_638.png",
+      "poster_file": "poster/provider_638.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/liEIj6CkvojVDiMWeexGvflSPZT.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 278,
+      "name": "Pure Flix",
+      "file": "provider_278.png",
+      "poster_file": "poster/provider_278.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/7/75/GreatAmericanPureFlix.png/revision/latest?cb=20231205131751",
+      "source_title": "File:GreatAmericanPureFlix.png",
+      "source_page": "Great American Pure Flix",
+      "source_mime": "image/png",
+      "source_dimensions": "1367x402"
+    },
+    {
+      "id": 344,
+      "name": "Rakuten Viki",
+      "file": "provider_344.png",
+      "poster_file": "poster/provider_344.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/qjtOUIUnk4kRpcZmaddjqDHM0dR.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 14,
+      "name": "realeyz",
+      "file": "provider_14.png",
+      "poster_file": "poster/provider_14.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/10BQc1kYmgjXFrFKb3xsRcDDn14.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 279,
+      "name": "Redbox",
+      "file": "provider_279.png",
+      "poster_file": "poster/provider_279.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/06/Redbox-2017-compress.svg/revision/latest?cb=20240912004413",
+      "source_title": "File:Redbox-2017-compress.svg",
+      "source_page": "Redbox",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "885x222"
+    },
+    {
+      "id": 446,
+      "name": "Retrocrush",
+      "file": "provider_446.png",
+      "poster_file": "poster/provider_446.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/9ONs8SMAXtkiyaEIKATTpbwckx8.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1948,
+      "name": "Reveel",
+      "file": "provider_1948.png",
+      "poster_file": "poster/provider_1948.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/9X86vPeIfv7mNHW9DOf88n4g03x.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 473,
+      "name": "Revry",
+      "file": "provider_473.png",
+      "poster_file": "poster/provider_473.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/r1UgUKmt83FSDOIHBdRWKooZPNx.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 485,
+      "name": "Rooster Teeth",
+      "file": "provider_485.png",
+      "poster_file": "poster/provider_485.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/97/Rooster_Teeth_20th_Anniversary_with_new_logo.png/revision/latest?cb=20230409165837",
+      "source_title": "File:Rooster Teeth 20th Anniversary with new logo.png",
+      "source_page": "Rooster Teeth Productions/Other",
+      "source_mime": "image/png",
+      "source_dimensions": "2048x2048"
+    },
+    {
+      "id": 1875,
+      "name": "Runtime",
+      "file": "provider_1875.png",
+      "poster_file": "poster/provider_1875.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/nvCfpn94VKJN4ZpkDgoupJWlXqq.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 411,
+      "name": "Science Channel",
+      "file": "provider_411.png",
+      "poster_file": "poster/provider_411.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/3bRK8VOvIfWIhOLGGwNA67kphXC.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 185,
+      "name": "Screambox",
+      "file": "provider_185.png",
+      "poster_file": "poster/provider_185.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/c2Ey5Q3uUjZgfWWQQIdVIjVfxE4.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 202,
+      "name": "Screambox Amazon",
+      "file": "provider_202.png",
+      "poster_file": "poster/provider_202.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/naqM14qSfg2q0S2zDylM5zQQ3jn.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 1715,
+      "name": "Shahid VIP",
+      "file": "provider_1715.png",
+      "poster_file": "poster/provider_1715.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/uurfHKuprPDeKfIs7FYd5lQzw0L.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 688,
+      "name": "ShortsTV Amazon",
+      "file": "provider_688.png",
+      "poster_file": "poster/provider_688.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/0/02/ShortsTV_%282017%29.svg/revision/latest?cb=20191215101934",
+      "source_title": "File:ShortsTV (2017).svg",
+      "source_page": "ShortsTV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x143"
+    },
+    {
+      "id": 439,
+      "name": "Shout! Factory TV",
+      "file": "provider_439.png",
+      "poster_file": "poster/provider_439.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/ju3T8MFGNIoPiYpwHFpNlrYNyG7.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 37,
+      "name": "Showtime",
+      "file": "provider_37.png",
+      "poster_file": "poster/provider_37.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://commons.wikimedia.org/wiki/File:Showtime.svg",
+      "simple_slug": "showtime",
+      "simple_title": "Showtime"
+    },
+    {
+      "id": 203,
+      "name": "Showtime Amazon",
+      "file": "provider_203.png",
+      "poster_file": "poster/provider_203.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://commons.wikimedia.org/wiki/File:Showtime.svg",
+      "simple_slug": "showtime",
+      "simple_title": "Showtime"
+    },
+    {
+      "id": 675,
+      "name": "Showtime Apple TV",
+      "file": "provider_675.png",
+      "poster_file": "poster/provider_675.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://commons.wikimedia.org/wiki/File:Showtime.svg",
+      "simple_slug": "showtime",
+      "simple_title": "Showtime"
+    },
+    {
+      "id": 632,
+      "name": "Showtime Roku Premium",
+      "file": "provider_632.png",
+      "poster_file": "poster/provider_632.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://commons.wikimedia.org/wiki/File:Showtime.svg",
+      "simple_slug": "showtime",
+      "simple_title": "Showtime"
+    },
+    {
+      "id": 99,
+      "name": "Shudder",
+      "file": "provider_99.png",
+      "poster_file": "poster/provider_99.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/b/b2/Shudder_Logo_2017.svg/revision/latest?cb=20181129220621",
+      "source_title": "File:Shudder Logo 2017.svg",
+      "source_page": "Shudder",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1043x169"
+    },
+    {
+      "id": 204,
+      "name": "Shudder Amazon",
+      "file": "provider_204.png",
+      "poster_file": "poster/provider_204.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/b/b2/Shudder_Logo_2017.svg/revision/latest?cb=20181129220621",
+      "source_title": "File:Shudder Logo 2017.svg",
+      "source_page": "Shudder",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1043x169"
+    },
+    {
+      "id": 299,
+      "name": "Sling TV Orange and Blue",
+      "file": "provider_299.png",
+      "poster_file": "poster/provider_299.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/5/53/Sling_TV_logo.svg",
+      "source_title": "File:Sling TV logo.svg"
+    },
+    {
+      "id": 276,
+      "name": "Smithsonian Channel",
+      "file": "provider_276.png",
+      "poster_file": "poster/provider_276.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/e1/Smithsonian_Channel.svg/revision/latest?cb=20161106184037",
+      "source_title": "File:Smithsonian Channel.svg",
+      "source_page": "Smithsonian Channel (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x205"
+    },
+    {
+      "id": 521,
+      "name": "Spamflix",
+      "file": "provider_521.png",
+      "poster_file": "poster/provider_521.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/xN97FFkFAdY1JvHhS4zyPD4URgD.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 486,
+      "name": "Spectrum On Demand",
+      "file": "provider_486.png",
+      "poster_file": "poster/provider_486.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://spectrum.chat",
+      "simple_slug": "spectrum",
+      "simple_title": "Spectrum"
+    },
+    {
+      "id": 43,
+      "name": "Starz",
+      "file": "provider_43.png",
+      "poster_file": "poster/provider_43.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "starz"
+    },
+    {
+      "id": 1794,
+      "name": "Starz Amazon",
+      "file": "provider_1794.png",
+      "poster_file": "poster/provider_1794.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "starz"
+    },
+    {
+      "id": 1855,
+      "name": "Starz Apple TV",
+      "file": "provider_1855.png",
+      "poster_file": "poster/provider_1855.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "starz"
+    },
+    {
+      "id": 194,
+      "name": "Starz Play Amazon",
+      "file": "provider_194.png",
+      "poster_file": "poster/provider_194.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "starz"
+    },
+    {
+      "id": 634,
+      "name": "Starz Roku Premium",
+      "file": "provider_634.png",
+      "poster_file": "poster/provider_634.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "starz"
+    },
+    {
+      "id": 309,
+      "name": "Sun Nxt",
+      "file": "provider_309.png",
+      "poster_file": "poster/provider_309.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "sun_nxt"
+    },
+    {
+      "id": 143,
+      "name": "Sundance Now",
+      "file": "provider_143.png",
+      "poster_file": "poster/provider_143.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/7/78/Sundance_Now_2016.svg/revision/latest?cb=20190809154515",
+      "source_title": "File:Sundance Now 2016.svg",
+      "source_page": "Sundance Now",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "2000x330"
+    },
+    {
+      "id": 205,
+      "name": "Sundance Now Amazon",
+      "file": "provider_205.png",
+      "poster_file": "poster/provider_205.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/7/78/Sundance_Now_2016.svg/revision/latest?cb=20190809154515",
+      "source_title": "File:Sundance Now 2016.svg",
+      "source_page": "Sundance Now",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "2000x330"
+    },
+    {
+      "id": 215,
+      "name": "Syfy",
+      "file": "provider_215.png",
+      "poster_file": "poster/provider_215.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/24/Syfy_logo.svg/revision/latest?cb=20160810120339",
+      "source_title": "File:Syfy logo.svg",
+      "source_page": "Syfy",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "2000x1079"
+    },
+    {
+      "id": 1771,
+      "name": "Takflix",
+      "file": "provider_1771.png",
+      "poster_file": "poster/provider_1771.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/cnIHBy3uLWhHRR7VeWQhK3ZsYP0.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 506,
+      "name": "TBS",
+      "file": "provider_506.png",
+      "poster_file": "poster/provider_506.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/a/ac/TBS_Logo_2005.svg/revision/latest?cb=20180505150950",
+      "source_title": "File:TBS Logo 2005.svg",
+      "source_page": "TBS (United States)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "921x1000"
+    },
+    {
+      "id": 361,
+      "name": "TCM",
+      "file": "provider_361.png",
+      "poster_file": "poster/provider_361.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/c/cb/Turner_Classic_Movies_2021.svg/revision/latest?cb=20210901224657",
+      "source_title": "File:Turner Classic Movies 2021.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x485"
+    },
+    {
+      "id": 83,
+      "name": "The CW",
+      "file": "provider_83.png",
+      "poster_file": "poster/provider_83.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/b/b1/The_CW_2024.svg/revision/latest?cb=20240129132950",
+      "source_title": "File:The CW 2024.svg",
+      "source_page": "The CW",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x225"
+    },
+    {
+      "id": 470,
+      "name": "The Film Detective",
+      "file": "provider_470.png",
+      "poster_file": "poster/provider_470.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/rOwEnT8oDSTZ5rDKmyaa3O4gUnc.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 207,
+      "name": "The Roku Channel",
+      "file": "provider_207.png",
+      "poster_file": "poster/provider_207.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/61/The_Roku_Channel_Logo.svg/revision/latest?cb=20220929174954",
+      "source_title": "File:The Roku Channel Logo.svg",
+      "source_page": "The Roku Channel",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "187x20"
+    },
+    {
+      "id": 412,
+      "name": "TLC",
+      "file": "provider_412.png",
+      "poster_file": "poster/provider_412.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/df/TLC-Logo_2016.svg/revision/latest?cb=20220704002121",
+      "source_title": "File:TLC-Logo 2016.svg",
+      "source_page": "TLC (international)",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "379x197"
+    },
+    {
+      "id": 363,
+      "name": "TNT",
+      "file": "provider_363.png",
+      "poster_file": "poster/provider_363.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/f/f4/TNT_2016.svg/revision/latest?cb=20201128113457",
+      "source_title": "File:TNT 2016.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "512x512"
+    },
+    {
+      "id": 454,
+      "name": "Topic",
+      "file": "provider_454.png",
+      "poster_file": "poster/provider_454.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/f/fb/Topic.jpg/revision/latest?cb=20191029091714",
+      "source_title": "File:Topic.jpg",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "293x99"
+    },
+    {
+      "id": 413,
+      "name": "Travel Channel",
+      "file": "provider_413.png",
+      "poster_file": "poster/provider_413.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/d/d2/Travel_Channel_logo.svg/revision/latest?cb=20220526125131",
+      "source_title": "File:Travel Channel logo.svg",
+      "source_page": "Travel Channel",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "466x429"
+    },
+    {
+      "id": 507,
+      "name": "tru TV",
+      "file": "provider_507.png",
+      "poster_file": "poster/provider_507.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/3/36/TruTV_2014.svg/revision/latest?cb=20251223195656",
+      "source_title": "File:TruTV 2014.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x385"
+    },
+    {
+      "id": 567,
+      "name": "True Story",
+      "file": "provider_567.png",
+      "poster_file": "poster/provider_567.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/osREemsc9uUB2J8VTkQeAVk2fu9.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 73,
+      "name": "Tubi TV",
+      "file": "provider_73.png",
+      "poster_file": "poster/provider_73.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "curated",
+      "source": "tubi"
+    },
+    {
+      "id": 419,
+      "name": "TV Land",
+      "file": "provider_419.png",
+      "poster_file": "poster/provider_419.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.tvtime.com",
+      "simple_slug": "tvtime",
+      "simple_title": "TV Time"
+    },
+    {
+      "id": 1860,
+      "name": "Univer Video",
+      "file": "provider_1860.png",
+      "poster_file": "poster/provider_1860.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/e/e1/Logo_univer_video_452dadb93f.png/revision/latest?cb=20240901160655",
+      "source_title": "File:Logo univer video 452dadb93f.png",
+      "source_page": "Univer Video",
+      "source_mime": "image/png",
+      "source_dimensions": "1920x531"
+    },
+    {
+      "id": 251,
+      "name": "Urban Movie Channel",
+      "file": "provider_251.png",
+      "poster_file": "poster/provider_251.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/5uTsmZnDQmIOjZPEv8TNTy7GRJB.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 322,
+      "name": "USA Network",
+      "file": "provider_322.png",
+      "poster_file": "poster/provider_322.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/91/USA_Networks_logo_%281998-200%3F%29.png/revision/latest?cb=20211014031531",
+      "source_title": "File:USA Networks logo (1998-200?).png",
+      "source_page": "USA Network Originals",
+      "source_mime": "image/png",
+      "source_dimensions": "636x473"
+    },
+    {
+      "id": 422,
+      "name": "VH1",
+      "file": "provider_422.png",
+      "poster_file": "poster/provider_422.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/41/VH1_logo_1999.svg/revision/latest?cb=20260107000013",
+      "source_title": "File:VH1 logo 1999.svg",
+      "source_page": "VH1",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "943x1110"
+    },
+    {
+      "id": 76,
+      "name": "Viaplay",
+      "file": "provider_76.png",
+      "poster_file": "poster/provider_76.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://commons.wikimedia.org/wiki/File:Viaplay_Group.svg",
+      "simple_slug": "viaplay",
+      "simple_title": "Viaplay"
+    },
+    {
+      "id": 458,
+      "name": "Vice TV ",
+      "file": "provider_458.png",
+      "poster_file": "poster/provider_458.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/9/96/Vice_TV.svg/revision/latest?cb=20201103155851",
+      "source_title": "File:Vice TV.svg",
+      "source_page": "Vice TV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1481x398"
+    },
+    {
+      "id": 295,
+      "name": "Viewster Amazon",
+      "file": "provider_295.png",
+      "poster_file": "poster/provider_295.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/mlH42JbZMrapSF6zc8iTYURcZlH.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 457,
+      "name": "VIX ",
+      "file": "provider_457.png",
+      "poster_file": "poster/provider_457.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia_manual",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/7/73/VIX_2022.svg/revision/latest?cb=20220330115252",
+      "source_title": "File:VIX 2022.svg",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "500x185"
+    },
+    {
+      "id": 504,
+      "name": "VRV",
+      "file": "provider_504.png",
+      "poster_file": "poster/provider_504.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/8/85/VRV_alternative_logo.svg/revision/latest?cb=20210124003419",
+      "source_title": "File:VRV alternative logo.svg",
+      "source_page": "VRV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "639x738"
+    },
+    {
+      "id": 7,
+      "name": "Vudu",
+      "file": "provider_7.png",
+      "poster_file": "poster/provider_7.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Vudu_2014_logo.svg",
+      "source_title": "File:Vudu 2014 logo.svg"
+    },
+    {
+      "id": 332,
+      "name": "VUDU Free",
+      "file": "provider_332.png",
+      "poster_file": "poster/provider_332.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "commons_manual",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Vudu_2014_logo.svg",
+      "source_title": "File:Vudu 2014 logo.svg"
+    },
+    {
+      "id": 509,
+      "name": "WeTV",
+      "file": "provider_509.png",
+      "poster_file": "poster/provider_509.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/2/20/WE_TV_logo_%282024%29.svg/revision/latest?cb=20240703134351",
+      "source_title": "File:WE TV logo (2024).svg",
+      "source_page": "We TV",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "1000x254"
+    },
+    {
+      "id": 546,
+      "name": "WOW Presents Plus",
+      "file": "provider_546.png",
+      "poster_file": "poster/provider_546.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "tmdb_fallback",
+      "source": "https://image.tmdb.org/t/p/original/mgD0T960hnYU4gBxbPPBrcDfgWg.jpg",
+      "source_title": "TMDb watch provider icon",
+      "source_mime": "image/jpeg",
+      "source_dimensions": "100x100"
+    },
+    {
+      "id": 260,
+      "name": "WWE Network",
+      "file": "provider_260.png",
+      "poster_file": "poster/provider_260.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/4/40/WWENetworkLogo.PNG/revision/latest?cb=20141006220900",
+      "source_title": "File:WWENetworkLogo.PNG",
+      "source_page": "WWE Network (United States)/Other",
+      "source_mime": "image/png",
+      "source_dimensions": "245x62"
+    },
+    {
+      "id": 1963,
+      "name": "Xumo Play",
+      "file": "provider_1963.png",
+      "poster_file": "poster/provider_1963.png",
+      "sections": [
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/f/fc/Xumo_Play_2023.svg/revision/latest?cb=20230104003852",
+      "source_title": "File:Xumo Play 2023.svg",
+      "source_page": "Xumo Play",
+      "source_mime": "image/svg+xml",
+      "source_dimensions": "126x18"
+    },
+    {
+      "id": 192,
+      "name": "YouTube",
+      "file": "provider_192.png",
+      "poster_file": "poster/provider_192.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+      "simple_slug": "youtube",
+      "simple_title": "YouTube"
+    },
+    {
+      "id": 235,
+      "name": "YouTube Free",
+      "file": "provider_235.png",
+      "poster_file": "poster/provider_235.png",
+      "sections": [
+        "movie"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+      "simple_slug": "youtube",
+      "simple_title": "YouTube"
+    },
+    {
+      "id": 188,
+      "name": "YouTube Premium",
+      "file": "provider_188.png",
+      "poster_file": "poster/provider_188.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "simple_icons",
+      "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+      "simple_slug": "youtube",
+      "simple_title": "YouTube"
+    },
+    {
+      "id": 255,
+      "name": "Yupp TV",
+      "file": "provider_255.png",
+      "poster_file": "poster/provider_255.png",
+      "sections": [
+        "movie",
+        "tvshow"
+      ],
+      "type": "logopedia",
+      "source": "https://static.wikia.nocookie.net/logopedia/images/6/6c/Yupp_TV.png/revision/latest?cb=20200421190141",
+      "source_title": "File:Yupp TV.png",
+      "source_page": "Yupp TV",
+      "source_mime": "image/png",
+      "source_dimensions": "881x348"
+    }
+  ],
+  "counts": {
+    "logopedia": 84,
+    "logopedia_manual": 22,
+    "tmdb_fallback": 72,
+    "curated": 30,
+    "simple_icons": 15,
+    "commons_manual": 8,
+    "user_supplied": 1
+  },
+  "logo_upgrade_note": "All providers now use real provider artwork. High-quality logos come from curated sources, Logopedia/Fandom, Wikimedia Commons, and Simple Icons; TMDb 100x100 provider icons are centered/padded only as last-resort fallback."
+}

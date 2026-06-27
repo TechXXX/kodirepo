@@ -180,7 +180,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.89">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.90">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -201,7 +201,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.89]:
+            <news>[v2.0.90]:
+  * Add local decade and provider artwork for navigator menus, with poster art support where available.
+
+[v2.0.89]:
   * Publish the selector playback URL during Fen playback so a4k can reject stale selector subtitle payloads from unrelated videos.
 
 [v2.0.88]:

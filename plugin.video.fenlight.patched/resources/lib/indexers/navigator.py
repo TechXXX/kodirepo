@@ -23,15 +23,32 @@ run_plugin = 'RunPlugin(%s)'
 random_list_dict = {'movie': nc.random_movie_lists, 'tvshow': nc.random_tvshow_lists, 'anime': nc.random_anime_lists, 'trakt': nc.random_trakt_lists,
 'because_you_watched': nc.random_because_you_watched_lists}
 search_mode_dict = {'movie': ('movie_queries', {'mode': 'search.get_key_id', 'media_type': 'movie', 'isFolder': 'false'}),
-				'tvshow': ('tvshow_queries', {'mode': 'search.get_key_id', 'media_type': 'tv_show', 'isFolder': 'false'}),
-				'ai_search': ('ai_search_queries', {'mode': 'ai_search.run', 'isFolder': 'false'}),
-				'anime': ('anime_queries', {'mode': 'search.get_key_id', 'media_type': 'anime', 'isFolder': 'false'}),
-				'people': ('people_queries', {'mode': 'search.get_key_id', 'search_type': 'people', 'isFolder': 'false'}),
-				'tmdb_keyword_movie': ('keyword_tmdb_movie_queries', {'mode': 'search.get_key_id', 'search_type': 'tmdb_keyword', 'media_type': 'movie', 'isFolder': 'false'}),
-				'tmdb_keyword_tvshow': ('keyword_tmdb_tvshow_queries', {'mode': 'search.get_key_id', 'search_type': 'tmdb_keyword', 'media_type': 'tvshow', 'isFolder': 'false'}),
-				'easynews_video': ('easynews_video_queries', {'mode': 'search.get_key_id', 'search_type': 'easynews_video', 'isFolder': 'false'}),
-				'easynews_image': ('easynews_image_queries', {'mode': 'search.get_key_id', 'search_type': 'easynews_image', 'isFolder': 'false'}),
-				'trakt_lists': ('trakt_list_queries', {'mode': 'search.get_key_id', 'search_type': 'trakt_lists', 'isFolder': 'false'})}
+					'tvshow': ('tvshow_queries', {'mode': 'search.get_key_id', 'media_type': 'tv_show', 'isFolder': 'false'}),
+					'ai_search': ('ai_search_queries', {'mode': 'ai_search.run', 'isFolder': 'false'}),
+					'anime': ('anime_queries', {'mode': 'search.get_key_id', 'media_type': 'anime', 'isFolder': 'false'}),
+					'people': ('people_queries', {'mode': 'search.get_key_id', 'search_type': 'people', 'isFolder': 'false'}),
+					'tmdb_keyword_movie': ('keyword_tmdb_movie_queries', {'mode': 'search.get_key_id', 'search_type': 'tmdb_keyword', 'media_type': 'movie', 'isFolder': 'false'}),
+					'tmdb_keyword_tvshow': ('keyword_tmdb_tvshow_queries', {'mode': 'search.get_key_id', 'search_type': 'tmdb_keyword', 'media_type': 'tvshow', 'isFolder': 'false'}),
+					'easynews_video': ('easynews_video_queries', {'mode': 'search.get_key_id', 'search_type': 'easynews_video', 'isFolder': 'false'}),
+					'easynews_image': ('easynews_image_queries', {'mode': 'search.get_key_id', 'search_type': 'easynews_image', 'isFolder': 'false'}),
+					'trakt_lists': ('trakt_list_queries', {'mode': 'search.get_key_id', 'search_type': 'trakt_lists', 'isFolder': 'false'})}
+def get_provider_art(provider_id):
+	art_file = 'provider_%s.png' % provider_id
+	art_path = k.path_join(k.addon_path(), 'resources', 'media', 'provider_art')
+	icon = k.path_join(art_path, art_file)
+	if not k.exists(icon): return None, None
+	poster = k.path_join(art_path, 'poster', art_file)
+	if not k.exists(poster): poster = icon
+	return icon, poster
+
+def get_decade_art(decade_id):
+	art_file = 'decade_%s.png' % decade_id
+	art_path = k.path_join(k.addon_path(), 'resources', 'media', 'decade_art')
+	icon = k.path_join(art_path, art_file)
+	if not k.exists(icon): return None, None
+	poster = k.path_join(art_path, 'poster', art_file)
+	if not k.exists(poster): poster = icon
+	return icon, poster
 
 class Navigator:
 	def __init__(self, params):
@@ -283,7 +300,10 @@ class Navigator:
 			mode = 'build_tvshow_list'
 			if menu_type == 'tvshow': decades, action = ml.decades_tvshows, 'tmdb_tv_decade'
 			else: decades, action = ml.decades_anime, 'tmdb_anime_decade'
-		for i in decades: self.add({'mode': mode, 'action': action, 'key_id': i['id'], 'name': i['name']}, i['name'], 'calendar_decades')
+		for i in decades:
+			icon, poster = get_decade_art(i['id'])
+			if icon: self.add({'mode': mode, 'action': action, 'key_id': i['id'], 'name': i['name']}, i['name'], icon, original_image=True, posterImage=poster)
+			else: self.add({'mode': mode, 'action': action, 'key_id': i['id'], 'name': i['name']}, i['name'], 'calendar_decades')
 		self.end_directory()
 
 	def networks(self):
@@ -301,7 +321,10 @@ class Navigator:
 			mode, providers = 'build_tvshow_list', ml.watch_providers_tvshows
 			if menu_type == 'tvshow': action = 'tmdb_tv_providers'
 			else: action = 'tmdb_anime_providers'
-		for i in providers: self.add({'mode': mode, 'action': action, 'key_id': i['id'], 'name': i['name']}, i['name'], image_insert % i['icon'], original_image=True)
+		for i in providers:
+			icon, poster = get_provider_art(i['id'])
+			if not icon: icon, poster = image_insert % i['icon'], None
+			self.add({'mode': mode, 'action': action, 'key_id': i['id'], 'name': i['name']}, i['name'], icon, original_image=True, posterImage=poster)
 		self.end_directory()
 
 	def genres(self):
@@ -467,15 +490,16 @@ class Navigator:
 		for item in random_list_dict[menu_type](): self.add(item, item['name'], item['iconImage'])
 		self.end_directory()
 
-	def add(self, url_params, list_name, iconImage='folder', original_image=False, cm_items=[]):
+	def add(self, url_params, list_name, iconImage='folder', original_image=False, cm_items=[], posterImage=None):
 		isFolder = url_params.get('isFolder', 'true') == 'true'
 		if original_image: icon = iconImage
 		else: icon = get_icon(iconImage)
+		poster = posterImage or icon
 		url_params['iconImage'] = icon
 		url = build_url(url_params)
 		listitem = make_listitem()
 		listitem.setLabel(list_name)
-		listitem.setArt({'icon': icon, 'poster': icon, 'thumb': icon, 'fanart': fanart, 'banner': icon, 'landscape': icon})
+		listitem.setArt({'icon': icon, 'poster': poster, 'thumb': icon, 'fanart': fanart, 'banner': icon, 'landscape': icon})
 		info_tag = listitem.getVideoInfoTag()
 		info_tag.setPlot(' ')
 		if cm_items and not self.is_home: listitem.addContextMenuItems(cm_items)

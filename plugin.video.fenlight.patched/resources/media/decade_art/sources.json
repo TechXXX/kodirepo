@@ -1,0 +1,177 @@
+{
+  "generated_at": "2026-06-27T06:52:38.510Z",
+  "count": 14,
+  "square_canvas": "512x512 PNG decade_<year>.png",
+  "poster_canvas": "512x768 PNG poster/decade_<year>.png",
+  "style": "time capsule decade cards with film sprockets, scanlines, and era-colored palettes",
+  "assets": [
+    {
+      "id": 2030,
+      "name": "2030s",
+      "file": "decade_2030.png",
+      "poster_file": "poster/decade_2030.png",
+      "palette": [
+        "#111326",
+        "#6e5cff",
+        "#7df9ff"
+      ],
+      "caption": "FUTURE CUT"
+    },
+    {
+      "id": 2020,
+      "name": "2020s",
+      "file": "decade_2020.png",
+      "poster_file": "poster/decade_2020.png",
+      "palette": [
+        "#101820",
+        "#00a6ff",
+        "#e7f5ff"
+      ],
+      "caption": "STREAMING AGE"
+    },
+    {
+      "id": 2010,
+      "name": "2010s",
+      "file": "decade_2010.png",
+      "poster_file": "poster/decade_2010.png",
+      "palette": [
+        "#171a1f",
+        "#a3ff12",
+        "#edf2f4"
+      ],
+      "caption": "DIGITAL NOIR"
+    },
+    {
+      "id": 2000,
+      "name": "2000s",
+      "file": "decade_2000.png",
+      "poster_file": "poster/decade_2000.png",
+      "palette": [
+        "#1c2535",
+        "#8bbcff",
+        "#f5f7fb"
+      ],
+      "caption": "WIDESCREEN"
+    },
+    {
+      "id": 1990,
+      "name": "1990s",
+      "file": "decade_1990.png",
+      "poster_file": "poster/decade_1990.png",
+      "palette": [
+        "#111820",
+        "#ff4fb3",
+        "#37f3d5"
+      ],
+      "caption": "ALT SIGNAL"
+    },
+    {
+      "id": 1980,
+      "name": "1980s",
+      "file": "decade_1980.png",
+      "poster_file": "poster/decade_1980.png",
+      "palette": [
+        "#130d25",
+        "#ff2bd6",
+        "#31fff6"
+      ],
+      "caption": "NEON REWIND"
+    },
+    {
+      "id": 1970,
+      "name": "1970s",
+      "file": "decade_1970.png",
+      "poster_file": "poster/decade_1970.png",
+      "palette": [
+        "#2b2118",
+        "#f0a33a",
+        "#d4e157"
+      ],
+      "caption": "VINYL GRAIN"
+    },
+    {
+      "id": 1960,
+      "name": "1960s",
+      "file": "decade_1960.png",
+      "poster_file": "poster/decade_1960.png",
+      "palette": [
+        "#25182d",
+        "#ff7a1a",
+        "#ffd166"
+      ],
+      "caption": "POP FRAME"
+    },
+    {
+      "id": 1950,
+      "name": "1950s",
+      "file": "decade_1950.png",
+      "poster_file": "poster/decade_1950.png",
+      "palette": [
+        "#102a2e",
+        "#ff6b6b",
+        "#f6f1d1"
+      ],
+      "caption": "DRIVE-IN"
+    },
+    {
+      "id": 1940,
+      "name": "1940s",
+      "file": "decade_1940.png",
+      "poster_file": "poster/decade_1940.png",
+      "palette": [
+        "#141b2d",
+        "#c33c54",
+        "#e6d5a8"
+      ],
+      "caption": "NEWSREEL"
+    },
+    {
+      "id": 1930,
+      "name": "1930s",
+      "file": "decade_1930.png",
+      "poster_file": "poster/decade_1930.png",
+      "palette": [
+        "#1f2933",
+        "#7aa0c4",
+        "#f2e9dc"
+      ],
+      "caption": "SILVER SCREEN"
+    },
+    {
+      "id": 1920,
+      "name": "1920s",
+      "file": "decade_1920.png",
+      "poster_file": "poster/decade_1920.png",
+      "palette": [
+        "#17130d",
+        "#d8a442",
+        "#f8e7bd"
+      ],
+      "caption": "ART DECO"
+    },
+    {
+      "id": 1910,
+      "name": "1910s",
+      "file": "decade_1910.png",
+      "poster_file": "poster/decade_1910.png",
+      "palette": [
+        "#202619",
+        "#8e9a57",
+        "#eee4c5"
+      ],
+      "caption": "EARLY REEL"
+    },
+    {
+      "id": 1900,
+      "name": "1900s",
+      "file": "decade_1900.png",
+      "poster_file": "poster/decade_1900.png",
+      "palette": [
+        "#251b14",
+        "#a06d3f",
+        "#f2dfbf"
+      ],
+      "caption": "FIRST LIGHT"
+    }
+  ]
+}
