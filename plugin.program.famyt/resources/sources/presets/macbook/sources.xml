@@ -1,0 +1,170 @@
+<sources>
+    <programs>
+        <default pathversion="1"></default>
+    </programs>
+    <video>
+        <default pathversion="1"></default>
+        <source>
+            <name>complete</name>
+            <path pathversion="1">smb://bkmacbookpro/complete/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>bkmacbookpro.local</name>
+            <path pathversion="1">smb://bkmacbookpro.local/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>.66</name>
+            <path pathversion="1">smb://192.168.178.66/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>complete new</name>
+            <path pathversion="1">/Users/kalter/complete/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+    </video>
+    <music>
+        <default pathversion="1"></default>
+    </music>
+    <pictures>
+        <default pathversion="1"></default>
+    </pictures>
+    <files>
+        <default pathversion="1"></default>
+        <source>
+            <name>repository.jurialmunkey</name>
+            <path pathversion="1">https://jurialmunkey.github.io/repository.jurialmunkey/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>umbrella</name>
+            <path pathversion="1">https://umbrellaplug.github.io/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>a4k</name>
+            <path pathversion="1">https://a4k-openproject.github.io/a4kSubtitles/packages/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>coco</name>
+            <path pathversion="1">https://cocojoe2411.github.io/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>Tikipeter</name>
+            <path pathversion="1">https://tikipeter.github.io/packages/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>LanguagePreferenceManager</name>
+            <path pathversion="1">https://github.com/rockrider69/service.LanguagePreferenceManager/releases/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>dobbelinacum</name>
+            <path pathversion="1">https://dobbelina.github.io/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>KodiFitzwellPOV</name>
+            <path pathversion="1">https://kodifitzwell.github.io/repo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>Miendes</name>
+            <path pathversion="1">https://techxxx.github.io/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>FOD</name>
+            <path pathversion="1">http://mylostsoulspace.co.uk/repo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>AH21</name>
+            <path pathversion="1">https://definiek.github.io/ah2.1/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>Loop</name>
+            <path pathversion="1">https://loopaddon.uk/theloop//</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>kodi.repository</name>
+            <path pathversion="1">https://abratchik.github.io/kodi.repository/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>Mijn Repo</name>
+            <path pathversion="1">https://techxxx.github.io/repo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>aaarepo</name>
+            <path pathversion="1">https://techxxx.github.io/repox/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>fenlightam</name>
+            <path pathversion="1">https://FenlightAnonyMouse.github.io/packages/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>FenlightAnonyMouse.github.io</name>
+            <path pathversion="1">https://github.com/FenlightAnonyMouse/FenlightAnonyMouse.github.io/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>kodirepobas</name>
+            <path pathversion="1">https://TechXXX.github.io/kodirepo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>kodifavsyncOauth</name>
+            <path pathversion="1">/Users/kalter/Documents/CODEX/kodifavsyncOauth/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>DutchTechTestRepo</name>
+            <path pathversion="1">https://techxxx.github.io/DutchTechTestRepo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name> fitzwell</name>
+            <path pathversion="1">    https://kodifitzwell.github.io/repo/ /</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>kodienglish</name>
+            <path pathversion="1">https://techxxx.github.io/kodienglish/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>repodabutcher</name>
+            <path pathversion="1">http://dabutcher.org/repo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>repository.ivarbrandt</name>
+            <path pathversion="1">https://ivarbrandt.github.io/repository.ivarbrandt/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>EasyNewsRepo</name>
+            <path pathversion="1">https://tetsuosoft.github.io/EasyNewsKodi/EasyNewsRepo/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+        <source>
+            <name>kodi-addon skip</name>
+            <path pathversion="1">https://theintrodb.github.io/kodi-addon/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+    </files>
+    <games>
+        <default pathversion="1"></default>
+    </games>
+</sources>

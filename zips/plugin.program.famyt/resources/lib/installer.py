@@ -37,6 +37,12 @@ GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings
 GUISETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "guisettings", "presets")
 GUISETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "guisettings")
 GUISETTINGS_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+SOURCES_PATH = "special://profile/sources.xml"
+SOURCES_BACKUP_DIR = os.path.join("backups", "sources")
+SOURCES_BUILTIN_PATH = os.path.join("resources", "sources", "sources.xml")
+SOURCES_BUILTIN_PRESETS_DIR = os.path.join("resources", "sources", "presets")
+SOURCES_SAVED_PRESETS_DIR = os.path.join("presets", "sources")
+SOURCES_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
 PRESET_MANIFEST_FILENAME = "preset.json"
 SKIN_SETTINGS_SOURCE_DIR = os.path.join("resources", "skinsettings")
 SKIN_SETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "skinsettings", "presets")
@@ -104,6 +110,7 @@ MENU_ITEMS = (
     ("KodiSkin Widget Importer", "launch_widget_importer"),
     ("Utilities", "menu_utilities", True),
     ("Kodi GUI settings", "menu_guisettings", True),
+    ("Kodi sources", "menu_sources", True),
     ("Skin settings", "menu_skinsettings", True),
     ("Install everything", "install_all"),
 )
@@ -115,6 +122,15 @@ GUISETTINGS_MENU_ITEMS = (
     ("Delete GUI settings preset", "delete_guisettings_preset"),
     ("Restore GUI settings from URL", "restore_guisettings_url"),
     ("Restore GUI settings preset", "restore_guisettings_builtin"),
+)
+
+SOURCES_MENU_ITEMS = (
+    ("Back up Kodi sources", "backup_sources"),
+    ("Save current sources as preset", "save_sources_preset"),
+    ("Rename sources preset", "rename_sources_preset"),
+    ("Delete sources preset", "delete_sources_preset"),
+    ("Restore sources from URL", "restore_sources_url"),
+    ("Restore sources preset", "restore_sources_builtin"),
 )
 
 SKINSETTINGS_MENU_ITEMS = (
@@ -1212,6 +1228,235 @@ def _restore_guisettings_message(source_label, guisettings_path, backup_path, ap
     return message
 
 
+def _sources_path():
+    return _translate_path(SOURCES_PATH)
+
+
+def _parse_sources_payload(payload):
+    try:
+        root = ET.fromstring(payload)
+    except Exception as exc:
+        raise RuntimeError("Sources XML is invalid: %s" % exc)
+    if root.tag != "sources":
+        raise RuntimeError("Sources XML must have a <sources> root.")
+    if not root.findall(".//source"):
+        raise RuntimeError("Sources XML does not contain any <source> entries.")
+    return root
+
+
+def _sources_backup_path(prefix):
+    backup_dir = _addon_data_dir(SOURCES_BACKUP_DIR)
+    return os.path.join(backup_dir, "%s-%s.xml" % (prefix, _utc_timestamp()))
+
+
+def _backup_current_sources(prefix="sources"):
+    source_path = _sources_path()
+    if not os.path.exists(source_path):
+        raise RuntimeError("sources.xml was not found in this Kodi profile.")
+    target_path = _sources_backup_path(prefix)
+    _copy_binary_file(source_path, target_path)
+    _log("Backed up sources.xml to %s" % target_path)
+    return target_path
+
+
+def _write_sources_payload(payload, source_label):
+    _parse_sources_payload(payload)
+    userdata_path = _translate_path("special://profile")
+    if not os.path.isdir(userdata_path):
+        os.makedirs(userdata_path)
+
+    sources_path = _sources_path()
+    backup_path = ""
+    if os.path.exists(sources_path):
+        backup_path = _backup_current_sources("sources-before-restore")
+
+    tmp_path = sources_path + ".tmp"
+    with io.open(tmp_path, "wb") as handle:
+        handle.write(payload)
+    if os.path.exists(sources_path):
+        os.remove(sources_path)
+    os.rename(tmp_path, sources_path)
+
+    _log("Restored sources.xml from %s to %s" % (source_label, sources_path))
+    return sources_path, backup_path
+
+
+def _sources_payload_exists(preset_dir):
+    return os.path.exists(os.path.join(preset_dir, "sources.xml"))
+
+
+def _sources_builtin_presets():
+    presets = []
+    root_dir = _addon_resource_path(SOURCES_BUILTIN_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _sources_payload_exists):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+                "payload_path": os.path.join(preset_dir, "sources.xml"),
+            }
+        )
+
+    legacy_path = _addon_resource_path(SOURCES_BUILTIN_PATH)
+    if not presets and os.path.exists(legacy_path):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": "built-in",
+                "name": "Built-in",
+                "dir": os.path.dirname(legacy_path),
+                "payload_path": legacy_path,
+            }
+        )
+    return presets
+
+
+def _sources_saved_presets():
+    presets = []
+    root_dir = _addon_data_dir(SOURCES_SAVED_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _sources_payload_exists):
+        presets.append(
+            {
+                "origin": "saved",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+                "payload_path": os.path.join(preset_dir, "sources.xml"),
+            }
+        )
+    return presets
+
+
+def _sources_presets():
+    return _sources_builtin_presets() + _sources_saved_presets()
+
+
+def _prompt_sources_preset():
+    return _prompt_preset(_sources_presets(), "Sources preset")
+
+
+def _read_sources_preset_payload(preset):
+    source_path = preset["payload_path"]
+    if not os.path.exists(source_path):
+        raise RuntimeError("Sources preset is missing sources.xml.")
+    with io.open(source_path, "rb") as handle:
+        payload = handle.read()
+    _parse_sources_payload(payload)
+    return payload
+
+
+def _save_sources_preset(addon, preset_name):
+    preset_id = _preset_id_from_name(preset_name)
+    source_path = _sources_path()
+    if not os.path.exists(source_path):
+        raise RuntimeError("sources.xml was not found in this Kodi profile.")
+    with io.open(source_path, "rb") as handle:
+        payload = handle.read()
+    _parse_sources_payload(payload)
+
+    roots = (
+        (
+            "built-in",
+            _addon_resource_path(SOURCES_BUILTIN_PRESETS_DIR, preset_id),
+        ),
+        (
+            "saved",
+            _addon_data_dir(SOURCES_SAVED_PRESETS_DIR, preset_id),
+        ),
+    )
+
+    def writer(preset_dir):
+        _write_binary_payload(os.path.join(preset_dir, "sources.xml"), payload)
+
+    saved, errors = _save_payload_to_roots(roots, preset_id, preset_name, "sources", writer)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_preset_save", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "Sources preset saved as %s." % preset_name
+    message += "\n\nSaved locations: %s" % ", ".join(origin for origin, _path in saved)
+    if errors:
+        message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
+    return message
+
+
+def _rename_sources_preset(addon, preset, new_name):
+    _rename_preset(preset, new_name, "sources")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Sources preset renamed to %s." % new_name
+
+
+def _delete_sources_preset(addon, preset):
+    _delete_preset(preset, "sources")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Sources preset deleted: %s." % preset["name"]
+
+
+def _download_sources_payload(url):
+    url = (url or "").strip()
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise RuntimeError("Enter a valid http or https URL.")
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/xml,text/xml,*/*",
+            "User-Agent": "Kodi Setup Kit Kodi add-on",
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = response.read(SOURCES_DOWNLOAD_MAX_BYTES + 1)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError("Could not download sources: HTTP %s" % exc.code)
+    except urllib.error.URLError as exc:
+        raise RuntimeError("Could not download sources: %s" % exc.reason)
+
+    if len(payload) > SOURCES_DOWNLOAD_MAX_BYTES:
+        raise RuntimeError("Sources download is too large.")
+    _parse_sources_payload(payload)
+    return payload
+
+
+def _prompt_sources_url():
+    return xbmcgui.Dialog().input(
+        "Sources XML URL",
+        type=getattr(xbmcgui, "INPUT_ALPHANUM", 0),
+    )
+
+
+def _confirm_sources_restore(source_label):
+    return _yesno(
+        "Kodi Setup Kit",
+        (
+            "Restore Kodi sources from %s?\n\n"
+            "The current sources.xml will be backed up first.\n\n"
+            "Restart Kodi after restore so File manager and source pickers refresh."
+        )
+        % source_label,
+        yes_label="Restore",
+        no_label="Cancel",
+    )
+
+
+def _restore_sources_message(source_label, sources_path, backup_path):
+    message = (
+        "Kodi sources restored from %s. Restart Kodi so File manager and source pickers refresh."
+        % source_label
+    )
+    if backup_path:
+        message += "\n\nBackup saved to: %s" % backup_path
+    return message
+
+
 def _skin_settings_path(data_path):
     return os.path.join(data_path, "settings.xml")
 
@@ -2174,6 +2419,19 @@ def _bundled_keymaps_status():
     return status
 
 
+def _sources_status():
+    path = _sources_path()
+    if not os.path.exists(path):
+        return "missing"
+    try:
+        with io.open(path, "rb") as handle:
+            payload = handle.read()
+        root = _parse_sources_payload(payload)
+        return "present, %s source(s)" % len(root.findall(".//source"))
+    except Exception as exc:
+        return "invalid: %s" % exc
+
+
 def _cache_status(path, label):
     stats = _directory_contents_stats(_translate_path(path))
     return "%s: %s file(s), %s folder(s), %s" % (
@@ -2207,6 +2465,8 @@ def _setup_status_text(addon):
         ("Cocoscrapers", "last_cocoscrapers_install"),
         ("Advanced network", "last_advanced_network_install"),
         ("Keymaps", "last_keymaps_install"),
+        ("Sources backup", "last_sources_backup"),
+        ("Sources restore", "last_sources_restore"),
         ("Thumbnails cleared", "last_thumbnail_clear"),
         ("Package cache cleared", "last_package_cache_clear"),
         ("Backups cleaned", "last_backup_cleanup"),
@@ -2216,6 +2476,7 @@ def _setup_status_text(addon):
         "Skin: %s" % xbmc.getSkinDir(),
         "Advanced network: %s" % _advanced_network_status(),
         "Keymaps: %s" % _bundled_keymaps_status(),
+        "Sources: %s" % _sources_status(),
         _thumbnail_status(),
         _cache_status(PACKAGES_CACHE_PATH, "Package cache"),
         "",
@@ -2260,6 +2521,11 @@ def _export_debug_bundle(addon):
             zip_handle,
             _translate_path(ADVANCEDSETTINGS_PATH),
             "profile/advancedsettings.xml",
+        )
+        _zip_file_if_exists(
+            zip_handle,
+            _sources_path(),
+            "profile/sources.xml",
         )
         _zip_file_if_exists(
             zip_handle,
@@ -2323,6 +2589,32 @@ def _restore_guisettings_from_url(addon, url):
     return _restore_guisettings_message(
         "URL", guisettings_path, backup_path, applied, failed
     )
+
+
+def _backup_sources(addon):
+    backup_path = _backup_current_sources()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_backup", now)
+    _set_setting(addon, "last_install", now)
+    return "Kodi sources backed up to: %s" % backup_path
+
+
+def _restore_sources_preset(addon, preset):
+    payload = _read_sources_preset_payload(preset)
+    sources_path, backup_path = _write_sources_payload(payload, _preset_label(preset))
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_sources_message(_preset_label(preset), sources_path, backup_path)
+
+
+def _restore_sources_from_url(addon, url):
+    payload = _download_sources_payload(url)
+    sources_path, backup_path = _write_sources_payload(payload, "URL")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_sources_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_sources_message("URL", sources_path, backup_path)
 
 
 def _backup_skin_settings(addon):
@@ -2433,6 +2725,10 @@ def _run_action(action):
         _show_menu(GUISETTINGS_MENU_ITEMS)
         return
 
+    if action == "menu_sources":
+        _show_menu(SOURCES_MENU_ITEMS)
+        return
+
     if action == "menu_skinsettings":
         _show_menu(SKINSETTINGS_MENU_ITEMS)
         return
@@ -2455,6 +2751,12 @@ def _run_action(action):
         "delete_guisettings_preset",
         "restore_guisettings_url",
         "restore_guisettings_builtin",
+        "backup_sources",
+        "save_sources_preset",
+        "rename_sources_preset",
+        "delete_sources_preset",
+        "restore_sources_url",
+        "restore_sources_builtin",
         "backup_skinsettings",
         "save_skinsettings_preset",
         "rename_skinsettings_preset",
@@ -2628,6 +2930,77 @@ def _run_action(action):
             progress.close()
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "backup_sources":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Backing up Kodi sources...",
+            lambda: _backup_sources(addon),
+        )
+        return
+
+    if action == "save_sources_preset":
+        preset_name = _prompt_preset_name("Sources")
+        if not preset_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Saving sources preset...",
+            lambda: _save_sources_preset(addon, preset_name),
+        )
+        return
+
+    if action == "rename_sources_preset":
+        preset = _prompt_sources_preset()
+        if preset is None:
+            return
+        new_name = _prompt_preset_name("New sources")
+        if not new_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Renaming sources preset...",
+            lambda: _rename_sources_preset(addon, preset, new_name),
+        )
+        return
+
+    if action == "delete_sources_preset":
+        preset = _prompt_sources_preset()
+        if preset is None or not _confirm_delete_preset(preset):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Deleting sources preset...",
+            lambda: _delete_sources_preset(addon, preset),
+        )
+        return
+
+    if action == "restore_sources_builtin":
+        preset = _prompt_sources_preset()
+        if preset is None:
+            return
+        preset_label = _preset_label(preset)
+        if not _confirm_sources_restore(preset_label):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring sources preset...",
+            lambda: _restore_sources_preset(addon, preset),
+        )
+        return
+
+    if action == "restore_sources_url":
+        url = _prompt_sources_url()
+        if not url:
+            return
+        if not _confirm_sources_restore("the URL"):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring sources from URL...",
+            lambda: _restore_sources_from_url(addon, url),
+        )
         return
 
     if action == "backup_skinsettings":

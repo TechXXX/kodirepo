@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.10" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.11" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
@@ -44,7 +44,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.9.10
+            <news>v0.9.11
+- Add Kodi sources backup and restore tools with a bundled MacBook sources preset
+
+v0.9.10
 - Remove the recently watched movie widget from bundled AF3 presets
 
 v0.9.9
