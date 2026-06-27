@@ -79,7 +79,17 @@ FENLIGHT_ADDON_IDS = (
     "plugin.video.fenlight.kodienglish",
     "plugin.video.fenlight.patched.kodienglish",
 )
+FENLIGHT_ADDON_LABELS = {
+    "plugin.video.fenlight": "Fen Light",
+    "plugin.video.fenlight.patched": "Fen Light Patched",
+    "plugin.video.fenlight.kodienglish": "Fen Light KodiEnglish",
+    "plugin.video.fenlight.patched.kodienglish": "Fen Light Patched KodiEnglish",
+}
 FENLIGHT_SETTINGS_DB = os.path.join("databases", "settings.db")
+FENLIGHT_SETTINGS_XML = "settings.xml"
+FENLIGHT_SETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "fenlightsettings", "presets")
+FENLIGHT_SETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "fenlightsettings")
+FENLIGHT_SETTINGS_BACKUP_DIR = os.path.join("backups", "fenlightsettings")
 FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
@@ -111,6 +121,7 @@ MENU_ITEMS = (
     ("Utilities", "menu_utilities", True),
     ("Kodi GUI settings", "menu_guisettings", True),
     ("Kodi sources", "menu_sources", True),
+    ("Fen Light settings", "menu_fenlightsettings", True),
     ("Skin settings", "menu_skinsettings", True),
     ("Install everything", "install_all"),
 )
@@ -131,6 +142,14 @@ SOURCES_MENU_ITEMS = (
     ("Delete sources preset", "delete_sources_preset"),
     ("Restore sources from URL", "restore_sources_url"),
     ("Restore sources preset", "restore_sources_builtin"),
+)
+
+FENLIGHTSETTINGS_MENU_ITEMS = (
+    ("Back up Fen Light settings", "backup_fenlightsettings"),
+    ("Save current Fen Light settings as preset", "save_fenlightsettings_preset"),
+    ("Rename Fen Light settings preset", "rename_fenlightsettings_preset"),
+    ("Delete Fen Light settings preset", "delete_fenlightsettings_preset"),
+    ("Restore Fen Light settings preset", "restore_fenlightsettings_builtin"),
 )
 
 SKINSETTINGS_MENU_ITEMS = (
@@ -625,6 +644,9 @@ def _backup_file(path):
 
 
 def _copy_binary_file(source_path, target_path):
+    parent = os.path.dirname(target_path)
+    if parent and not os.path.isdir(parent):
+        os.makedirs(parent)
     with io.open(source_path, "rb") as source:
         payload = source.read()
     with io.open(target_path, "wb") as target:
@@ -1454,6 +1476,302 @@ def _restore_sources_message(source_label, sources_path, backup_path):
     )
     if backup_path:
         message += "\n\nBackup saved to: %s" % backup_path
+    return message
+
+
+def _fenlight_label(addon_id):
+    return FENLIGHT_ADDON_LABELS.get(addon_id, addon_id)
+
+
+def _fenlight_settings_db_path(data_path):
+    return os.path.join(data_path, FENLIGHT_SETTINGS_DB)
+
+
+def _fenlight_settings_xml_path(data_path):
+    return os.path.join(data_path, FENLIGHT_SETTINGS_XML)
+
+
+def _fenlight_settings_targets(include_missing=False):
+    targets = []
+    for addon_id in FENLIGHT_ADDON_IDS:
+        data_path = _addon_data_path(addon_id)
+        db_path = _fenlight_settings_db_path(data_path)
+        if (
+            include_missing
+            or _addon_installed(addon_id)
+            or os.path.exists(db_path)
+            or os.path.isdir(data_path)
+        ):
+            targets.append((addon_id, _fenlight_label(addon_id), data_path))
+    return targets
+
+
+def _prompt_fenlight_settings_target():
+    targets = _fenlight_settings_targets()
+    if not targets:
+        targets = _fenlight_settings_targets(include_missing=True)
+    labels = ["%s (%s)" % (target[1], target[0]) for target in targets]
+    index = xbmcgui.Dialog().select("Fen Light settings target", labels)
+    if index < 0:
+        return None
+    return targets[index]
+
+
+def _validate_fenlight_settings_db(db_path):
+    if not os.path.exists(db_path):
+        raise RuntimeError("Fen Light settings.db was not found.")
+    try:
+        dbcon = sqlite3.connect(db_path)
+        columns = [row[1] for row in dbcon.execute("PRAGMA table_info(settings)").fetchall()]
+        count = dbcon.execute("SELECT COUNT(*) FROM settings").fetchone()[0]
+    except Exception as exc:
+        raise RuntimeError("Fen Light settings.db is invalid: %s" % exc)
+    finally:
+        try:
+            dbcon.close()
+        except Exception:
+            pass
+    required = {"setting_id", "setting_type", "setting_default", "setting_value"}
+    if not required.issubset(set(columns)):
+        raise RuntimeError("Fen Light settings.db is missing required settings columns.")
+    if count <= 0:
+        raise RuntimeError("Fen Light settings.db does not contain any settings.")
+    return count
+
+
+def _fenlight_settings_backup_dir(addon_id, prefix):
+    backup_root = _addon_data_dir(FENLIGHT_SETTINGS_BACKUP_DIR)
+    safe_addon_id = addon_id.replace(".", "-")
+    backup_dir = os.path.join(backup_root, "%s-%s-%s" % (safe_addon_id, prefix, _utc_timestamp()))
+    if not os.path.isdir(backup_dir):
+        os.makedirs(backup_dir)
+    return backup_dir
+
+
+def _backup_one_fenlight_settings(addon_id, data_path, prefix):
+    db_path = _fenlight_settings_db_path(data_path)
+    if not os.path.exists(db_path):
+        raise RuntimeError("%s settings.db was not found." % _fenlight_label(addon_id))
+    _validate_fenlight_settings_db(db_path)
+
+    backup_dir = _fenlight_settings_backup_dir(addon_id, prefix)
+    db_dest = os.path.join(backup_dir, FENLIGHT_SETTINGS_DB)
+    xml_path = _fenlight_settings_xml_path(data_path)
+    _copy_binary_file(db_path, db_dest)
+    if os.path.exists(xml_path):
+        _copy_binary_file(xml_path, os.path.join(backup_dir, FENLIGHT_SETTINGS_XML))
+    _log("Backed up %s Fen Light settings to %s" % (addon_id, backup_dir))
+    return backup_dir
+
+
+def _backup_current_fenlight_settings():
+    backups = []
+    for addon_id, label, data_path in _fenlight_settings_targets():
+        db_path = _fenlight_settings_db_path(data_path)
+        if not os.path.exists(db_path):
+            continue
+        backups.append((addon_id, label, _backup_one_fenlight_settings(addon_id, data_path, "settings")))
+    if not backups:
+        raise RuntimeError("No Fen Light settings.db files were found in this Kodi profile.")
+    return backups
+
+
+def _fenlight_settings_preset_has_payload(preset_dir):
+    for addon_id in FENLIGHT_ADDON_IDS:
+        if os.path.exists(os.path.join(preset_dir, addon_id, FENLIGHT_SETTINGS_DB)):
+            return True
+    return os.path.exists(os.path.join(preset_dir, FENLIGHT_SETTINGS_DB))
+
+
+def _fenlight_settings_builtin_presets():
+    presets = []
+    root_dir = _addon_resource_path(FENLIGHT_SETTINGS_BUILTIN_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _fenlight_settings_preset_has_payload):
+        presets.append(
+            {
+                "origin": "builtin",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+    return presets
+
+
+def _fenlight_settings_saved_presets():
+    presets = []
+    root_dir = _addon_data_dir(FENLIGHT_SETTINGS_SAVED_PRESETS_DIR)
+    for preset_id, preset_dir, preset_name in _preset_dirs(root_dir, _fenlight_settings_preset_has_payload):
+        presets.append(
+            {
+                "origin": "saved",
+                "id": preset_id,
+                "name": preset_name,
+                "dir": preset_dir,
+            }
+        )
+    return presets
+
+
+def _fenlight_settings_presets():
+    return _fenlight_settings_builtin_presets() + _fenlight_settings_saved_presets()
+
+
+def _prompt_fenlight_settings_preset():
+    return _prompt_preset(_fenlight_settings_presets(), "Fen Light settings preset")
+
+
+def _fenlight_settings_preset_payloads(preset):
+    payloads = []
+    preset_dir = preset["dir"]
+    for addon_id in FENLIGHT_ADDON_IDS:
+        db_path = os.path.join(preset_dir, addon_id, FENLIGHT_SETTINGS_DB)
+        if not os.path.exists(db_path):
+            continue
+        _validate_fenlight_settings_db(db_path)
+        xml_path = os.path.join(preset_dir, addon_id, FENLIGHT_SETTINGS_XML)
+        payloads.append((addon_id, db_path, xml_path if os.path.exists(xml_path) else ""))
+
+    legacy_db_path = os.path.join(preset_dir, FENLIGHT_SETTINGS_DB)
+    if not payloads and os.path.exists(legacy_db_path):
+        _validate_fenlight_settings_db(legacy_db_path)
+        legacy_xml_path = os.path.join(preset_dir, FENLIGHT_SETTINGS_XML)
+        payloads.append(("", legacy_db_path, legacy_xml_path if os.path.exists(legacy_xml_path) else ""))
+
+    if not payloads:
+        raise RuntimeError("Fen Light settings preset is missing settings.db.")
+    return payloads
+
+
+def _choose_fenlight_settings_payload(preset, target):
+    payloads = _fenlight_settings_preset_payloads(preset)
+    target_addon_id = target[0]
+    for payload in payloads:
+        if payload[0] == target_addon_id:
+            return payload
+    if len(payloads) == 1:
+        return payloads[0]
+
+    labels = ["%s (%s)" % (_fenlight_label(addon_id), addon_id) for addon_id, _db, _xml in payloads]
+    index = xbmcgui.Dialog().select("Fen Light preset source", labels)
+    if index < 0:
+        return None
+    return payloads[index]
+
+
+def _write_fenlight_settings_payload(target, source_db_path, source_xml_path, source_label):
+    addon_id, label, data_path = target
+    row_count = _validate_fenlight_settings_db(source_db_path)
+    db_path = _fenlight_settings_db_path(data_path)
+    db_dir = os.path.dirname(db_path)
+    if not os.path.isdir(db_dir):
+        os.makedirs(db_dir)
+    if not os.path.isdir(data_path):
+        os.makedirs(data_path)
+
+    backup_path = ""
+    if os.path.exists(db_path):
+        backup_path = _backup_one_fenlight_settings(addon_id, data_path, "settings-before-restore")
+
+    _copy_binary_file(source_db_path, db_path)
+    if source_xml_path and os.path.exists(source_xml_path):
+        _copy_binary_file(source_xml_path, _fenlight_settings_xml_path(data_path))
+
+    _log("Restored %s Fen Light settings from %s to %s" % (addon_id, source_label, db_path))
+    return {
+        "addon_id": addon_id,
+        "label": label,
+        "db_path": db_path,
+        "backup_path": backup_path,
+        "row_count": row_count,
+    }
+
+
+def _save_fenlight_settings_preset(addon, preset_name):
+    preset_id = _preset_id_from_name(preset_name)
+    payloads = []
+    for addon_id, label, data_path in _fenlight_settings_targets():
+        db_path = _fenlight_settings_db_path(data_path)
+        if not os.path.exists(db_path):
+            continue
+        _validate_fenlight_settings_db(db_path)
+        xml_path = _fenlight_settings_xml_path(data_path)
+        payloads.append((addon_id, label, db_path, xml_path if os.path.exists(xml_path) else ""))
+
+    if not payloads:
+        raise RuntimeError("No Fen Light settings.db files were found in this Kodi profile.")
+
+    roots = (
+        (
+            "built-in",
+            _addon_resource_path(FENLIGHT_SETTINGS_BUILTIN_PRESETS_DIR, preset_id),
+        ),
+        (
+            "saved",
+            _addon_data_dir(FENLIGHT_SETTINGS_SAVED_PRESETS_DIR, preset_id),
+        ),
+    )
+
+    def writer(preset_dir):
+        for addon_id, _label, db_path, xml_path in payloads:
+            addon_dir = os.path.join(preset_dir, addon_id)
+            _copy_binary_file(db_path, os.path.join(addon_dir, FENLIGHT_SETTINGS_DB))
+            if xml_path:
+                _copy_binary_file(xml_path, os.path.join(addon_dir, FENLIGHT_SETTINGS_XML))
+
+    saved, errors = _save_payload_to_roots(roots, preset_id, preset_name, "fenlightsettings", writer)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_preset_save", now)
+    _set_setting(addon, "last_install", now)
+
+    message = "Fen Light settings preset saved as %s for: %s." % (
+        preset_name,
+        ", ".join(label for _addon_id, label, _db_path, _xml_path in payloads),
+    )
+    message += "\n\nSaved locations: %s" % ", ".join(origin for origin, _path in saved)
+    if errors:
+        message += "\n\nSome locations were skipped: %s" % "; ".join(errors)
+    return message
+
+
+def _rename_fenlight_settings_preset(addon, preset, new_name):
+    _rename_preset(preset, new_name, "fenlightsettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Fen Light settings preset renamed to %s." % new_name
+
+
+def _delete_fenlight_settings_preset(addon, preset):
+    _delete_preset(preset, "fenlightsettings")
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_preset_manage", now)
+    _set_setting(addon, "last_install", now)
+    return "Fen Light settings preset deleted: %s." % preset["name"]
+
+
+def _confirm_fenlight_settings_restore(source_label, target_label):
+    return _yesno(
+        "Kodi Setup Kit",
+        (
+            "Restore Fen Light settings from %s to %s?\n\n"
+            "The current settings.db will be backed up first.\n\n"
+            "Restart Kodi after restore so Fen Light reloads its settings cache."
+        )
+        % (source_label, target_label),
+        yes_label="Restore",
+        no_label="Cancel",
+    )
+
+
+def _restore_fenlight_settings_message(source_label, result):
+    message = (
+        "Fen Light settings restored from %s to %s. Restart Kodi so Fen Light reloads its settings cache."
+        % (source_label, result["label"])
+    )
+    message += "\n\nSettings rows restored: %s" % result["row_count"]
+    if result["backup_path"]:
+        message += "\n\nBackup saved to: %s" % result["backup_path"]
     return message
 
 
@@ -2432,6 +2750,23 @@ def _sources_status():
         return "invalid: %s" % exc
 
 
+def _fenlight_settings_status():
+    statuses = []
+    for addon_id, label, data_path in _fenlight_settings_targets():
+        db_path = _fenlight_settings_db_path(data_path)
+        if not os.path.exists(db_path):
+            statuses.append("%s: missing" % label)
+            continue
+        try:
+            row_count = _validate_fenlight_settings_db(db_path)
+            statuses.append("%s: %s row(s)" % (label, row_count))
+        except Exception as exc:
+            statuses.append("%s: invalid: %s" % (label, exc))
+    if not statuses:
+        return "no Fen Light variants found"
+    return "; ".join(statuses)
+
+
 def _cache_status(path, label):
     stats = _directory_contents_stats(_translate_path(path))
     return "%s: %s file(s), %s folder(s), %s" % (
@@ -2467,6 +2802,8 @@ def _setup_status_text(addon):
         ("Keymaps", "last_keymaps_install"),
         ("Sources backup", "last_sources_backup"),
         ("Sources restore", "last_sources_restore"),
+        ("Fen Light settings backup", "last_fenlightsettings_backup"),
+        ("Fen Light settings restore", "last_fenlightsettings_restore"),
         ("Thumbnails cleared", "last_thumbnail_clear"),
         ("Package cache cleared", "last_package_cache_clear"),
         ("Backups cleaned", "last_backup_cleanup"),
@@ -2477,6 +2814,7 @@ def _setup_status_text(addon):
         "Advanced network: %s" % _advanced_network_status(),
         "Keymaps: %s" % _bundled_keymaps_status(),
         "Sources: %s" % _sources_status(),
+        "Fen Light settings: %s" % _fenlight_settings_status(),
         _thumbnail_status(),
         _cache_status(PACKAGES_CACHE_PATH, "Package cache"),
         "",
@@ -2617,6 +2955,32 @@ def _restore_sources_from_url(addon, url):
     return _restore_sources_message("URL", sources_path, backup_path)
 
 
+def _backup_fenlight_settings(addon):
+    backups = _backup_current_fenlight_settings()
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_backup", now)
+    _set_setting(addon, "last_install", now)
+    labels = [backup[1] for backup in backups]
+    return "Fen Light settings backed up for: %s." % ", ".join(labels)
+
+
+def _restore_fenlight_settings_preset(addon, preset, target):
+    payload = _choose_fenlight_settings_payload(preset, target)
+    if payload is None:
+        raise RuntimeError("Fen Light settings restore was canceled.")
+    _source_addon_id, source_db_path, source_xml_path = payload
+    result = _write_fenlight_settings_payload(
+        target,
+        source_db_path,
+        source_xml_path,
+        _preset_label(preset),
+    )
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return _restore_fenlight_settings_message(_preset_label(preset), result)
+
+
 def _backup_skin_settings(addon):
     backups = _backup_current_skin_settings()
     now = datetime.datetime.utcnow().isoformat() + "Z"
@@ -2729,6 +3093,10 @@ def _run_action(action):
         _show_menu(SOURCES_MENU_ITEMS)
         return
 
+    if action == "menu_fenlightsettings":
+        _show_menu(FENLIGHTSETTINGS_MENU_ITEMS)
+        return
+
     if action == "menu_skinsettings":
         _show_menu(SKINSETTINGS_MENU_ITEMS)
         return
@@ -2757,6 +3125,11 @@ def _run_action(action):
         "delete_sources_preset",
         "restore_sources_url",
         "restore_sources_builtin",
+        "backup_fenlightsettings",
+        "save_fenlightsettings_preset",
+        "rename_fenlightsettings_preset",
+        "delete_fenlightsettings_preset",
+        "restore_fenlightsettings_builtin",
         "backup_skinsettings",
         "save_skinsettings_preset",
         "rename_skinsettings_preset",
@@ -3000,6 +3373,67 @@ def _run_action(action):
             "Kodi Setup Kit",
             "Restoring sources from URL...",
             lambda: _restore_sources_from_url(addon, url),
+        )
+        return
+
+    if action == "backup_fenlightsettings":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Backing up Fen Light settings...",
+            lambda: _backup_fenlight_settings(addon),
+        )
+        return
+
+    if action == "save_fenlightsettings_preset":
+        preset_name = _prompt_preset_name("Fen Light settings")
+        if not preset_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Saving Fen Light settings preset...",
+            lambda: _save_fenlight_settings_preset(addon, preset_name),
+        )
+        return
+
+    if action == "rename_fenlightsettings_preset":
+        preset = _prompt_fenlight_settings_preset()
+        if preset is None:
+            return
+        new_name = _prompt_preset_name("New Fen Light settings")
+        if not new_name:
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Renaming Fen Light settings preset...",
+            lambda: _rename_fenlight_settings_preset(addon, preset, new_name),
+        )
+        return
+
+    if action == "delete_fenlightsettings_preset":
+        preset = _prompt_fenlight_settings_preset()
+        if preset is None or not _confirm_delete_preset(preset):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Deleting Fen Light settings preset...",
+            lambda: _delete_fenlight_settings_preset(addon, preset),
+        )
+        return
+
+    if action == "restore_fenlightsettings_builtin":
+        preset = _prompt_fenlight_settings_preset()
+        if preset is None:
+            return
+        target = _prompt_fenlight_settings_target()
+        if target is None:
+            return
+        preset_label = _preset_label(preset)
+        if not _confirm_fenlight_settings_restore(preset_label, target[1]):
+            return
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring Fen Light settings preset...",
+            lambda: _restore_fenlight_settings_preset(addon, preset, target),
         )
         return
 
