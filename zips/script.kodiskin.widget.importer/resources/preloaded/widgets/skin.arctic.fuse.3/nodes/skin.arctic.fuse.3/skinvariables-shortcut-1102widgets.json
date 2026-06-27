@@ -134,14 +134,5 @@
         "guid": "guid-743b15f4",
         "widget_style": "Poster",
         "widget_autoscroll": ""
-    },
-    {
-        "label": "Recently Watched",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Recently+Watched&mode=build_movie_list&action=recent_watched_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FSacesHf.png",
-        "icon": "image://https%3a%2f%2fi.imgur.com%2fSacesHf.png/",
-        "target": "videos",
-        "guid": "guid-0dd4e750",
-        "widget_style": "Poster",
-        "widget_autoscroll": ""
     }
 ]

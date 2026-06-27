@@ -82,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.18 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.19 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
