@@ -43,6 +43,7 @@ SOURCES_BUILTIN_PATH = os.path.join("resources", "sources", "sources.xml")
 SOURCES_BUILTIN_PRESETS_DIR = os.path.join("resources", "sources", "presets")
 SOURCES_SAVED_PRESETS_DIR = os.path.join("presets", "sources")
 SOURCES_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+INSTALL_ALL_PRESET_ID = "macbook"
 PRESET_MANIFEST_FILENAME = "preset.json"
 SKIN_SETTINGS_SOURCE_DIR = os.path.join("resources", "skinsettings")
 SKIN_SETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "skinsettings", "presets")
@@ -118,20 +119,23 @@ COCOSCRAPERS_DISABLED_DEFAULT_UNDESIRABLES = (
 )
 
 MENU_ITEMS = (
-    ("Install YouTube credentials", "install_youtube"),
-    ("Install TorBox API key and Manifest URL", "install_torbox"),
-    ("Install a4kSubtitles settings", "install_a4ksubtitles"),
-    ("a4kSubtitles backup/restore", "menu_a4ksubtitlessettings", True),
-    ("Install Cocoscrapers filters", "install_cocoscrapers"),
-    ("Install Kodi network advanced settings", "install_advanced_network"),
-    ("Install Kodi keymaps", "install_keymaps"),
+    ("[ALL] Kodi sources", "install_sources"),
+    ("[ALL] Fen Light settings preset", "install_fenlightsettings"),
+    ("[ALL] a4kSubtitles settings preset", "install_a4ksubtitlessettings_preset"),
+    ("[ALL] YouTube credentials", "install_youtube"),
+    ("[ALL] TorBox API key and Manifest URL", "install_torbox"),
+    ("[ALL] a4kSubtitles credentials", "install_a4ksubtitles"),
+    ("[ALL] Cocoscrapers filters", "install_cocoscrapers"),
+    ("[ALL] Kodi network settings", "install_advanced_network"),
+    ("[ALL] Kodi keymaps", "install_keymaps"),
+    ("Install everything", "install_all"),
     ("KodiSkin Widget Importer", "launch_widget_importer"),
     ("Utilities", "menu_utilities", True),
     ("Kodi GUI settings", "menu_guisettings", True),
     ("Kodi sources", "menu_sources", True),
     ("Fen Light settings", "menu_fenlightsettings", True),
+    ("a4kSubtitles backup/restore", "menu_a4ksubtitlessettings", True),
     ("Skin settings", "menu_skinsettings", True),
-    ("Install everything", "install_all"),
 )
 
 GUISETTINGS_MENU_ITEMS = (
@@ -900,6 +904,25 @@ def _preset_dirs(root_dir, payload_exists):
             continue
         presets.append((preset_id, preset_dir, _read_preset_name(preset_dir, preset_id)))
     return presets
+
+
+def _default_builtin_preset(presets, kind):
+    for preset in presets:
+        if preset.get("id") == INSTALL_ALL_PRESET_ID:
+            return preset
+    for preset in presets:
+        if preset.get("origin") == "builtin":
+            return preset
+    raise RuntimeError("No built-in %s preset was found." % kind)
+
+
+def _matching_preset_payload(payloads, target_addon_id, kind):
+    for payload in payloads:
+        if payload[0] == target_addon_id:
+            return payload
+    if len(payloads) == 1:
+        return payloads[0]
+    raise RuntimeError("%s preset does not include settings for %s." % (kind, target_addon_id))
 
 
 def _save_payload_to_roots(roots, preset_id, preset_name, preset_type, writer):
@@ -3339,6 +3362,67 @@ def _restore_a4ksubtitles_preset(addon, preset, target):
     return _restore_a4ksubtitles_message(_preset_label(preset), result)
 
 
+def _install_sources(addon):
+    preset = _default_builtin_preset(_sources_builtin_presets(), "sources")
+    return _restore_sources_preset(addon, preset)
+
+
+def _install_fenlight_settings_preset(addon):
+    preset = _default_builtin_preset(_fenlight_settings_builtin_presets(), "Fen Light settings")
+    targets = _fenlight_settings_targets()
+    if not targets:
+        raise RuntimeError("Fen Light was not found in this Kodi profile.")
+
+    payloads = _fenlight_settings_preset_payloads(preset)
+    results = []
+    for target in targets:
+        _source_addon_id, source_db_path, source_xml_path = _matching_preset_payload(
+            payloads,
+            target[0],
+            "Fen Light settings",
+        )
+        results.append(
+            _write_fenlight_settings_payload(
+                target,
+                source_db_path,
+                source_xml_path,
+                _preset_label(preset),
+            )
+        )
+
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlightsettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return (
+        "Fen Light settings preset restored for: %s. Restart Kodi so Fen Light reloads its settings cache."
+        % ", ".join(result["label"] for result in results)
+    )
+
+
+def _install_a4ksubtitles_settings_preset(addon):
+    preset = _default_builtin_preset(_a4ksubtitles_builtin_presets(), "a4kSubtitles settings")
+    targets = _a4ksubtitles_targets()
+    if not targets:
+        raise RuntimeError("a4kSubtitles Patched was not found in this Kodi profile.")
+
+    payloads = _a4ksubtitles_preset_payloads(preset)
+    results = []
+    for target in targets:
+        _source_addon_id, source_path = _matching_preset_payload(
+            payloads,
+            target[0],
+            "a4kSubtitles settings",
+        )
+        results.append(_write_a4ksubtitles_payload(target, source_path, _preset_label(preset)))
+
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_a4ksubtitlessettings_restore", now)
+    _set_setting(addon, "last_install", now)
+    return "a4kSubtitles settings preset restored for: %s." % ", ".join(
+        result["label"] for result in results
+    )
+
+
 def _backup_skin_settings(addon):
     backups = _backup_current_skin_settings()
     now = datetime.datetime.utcnow().isoformat() + "Z"
@@ -3468,6 +3552,9 @@ def _run_action(action):
         return
 
     if action not in (
+        "install_sources",
+        "install_fenlightsettings",
+        "install_a4ksubtitlessettings_preset",
         "install_youtube",
         "install_torbox",
         "install_a4ksubtitles",
@@ -3512,6 +3599,30 @@ def _run_action(action):
 
     if action in UTILITY_ACTIONS:
         _run_utility_action(action, addon)
+        return
+
+    if action == "install_sources":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring Kodi sources...",
+            lambda: _install_sources(addon),
+        )
+        return
+
+    if action == "install_fenlightsettings":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring Fen Light settings preset...",
+            lambda: _install_fenlight_settings_preset(addon),
+        )
+        return
+
+    if action == "install_a4ksubtitlessettings_preset":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Restoring a4kSubtitles settings preset...",
+            lambda: _install_a4ksubtitles_settings_preset(addon),
+        )
         return
 
     if action == "install_cocoscrapers":
@@ -3989,42 +4100,65 @@ def _run_action(action):
         messages = []
 
         if action == "install_all":
-            progress.update(15, "Installing YouTube credentials...")
-            _run_install_all_step(
-                messages,
-                "YouTube credentials",
-                lambda: _install_youtube(addon, bridge_data),
+            install_all_steps = (
+                (
+                    8,
+                    "Restoring Kodi sources...",
+                    "Kodi sources",
+                    lambda: _install_sources(addon),
+                ),
+                (
+                    18,
+                    "Restoring Fen Light settings preset...",
+                    "Fen Light settings preset",
+                    lambda: _install_fenlight_settings_preset(addon),
+                ),
+                (
+                    28,
+                    "Restoring a4kSubtitles settings preset...",
+                    "a4kSubtitles settings preset",
+                    lambda: _install_a4ksubtitles_settings_preset(addon),
+                ),
+                (
+                    40,
+                    "Installing YouTube credentials...",
+                    "YouTube credentials",
+                    lambda: _install_youtube(addon, bridge_data),
+                ),
+                (
+                    52,
+                    "Installing TorBox API key...",
+                    "TorBox API key",
+                    lambda: _install_torbox(addon, bridge_data),
+                ),
+                (
+                    64,
+                    "Installing a4kSubtitles credentials...",
+                    "a4kSubtitles credentials",
+                    lambda: _install_a4ksubtitles(addon, bridge_data),
+                ),
+                (
+                    76,
+                    "Installing Cocoscrapers filters...",
+                    "Cocoscrapers filters",
+                    lambda: _install_cocoscrapers(addon),
+                ),
+                (
+                    88,
+                    "Installing Kodi network advanced settings...",
+                    "Kodi network advanced settings",
+                    lambda: _install_advanced_network_settings(addon),
+                ),
+                (
+                    96,
+                    "Installing Kodi keymaps...",
+                    "Kodi keymaps",
+                    lambda: _install_keymaps(addon),
+                ),
             )
-            progress.update(30, "Installing TorBox API key...")
-            _run_install_all_step(
-                messages,
-                "TorBox API key",
-                lambda: _install_torbox(addon, bridge_data),
-            )
-            progress.update(50, "Installing a4kSubtitles settings...")
-            _run_install_all_step(
-                messages,
-                "a4kSubtitles settings",
-                lambda: _install_a4ksubtitles(addon, bridge_data),
-            )
-            progress.update(65, "Installing Cocoscrapers filters...")
-            _run_install_all_step(
-                messages,
-                "Cocoscrapers filters",
-                lambda: _install_cocoscrapers(addon),
-            )
-            progress.update(80, "Installing Kodi network advanced settings...")
-            _run_install_all_step(
-                messages,
-                "Kodi network advanced settings",
-                lambda: _install_advanced_network_settings(addon),
-            )
-            progress.update(90, "Installing Kodi keymaps...")
-            _run_install_all_step(
-                messages,
-                "Kodi keymaps",
-                lambda: _install_keymaps(addon),
-            )
+            for percent, message, label, install_func in install_all_steps:
+                progress.update(percent, message)
+                _run_install_all_step(messages, label, install_func)
         elif action == "install_youtube":
             progress.update(25, "Installing YouTube credentials...")
             messages.append(_install_youtube(addon, bridge_data))

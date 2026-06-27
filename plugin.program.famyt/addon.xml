@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.13"
+       version="0.9.14"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.13
+<news>v0.9.14
+- Mark Install everything menu items and include sources, Fen Light settings, and a4kSubtitles preset restore
+
+v0.9.13
 - Add a4kSubtitles settings backup and restore tools with a sanitized MacBook preset
 
 v0.9.12

@@ -9,4 +9,6 @@ access details.
 Bundled profile presets include GUI settings, skin settings, Fen Light settings,
 a4kSubtitles settings, keymaps, and Kodi sources.
 
+Menu items marked `[ALL]` are included when running Install everything.
+
 Operational notes are kept outside the public repository.
