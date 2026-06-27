@@ -19,8 +19,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Verder kijken",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Verder+kijken&mode=build_movie_list&action=in_progress_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FD0nCsqI.png",
+        "label": "In Progress",
+        "path": "plugin://plugin.video.fenlight.patched/?name=In+Progress&mode=build_movie_list&action=in_progress_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FD0nCsqI.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fD0nCsqI.png/",
         "target": "videos",
         "guid": "guid-4e766a67",
@@ -28,8 +28,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Populair",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Populair&mode=build_movie_list&action=tmdb_movies_popular&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Fngkznpf.png",
+        "label": "Popular",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Popular&mode=build_movie_list&action=tmdb_movies_popular&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Fngkznpf.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fngkznpf.png/",
         "target": "videos",
         "guid": "guid-70c42550",
@@ -37,8 +37,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Vandaag",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Vandaag&mode=build_movie_list&action=tmdb_movies_popular_today&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FLKqXjQ1.png",
+        "label": "Popular Today",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Popular+Today&mode=build_movie_list&action=tmdb_movies_popular_today&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FLKqXjQ1.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fLKqXjQ1.png/",
         "target": "videos",
         "guid": "guid-f0dd992a",
@@ -46,8 +46,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Nieuw",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Nieuw&mode=build_movie_list&action=tmdb_movies_latest_releases&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Fb9La9Ch.png",
+        "label": "Latest Releases",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Latest+Releases&mode=build_movie_list&action=tmdb_movies_latest_releases&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Fb9La9Ch.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fb9La9Ch.png/",
         "target": "videos",
         "guid": "guid-76090935",
@@ -55,8 +55,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Meest bekeken",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Meest+bekeken&mode=build_movie_list&action=trakt_movies_most_watched&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FwG42SLp.png",
+        "label": "Most Watched",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Most+Watched&mode=build_movie_list&action=trakt_movies_most_watched&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FwG42SLp.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fwG42SLp.png/",
         "target": "videos",
         "guid": "guid-c3e221e6",
@@ -64,8 +64,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Favorieten",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Favorieten&mode=build_movie_list&action=trakt_movies_most_favorited&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FuCaIeC6.png",
+        "label": "Most Favorited",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Most+Favorited&mode=build_movie_list&action=trakt_movies_most_favorited&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FuCaIeC6.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fuCaIeC6.png/",
         "target": "videos",
         "guid": "guid-aa350534",
@@ -73,8 +73,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Bios Top 10",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Bios+Top+10&mode=build_movie_list&action=trakt_movies_top10_boxoffice&iconImage=https%3A%2F%2Fi.imgur.com%2FWzYp4H8.png",
+        "label": "Top 10 Box Office",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Top+10+Box+Office&mode=build_movie_list&action=trakt_movies_top10_boxoffice&iconImage=https%3A%2F%2Fi.imgur.com%2FWzYp4H8.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fWzYp4H8.png/",
         "target": "videos",
         "guid": "guid-314c7485",
@@ -82,8 +82,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Kaskrakers",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Kaskrakers&mode=build_movie_list&action=tmdb_movies_blockbusters&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Faj02pjQ.png",
+        "label": "Blockbusters",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Blockbusters&mode=build_movie_list&action=tmdb_movies_blockbusters&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2Faj02pjQ.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2faj02pjQ.png/",
         "target": "videos",
         "guid": "guid-acb2560a",
@@ -91,8 +91,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Oscars",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Oscars&mode=build_movie_list&action=tmdb_movies_oscar_winners&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FAMg9mQS.png",
+        "label": "Oscar Winners",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Oscar+Winners&mode=build_movie_list&action=tmdb_movies_oscar_winners&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FAMg9mQS.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fAMg9mQS.png/",
         "target": "videos",
         "guid": "guid-bdeec058",
@@ -109,8 +109,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Aanbieders",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Aanbieders&mode=navigator.providers&menu_type=movie&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FncriWoB.png",
+        "label": "Providers",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Providers&mode=navigator.providers&menu_type=movie&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2FncriWoB.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fncriWoB.png/",
         "target": "videos",
         "guid": "guid-beb79344",
@@ -118,8 +118,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Decennia",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Decennia&mode=navigator.decades&menu_type=movie&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2F2OJn9MC.png",
+        "label": "Decades",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Decades&mode=navigator.decades&menu_type=movie&random_support=true&iconImage=https%3A%2F%2Fi.imgur.com%2F2OJn9MC.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2f2OJn9MC.png/",
         "target": "videos",
         "guid": "guid-dac4a204",
@@ -127,8 +127,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Bekeken",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Bekeken&mode=build_movie_list&action=watched_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FPs93y86.png",
+        "label": "Watched",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Watched&mode=build_movie_list&action=watched_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FPs93y86.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fPs93y86.png/",
         "target": "videos",
         "guid": "guid-743b15f4",
@@ -136,8 +136,8 @@
         "widget_autoscroll": ""
     },
     {
-        "label": "Recent bekeken",
-        "path": "plugin://plugin.video.fenlight.patched/?name=Recent+bekeken&mode=build_movie_list&action=recent_watched_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FSacesHf.png",
+        "label": "Recently Watched",
+        "path": "plugin://plugin.video.fenlight.patched/?name=Recently+Watched&mode=build_movie_list&action=recent_watched_movies&iconImage=https%3A%2F%2Fi.imgur.com%2FSacesHf.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fSacesHf.png/",
         "target": "videos",
         "guid": "guid-0dd4e750",

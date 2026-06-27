@@ -43,9 +43,10 @@ SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
 PRELOADED_AH2_SETUP_LABEL = "Preloaded AH2 setup"
-PRELOADED_AF3_SETUP_LABEL = "Preloaded AF3 setup"
+PRELOADED_AF3_SETUP_LABEL = "Preloaded AF3 DutchTech setup"
 PRELOADED_AH2_WIDGET_LABEL = "Preloaded AH2 widgets"
-PRELOADED_AF3_WIDGET_LABEL = "Preloaded AF3 shortcut nodes"
+PRELOADED_AF3_WIDGET_LABEL = "MacBook AF3 DutchTech widgets"
+PRELOADED_AF3_ENGLISH_WIDGET_LABEL = "English AF3 widgets"
 PRELOADED_AH2_SETTINGS_LABEL = "MacBook Arctic Horizon 2 settings"
 PRELOADED_AF3_SETTINGS_LABEL = "MacBook Arctic Fuse 3 settings"
 SKINVARIABLES_SKIP_FILES = {
@@ -60,6 +61,10 @@ PRELOADED_WIDGET_SOURCES = [
     (
         PRELOADED_AF3_WIDGET_LABEL,
         "{}resources/preloaded/widgets/skin.dutchtech.fuse.3".format(ADDON_RESOURCE_PREFIX),
+    ),
+    (
+        PRELOADED_AF3_ENGLISH_WIDGET_LABEL,
+        "{}resources/preloaded/widgets/skin.arctic.fuse.3".format(ADDON_RESOURCE_PREFIX),
     ),
 ]
 PRELOADED_SKIN_SETTINGS = [
@@ -76,7 +81,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.16 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.17 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"

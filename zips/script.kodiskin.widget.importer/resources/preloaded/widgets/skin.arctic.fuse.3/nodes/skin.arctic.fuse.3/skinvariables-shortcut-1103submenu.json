@@ -1,0 +1,368 @@
+[
+    {
+        "label": "",
+        "icon": "",
+        "path": "",
+        "target": "",
+        "submenu": [],
+        "widgets": [],
+        "guid": "guid-7dd09e29"
+    },
+    {
+        "label": "IMDB: TOP RATED MOVIES | [I]justin (x250)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-top-rated-movies&list_type=user_lists&list_name=IMDB%3A+Top+Rated+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-1c4492fd"
+    },
+    {
+        "label": "IMDB: TOP RATED TV SHOWS | [I]justin (x241)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-top-rated-tv-shows&list_type=user_lists&list_name=IMDB%3A+Top+Rated+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-fee88805"
+    },
+    {
+        "label": "BEST MINDFUCKS | [I]benfranklin (x116)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=benfranklin&slug=best-mindfucks&list_type=user_lists&list_name=Best+Mindfucks",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-b7ac9d79"
+    },
+    {
+        "label": "MARVEL CINEMATIC UNIVERSE | [I]donxy (x216)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=donxy&slug=marvel-cinematic-universe&list_type=user_lists&list_name=MARVEL+Cinematic+Universe",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7be3270b"
+    },
+    {
+        "label": "TRUE CRIME DOCUMENTARY SERIES & FILM | [I]lish408 (x490)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=true-crime-documentary-series-film&list_type=user_lists&list_name=True+Crime+Documentary+Series+%26+Film",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-2df1d92a"
+    },
+    {
+        "label": "1001 GREATEST MOVIES OF ALL TIME | [I]captainnapalm (x1001)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=captainnapalm&slug=1001-greatest-movies-of-all-time&list_type=user_lists&list_name=1001+Greatest+Movies+of+All+Time",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c4e2e725"
+    },
+    {
+        "label": "2026 DIGITALLY RELEASED MOVIES | [I]dracid7 (x204)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=dracid7&slug=2026-digitally-released-movies&list_type=user_lists&list_name=2026+Digitally+Released+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-79f7c703"
+    },
+    {
+        "label": "SCI-FI | [I]usiris (x1476)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=usiris&slug=sci-fi-72c81243-2a16-453c-8366-b41d86114c23&list_type=user_lists&list_name=Sci-Fi",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-e1941d21"
+    },
+    {
+        "label": "POPULAR HORROR | [I]lish408 (x498)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=lish408&slug=popular-horror&list_type=user_lists&list_name=Popular+Horror",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-75e6db13"
+    },
+    {
+        "label": "TRAKT: POPULAR TV SHOWS | [I]justin (x250)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=trakt-popular-tv-shows&list_type=user_lists&list_name=Trakt%3A+Popular+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-dcca1e4e"
+    },
+    {
+        "label": "SHUT UP, AND WATCH | [I]canconfirm (x128)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=canconfirm&slug=shut-up-and-watch&list_type=user_lists&list_name=Shut+Up%2C+And+Watch",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c97c9c37"
+    },
+    {
+        "label": "THE COMPLETE CRITERION COLLECTION | [I]twentywashere (x1518)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=twentywashere&slug=the-complete-criterion-collection&list_type=user_lists&list_name=The+Complete+Criterion+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-537ff139"
+    },
+    {
+        "label": "DISNEY_FILMS | [I]sargeusmc (x164)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sargeusmc&slug=disney_films&list_type=user_lists&list_name=Disney_Films",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-18d396cb"
+    },
+    {
+        "label": "STAR WARS COLLECTION | [I]Trakt Official (x9)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=star-wars-collection&list_type=user_lists&list_name=Star+Wars+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-ce7c4114"
+    },
+    {
+        "label": "HARRY POTTER COLLECTION | [I]Trakt Official (x8)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=harry-potter-collection&list_type=user_lists&list_name=Harry+Potter+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-0688eb6e"
+    },
+    {
+        "label": "ATTENBOROUGH DOCUMENTARIES | [I]hammers-lists (x93)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=hammers-lists&slug=attenborough-documentaries&list_type=user_lists&list_name=Attenborough+Documentaries",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-a05961c2"
+    },
+    {
+        "label": "2026 OSCAR WINNERS | [I]visualcortex (x14)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=visualcortex&slug=2026-oscar-winners&list_type=user_lists&list_name=2026+Oscar+Winners",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-6461d8f2"
+    },
+    {
+        "label": "JURASSIC PARK COLLECTION | [I]Trakt Official (x7)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=jurassic-park-collection&list_type=user_lists&list_name=Jurassic+Park+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-81d78051"
+    },
+    {
+        "label": "100 ANIMES TO WATCH BEFORE YOU DIE | [I]rfsbraz (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=rfsbraz&slug=100-animes-to-watch-before-you-die&list_type=user_lists&list_name=100+Animes+to+watch+before+you+die",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-f508f146"
+    },
+    {
+        "label": "JAMES BOND COLLECTION | [I]Trakt Official (x27)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=james-bond-collection&list_type=user_lists&list_name=James+Bond+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-301b4187"
+    },
+    {
+        "label": "MEGA EROTIC | [I]xeexex (x2398)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=xeexex&slug=mega-erotic&list_type=user_lists&list_name=Mega+Erotic",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-7b36476e"
+    },
+    {
+        "label": "THE 100 BEST ANIME MOVIES OF ALL TIME | [I]majeed_pk (x98)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=majeed_pk&slug=the-100-best-anime-movies-of-all-time&list_type=user_lists&list_name=The+100+Best+Anime+Movies+of+All+Time",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-69d1cd7b"
+    },
+    {
+        "label": "MISSION: IMPOSSIBLE COLLECTION | [I]Trakt Official (x8)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=mission-impossible-collection&list_type=user_lists&list_name=Mission%3A+Impossible+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-53c59cd1"
+    },
+    {
+        "label": "IMDB: POPULAR MOVIES | [I]justin (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-popular-movies&list_type=user_lists&list_name=IMDB%3A+Popular+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-5e351c3e"
+    },
+    {
+        "label": "1001 MOVIES YOU MUST SEE BEFORE YOU DIE | [I]sp1ti (x1002)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sp1ti&slug=1001-movies-you-must-see-before-you-die&list_type=user_lists&list_name=1001+Movies+You+Must+See+Before+You+Die",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-92a837fd"
+    },
+    {
+        "label": "THE FAST AND THE FURIOUS COLLECTION | [I]Trakt Official (x11)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=the-fast-and-the-furious-collection&list_type=user_lists&list_name=The+Fast+and+the+Furious+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-d7fa96d2"
+    },
+    {
+        "label": "ROTTEN TOMATOES: TOP 100 KIDS & FAMILY MOVIES | [I]giladg (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=rotten-tomatoes-top-100-kids-family-movies&list_type=user_lists&list_name=Rotten+Tomatoes%3A+Top+100+Kids+%26+Family+Movies",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-0c9e4f4a"
+    },
+    {
+        "label": "A24 | [I]fidel-cb (x216)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=fidel-cb&slug=a24&list_type=user_lists&list_name=A24",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-b101b02c"
+    },
+    {
+        "label": "ALL OF THESE FILMS ARE WORTH SEEING (1400 TITLES) | [I]xilfneps (x1400)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=xilfneps&slug=all-of-these-films-are-worth-seeing-1400-titles&list_type=user_lists&list_name=All+of+these+Films+are+Worth+Seeing+%281400+Titles%29",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-d052d0a5"
+    },
+    {
+        "label": "PSYCHOLOGICAL THRILLERS | [I]majeed_pk (x30)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=majeed_pk&slug=psychological-thrillers&list_type=user_lists&list_name=Psychological+Thrillers",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-4fbf2e3e"
+    },
+    {
+        "label": "TOP 10 PIRATED MOVIES OF THE WEEK | [I]linaspurinis (x10)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=linaspurinis&slug=top-10-pirated-movies-of-the-week&list_type=user_lists&list_name=Top+10+Pirated+Movies+of+The+Week",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-3b73f370"
+    },
+    {
+        "label": "2026 DIGITALLY RELEASED SERIES | [I]dracid7 (x104)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=dracid7&slug=2026-digitally-released-series&list_type=user_lists&list_name=2026+Digitally+Released+Series",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-d00f1dfa"
+    },
+    {
+        "label": "PIRATES OF THE CARIBBEAN COLLECTION | [I]Trakt Official (x5)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=pirates-of-the-caribbean-collection&list_type=user_lists&list_name=Pirates+of+the+Caribbean+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-61b40ae2"
+    },
+    {
+        "label": "BASED ON A TRUE STORY | [I]benfranklin (x264)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=benfranklin&slug=based-on-a-true-story&list_type=user_lists&list_name=Based+on+a+TRUE+STORY",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-0b391c4f"
+    },
+    {
+        "label": "IMDB: POPULAR TV SHOWS | [I]justin (x100)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=justin&slug=imdb-popular-tv-shows&list_type=user_lists&list_name=IMDB%3A+Popular+TV+Shows",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c4cc1079"
+    },
+    {
+        "label": "THE LORD OF THE RINGS COLLECTION | [I]Trakt Official (x3)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=the-lord-of-the-rings-collection&list_type=user_lists&list_name=The+Lord+of+the+Rings+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-a0ab558e"
+    },
+    {
+        "label": "TRAKT 10000 ALL TIME | [I]unklebubbie (x9971)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=unklebubbie&slug=trakt-10000-all-time&list_type=user_lists&list_name=Trakt+10000+All+Time",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-0f8d2a1e"
+    },
+    {
+        "label": "SPRING 2026 - ANIME | [I]sonply (x49)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sonply&slug=spring-2026-anime&list_type=user_lists&list_name=Spring+2026+-+Anime",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-d9983cec"
+    },
+    {
+        "label": "MARVEL CINEMATIC UNIVERSE - MOVIES (RELEASE ORDER) | [I]jbilling9 (x42)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=jbilling9&slug=marvel-cinematic-universe-movies-release-order&list_type=user_lists&list_name=Marvel+Cinematic+Universe+-+Movies+%28Release+Order%29",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-b64bc551"
+    },
+    {
+        "label": "PSYCHOSEXUAL DRAMAS, NIHILISTIC FEVER DREAMS & SURREALISM WITH A TOUCH OF HUMOUR [IMPORTED] | [I]sp1ti (x2204)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=sp1ti&slug=psychosexual-dramas-nihilistic-fever-dreams-surrealism-with-a-touch-of-humour-imported&list_type=user_lists&list_name=Psychosexual+dramas%2C+nihilistic+fever+dreams+%26+surrealism+with+a+touch+of+humour+%5BImported%5D",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-83edda4d"
+    },
+    {
+        "label": "BRITISH CRIME & DRAMA | [I]pauls67 (x290)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=pauls67&slug=british-crime-drama&list_type=user_lists&list_name=British+Crime+%26+Drama",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c769b42c"
+    },
+    {
+        "label": "KOREAN DRAMAS | [I]xscaredycat (x975)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=xscaredycat&slug=korean-dramas&list_type=user_lists&list_name=Korean+Dramas",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c056f952"
+    },
+    {
+        "label": "DOCUMENTARIES | [I]majeed_pk (x624)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=majeed_pk&slug=documentaries&list_type=user_lists&list_name=Documentaries",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-dd8c43d9"
+    },
+    {
+        "label": "DC UNIVERSE | [I]tetharion (x15)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=tetharion&slug=dc-universe&list_type=user_lists&list_name=DC+Universe",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-acb617eb"
+    },
+    {
+        "label": "JOHN WICK COLLECTION | [I]Trakt Official (x4)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=Trakt+Official&slug=john-wick-collection&list_type=user_lists&list_name=John+Wick+Collection",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-72fb7266"
+    },
+    {
+        "label": "SEXFLIX | [I]jjvaliant (x994)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=jjvaliant&slug=sexflix&list_type=user_lists&list_name=Sexflix",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-ee92f0dd"
+    },
+    {
+        "label": "THE BEST MOVIE YOU NEVER SAW | [I]giladg (x181)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=the-best-movie-you-never-saw&list_type=user_lists&list_name=The+Best+Movie+You+Never+Saw",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-ad35ba3e"
+    },
+    {
+        "label": "PIXAR FEATURE FILMS | [I]draackje (x31)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=draackje&slug=pixar-feature-films&list_type=user_lists&list_name=Pixar+Feature+Films",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-5f3e6520"
+    },
+    {
+        "label": "ANIMATION | [I]giladg (x316)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=giladg&slug=animation&list_type=user_lists&list_name=Animation",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-b09bf0d4"
+    },
+    {
+        "label": "HORROR | [I]movistapp (x200)[/I]",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.build_trakt_list&user=movistapp&slug=horror&list_type=user_lists&list_name=Horror",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fsGq3ifV.png/",
+        "target": "videos",
+        "guid": "guid-c5773734"
+    },
+    {
+        "label": "Next Page (2) >>",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=trakt.list.get_trakt_trending_popular_lists&list_type=trending&new_page=2",
+        "icon": "image://https%3a%2f%2fi.imgur.com%2fD2wG9Ak.png/",
+        "target": "videos",
+        "guid": "guid-da121f82"
+    }
+]

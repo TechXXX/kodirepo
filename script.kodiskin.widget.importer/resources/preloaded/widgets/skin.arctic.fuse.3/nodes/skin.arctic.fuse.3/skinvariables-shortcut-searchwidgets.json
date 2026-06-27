@@ -1,0 +1,70 @@
+[
+    {
+        "label": "Movies",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_movie_list&action=tmdb_movies_search&query=",
+        "icon": "special://skin/extras/icons/film.png",
+        "target": "videos",
+        "guid": "guid-a1dbc824",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "TV Shows ",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_search&query=",
+        "icon": "special://skin/extras/icons/tv.png",
+        "target": "videos",
+        "guid": "guid-daf3f435",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Gemini",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=ai_search.widget&query=",
+        "icon": "special://skin/extras/icons/wand-magic.png",
+        "target": "videos",
+        "guid": "guid-385d4221",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Collections",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=build_movie_list&action=tmdb_movies_search_sets&query=",
+        "icon": "special://skin/extras/icons/sets.png",
+        "target": "videos",
+        "guid": "guid-fenlight-collections",
+        "widget_style": "Poster"
+    },
+    {
+        "label": "Albums",
+        "icon": "special://skin/extras/icons/songs.png",
+        "path": "DefaultSearch-Albums",
+        "target": "music",
+        "widget_style": "Square",
+        "guid": "guid-d7ca0cd6",
+        "disabled": "True"
+    },
+    {
+        "label": "Artists",
+        "icon": "special://skin/extras/icons/songs.png",
+        "path": "DefaultSearch-Artists",
+        "target": "music",
+        "widget_style": "Square",
+        "guid": "guid-8c87207b",
+        "disabled": "True"
+    },
+    {
+        "label": "Movies (TMDb)",
+        "icon": "special://skin/extras/icons/film.png",
+        "path": "DefaultSearch-TMDBMovies",
+        "target": "videos",
+        "widget_style": "Poster",
+        "guid": "guid-9a5cf431",
+        "disabled": "True"
+    },
+    {
+        "label": "TV Shows (TMDb)",
+        "icon": "special://skin/extras/icons/tv.png",
+        "path": "DefaultSearch-TMDBShows",
+        "target": "videos",
+        "widget_style": "Poster",
+        "guid": "guid-88bbee28",
+        "disabled": "True"
+    }
+]

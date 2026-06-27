@@ -8,14 +8,6 @@
         "widget_style": "Poster"
     },
     {
-        "label": "Verder kijken",
-        "path": "plugin://plugin.video.fenlight.patched/?name=In+Progress&mode=build_tvshow_list&action=in_progress_tvshows&iconImage=https%3A%2F%2Fi.imgur.com%2FBfGbQXx.png",
-        "icon": "image://https%3a%2f%2fi.imgur.com%2fBfGbQXx.png/",
-        "target": "videos",
-        "guid": "guid-5c6e880c",
-        "widget_style": "Poster"
-    },
-    {
         "label": "Amazon",
         "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_networks&key_id=1024&name=Amazon&iconImage=https%3A%2F%2Fi.imgur.com%2Fru9DDlL.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fru9DDlL.png/",

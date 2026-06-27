@@ -25,11 +25,11 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.7" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.8" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
-            <import addon="script.kodiskin.widget.importer" version="0.1.16" />
+            <import addon="script.kodiskin.widget.importer" version="0.1.17" />
         </requires>
         <extension point="xbmc.python.pluginsource" library="plugin.py">
             <provides>executable</provides>
@@ -44,7 +44,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.9.7
+            <news>v0.9.8
+- Require KodiSkin Widget Importer 0.1.17 with DutchTech and English AF3 widget presets
+
+v0.9.7
 - Fix confirmation dialogs so warning text is readable in Kodi skins
 
 v0.9.6
@@ -533,7 +536,7 @@ v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
-    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.16" provider-name="Kalter">
+    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.17" provider-name="Kalter">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>

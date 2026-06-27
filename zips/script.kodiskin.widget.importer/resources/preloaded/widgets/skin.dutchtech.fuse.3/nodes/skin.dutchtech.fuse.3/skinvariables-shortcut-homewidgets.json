@@ -8,7 +8,7 @@
         "widget_style": "Poster"
     },
     {
-        "label": "In Progress",
+        "label": "Verder kijken",
         "path": "plugin://plugin.video.fenlight.patched/?name=In+Progress&mode=build_tvshow_list&action=in_progress_tvshows&iconImage=https%3A%2F%2Fi.imgur.com%2FBfGbQXx.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fBfGbQXx.png/",
         "target": "videos",

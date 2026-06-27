@@ -14,7 +14,8 @@ For Arctic Fuse 3 / Skin Variables skins:
 
 - `skinvariables-shortcut-*.json` node files from `userdata/addon_data/script.skinvariables/nodes/<skin-id>`, including widgets, submenus, and powermenu files
 - shortcut defaults from an AF3 skin package `shortcuts/` folder
-- bundled MacBook AF3 shortcut nodes
+- bundled MacBook AF3 DutchTech shortcut nodes
+- bundled English AF3 shortcut nodes
 
 For skin settings:
 
@@ -59,7 +60,7 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Choose **Preloaded AF3 setup** for the bundled MacBook AF3 shortcut nodes and settings, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded AH2 setup** for the bundled AH2 widget source and MacBook AH2 settings.
+3. Choose **Preloaded AF3 DutchTech setup** for the bundled MacBook AF3 shortcut nodes and settings, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded AH2 setup** for the bundled AH2 widget source and MacBook AH2 settings.
 4. For widget sources, choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
 5. For widget sources, choose whether to keep or retarget detected video add-on paths.
 6. For widget sources, choose whether to overwrite matching local shortcut files or add onto them.
@@ -70,7 +71,8 @@ The built-in preloaded widget sources are:
 
 ```text
 Preloaded AH2 widgets: https://e.pcloud.link/publink/show?code=8Vdy6alK
-Preloaded AF3 shortcut nodes: bundled with the add-on
+MacBook AF3 DutchTech widgets: bundled with the add-on
+English AF3 widgets: bundled with the add-on
 ```
 
 The built-in preloaded skin settings presets are:
