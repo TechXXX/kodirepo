@@ -60,7 +60,7 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Choose **Preloaded AF3 DutchTech setup** for the bundled MacBook AF3 shortcut nodes and settings, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded AH2 setup** for the bundled AH2 widget source and MacBook AH2 settings.
+3. Choose **Preloaded AF3 DutchTech setup** for the bundled MacBook AF3 shortcut nodes and settings, **Preloaded AF3 English widgets** for the bundled English AF3 shortcut nodes, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded AH2 setup** for the bundled AH2 widget source and MacBook AH2 settings.
 4. For widget sources, choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
 5. For widget sources, choose whether to keep or retarget detected video add-on paths.
 6. For widget sources, choose whether to overwrite matching local shortcut files or add onto them.

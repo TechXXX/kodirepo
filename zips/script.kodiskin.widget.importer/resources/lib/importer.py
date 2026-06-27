@@ -43,7 +43,8 @@ SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
 PRELOADED_AH2_SETUP_LABEL = "Preloaded AH2 setup"
-PRELOADED_AF3_SETUP_LABEL = "Preloaded AF3 DutchTech setup"
+PRELOADED_AF3_DUTCH_SETUP_LABEL = "Preloaded AF3 DutchTech setup"
+PRELOADED_AF3_ENGLISH_SETUP_LABEL = "Preloaded AF3 English widgets"
 PRELOADED_AH2_WIDGET_LABEL = "Preloaded AH2 widgets"
 PRELOADED_AF3_WIDGET_LABEL = "MacBook AF3 DutchTech widgets"
 PRELOADED_AF3_ENGLISH_WIDGET_LABEL = "English AF3 widgets"
@@ -81,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.17 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.18 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -232,11 +233,15 @@ def main() -> None:
         if action == "skin_settings":
             import_preloaded_skin_settings(ui)
             return
-        complete_af3_setup = action == "preloaded_af3_setup"
+        complete_af3_setup = action == "preloaded_af3_dutchtech_setup"
+        preloaded_af3_english = action == "preloaded_af3_english_widgets"
         complete_ah2_setup = action == "preloaded_ah2_setup"
         if complete_af3_setup:
             source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
-            ui.log("Using preloaded AF3 setup source")
+            ui.log("Using preloaded AF3 DutchTech setup source")
+        elif preloaded_af3_english:
+            source = preloaded_widget_source(PRELOADED_AF3_ENGLISH_WIDGET_LABEL)
+            ui.log("Using preloaded AF3 English widget source")
         elif complete_ah2_setup:
             source = preloaded_widget_source(PRELOADED_AH2_WIDGET_LABEL)
             ui.log("Using preloaded AH2 setup source")
@@ -255,7 +260,11 @@ def main() -> None:
         skinvariables_package = discover_skinvariables_package(package_root, target_skin, ui)
         if skinvariables_package.files and skin_supports_skinvariables(target_skin):
             video_rewrite = choose_video_addon_rewrite(skinvariables_package, ui)
-            import_mode = IMPORT_MODE_OVERWRITE if complete_af3_setup else choose_import_mode(ui)
+            import_mode = (
+                IMPORT_MODE_OVERWRITE
+                if complete_af3_setup or preloaded_af3_english
+                else choose_import_mode(ui)
+            )
 
             if not confirm_skinvariables_import(
                 skinvariables_package,
@@ -286,9 +295,18 @@ def main() -> None:
             settings_note = ""
             if settings_backup_dir:
                 settings_note = "Settings backup: {}".format(settings_backup_dir)
-            imported_note = "Imported {} Arctic Fuse 3 shortcut node file(s).".format(
-                len(skinvariables_package.files)
-            )
+            if preloaded_af3_english:
+                imported_note = "Imported {} English Arctic Fuse 3 shortcut node file(s).".format(
+                    len(skinvariables_package.files)
+                )
+            elif complete_af3_setup:
+                imported_note = "Imported {} DutchTech Arctic Fuse 3 shortcut node file(s).".format(
+                    len(skinvariables_package.files)
+                )
+            else:
+                imported_note = "Imported {} Arctic Fuse 3 shortcut node file(s).".format(
+                    len(skinvariables_package.files)
+                )
             if complete_af3_setup:
                 imported_note = "{} Imported MacBook AF3 skin settings.".format(imported_note)
 
@@ -384,7 +402,8 @@ def main() -> None:
 
 def choose_action(ui: KodiUI) -> str:
     options = [
-        PRELOADED_AF3_SETUP_LABEL,
+        PRELOADED_AF3_DUTCH_SETUP_LABEL,
+        PRELOADED_AF3_ENGLISH_SETUP_LABEL,
         "Import widgets from source",
         PRELOADED_AH2_SETUP_LABEL,
     ]
@@ -392,8 +411,10 @@ def choose_action(ui: KodiUI) -> str:
     if choice < 0:
         raise ImportCancelled()
     if choice == 0:
-        return "preloaded_af3_setup"
-    if choice == 2:
+        return "preloaded_af3_dutchtech_setup"
+    if choice == 1:
+        return "preloaded_af3_english_widgets"
+    if choice == 3:
         return "preloaded_ah2_setup"
     return "widgets"
 
