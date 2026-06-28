@@ -592,14 +592,14 @@ def _addon_installed(addon_id):
         return False
 
 
-def _addon_data_path(addon_id):
+def _profile_addon_data_path(addon_id):
     return _translate_path("special://profile/addon_data/%s" % addon_id)
 
 
 def _candidate_fenlight_addons():
     found = []
     for addon_id in FENLIGHT_ADDON_IDS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         if _addon_installed(addon_id) or os.path.isdir(data_path):
             found.append((addon_id, data_path))
     return found
@@ -608,7 +608,7 @@ def _candidate_fenlight_addons():
 def _candidate_a4ksubtitles_addons():
     found = []
     for addon_id in A4KSUBTITLES_ADDON_IDS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         if _addon_installed(addon_id) or os.path.isdir(data_path):
             found.append((addon_id, data_path))
     return found
@@ -617,7 +617,7 @@ def _candidate_a4ksubtitles_addons():
 def _candidate_cocoscrapers_addons():
     found = []
     for addon_id in COCOSCRAPERS_ADDON_IDS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         if _addon_installed(addon_id) or os.path.isdir(data_path):
             found.append((addon_id, data_path))
     return found
@@ -1638,7 +1638,7 @@ def _fenlight_settings_xml_path(data_path):
 def _fenlight_settings_targets(include_missing=False):
     targets = []
     for addon_id in FENLIGHT_ADDON_IDS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         db_path = _fenlight_settings_db_path(data_path)
         if (
             include_missing
@@ -1930,7 +1930,7 @@ def _a4ksubtitles_settings_path(data_path):
 def _a4ksubtitles_targets(include_missing=False):
     targets = []
     for addon_id in A4KSUBTITLES_ADDON_IDS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         settings_path = _a4ksubtitles_settings_path(data_path)
         if (
             include_missing
@@ -2226,7 +2226,7 @@ def _skin_settings_path(data_path):
 def _skin_settings_targets(include_missing=False):
     targets = []
     for addon_id, label, builtin_id in SKIN_SETTINGS_ADDONS:
-        data_path = _addon_data_path(addon_id)
+        data_path = _profile_addon_data_path(addon_id)
         settings_path = _skin_settings_path(data_path)
         if (
             include_missing
