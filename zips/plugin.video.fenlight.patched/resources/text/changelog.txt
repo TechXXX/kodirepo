@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.92[/B][/COLOR]
+- Require the official YouTube add-on so Fen Light Extras trailers are installed with Fen Light.
+
 [COLOR dodgerblue][B]Version 2.0.84[/B][/COLOR]
 - Migrate old ElfHosted AIOStreams manifest settings to the Midnight endpoint.
 - Use TMDb-to-IMDb fallback ids for AIOStreams lookups when IMDb metadata is missing.

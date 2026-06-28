@@ -1,7 +1,8 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.91">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.92">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
+        <import addon="plugin.video.youtube" version="7.4.4"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
         <provides>video</provides>
@@ -19,7 +20,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.91]:
+        <news>[v2.0.92]:
+  * Require the official YouTube add-on so Fen Light Extras trailers are installed with Fen Light.
+
+[v2.0.91]:
   * Tidy debrid cloud folder rows by removing the redundant FOLDER label from folder names.
 
 [v2.0.90]:

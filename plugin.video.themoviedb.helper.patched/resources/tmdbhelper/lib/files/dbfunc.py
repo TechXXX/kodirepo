@@ -2,13 +2,22 @@
 # -*- coding: utf-8 -*-
 from jurialmunkey.ftools import cached_property
 from contextlib import contextmanager
+from threading import local
 
 
 class DatabaseConnection:
-    open_connection = None
 
     def __init__(self, cache):
         self.cache = cache
+        self._local = local()
+
+    @property
+    def open_connection(self):
+        return getattr(self._local, 'open_connection', None)
+
+    @open_connection.setter
+    def open_connection(self, value):
+        self._local.open_connection = value
 
     def close(self):
         if not self.open_connection:
