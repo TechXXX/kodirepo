@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.92">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.93">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -20,7 +20,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.92]:
+        <news>[v2.0.93]:
+  * Remove Fen Light's custom updater in favor of Kodi repository updates, refresh TorBox cloud cache handling, tighten Trakt watched-progress lookups, and add restore-default actions for OMDb and TheIntroDB API keys.
+
+[v2.0.92]:
   * Require the official YouTube add-on so Fen Light Extras trailers are installed with Fen Light.
 
 [v2.0.91]:

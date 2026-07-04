@@ -22,6 +22,7 @@ Kodi Setup Kit installs a repeatable family profile setup:
 - YouTube API key, OAuth client ID, and OAuth client secret from the private
   Vercel bridge
 - TorBox API key and AIOStreams manifest URL for detected Fen Light variants
+- Gemini API keys for Fen Light AI Search
 - a4kSubtitles Patched preset plus OpenSubtitles and AI credentials
 - Cocoscrapers undesirable filters
 - Kodi `advancedsettings.xml` network settings
@@ -43,6 +44,8 @@ Menu items marked `[ALL]` are the curated setup flow:
 7. Cocoscrapers filters
 8. Kodi network/webserver settings
 9. Kodi keymaps
+
+Fen Light Gemini AI Search keys are available as a separate menu action.
 
 The order matters. Fen Light settings can wipe TorBox values if restored after
 TorBox, and the sanitized a4k preset can wipe a4k credentials if restored after

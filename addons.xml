@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.16" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.17" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
@@ -44,7 +44,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.9.16
+            <news>v0.9.17
+- Install Fen Light Gemini AI Search keys from the private Vercel bridge
+
+v0.9.16
 - Fix target add-on settings writes so Fen Light, a4kSubtitles, Cocoscrapers, and skin presets save to their real profile folders
 
 v0.9.15
@@ -208,7 +211,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.92">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.93">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -230,7 +233,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.92]:
+            <news>[v2.0.93]:
+  * Remove Fen Light's custom updater in favor of Kodi repository updates, refresh TorBox cloud cache handling, tighten Trakt watched-progress lookups, and add restore-default actions for OMDb and TheIntroDB API keys.
+
+[v2.0.92]:
   * Require the official YouTube add-on so Fen Light Extras trailers are installed with Fen Light.
 
 [v2.0.91]:
@@ -568,7 +574,7 @@ v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
-    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.19" provider-name="Kalter">
+    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.20" provider-name="Kalter">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>

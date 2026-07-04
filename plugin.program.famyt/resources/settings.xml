@@ -5,6 +5,7 @@
     <setting id="last_install" type="text" label="Last install cache" default="" visible="false"/>
     <setting id="last_youtube_install" type="text" label="Last YouTube install cache" default="" visible="false"/>
     <setting id="last_torbox_install" type="text" label="Last TorBox install cache" default="" visible="false"/>
+    <setting id="last_fenlight_gemini_install" type="text" label="Last Fen Light Gemini install cache" default="" visible="false"/>
     <setting id="last_a4ksubtitles_install" type="text" label="Last a4kSubtitles install cache" default="" visible="false"/>
     <setting id="last_cocoscrapers_install" type="text" label="Last Cocoscrapers install cache" default="" visible="false"/>
     <setting id="last_advanced_network_install" type="text" label="Last advanced network install cache" default="" visible="false"/>

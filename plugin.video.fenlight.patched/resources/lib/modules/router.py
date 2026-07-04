@@ -207,10 +207,10 @@ def routing(sys):
 	if 'torbox' in mode:
 		if mode == 'torbox.tb_cloud':
 			from indexers.torbox import tb_cloud
-			return tb_cloud()
+			return tb_cloud(_get('fresh', 'false'))
 		if mode == 'torbox.browse_tb_cloud':
 			from indexers.torbox import browse_tb_cloud
-			return browse_tb_cloud(_get('folder_id'), _get('media_type'))
+			return browse_tb_cloud(_get('folder_id'), _get('media_type'), _get('fresh', 'false'))
 		if mode == 'torbox.resolve_tb':
 			from indexers.torbox import resolve_tb
 			return resolve_tb(params)
@@ -252,9 +252,6 @@ def routing(sys):
 	if 'downloader.' in mode:
 		from modules import downloader
 		return exec('downloader.%s(params)' % mode.split('.')[1])
-	if 'updater' in mode:
-		from modules import updater
-		return exec('updater.%s()' % mode.split('.')[1])
 	##EXTRA modes##
 	if mode == 'set_view':
 		from modules.kodi_utils import set_view

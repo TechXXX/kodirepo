@@ -246,7 +246,7 @@
     <setting id="focuscolor.name" type="string">D9F5EBFA</setting>
     <setting id="homeswitcher.home.mode" type="string">Combined</setting>
     <setting id="optionstiles.01.target" type="string"></setting>
-    <setting id="HomeSwitcher.1104.Shortcut.Path" type="string">plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&amp;iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png</setting>
+    <setting id="HomeSwitcher.1104.Shortcut.Path" type="string">plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&amp;fresh=true&amp;iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png</setting>
     <setting id="HomeSwitcher.1102.Name" type="string">Films</setting>
     <setting id="SkinConstant.Numeric.16" type="string">$NUMBER[16]</setting>
     <setting id="optionstiles.04.include" type="string">SystemInfo</setting>

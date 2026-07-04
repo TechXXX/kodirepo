@@ -37,7 +37,7 @@ class source:
 			self._scrape_cloud()
 			self._scrape_cloud_usenet()
 			self._scrape_cloud_webdl()
-			self._scrape_usenet_search()
+			if not self.scrape_results or self.force_usenet_search: self._scrape_usenet_search()
 			if not self.scrape_results: return internal_results(self.scrape_provider, self.sources)
 			def _process():
 				for item in self.scrape_results:

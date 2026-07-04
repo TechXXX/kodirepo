@@ -244,7 +244,7 @@
     <setting id="plotline.tvshow" type="string"></setting>
     <setting id="TMDbHelper.Date.Format" type="string"></setting>
     <setting id="series_finale_color.name" type="string"></setting>
-    <setting id="HomeSwitcher.1104.Shortcut.Path" type="string">plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&amp;iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png</setting>
+    <setting id="HomeSwitcher.1104.Shortcut.Path" type="string">plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&amp;fresh=true&amp;iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png</setting>
     <setting id="mousepointercolor.name" type="string"></setting>
     <setting id="optionstiles.01.include" type="string">NowPlaying</setting>
     <setting id="optionstiles.01.target" type="string"></setting>

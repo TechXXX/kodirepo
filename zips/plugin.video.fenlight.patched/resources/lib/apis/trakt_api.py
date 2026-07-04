@@ -697,7 +697,8 @@ def trakt_indicators_tv():
 		reset_at = item.get('reset_at', None)
 		if reset_at: reset_at = js2date(reset_at, res_format)
 		show = item['show']
-		seasons = item['seasons']
+		seasons = item.get('seasons') or []
+		if not seasons: return
 		title = show['title']
 		tmdb_id = get_trakt_tvshow_id(show['ids'])
 		if not tmdb_id: return
@@ -709,7 +710,7 @@ def trakt_indicators_tv():
 				insert_append(('episode', tmdb_id, season_no, e['number'], last_watched_at, title))
 	insert_list = []
 	insert_append = insert_list.append
-	params = {'path': 'users/me/watched/shows?extended=full%s', 'with_auth': True, 'pagination': False}
+	params = {'path': 'sync/watched/shows?extended=progress%s', 'with_auth': True, 'pagination': False}
 	result = get_trakt(params)
 	if not isinstance(result, list): return
 	threads = list(make_thread_list(_process, result))

@@ -92,6 +92,7 @@ FENLIGHT_SETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "fenlightsetti
 FENLIGHT_SETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "fenlightsettings")
 FENLIGHT_SETTINGS_BACKUP_DIR = os.path.join("backups", "fenlightsettings")
 FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
+FENLIGHT_GEMINI_SETTING_IDS = ("gemini_api", "gemini_api_2", "gemini_api_3")
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
 )
@@ -124,6 +125,7 @@ MENU_ITEMS = (
     ("[ALL] a4kSubtitles settings preset", "install_a4ksubtitlessettings_preset"),
     ("[ALL] YouTube credentials", "install_youtube"),
     ("[ALL] TorBox API key and Manifest URL", "install_torbox"),
+    ("Fen Light Gemini AI Search keys", "install_fenlight_gemini"),
     ("[ALL] a4kSubtitles credentials", "install_a4ksubtitles"),
     ("[ALL] Cocoscrapers filters", "install_cocoscrapers"),
     ("[ALL] Kodi network/webserver settings", "install_advanced_network"),
@@ -419,6 +421,36 @@ def _extract_torbox_aiostreams_manifest(data):
     )
 
 
+def _extract_fenlight_gemini_keys(data):
+    fenlight = data.get("fenlight") if isinstance(data.get("fenlight"), dict) else {}
+    gemini = fenlight.get("gemini") if isinstance(fenlight.get("gemini"), dict) else {}
+    keys = []
+
+    def add_key(value):
+        if isinstance(value, str):
+            value = value.strip()
+            if value and value not in keys:
+                keys.append(value)
+
+    api_keys = gemini.get("api_keys")
+    if isinstance(api_keys, list):
+        for api_key in api_keys:
+            add_key(api_key)
+
+    for source in (gemini, fenlight, data):
+        add_key(_pick(source, "api_key", "apiKey", "gemini_api", "geminiApi"))
+        add_key(_pick(source, "api_key_1", "apiKey1", "gemini_api_1", "geminiApi1"))
+        add_key(_pick(source, "api_key_2", "apiKey2", "gemini_api_2", "geminiApi2"))
+        add_key(_pick(source, "api_key_3", "apiKey3", "gemini_api_3", "geminiApi3"))
+
+    if not keys:
+        raise RuntimeError(
+            "Kodi Setup Kit bridge response is missing fenlight.gemini.api_keys. "
+            "Add FENLIGHT_GEMINI_API_KEY_1 to the Vercel environment and redeploy."
+        )
+    return keys[: len(FENLIGHT_GEMINI_SETTING_IDS)]
+
+
 def _extract_a4ksubtitles_settings(data):
     a4k = data.get("a4ksubtitles") if isinstance(data.get("a4ksubtitles"), dict) else {}
     if not a4k:
@@ -672,6 +704,39 @@ def _write_fenlight_torbox_setting(addon_id, data_path, api_key, aiostreams_mani
     return db_path
 
 
+def _write_fenlight_gemini_settings(addon_id, data_path, api_keys):
+    db_path = os.path.join(data_path, FENLIGHT_SETTINGS_DB)
+    db_dir = os.path.dirname(db_path)
+    if not os.path.isdir(db_dir):
+        os.makedirs(db_dir)
+
+    rows = [
+        (setting_id, "string", "empty_setting", api_key)
+        for setting_id, api_key in zip(FENLIGHT_GEMINI_SETTING_IDS, api_keys)
+        if api_key
+    ]
+
+    connection = sqlite3.connect(db_path, timeout=10)
+    try:
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS settings "
+            "(setting_id text not null unique, setting_type text, "
+            "setting_default text, setting_value text)"
+        )
+        connection.executemany(
+            "INSERT OR REPLACE INTO settings "
+            "(setting_id, setting_type, setting_default, setting_value) "
+            "VALUES (?, ?, ?, ?)",
+            rows,
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    _log("Installed Fen Light Gemini AI Search keys for %s at %s" % (addon_id, db_path))
+    return db_path
+
+
 def _set_fenlight_window_cache(api_key, aiostreams_manifest_url=""):
     try:
         window = xbmcgui.Window(10000)
@@ -682,6 +747,16 @@ def _set_fenlight_window_cache(api_key, aiostreams_manifest_url=""):
                 "fenlight.%s" % FENLIGHT_AIOSTREAMS_MANIFEST_SETTING,
                 aiostreams_manifest_url,
             )
+    except Exception:
+        pass
+
+
+def _set_fenlight_gemini_window_cache(api_keys):
+    try:
+        window = xbmcgui.Window(10000)
+        for setting_id, api_key in zip(FENLIGHT_GEMINI_SETTING_IDS, api_keys):
+            if api_key:
+                window.setProperty("fenlight.%s" % setting_id, api_key)
     except Exception:
         pass
 
@@ -2860,6 +2935,24 @@ def _install_torbox(addon, bridge_data):
     return "TorBox API key installed for: %s." % ", ".join(updated)
 
 
+def _install_fenlight_gemini(addon, bridge_data):
+    api_keys = _extract_fenlight_gemini_keys(bridge_data)
+    candidates = _candidate_fenlight_addons()
+    if not candidates:
+        raise RuntimeError("Fen Light was not found in this Kodi profile.")
+
+    updated = []
+    for addon_id, data_path in candidates:
+        _write_fenlight_gemini_settings(addon_id, data_path, api_keys)
+        updated.append(addon_id)
+
+    _set_fenlight_gemini_window_cache(api_keys)
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_fenlight_gemini_install", now)
+    _set_setting(addon, "last_install", now)
+    return "Fen Light Gemini AI Search keys installed for: %s." % ", ".join(updated)
+
+
 def _install_a4ksubtitles(addon, bridge_data):
     values = _extract_a4ksubtitles_settings(bridge_data)
     candidates = _candidate_a4ksubtitles_addons()
@@ -3281,6 +3374,7 @@ def _setup_status_text(addon):
     timestamp_keys = (
         ("YouTube", "last_youtube_install"),
         ("TorBox", "last_torbox_install"),
+        ("Fen Light Gemini", "last_fenlight_gemini_install"),
         ("a4kSubtitles", "last_a4ksubtitles_install"),
         ("Cocoscrapers", "last_cocoscrapers_install"),
         ("Advanced network", "last_advanced_network_install"),
@@ -3686,6 +3780,7 @@ def _run_action(action):
         "install_a4ksubtitlessettings_preset",
         "install_youtube",
         "install_torbox",
+        "install_fenlight_gemini",
         "install_a4ksubtitles",
         "install_cocoscrapers",
         "install_advanced_network",
@@ -4294,6 +4389,9 @@ def _run_action(action):
         elif action == "install_torbox":
             progress.update(50, "Installing TorBox API key...")
             messages.append(_install_torbox(addon, bridge_data))
+        elif action == "install_fenlight_gemini":
+            progress.update(58, "Installing Fen Light Gemini AI Search keys...")
+            messages.append(_install_fenlight_gemini(addon, bridge_data))
         elif action == "install_a4ksubtitles":
             progress.update(75, "Installing a4kSubtitles settings...")
             messages.append(_install_a4ksubtitles(addon, bridge_data))

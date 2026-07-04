@@ -1,3 +1,8 @@
+[COLOR dodgerblue][B]Version 2.0.93[/B][/COLOR]
+- Remove Fen Light's custom updater in favor of Kodi repository updates.
+- Refresh TorBox cloud cache handling and tighten Trakt watched-progress lookups.
+- Add restore-default actions for OMDb and TheIntroDB API keys.
+
 [COLOR dodgerblue][B]Version 2.0.92[/B][/COLOR]
 - Require the official YouTube add-on so Fen Light Extras trailers are installed with Fen Light.
 

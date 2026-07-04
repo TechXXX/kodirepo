@@ -1218,15 +1218,18 @@ class Sources():
 	def resolve_internal(self, scrape_provider, item_id, url_dl, direct_debrid_link=False, title='', season=None, episode=None):
 		url = None
 		try:
-			if scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl', 'usenet_search'):
-				logger('Fen Light Patched', 'resolve_internal start | scrape_provider=%s | direct=%s | item_id=%s | title=%s | season=%s | episode=%s' % (
-					scrape_provider, direct_debrid_link, item_id, title, season, episode))
+			if scrape_provider == 'tb_cloud' and direct_debrid_link == 'usenet_search':
+				logger('Fen Light Patched', 'TorBox Usenet Search source resolve start | item_id=%s | title=%s | season=%s | episode=%s' % (
+					item_id, title, season, episode))
+				debrid_function = self.debrid_importer(scrape_provider)()
+				url = debrid_function.resolve_usenet_search(url_dl, item_id, title, season, episode)
+				logger('Fen Light Patched', 'TorBox Usenet Search source resolve done | success=%s' % bool(url))
+			elif scrape_provider == 'tb_cloud' and direct_debrid_link in ('usenet', 'webdl'):
+				logger('Fen Light Patched', 'TorBox Cloud source resolve start | direct=%s | item_id=%s' % (direct_debrid_link, item_id))
 				debrid_function = self.debrid_importer(scrape_provider)()
 				if direct_debrid_link == 'usenet': url = debrid_function.unrestrict_usenet(url_dl)
-				elif direct_debrid_link == 'usenet_search': url = debrid_function.resolve_usenet_search(url_dl, item_id, title, season, episode)
 				else: url = debrid_function.unrestrict_webdl(url_dl)
-				logger('Fen Light Patched', 'resolve_internal done | scrape_provider=%s | direct=%s | success=%s' % (
-					scrape_provider, direct_debrid_link, bool(url)))
+				logger('Fen Light Patched', 'TorBox Cloud source resolve done | direct=%s | success=%s' % (direct_debrid_link, bool(url)))
 			elif direct_debrid_link or scrape_provider == 'folders': url = url_dl
 			elif scrape_provider == 'easynews':
 				from indexers.easynews import resolve_easynews

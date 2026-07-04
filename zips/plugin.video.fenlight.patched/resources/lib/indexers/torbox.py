@@ -21,7 +21,7 @@ def _safe_cloud_data(result):
 def _finished_cloud_items(items, media_type):
 	return [{**i, 'media_type': media_type} for i in items if i.get('download_finished')]
 
-def tb_cloud():
+def tb_cloud(fresh=False):
 	def _builder():
 		for count, item in enumerate(folders, 1):
 			try:
@@ -29,6 +29,7 @@ def tb_cloud():
 				cm_append = cm.append
 				display = '%02d | [I]%s [/I]' % (count, clean_file_name(normalize(item['name'])).upper())
 				url_params = {'mode': 'torbox.browse_tb_cloud', 'folder_id': item['id'], 'media_type': item['media_type']}
+				if str(fresh).lower() == 'true': url_params['fresh'] = 'true'
 				delete_params = {'mode': 'torbox.delete', 'folder_id': item['id'], 'media_type': item['media_type']}
 				cm_append(('[B]Delete Folder[/B]', 'RunPlugin(%s)' % build_url(delete_params)))
 				url = build_url(url_params)
@@ -38,6 +39,8 @@ def tb_cloud():
 				listitem.setArt({'icon': default_tb_icon, 'poster': default_tb_icon, 'thumb': default_tb_icon, 'fanart': fanart, 'banner': default_tb_icon})
 				yield (url, listitem, True)
 			except: pass
+	if str(fresh).lower() == 'true':
+		TorBox.clear_user_cloud_cache()
 	def _fetch_bucket(media_type, cloud_function):
 		start = time()
 		try:
@@ -66,7 +69,7 @@ def tb_cloud():
 	end_directory(handle)
 	set_view_mode('view.premium')
 
-def browse_tb_cloud(folder_id, media_type):
+def browse_tb_cloud(folder_id, media_type, fresh=False):
 	def _builder():
 		for count, item in enumerate(video_files, 1):
 			try:
@@ -87,6 +90,8 @@ def browse_tb_cloud(folder_id, media_type):
 				yield (url, listitem, False)
 			except: pass
 	start = time()
+	if str(fresh).lower() == 'true':
+		TorBox.clear_user_cloud_cache()
 	if media_type == 'torrent': files = TorBox.user_cloud_info(folder_id)
 	elif media_type == 'usenet': files = TorBox.user_cloud_info_usenet(folder_id)
 	else: files = TorBox.user_cloud_info_webdl(folder_id)

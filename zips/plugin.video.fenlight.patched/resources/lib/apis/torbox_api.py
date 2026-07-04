@@ -90,6 +90,14 @@ class TorBoxAPI:
 		self._post(remove_webdl, json=data)
 		self.clear_cache()
 
+	def clear_user_cloud_cache(self):
+		try:
+			from caches.base_cache import connect_database
+			dbcon = connect_database('maincache_db')
+			dbcon.execute("""DELETE FROM maincache WHERE id LIKE ?""", ('tb_user_cloud%',))
+			return True
+		except: return False
+
 	def torrent_info(self, request_id=''):
 		url = explore % request_id
 		return self._get(url)
@@ -114,13 +122,13 @@ class TorBoxAPI:
 
 	def unrestrict_usenet(self, file_id):
 		usenet_id, file_id = file_id.split(',')
-		params = {'token': self.token, 'usenet_id': usenet_id, 'file_id': file_id, 'user_ip': True}
+		params = {'token': self.token, 'usenet_id': usenet_id, 'file_id': file_id}
 		try: return self._get(download_usenet, data=params)['data']
 		except: return None
 
 	def unrestrict_webdl(self, file_id):
 		web_id, file_id = file_id.split(',')
-		params = {'token': self.token, 'web_id': web_id, 'file_id': file_id, 'user_ip': True}
+		params = {'token': self.token, 'web_id': web_id, 'file_id': file_id}
 		try: return self._get(download_webdl, data=params)['data']
 		except: return None
 

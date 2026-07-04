@@ -462,48 +462,6 @@
                           <property name="setting_description">Choose the maximum active concurrent threads Fen Light Patched will be limited to</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_numeric&amp;setting_id=max_threads)</onclick>
                       </item>
-        <!-- Manage Addon Updates -->
-                      <item>
-                          <visible>Container(2000).HasFocus(10)</visible>
-                          <property name="setting_label">Manage Addon Updates</property>
-                          <property name="setting_type">separator</property>
-                          <onclick>noop</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(10)</visible>
-                          <property name="setting_label">Update Action</property>
-                          <property name="setting_type">action</property>
-                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.update.action_name)]</property>
-                          <property name="setting_description">Choose the manner in which Fen Light Patched handles updates</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_from_list&amp;setting_id=update.action)</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(10)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.update.action),3)</visible>
-                          <property name="setting_label">    - Delay Before Running (secs)</property>
-                          <property name="setting_type">numeric</property>
-                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.update.delay)]</property>
-                          <property name="setting_description">Choose the delay time before Fen Light Patched checks for updates after Kodi start</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_numeric&amp;setting_id=update.delay)</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(10)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.update.action),3)</visible>
-                          <property name="setting_label">    - Github Username</property>
-                          <property name="setting_type">numeric</property>
-                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.update.username)]</property>
-                          <property name="setting_description">Leave this setting as default unless you wsh to update Fen Light Patched through a different user repository. If you do, enter the Github Username of the new github location</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=update.username)</onclick>
-                      </item>
-                      <item>
-                          <visible>Container(2000).HasFocus(10)</visible>
-                          <visible>!String.IsEqual(Window(10000).Property(fenlight.update.action),3)</visible>
-                          <property name="setting_label">    - Github Repo Address</property>
-                          <property name="setting_type">numeric</property>
-                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.update.location)]</property>
-                          <property name="setting_description">Leave this setting as default unless you wsh to update Fen Light Patched through a different user repository. If you do, enter the Github Repo Address of the new github location</property>
-                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=update.location)</onclick>
-                      </item>
         <!-- Watched Indicators -->
                       <item>
                           <visible>Container(2000).HasFocus(10)</visible>
@@ -1244,6 +1202,14 @@
                           <property name="setting_description">Enter here your OMDb API key. This will allow you to utilize extra ratings information in Fen Light Patcheds Extras window</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=omdb_api)</onclick>
                       </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">    - Restore Default API Key</property>
+                          <property name="setting_type">action</property>
+                          <property name="setting_value">...</property>
+                          <property name="setting_description">Restore default OMDb API key</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.restore_setting_default&amp;setting_id=omdb_api)</onclick>
+                      </item>
         <!-- TheIntroDB -->
                       <item>
                           <visible>Container(2000).HasFocus(50)</visible>
@@ -1258,6 +1224,14 @@
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.introdb.api_key)]</property>
                           <property name="setting_description">Optional TheIntroDB API key used for intro, recap, and end-credit timing lookups</property>
                           <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_string&amp;setting_id=introdb.api_key)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(50)</visible>
+                          <property name="setting_label">    - Restore Default API Key</property>
+                          <property name="setting_type">action</property>
+                          <property name="setting_value">...</property>
+                          <property name="setting_description">Restore default TheIntroDB API key</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.restore_setting_default&amp;setting_id=introdb.api_key)</onclick>
                       </item>
         <!-- External Scrapers -->
                       <item>

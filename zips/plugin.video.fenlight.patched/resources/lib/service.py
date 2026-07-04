@@ -4,7 +4,6 @@ import json
 from threading import Thread
 
 pause_services_prop = 'fenlight.pause_services'
-firstrun_update_prop = 'fenlight.firstrun_update'
 current_skin_prop = 'fenlight.current_skin'
 trakt_service_string = 'TraktMonitor Service Update %s - %s'
 trakt_success_line_dict = {'success': 'Trakt Update Performed', 'no account': '(Unauthorized) Trakt Update Performed'}
@@ -160,29 +159,6 @@ class TraktMonitor:
 		except: pass
 		return logger('Fen Light Patched', 'TraktMonitor Service Finished')
 
-class UpdateCheck:
-	def run(self):
-		window = xbmcgui.Window(10000)
-		if window.getProperty(firstrun_update_prop) == 'true': return
-		logger('Fen Light Patched', 'UpdateCheck Service Starting')
-		from time import time
-		from modules.updater import update_check
-		from modules.settings import update_action, update_delay
-		end_pause = time() + update_delay()
-		monitor, player = xbmc.Monitor(), xbmc.Player()
-		wait_for_abort, is_playing = monitor.waitForAbort, player.isPlayingVideo
-		while not monitor.abortRequested():
-			while time() < end_pause: wait_for_abort(1)
-			while window.getProperty(pause_services_prop) == 'true' or is_playing(): wait_for_abort(1)
-			update_check(update_action())
-			break
-		window.setProperty(firstrun_update_prop, 'true')
-		try: del monitor
-		except: pass
-		try: del player
-		except: pass
-		return logger('Fen Light Patched', 'UpdateCheck Service Finished')
-
 class WidgetRefresher:
 	def run(self):
 		logger('Fen Light Patched', 'WidgetRefresher Service Starting')
@@ -253,7 +229,6 @@ class FenLightMonitor(xbmc.Monitor):
 		OnUpdateChanges().run()
 		Thread(target=CustomFonts().run).start()
 		Thread(target=TraktMonitor().run).start()
-		Thread(target=UpdateCheck().run).start()
 		Thread(target=WidgetRefresher().run).start()
 		AutoStart().run()
 

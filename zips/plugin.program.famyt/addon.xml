@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.16"
+       version="0.9.17"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.16
+<news>v0.9.17
+- Install Fen Light Gemini AI Search keys from the private Vercel bridge
+
+v0.9.16
 - Fix target add-on settings writes so Fen Light, a4kSubtitles, Cocoscrapers, and skin presets save to their real profile folders
 
 v0.9.15
