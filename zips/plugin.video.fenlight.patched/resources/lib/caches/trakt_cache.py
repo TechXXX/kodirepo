@@ -9,6 +9,7 @@ DELETE = 'DELETE FROM trakt_data WHERE id=?'
 DELETE_LIKE = 'DELETE FROM trakt_data WHERE id LIKE "%s"'
 WATCHED_INSERT = 'INSERT OR IGNORE INTO watched VALUES (?, ?, ?, ?, ?, ?)'
 WATCHED_DELETE = 'DELETE FROM watched WHERE db_type = ?'
+WATCHED_EXISTS = 'SELECT 1 FROM watched WHERE db_type = ? LIMIT 1'
 PROGRESS_INSERT = 'INSERT OR IGNORE INTO progress VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
 PROGRESS_DELETE = 'DELETE FROM progress WHERE db_type = ?'
 STATUS_INSERT = 'INSERT INTO watched_status VALUES (?, ?, ?)'
@@ -59,6 +60,12 @@ class TraktWatched():
 	def set_bulk_tvshow_watched(self, insert_list):
 		self._delete(WATCHED_DELETE, ('episode',))
 		self._executemany(WATCHED_INSERT, insert_list)
+
+	def has_tvshow_watched(self):
+		try:
+			dbcon = connect_database('trakt_db')
+			return dbcon.execute(WATCHED_EXISTS, ('episode',)).fetchone() is not None
+		except: return True
 
 	def set_bulk_movie_progress(self, insert_list):
 		self._delete(PROGRESS_DELETE, ('movie',))

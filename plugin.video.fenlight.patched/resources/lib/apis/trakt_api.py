@@ -19,6 +19,7 @@ execute_builtin, select_dialog, kodi_refresh = kodi_utils.execute_builtin, kodi_
 progress_dialog, external, trakt_user_active, show_unaired_watchlist = kodi_utils.progress_dialog, kodi_utils.external, settings.trakt_user_active, settings.show_unaired_watchlist
 lists_sort_order, trakt_client, trakt_secret, tmdb_api_key = settings.lists_sort_order, settings.trakt_client, settings.trakt_secret, settings.tmdb_api_key
 clear_all_trakt_cache_data, cache_trakt_object, clear_trakt_calendar = trakt_cache.clear_all_trakt_cache_data, trakt_cache.cache_trakt_object, trakt_cache.clear_trakt_calendar
+trakt_data_cache = trakt_cache.trakt_cache
 trakt_watched_cache, reset_activity, clear_trakt_list_contents_data = trakt_cache.trakt_watched_cache, trakt_cache.reset_activity, trakt_cache.clear_trakt_list_contents_data
 clear_daily_cache = trakt_cache.clear_daily_cache
 clear_trakt_collection_watchlist_data, clear_trakt_hidden_data = trakt_cache.clear_trakt_collection_watchlist_data, trakt_cache.clear_trakt_hidden_data
@@ -31,6 +32,7 @@ API_ENDPOINT = 'https://api.trakt.tv/%s'
 timeout = 20
 EXPIRY_1_DAY, EXPIRY_1_WEEK = 24, 168
 TRAKT_AUTH_PROMPT_PROPERTY = 'fenlight.trakt_auth_prompt_active'
+TV_WATCHED_PROGRESS_REPAIR = 'trakt_tv_watched_progress_repair_20260704'
 
 def _set_trakt_auth_state(state, display_name):
 	set_setting('trakt.auth_state', state)
@@ -712,10 +714,11 @@ def trakt_indicators_tv():
 	insert_append = insert_list.append
 	params = {'path': 'sync/watched/shows?extended=progress%s', 'with_auth': True, 'pagination': False}
 	result = get_trakt(params)
-	if not isinstance(result, list): return
+	if not isinstance(result, list): return False
 	threads = list(make_thread_list(_process, result))
 	[i.join() for i in threads]
 	trakt_watched_cache.set_bulk_tvshow_watched(insert_list)
+	return True
 
 def trakt_playback_progress():
 	params = {'path': 'sync/playback%s', 'with_auth': True, 'pagination': False}
@@ -851,6 +854,15 @@ def trakt_sync_activities(force_update=False):
 		return result
 	def _check_daily_expiry():
 		return int(time.time()) >= int(get_setting('fenlight.trakt.next_daily_clear', '0'))
+	def _repair_empty_tv_watched_cache():
+		if trakt_data_cache.get(TV_WATCHED_PROGRESS_REPAIR): return False
+		if trakt_watched_cache.has_tvshow_watched():
+			trakt_data_cache.set(TV_WATCHED_PROGRESS_REPAIR, 'not_needed')
+			return False
+		clear_properties('episode')
+		if trakt_indicators_tv() is False: return False
+		trakt_data_cache.set(TV_WATCHED_PROGRESS_REPAIR, 'done')
+		return True
 	if force_update: clear_all_trakt_cache_data(silent=True, refresh=False)
 	elif _check_daily_expiry():
 		clear_daily_cache()
@@ -860,7 +872,9 @@ def trakt_sync_activities(force_update=False):
 	except: return 'failed'
 	if not isinstance(latest, dict): return 'failed'
 	cached = reset_activity(latest)
-	if not _compare(latest['all'], cached['all']): return 'not needed'
+	if not _compare(latest['all'], cached['all']):
+		if _repair_empty_tv_watched_cache(): return 'success'
+		return 'not needed'
 	lists_actions, refresh_movies_progress, refresh_shows_progress, clear_tvshow_watched_cache = [], False, False, False
 	cached_movies, latest_movies = cached['movies'], latest['movies']
 	cached_shows, latest_shows = cached['shows'], latest['shows']
