@@ -68,3 +68,10 @@ It does not authorize external player addons. Fen, POV, Umbrella, Magneto, and
 similar launched players still own their own Trakt/resume integration and
 their own local playback state. A TMDb Helper resume prompt can pass intent
 into a launch path, but the launched player must preserve or apply the seek.
+
+### 2026-07-05 Trakt Sync Pagination
+
+The patched sync datatype now follows Trakt pagination headers for sync
+responses instead of assuming the first response contains the full result set.
+Hidden progress/watchlist sync also no longer forces a `4095` limit, and
+watched show sync requests progress metadata with `extended=full,progress`.

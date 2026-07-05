@@ -1,0 +1,11 @@
+{
+    "schema_version": 1,
+    "commit": "e48c34c75eb86047711960d088e36e2bbc45de91",
+    "indexed_at": "2026-07-05T16:16:23Z",
+    "project": "Users-kalter-Documents-CODEX-kodirepo",
+    "nodes": 172028,
+    "edges": 386830,
+    "original_size": 353239040,
+    "compressed_size": 38825275,
+    "compression_level": 3
+}

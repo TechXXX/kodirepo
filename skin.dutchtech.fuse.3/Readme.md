@@ -11,7 +11,7 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
 ## Maintainer Notes
 
 - Add-on id: `skin.dutchtech.fuse.3`.
-- Current source version: `3.2.9.2`.
+- Current source version: `3.2.9.10`.
 - Patched TMDb Helper dependency: `plugin.video.themoviedb.helper.patched`.
 - Most fork-specific differences from upstream AF3 are add-on identity,
   artwork, and TMDb Helper route rewrites.
@@ -33,3 +33,9 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
   `shortcuts/generator/data/`.
 - Test visual changes first on the live Mac Kodi install when possible, then
   port accepted changes here with the patched helper id preserved.
+
+## 2026-07-05 Favourites Browser Note
+
+The custom favourites dialog now hands off to Kodi's native favourites browser,
+and `MyFavourites.xml` uses the skin's dialog panel/list treatment instead of
+the older media-info panel layout.

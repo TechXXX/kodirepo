@@ -51,17 +51,37 @@ class DataType(SyncDataParentProperties):
             return self._item_type
         raise ValueError(f'Invalid item_type {self._item_type} for {self.method}')
 
-    def get_response_sync(self, *args, **kwargs):
+    def get_response_sync_data(self, *args, **kwargs):
         path = self.trakt_api.get_request_url(*args, **kwargs)
-        data = self.trakt_api.get_api_request(path, headers=self.trakt_api.headers)
-        if data is None:
+        return self.trakt_api.get_api_request(path, headers=self.trakt_api.headers)
+
+    def get_response_sync(self, *args, **kwargs):
+        response = self.get_response_sync_data(*args, **kwargs)
+        if response is None:
             return
         try:
-            return data.json()
-        except ValueError:
+            this_data = response.json()
+        except (ValueError, AttributeError):
             return
-        except AttributeError:
-            return
+
+        try:
+            page_count = int(response.headers['x-pagination-page-count']) + 1
+            page_start = int(response.headers['x-pagination-page']) + 1
+        except (KeyError, ValueError):
+            page_count = 0
+            page_start = 0
+
+        for page in range(page_start, page_count):
+            next_response = self.get_response_sync_data(*args, **kwargs, page=page)
+            if next_response is None:
+                continue
+            try:
+                next_data = next_response.json()
+            except (ValueError, AttributeError):
+                continue
+            this_data.extend(next_data)
+
+        return this_data
 
     @cached_property
     def last_activities(self):
@@ -173,7 +193,7 @@ class SyncHiddenProgressWatched(DataType):
         """ Get items that are hidden on Trakt """
         from tmdbhelper.lib.addon.logger import TimerFunc
         with TimerFunc(f'Sync: {self.__class__.__name__} get_response_sync users {self.method} {self.item_type}', inline=True, log_threshold=0.001):
-            return self.get_response_sync('users', self.method, type=f'{self.item_type}s', limit=4095)
+            return self.get_response_sync('users', self.method, type=f'{self.item_type}s')
 
 
 class SyncHiddenProgressCollected(SyncHiddenProgressWatched):
@@ -197,7 +217,7 @@ class SyncHiddenDropped(SyncHiddenProgressWatched):
 class SyncWatched(DataTypeEpisodes):
     keys = ('plays', 'last_watched_at', 'last_updated_at', 'aired_episodes', 'watched_episodes', 'reset_at', )
     last_activities_key = 'watched_at'
-    sync_kwgs = {'extended': 'full'}
+    sync_kwgs = {'extended': 'full,progress'}
     method = 'watched'
 
 

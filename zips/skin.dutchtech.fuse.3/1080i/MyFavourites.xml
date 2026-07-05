@@ -2,66 +2,49 @@
 <window>
     <views>50</views>
     <defaultcontrol always="true">50</defaultcontrol>
-    <menucontrol>8000</menucontrol>
-    <include content="_Action_Blur_Onload">
-        <param name="sourceimage">Art(fanart)|Property(fanart)|Icon</param>
-    </include>
     <controls>
 
         <include>Background</include>
+        <include>Part_Dim_Overlay</include>
 
         <control type="group">
-            <include>Animation_Group_Bumper</include>
-            <include>Animation_View_WindowChange</include>
+            <include>Dimension_DialogWideMenu</include>
+            <include>Animation_BounceIn_Dialog</include>
+            <include content="Part_Background_Panel">
+                <param name="dialog_size">Dimension_DialogWideMenu</param>
+            </include>
 
-            <control type="group">
-                <include>Info_Panel_Dimensions</include>
-                <include content="Info_Panel">
-                    <param name="details">false</param>
+            <control type="group" id="8000">
+                <include>Size_Dialog_Pad</include>
+                <control type="group">
+                    <include>Size_Group_Head</include>
+                    <include content="Part_HeadText">
+                        <param name="label">$LOCALIZE[1036]</param>
+                    </include>
+                    <include content="Part_ItemPage">
+                        <param name="id">50</param>
+                    </include>
+                    <include>Part_CloseButton</include>
+                </control>
+                <control type="group">
+                    <include>Size_Group_Body</include>
+                    <include content="List_Dialog">
+                        <param name="id">50</param>
+                        <param name="detailed">True</param>
+                        <param name="item_height">128</param>
+                        <param name="itemlayout_include">List_Layout_Dialog_DetailedCheckmark</param>
+                        <param name="misc">ListItem.IsSelected</param>
+                        <pagecontrol>61</pagecontrol>
+                        <onright>61</onright>
+                        <include>Size_Grouplist_Pad</include>
+                    </include>
+                </control>
+                <include content="Part_Scrollbar">
+                    <param name="id">61</param>
+                    <onleft>50</onleft>
                 </include>
             </control>
-
-            <include content="View_Line">
-                <param name="top">280</param>
-            </include>
-
-            <include content="View_MediaList_Include">
-                <param name="id">50</param>
-                <param name="viewtype_label">$LOCALIZE[31120]</param>
-                <param name="visible">true</param>
-                <param name="right">665</param>
-                <param name="top">160</param>
-                <param name="focusposition">1</param>
-                <param name="movement">5</param>
-                <param name="scrollbar_id">65</param>
-                <param name="overlay">true</param>
-                <!-- <param name="variation">true</param> -->
-                <!-- <param name="include_detailed_labels">false</param> -->
-
-                <control type="group">
-                    <height>585</height>
-                    <width>585</width>
-                    <bottom>0</bottom>
-                    <right>0</right>
-                    <control type="image">
-                        <include>Texture_Shadow_40</include>
-                        <texture colordiffuse="main_fg_12" border="20">common/box.png</texture>
-                    </control>
-                    <control type="image">
-                        <texture diffuse="diffuse/square_w600_h600.png" background="true">$VAR[Image_Poster]</texture>
-                        <fadetime>background_fadetime</fadetime>
-                        <aspectratio scalediffuse="false">keep</aspectratio>
-                    </control>
-                </control>
-            </include>
-
-            <include content="View_Furniture_Scrollbar_V">
-                <param name="id">65</param>
-                <param name="height">585</param>
-                <param name="visible">true</param>
-            </include>
         </control>
-
 
     </controls>
 </window>

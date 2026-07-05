@@ -88,7 +88,7 @@ Current source-tree versions when this document was updated:
   requesting TV watched data with `extended=progress`, guarding missing
   `seasons` payloads, and running a one-time empty episode-watched cache repair
   after update.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.13`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.15`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
@@ -96,7 +96,9 @@ Current source-tree versions when this document was updated:
   OMDb ratings more reliably. It now ships a bundled default OMDb API key for
   repo installs, includes bundled Fen Light / Fen Light Patched TMDb player
   definitions for default installs, and adds the refreshed Trakt QR auth dialog
-  support promoted from the test repo.
+  support promoted from the test repo. It now follows Trakt pagination headers
+  for sync responses, removes the hidden-list hard limit, and requests watched
+  show progress metadata.
 - `service.subtitles.a4ksubtitles.patched` `3.23.40`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build keeps AI subtitle translation off until an API key is
@@ -138,7 +140,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.8`
+- `skin.dutchtech.fuse.3` `3.2.9.10`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
@@ -148,7 +150,8 @@ Current source-tree versions when this document was updated:
   artwork/foreground layers while those pagination items are focused. It also
   restores a direct Check for updates action inside the skin's add-on browser.
   It now also adds a configurable subtitle settings title scroll speed for the
-  OSD and restores a direct Add-ons shortcut target.
+  OSD, restores a direct Add-ons shortcut target, and routes favourites through
+  Kodi's native favourites browser with the skin's dialog-style list layout.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
