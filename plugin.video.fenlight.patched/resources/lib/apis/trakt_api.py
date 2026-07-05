@@ -33,6 +33,8 @@ timeout = 20
 EXPIRY_1_DAY, EXPIRY_1_WEEK = 24, 168
 TRAKT_AUTH_PROMPT_PROPERTY = 'fenlight.trakt_auth_prompt_active'
 TV_WATCHED_PROGRESS_REPAIR = 'trakt_tv_watched_progress_repair_20260704'
+MOVIE_WATCHED_PAGINATION_REPAIR = 'trakt_movie_watched_pagination_repair_20260705'
+WATCHED_PAGE_LIMIT = 250
 
 def _set_trakt_auth_state(state, display_name):
 	set_setting('trakt.auth_state', state)
@@ -141,7 +143,7 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 	if method == 'sort_by_headers' and 'X-Sort-By' in headers and 'X-Sort-How' in headers:
 		try: result = sort_list(headers['X-Sort-By'], headers['X-Sort-How'], result)
 		except: pass
-	if pagination: return (result, headers['X-Pagination-Page-Count'])
+	if pagination: return (result, headers.get('X-Pagination-Page-Count'))
 	else: return result
 
 def trakt_get_device_code():
@@ -687,12 +689,12 @@ def trakt_indicators_movies():
 		insert_append(('movie', tmdb_id, '', '', item['last_watched_at'], movie['title']))
 	insert_list = []
 	insert_append = insert_list.append
-	params = {'path': 'sync/watched/movies%s', 'with_auth': True, 'pagination': False}
-	result = get_trakt(params)
-	if not isinstance(result, list): return
+	result = get_all_watched_pages('sync/watched/movies')
+	if not isinstance(result, list): return False
 	threads = list(make_thread_list(_process, result))
 	[i.join() for i in threads]
 	trakt_watched_cache.set_bulk_movie_watched(insert_list)
+	return True
 
 def trakt_indicators_tv():
 	def _process(item):
@@ -712,8 +714,7 @@ def trakt_indicators_tv():
 				insert_append(('episode', tmdb_id, season_no, e['number'], last_watched_at, title))
 	insert_list = []
 	insert_append = insert_list.append
-	params = {'path': 'sync/watched/shows?extended=progress%s', 'with_auth': True, 'pagination': False}
-	result = get_trakt(params)
+	result = get_all_watched_pages('sync/watched/shows?extended=progress')
 	if not isinstance(result, list): return False
 	threads = list(make_thread_list(_process, result))
 	[i.join() for i in threads]
@@ -840,6 +841,21 @@ def get_trakt(params):
 						with_auth=params.get('with_auth', False), method=params.get('method'), pagination=params.get('pagination', True), page_no=params.get('page_no'))
 	return result[0] if params.get('pagination', True) else result
 
+def get_all_watched_pages(path):
+	results, page_no, total_pages = [], 1, None
+	while True:
+		response = call_trakt(path, params={'limit': WATCHED_PAGE_LIMIT}, with_auth=True, pagination=True, page_no=page_no)
+		if not response: return None
+		page_results, page_count = response
+		if not isinstance(page_results, list): return None
+		if not page_results: break
+		results.extend(page_results)
+		try: total_pages = int(page_count)
+		except: total_pages = None
+		if total_pages and page_no >= total_pages: break
+		page_no += 1
+	return results
+
 def trakt_sync_activities(force_update=False):
 	# def clear_watched_tvshow_cache():
 	# 	from modules.watched_status import clear_cache_watched_tvshow_status
@@ -854,6 +870,12 @@ def trakt_sync_activities(force_update=False):
 		return result
 	def _check_daily_expiry():
 		return int(time.time()) >= int(get_setting('fenlight.trakt.next_daily_clear', '0'))
+	def _repair_movie_watched_pagination():
+		if trakt_data_cache.get(MOVIE_WATCHED_PAGINATION_REPAIR): return False
+		clear_properties('movie')
+		if trakt_indicators_movies() is False: return False
+		trakt_data_cache.set(MOVIE_WATCHED_PAGINATION_REPAIR, 'done')
+		return True
 	def _repair_empty_tv_watched_cache():
 		if trakt_data_cache.get(TV_WATCHED_PROGRESS_REPAIR): return False
 		if trakt_watched_cache.has_tvshow_watched():
@@ -872,8 +894,10 @@ def trakt_sync_activities(force_update=False):
 	except: return 'failed'
 	if not isinstance(latest, dict): return 'failed'
 	cached = reset_activity(latest)
+	repair_performed = _repair_movie_watched_pagination()
+	if _repair_empty_tv_watched_cache(): repair_performed = True
 	if not _compare(latest['all'], cached['all']):
-		if _repair_empty_tv_watched_cache(): return 'success'
+		if repair_performed: return 'success'
 		return 'not needed'
 	lists_actions, refresh_movies_progress, refresh_shows_progress, clear_tvshow_watched_cache = [], False, False, False
 	cached_movies, latest_movies = cached['movies'], latest['movies']

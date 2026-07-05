@@ -1,6 +1,6 @@
 # Fen Light Patched Agent Notes
 
-Last reviewed: 2026-06-21 against `plugin.video.fenlight.patched` `2.0.87`.
+Last reviewed: 2026-07-05 against `plugin.video.fenlight.patched` `2.0.95`.
 
 This is the production-facing patched Fen Light addon in `kodirepo`. Future
 agents should read this before changing scraping, playback, subtitle pairing,
@@ -20,6 +20,7 @@ Fen Light Patched is the owner of:
 - pre-play subtitle-aware retry-pool promotion
 - resolver handoff to Kodi playback
 - Fen's own watched/progress/bookmark updates
+- Trakt watched/progress cache population and one-time cache repair migrations
 - playback window properties consumed by skins, a4k, and other addons
 
 Fen does not own:
@@ -142,6 +143,21 @@ any other player addon. TMDb Helper's Trakt auth is useful for TMDb Helper
 lists, indicators, progress metadata, player placeholders, and scrobbling when
 its playback monitor has enough Kodi metadata, but each launched player still
 owns its own source resolution and local resume behavior.
+
+### Trakt TV Watched Endpoint Change
+
+Trakt's 2026 watched endpoint change removed season/episode progress from the
+default/full watched show response. Fen must request
+`sync/watched/shows?extended=progress` when rebuilding TV watched indicators,
+and must tolerate watched show items without `seasons`.
+
+The 2026-07-05 repair also handles already-bad local caches. If
+`trakt_sync_activities()` reports no new Trakt activity but the local watched
+table has no `episode` rows, Fen runs `trakt_indicators_tv()` once and stores
+the marker `trakt_tv_watched_progress_repair_20260704` in Fen's Trakt cache.
+Keep this fix in Fen, not in the skin: movie checkmarks can work while episode
+checkmarks and TV remaining-count widgets fail because the episode watched
+cache is empty.
 
 If a TMDb Helper player JSON changes in the repo, also check the installed
 userdata copies. Kodi may use the user profile copy instead of the bundled

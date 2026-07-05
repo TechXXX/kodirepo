@@ -32,7 +32,7 @@ Current source-tree versions when this document was updated:
   Dutch can become TMDb original-language constraints instead of loose
   keywords. It now also supports TorBox Web Download cloud items through the
   same WebDL path as the other Fen variants.
-- `plugin.video.fenlight.patched` `2.0.89`
+- `plugin.video.fenlight.patched` `2.0.95`
   Main patched Fenlight build that bundles the selector locally and uses the
   centralized subtitle-aware retry-pool architecture. It now also includes the
   Gemini-backed AI Search entrypoint from the tested repo channel, multi-key
@@ -84,7 +84,10 @@ Current source-tree versions when this document was updated:
   IntroDB support, intro skip, recap skip, and IntroDB next-episode timing by
   default. It now also publishes a selector playback URL during playback so
   a4k can reject stale selector subtitle payloads after unrelated add-ons start
-  new videos.
+  new videos. It now also tracks Trakt's 2026 watched endpoint change by
+  requesting TV watched data with `extended=progress`, guarding missing
+  `seasons` payloads, and running a one-time empty episode-watched cache repair
+  after update.
 - `plugin.video.themoviedb.helper.patched` `6.15.2.13`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
@@ -275,6 +278,12 @@ unless the selected title metadata already expects that spoken language.
 
 It now also uses the show's original or English title plus the actual episode
 name when building TV subtitle-search metadata and filenames.
+
+It also owns the local Trakt watched/progress cache repair for Trakt's 2026
+watched endpoint response change. Do not move this into the skin: missing
+episode checkmarks and TV remaining-count regressions should be diagnosed first
+in Fen's `traktcache.db` watched/progress tables and
+`resources/lib/apis/trakt_api.py`.
 
 ### `plugin.video.fenlight.aisearch`
 
