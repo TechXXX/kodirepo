@@ -29,9 +29,11 @@ REPO_ALLOWED_FILES = {"addon.xml", "icon.png", "fanart.jpg"}
 STATIC_PUBLISH_PATHS = [
     "addons.xml",
     "addons.xml.md5",
+    "docs",
     "index.html",
     "scripts/build_repo.py",
 ]
+PAGES_SITE_DIR = "docs"
 EXCLUDED_SOURCE_DIRS = {"scripts", "zips", "__pycache__"}
 
 
@@ -199,15 +201,26 @@ def reset_generated_outputs(root_dir: Path, repo_version: str) -> None:
     remove_path(root_dir / "zips")
 
 
-def update_index_html(root_dir: Path, repo_version: str) -> None:
-    index_path = root_dir / "index.html"
-    if not index_path.exists():
-        return
+def write_install_index(index_path: Path, repo_version: str) -> None:
     lines = [
         "<!DOCTYPE html>",
         f'<a href="{REPO_ADDON_ID}-{repo_version}.zip">{REPO_ADDON_ID}-{repo_version}.zip</a>',
     ]
     write_text(index_path, "\n".join(lines) + "\n")
+
+
+def update_pages_install_site(root_dir: Path, repo_zip: Path, repo_version: str) -> None:
+    pages_dir = root_dir / PAGES_SITE_DIR
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    for path in pages_dir.glob(f"{REPO_ADDON_ID}-*.zip"):
+        if path.name != repo_zip.name:
+            remove_path(path)
+    shutil.copy2(repo_zip, pages_dir / repo_zip.name)
+    write_install_index(pages_dir / "index.html", repo_version)
+
+    root_index = root_dir / "index.html"
+    if root_index.exists():
+        write_install_index(root_index, repo_version)
 
 
 def should_skip_file(addon_id: str, file_path: Path) -> bool:
@@ -341,12 +354,13 @@ def main() -> None:
         mirror_addon_source(addon_dir, output_dir)
         package_paths[addon_id] = package_addon(addon_dir, output_dir)
 
+    repo_zip = package_paths[REPO_ADDON_ID]
+    root_repo_zip = root_dir / repo_zip.name
+    shutil.copy2(repo_zip, root_repo_zip)
+    update_pages_install_site(root_dir, root_repo_zip, repo_version)
+
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
-    update_index_html(root_dir, repo_version)
-
-    repo_zip = package_paths[REPO_ADDON_ID]
-    shutil.copy2(repo_zip, root_dir / repo_zip.name)
 
     print(f"Built Kodi repo metadata for {len(source_dirs)} addons")
     print(f"Repository version: {repo_version}")

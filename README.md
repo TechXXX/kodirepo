@@ -1,7 +1,7 @@
 # DutchTech Kodi Repository
 
-This repository is the main GitHub Pages distribution channel for DutchTech
-Kodi packages.
+This repository is the main DutchTech Kodi package source. GitHub Pages is kept
+as a tiny bootstrap install page only.
 
 Active workflow rule:
 
@@ -166,7 +166,7 @@ Current source-tree versions when this document was updated:
   keyboard text.
 - `skin.arctic.horizon.2.1` `0.0.1`
   Forked skin package shipped by this repo.
-- `repository.dutchtech` `1.0.44`
+- `repository.dutchtech` `1.0.45`
   The repository addon Kodi installs first.
 
 ## Layout
@@ -201,6 +201,10 @@ Current source-tree versions when this document was updated:
   Repo build and publish helpers.
 - `zips/`
   Generated installable addon packages. Do not hand-edit these.
+- `docs/`
+  Tiny GitHub Pages install site. GitHub Pages should serve `main` `/docs`, not
+  the repo root. Kodi update data still comes from the raw GitHub URLs declared
+  in `repository.dutchtech/addon.xml`.
 - `addons.xml`
   Kodi metadata for every addon in the repo.
 - `addons.xml.md5`
@@ -381,6 +385,8 @@ Important future-agent nuance:
   text files instead
 - if `addon.xml` changes, also regenerate `addons.xml`
 - do not edit `addons.xml.md5` by hand
+- keep GitHub Pages pointed at `main` `/docs`; do not serve the whole repo root
+  because the package archive tree is too large for reliable Pages deploys
 
 ## Scope Guard Rails
 

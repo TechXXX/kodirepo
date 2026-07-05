@@ -15,6 +15,7 @@ What it does:
 - rebuilds every addon package under `zips/`
 - regenerates `addons.xml` and `addons.xml.md5`
 - updates the repository install zip in the repo root
+- refreshes the tiny GitHub Pages install site under `docs/`
 - commits and pushes to `main`
 
 Use cases:
@@ -91,3 +92,11 @@ Never hand-edit:
 - `addons.xml.md5`
 
 Treat them as derived outputs from the source trees plus the build helpers.
+
+## GitHub Pages
+
+GitHub Pages should be configured to serve `main` / `docs`, not the repository
+root. The `docs/` folder only needs the bootstrap install page and
+`repository.dutchtech-<version>.zip`; Kodi itself reads `addons.xml`,
+`addons.xml.md5`, and `zips/` from the raw GitHub URLs in
+`repository.dutchtech/addon.xml`.
