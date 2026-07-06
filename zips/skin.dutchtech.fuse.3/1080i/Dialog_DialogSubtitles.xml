@@ -3,6 +3,9 @@
 
     <variable name="Label_DialogSubtitles_SearchLabel">
         <value condition="String.Contains(Control.GetLabel(100),a4kSubtitles) + !String.IsEmpty(Window(Home).Property(a4k.search_label))">$INFO[Window(Home).Property(a4k.search_label)]</value>
+        <value condition="String.Contains(Control.GetLabel(100),a4kSubtitles) + !String.IsEmpty(VideoPlayer.TvShowTitle)">$INFO[VideoPlayer.TvShowTitle]$VAR[Label_OSD_Plot_Episode_Number, ,]$INFO[VideoPlayer.Title, - ,]</value>
+        <value condition="String.Contains(Control.GetLabel(100),a4kSubtitles) + !String.IsEmpty(VideoPlayer.Title) + !String.IsEmpty(VideoPlayer.Year)">$INFO[VideoPlayer.Title] $INFO[VideoPlayer.Year]</value>
+        <value condition="String.Contains(Control.GetLabel(100),a4kSubtitles) + !String.IsEmpty(VideoPlayer.Title)">$INFO[VideoPlayer.Title]</value>
         <value>$INFO[Player.FileName]</value>
     </variable>
 

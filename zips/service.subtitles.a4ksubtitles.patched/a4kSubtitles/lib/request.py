@@ -49,7 +49,6 @@ def __format_search_label(request):
         ('tmdb_id', 'tmdb_id'),
         ('imdb_id', 'imdb_id'),
         ('movieId', 'movieId'),
-        ('moviehash', 'moviehash'),
         ('year', 'year'),
     )
 
