@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.17"
+       version="0.9.18"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,11 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.17
+<news>v0.9.18
+- Preserve existing Trakt and debrid login settings during Fen Light preset restores
+- Let Fen Light reseed its public TMDb/IntroDB defaults by omitting blank bundled rows
+
+v0.9.17
 - Install Fen Light Gemini AI Search keys from the private Vercel bridge
 
 v0.9.16

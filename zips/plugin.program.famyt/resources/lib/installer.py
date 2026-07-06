@@ -93,6 +93,12 @@ FENLIGHT_SETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "fenlightsettings"
 FENLIGHT_SETTINGS_BACKUP_DIR = os.path.join("backups", "fenlightsettings")
 FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
 FENLIGHT_GEMINI_SETTING_IDS = ("gemini_api", "gemini_api_2", "gemini_api_3")
+# Setting id prefixes carried over from the live Fen Light settings DB when a
+# preset is restored, so a full-DB restore does not sign the user out of Trakt
+# or wipe existing debrid logins. Covers Trakt auth (token/refresh/client/etc.)
+# and the debrid providers Fen stores in its own settings DB: Real-Debrid (rd),
+# Premiumize (pm), AllDebrid (ad), EasyDebrid (ed), and TorBox (tb).
+FENLIGHT_PRESERVE_SETTING_PREFIXES = ("trakt.", "rd.", "pm.", "ad.", "ed.", "tb.")
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
 )
@@ -1878,6 +1884,55 @@ def _choose_fenlight_settings_payload(preset, target):
     return payloads[index]
 
 
+def _capture_fenlight_preserved_settings(db_path):
+    """Read the Trakt/debrid rows from the live Fen Light settings DB so a
+    full-DB preset restore can put them back afterwards. Returns a list of
+    (setting_id, setting_type, setting_default, setting_value) tuples, or an
+    empty list when there is nothing (or no live DB) to preserve."""
+    if not os.path.exists(db_path):
+        return []
+    rows = []
+    try:
+        connection = sqlite3.connect(db_path, timeout=10)
+        try:
+            cursor = connection.execute(
+                "SELECT setting_id, setting_type, setting_default, setting_value FROM settings"
+            )
+            for setting_id, setting_type, setting_default, setting_value in cursor.fetchall():
+                if setting_id and setting_id.startswith(FENLIGHT_PRESERVE_SETTING_PREFIXES):
+                    rows.append((setting_id, setting_type, setting_default, setting_value))
+        finally:
+            connection.close()
+    except Exception as exc:
+        _log("Could not read existing Trakt/debrid settings from %s: %s" % (db_path, exc))
+        return []
+    return rows
+
+
+def _reapply_fenlight_preserved_settings(db_path, rows):
+    """Write preserved Trakt/debrid rows back over a freshly restored preset DB
+    so existing logins survive the restore. Returns the number of rows kept."""
+    if not rows:
+        return 0
+    connection = sqlite3.connect(db_path, timeout=10)
+    try:
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS settings "
+            "(setting_id text not null unique, setting_type text, "
+            "setting_default text, setting_value text)"
+        )
+        connection.executemany(
+            "INSERT OR REPLACE INTO settings "
+            "(setting_id, setting_type, setting_default, setting_value) "
+            "VALUES (?, ?, ?, ?)",
+            rows,
+        )
+        connection.commit()
+    finally:
+        connection.close()
+    return len(rows)
+
+
 def _write_fenlight_settings_payload(target, source_db_path, source_xml_path, source_label):
     addon_id, label, data_path = target
     row_count = _validate_fenlight_settings_db(source_db_path)
@@ -1889,12 +1944,18 @@ def _write_fenlight_settings_payload(target, source_db_path, source_xml_path, so
         os.makedirs(data_path)
 
     backup_path = ""
+    preserved_settings = []
     if os.path.exists(db_path):
         backup_path = _backup_one_fenlight_settings(addon_id, data_path, "settings-before-restore")
+        preserved_settings = _capture_fenlight_preserved_settings(db_path)
 
     _copy_binary_file(source_db_path, db_path)
     if source_xml_path and os.path.exists(source_xml_path):
         _copy_binary_file(source_xml_path, _fenlight_settings_xml_path(data_path))
+
+    preserved_count = _reapply_fenlight_preserved_settings(db_path, preserved_settings)
+    if preserved_count:
+        _log("Preserved %s existing Trakt/debrid settings for %s" % (preserved_count, addon_id))
 
     _log("Restored %s Fen Light settings from %s to %s" % (addon_id, source_label, db_path))
     return {
@@ -1903,6 +1964,7 @@ def _write_fenlight_settings_payload(target, source_db_path, source_xml_path, so
         "db_path": db_path,
         "backup_path": backup_path,
         "row_count": row_count,
+        "preserved_count": preserved_count,
     }
 
 
@@ -1985,9 +2047,15 @@ def _confirm_fenlight_settings_restore(source_label, target_label):
 
 def _restore_fenlight_settings_message(source_label, result):
     message = (
-        "Fen Light settings restored from %s to %s. Restart Kodi so Fen Light reloads its settings cache."
+        "Fen Light settings restored from %s to %s. Restart Kodi so Fen Light reloads its settings cache "
+        "and re-applies its own default TMDb and IntroDB keys."
         % (source_label, result["label"])
     )
+    if result.get("preserved_count"):
+        message += (
+            "\n\nKept %s existing Trakt/debrid setting(s), so current logins are not lost."
+            % result["preserved_count"]
+        )
     message += "\n\nSettings rows restored: %s" % result["row_count"]
     if result["backup_path"]:
         message += "\n\nBackup saved to: %s" % result["backup_path"]
@@ -3616,10 +3684,14 @@ def _install_fenlight_settings_preset(addon):
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_fenlightsettings_restore", now)
     _set_setting(addon, "last_install", now)
-    return (
+    preserved_total = sum(result.get("preserved_count", 0) for result in results)
+    message = (
         "Fen Light settings preset restored for: %s. Restart Kodi so Fen Light reloads its settings cache."
         % ", ".join(result["label"] for result in results)
     )
+    if preserved_total:
+        message += " Existing Trakt/debrid logins were kept."
+    return message
 
 
 def _install_a4ksubtitles_settings_preset(addon):

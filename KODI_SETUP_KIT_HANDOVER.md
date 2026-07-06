@@ -210,8 +210,40 @@ Targets detected by the add-on:
 - `plugin.video.fenlight.kodienglish`
 - `plugin.video.fenlight.patched.kodienglish`
 
-The restore writes a full DB, not a partial merge. Restart Kodi afterward so
-Fen Light reloads its settings cache.
+The restore copies the whole preset DB over the live one, but it is no longer a
+blind overwrite: before the copy it captures the live Trakt and debrid rows, and
+after the copy it writes them back. So existing logins survive a restore on an
+already-configured box, while every other setting is reset to the family
+baseline. Restart Kodi afterward so Fen Light reloads its settings cache.
+
+Preserved across restore (see `FENLIGHT_PRESERVE_SETTING_PREFIXES` in
+`installer.py`): every row whose id starts with `trakt.`, `rd.`, `pm.`, `ad.`,
+`ed.`, or `tb.`. That keeps Trakt auth (`trakt.token`, `trakt.refresh`,
+`trakt.user`, `trakt.client`, `trakt.secret`, `trakt.auth_state*`) and the
+debrid logins Fen stores in its own DB — Real-Debrid (`rd.`), Premiumize (`pm.`),
+AllDebrid (`ad.`), EasyDebrid (`ed.`), TorBox (`tb.`). The user does not have to
+re-auth Trakt or re-enter debrid keys. On a fresh box there is no live DB, so
+nothing is preserved and the preset (plus Fen's own reseed) applies as-is. In
+`Install everything`, the TorBox step still runs after this and overrides
+`tb.token` from Vercel, so the family TorBox key wins there.
+
+Public default keys are handled the opposite way: they must NOT be carried in the
+preset as blanked `empty_setting` rows, or the copy wipes them. They are deleted
+from the bundled preset DB so Fen re-seeds its shipped defaults on the next
+restart (its `SyncSettings` service re-inserts any missing row from
+`settings_cache.py` defaults):
+
+- `tmdb_api` (Fen's shared default TMDb API key)
+- `introdb.api_key` (Fen's shipped default IntroDB key)
+- `trakt.client` / `trakt.secret` / `trakt.auth_state*` are also deleted from the
+  preset, but on an existing box the preserve step keeps the live values instead;
+  only a fresh box falls through to Fen's reseeded defaults.
+
+These are Fen Light Patched's own public defaults (see
+`plugin.video.fenlight.patched/resources/lib/modules/kodi_utils.py` and
+`.../caches/settings_cache.py`), not private family secrets, so they belong to
+the add-on, not to the Setup Kit. When re-capturing this preset, delete these
+rows again rather than shipping them blanked.
 
 ### 3. a4kSubtitles Settings Preset
 
@@ -579,6 +611,21 @@ Safe order:
 2. a4kSubtitles credentials
 
 `Install everything` already follows this order.
+
+### Fen Light preset can wipe Fen's own default keys
+
+The Fen Light preset restore copies the whole preset DB. If the preset carries
+Fen's public default keys as blanked `empty_setting` rows (`tmdb_api`,
+`introdb.api_key`, and the `trakt.*` app creds), the copy overwrites the live
+defaults and breaks TMDb metadata on the family box. Keep those rows deleted
+from the preset so Fen re-seeds its own shipped defaults on restart.
+
+Per-user Trakt and debrid logins are the other side of this: the restore
+captures live `trakt.`/`rd.`/`pm.`/`ad.`/`ed.`/`tb.` rows and writes them back
+after the copy, so restoring on an already-configured box does not sign the user
+out of Trakt or wipe debrid keys. Do not remove that preserve step when touching
+the restore path. See `Install Everything Details -> 2. Fen Light Settings
+Preset`.
 
 ### GUI restore is not a magic live migration
 
