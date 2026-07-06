@@ -2,6 +2,37 @@
 import os
 
 shadow_snapshot_dir = 'special://profile/addon_data/plugin.video.fenlight/subtitle_selector_shadow'
+search_label_prop = 'a4k.search_label'
+
+def __format_meta_search_label(meta):
+    if getattr(meta, 'is_tvshow', False):
+        title = getattr(meta, 'tvshow', '') or getattr(meta, 'title', '')
+        season = getattr(meta, 'season', '')
+        episode = getattr(meta, 'episode', '')
+        episode_title = getattr(meta, 'title', '')
+        season_episode = ''
+
+        if season not in ('', '-1') and episode not in ('', '-1'):
+            try:
+                season_episode = ' S%.2dE%.2d' % (int(season), int(episode))
+            except:
+                season_episode = ' S%sE%s' % (season, episode)
+
+        label = '%s%s' % (title, season_episode)
+        if episode_title and episode_title != title:
+            label = '%s - %s' % (label, episode_title)
+        return label.strip()
+
+    title = getattr(meta, 'title', '')
+    year = getattr(meta, 'year', '')
+    if title and year:
+        return '%s %s' % (title, year)
+    return title or getattr(meta, 'filename_without_ext', '')
+
+def __publish_meta_search_label(core, meta):
+    label = __format_meta_search_label(meta)
+    if label:
+        core.kodi.set_property(search_label_prop, label)
 
 def __replace_non_ascii_digits(text):
     if not text:
@@ -675,6 +706,7 @@ def search(core, params):
     core.logger.debug('search.meta_languages - languages=%s preferred=%s api_mode=%s filename=%s' % (
         meta.languages, meta.preferredlanguage, core.api_mode_enabled, getattr(meta, 'filename', '')
     ))
+    __publish_meta_search_label(core, meta)
 
     if meta.imdb_id == '' and not (
         getattr(meta, 'tmdb_id', '') or

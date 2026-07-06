@@ -67,6 +67,7 @@ def main(handle, paramstring):  # pragma: no cover
     if action == 'manualsearch':
         kodi.notification('Manual search is not supported')
     elif action == 'search':
+        kodi.clear_property('a4k.search_label')
         core.progress_text = ''
         core.progress_dialog = kodi.get_progress_dialog()
 

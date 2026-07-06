@@ -11,6 +11,70 @@ from . import logger
 from requests import adapters
 from .third_party.cloudscraper import cloudscraper
 
+__search_label_prop = 'a4k.search_label'
+
+def __search_param(params, *names):
+    for name in names:
+        value = params.get(name, '')
+        if value not in (None, ''):
+            return str(value).strip()
+    return ''
+
+def __format_season_episode(params):
+    season = __search_param(params, 'season_number', 'season')
+    episode = __search_param(params, 'episode_number', 'episode')
+    if not season or not episode:
+        return ''
+
+    try:
+        return 'S%.2dE%.2d' % (int(season), int(episode))
+    except:
+        return 'S%sE%s' % (season, episode)
+
+def __format_search_label(request):
+    params = request.get('params', {})
+    if not isinstance(params, dict):
+        return ''
+
+    label = __search_param(params, 'query', 'q', 'keywords', 'film_name', 'file_name')
+    details = []
+
+    season_episode = __format_season_episode(params)
+    if season_episode and season_episode not in label:
+        details.append(season_episode)
+
+    detail_keys = (
+        ('parent_tmdb_id', 'parent_tmdb_id'),
+        ('parent_imdb_id', 'parent_imdb_id'),
+        ('tmdb_id', 'tmdb_id'),
+        ('imdb_id', 'imdb_id'),
+        ('movieId', 'movieId'),
+        ('moviehash', 'moviehash'),
+        ('year', 'year'),
+    )
+
+    for key, display_key in detail_keys:
+        value = __search_param(params, key)
+        if not value:
+            continue
+        if label and key == 'year' and value in label:
+            continue
+        details.append('%s=%s' % (display_key, value))
+
+    if not label:
+        return ', '.join(details)
+    if not details:
+        return label
+    return '%s (%s)' % (label, ', '.join(details))
+
+def __publish_search_label(core, request):
+    search_label = __format_search_label(request)
+    if search_label:
+        try:
+            core.kodi.set_property(__search_label_prop, search_label)
+        except:
+            pass
+
 class TLSAdapter(adapters.HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
         ctx = ssl.create_default_context()
@@ -60,6 +124,7 @@ def execute(core, request, progress=True, session=None):
     if next:
         request.pop('stream', None)
 
+    __publish_search_label(core, request)
     logger.debug('%s ^ - %s, %s' % (request['method'], request['url'], core.json.dumps(request.get('params', {}))))
     try:
         if cfscrape:

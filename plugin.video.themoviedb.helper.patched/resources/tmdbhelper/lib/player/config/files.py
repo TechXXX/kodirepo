@@ -8,6 +8,9 @@ from tmdbhelper.lib.addon.consts import (
 )
 
 
+PLAYER_FILE_REGEX = r'^(?!\._).+\.json$'
+
+
 class PlayerFiles:
 
     basedir_user = PLAYERS_BASEDIR_USER
@@ -37,7 +40,7 @@ class PlayerFiles:
         return {
             filename: folder
             for folder in self.basedirs
-            for filename in get_files_in_folder(folder, r'.*\.json')
+            for filename in get_files_in_folder(folder, PLAYER_FILE_REGEX)
         }
 
     @cached_property

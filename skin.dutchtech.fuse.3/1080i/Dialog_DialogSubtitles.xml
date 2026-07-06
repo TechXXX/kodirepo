@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
 
+    <variable name="Label_DialogSubtitles_SearchLabel">
+        <value condition="String.Contains(Control.GetLabel(100),a4kSubtitles) + !String.IsEmpty(Window(Home).Property(a4k.search_label))">$INFO[Window(Home).Property(a4k.search_label)]</value>
+        <value>$INFO[Player.FileName]</value>
+    </variable>
+
     <include name="DialogSubtitles">
         <include content="Object_Hidden_List">
             <param name="id">150</param>
@@ -73,7 +78,7 @@
                                 <include content="Part_InfoText">
                                     <param name="include_hintlabel">false</param>
                                     <param name="centerbottom">50%</param>
-                                    <param name="label">$INFO[Player.FileName]</param>
+                                    <param name="label">$VAR[Label_DialogSubtitles_SearchLabel]</param>
                                     <param name="label2">$INFO[Control.GetLabel(140)]$INFO[Control.GetLabel(130), - ,]</param>
                                     <param name="subline">true</param>
                                     <param name="scroll">true</param>
