@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
     <zorder>1000</zorder>
-    <onload condition="![Window.IsVisible(Home) | Window.IsVisible(Startup.xml) | Window.IsVisible(1101) | Window.IsVisible(1102) | Window.IsVisible(1103) | Window.IsVisible(1104) | Window.IsVisible(1106) | Window.IsVisible(1107) | Window.IsVisible(1108)]">AlarmClock(DTSkinUpdateRecoverHome,ReplaceWindow(Home),00:01,silent)</onload>
+    <onload>AlarmClock(DTSkinUpdateRecoverHome,RunScript(special://skin/scripts/dt_update_recover_home.py),00:01,silent)</onload>
     <controls>
 
         <control type="group">

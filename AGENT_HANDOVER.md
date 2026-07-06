@@ -1,6 +1,6 @@
 # Kodi Repo Agent Handover
 
-Last updated: 2026-06-27.
+Last updated: 2026-07-06.
 
 This is the broad handover for future agents taking over Fen Light Patched,
 TMDb Helper Patched, a4kSubtitles Patched, and nearby Kodi debugging work in
@@ -26,6 +26,12 @@ go directly through this repo.
 Do not hand-edit generated output unless the user explicitly asks for a package
 mirror edit. Normal flow is source edit first, then regenerate package output
 only when a release/package update is intended.
+
+Release version rule: every Kodi-visible addon update must advertise a version
+strictly higher than the version already published in `addons.xml`. Kodi decides
+whether an update exists from `addon.xml` / `addons.xml`, and clients may cache
+same-version zips. Do not replace an already-published same-version package and
+call it an update.
 
 Useful scripts:
 
