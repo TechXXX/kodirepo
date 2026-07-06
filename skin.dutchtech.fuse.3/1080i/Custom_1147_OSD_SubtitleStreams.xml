@@ -21,7 +21,7 @@
                     <param name="stream_type">subtitle</param>
                     <param name="header">$LOCALIZE[287]</param>
                     <param name="nibpos">180</param>
-                    <param name="width">640</param>
+                    <param name="width">960</param>
                     <param name="method">set_player_subtitle</param>
                     <param name="enabled">VideoPlayer.SubtitlesEnabled</param>
                     <param name="toggle">true</param>

@@ -233,8 +233,14 @@
                     <left>40</left>
                     <right>20</right>
                     <control type="label">
+                        <right>220</right>
                         <textcolor>$PARAM[color_fg]</textcolor>
                         <label>$VAR[Label_StreamLanguage,[UPPERCASE],[/UPPERCASE]]$INFO[ListItem.Label2, | ,]</label>
+                        <scroll>$PARAM[selected]</scroll>
+                        <include condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,40)">Settings_ScrollSpeed_40</include>
+                        <include condition="String.IsEmpty(Skin.String(OSD.SubtitleSettings.ScrollSpeed)) | Skin.String(OSD.SubtitleSettings.ScrollSpeed,80)">Settings_ScrollSpeed_80</include>
+                        <include condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,120)">Settings_ScrollSpeed_120</include>
+                        <include condition="Skin.String(OSD.SubtitleSettings.ScrollSpeed,160)">Settings_ScrollSpeed_160</include>
                     </control>
                     <control type="label">
                         <right>240</right>
@@ -1252,5 +1258,3 @@
         </definition>
     </include>
 </includes>
-
-
