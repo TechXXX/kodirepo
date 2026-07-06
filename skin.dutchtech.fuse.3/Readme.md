@@ -11,7 +11,7 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
 ## Maintainer Notes
 
 - Add-on id: `skin.dutchtech.fuse.3`.
-- Current source version: `3.2.9.10`.
+- Current source version: `3.2.9.11`.
 - Patched TMDb Helper dependency: `plugin.video.themoviedb.helper.patched`.
 - Most fork-specific differences from upstream AF3 are add-on identity,
   artwork, and TMDb Helper route rewrites.
@@ -39,3 +39,8 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
 The custom favourites dialog now hands off to Kodi's native favourites browser,
 and `MyFavourites.xml` uses the skin's dialog panel/list treatment instead of
 the older media-info panel layout.
+
+## 2026-07-06 Notification Recovery Note
+
+`DialogNotification.xml` now schedules a silent Home-window recovery alarm when
+Kodi opens the notification dialog outside the expected home/startup windows.
