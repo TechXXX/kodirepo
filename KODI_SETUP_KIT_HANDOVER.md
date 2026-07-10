@@ -216,16 +216,29 @@ after the copy it writes them back. So existing logins survive a restore on an
 already-configured box, while every other setting is reset to the family
 baseline. Restart Kodi afterward so Fen Light reloads its settings cache.
 
-Preserved across restore (see `FENLIGHT_PRESERVE_SETTING_PREFIXES` in
-`installer.py`): every row whose id starts with `trakt.`, `rd.`, `pm.`, `ad.`,
-`ed.`, or `tb.`. That keeps Trakt auth (`trakt.token`, `trakt.refresh`,
-`trakt.user`, `trakt.client`, `trakt.secret`, `trakt.auth_state*`) and the
-debrid logins Fen stores in its own DB — Real-Debrid (`rd.`), Premiumize (`pm.`),
-AllDebrid (`ad.`), EasyDebrid (`ed.`), TorBox (`tb.`). The user does not have to
-re-auth Trakt or re-enter debrid keys. On a fresh box there is no live DB, so
-nothing is preserved and the preset (plus Fen's own reseed) applies as-is. In
-`Install everything`, the TorBox step still runs after this and overrides
-`tb.token` from Vercel, so the family TorBox key wins there.
+Preserved across restore (see `FENLIGHT_PRESERVE_SETTING_PREFIXES` and
+`FENLIGHT_PRESERVE_SETTING_IDS` in `installer.py`): every row whose id starts
+with `trakt.`, `rd.`, `pm.`, `ad.`, `ed.`, or `tb.`, plus the exact id
+`omdb_api`. That keeps Trakt auth (`trakt.token`, `trakt.refresh`, `trakt.user`,
+`trakt.client`, `trakt.secret`, `trakt.auth_state*`), the debrid logins Fen
+stores in its own DB — Real-Debrid (`rd.`), Premiumize (`pm.`), AllDebrid
+(`ad.`), EasyDebrid (`ed.`), TorBox (`tb.`) — and a personal OMDb API key. The
+user does not have to re-auth Trakt, re-enter debrid keys, or re-enter their own
+OMDb key. On a fresh box there is no live DB, so nothing is preserved and the
+preset (plus Fen's own reseed) applies as-is. In `Install everything`, the TorBox
+step still runs after this and overrides `tb.token` from Vercel, so the family
+TorBox key wins there.
+
+The preserve step only carries over rows that hold a real value; blank
+placeholders (`''`, `empty_setting`, `NULL`) are skipped so the device falls
+through to the preset or Fen's reseeded default instead of pinning a blank.
+
+`omdb_api` is both deleted from the preset and preserved: deleting it lets a box
+with no real key reseed Fen's shared default OMDb key, while preserving it keeps
+a device's own registered OMDb key (which avoids sharing OMDb's daily free-tier
+quota) across a restore. Because blanks are skipped, a box that never had (or had
+emptied) its OMDb key still gets Fen's default `987d3ba9` filled in on the next
+restart; only a device with a real custom key keeps that custom key.
 
 Public default keys are handled the opposite way: they must NOT be carried in the
 preset as blanked `empty_setting` rows, or the copy wipes them. They are deleted
@@ -403,6 +416,18 @@ Known behaviors from live testing:
 - JSON-RPC `Settings.SetSettingValue` can return boolean `true`; the installer
   now counts that as success. Older code only counted `"OK"` and over-reported
   live failures.
+- The GUI restore does NOT live-apply the webserver settings
+  (`services.webserver`, `services.webserverauthentication`,
+  `services.webserverusername`, `services.webserverpassword`; see
+  `GUISETTINGS_LIVE_APPLY_SKIP_IDS`). The preset enables auth with a blank
+  password, and applying `services.webserverauthentication=true` live makes Kodi
+  raise a modal error ("If web server authentication is enabled, a password must
+  be entered as well"). Those settings are still written to `guisettings.xml` and
+  are applied for real by the Vercel-backed webserver step, which has a password.
+- The live-apply loop now logs each failed setting id, value, coerced type, and
+  JSON-RPC reason (`GUI live-apply failed: ...`) plus a summary line, at info
+  level, so the settings that do not stick can be diagnosed without Kodi debug
+  logging.
 
 Bundled GUI preset is now refreshed from the MacBook profile and has:
 

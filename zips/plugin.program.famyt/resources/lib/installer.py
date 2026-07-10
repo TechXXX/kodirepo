@@ -37,6 +37,26 @@ GUISETTINGS_BUILTIN_PATH = os.path.join("resources", "guisettings", "guisettings
 GUISETTINGS_BUILTIN_PRESETS_DIR = os.path.join("resources", "guisettings", "presets")
 GUISETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "guisettings")
 GUISETTINGS_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+# Settings that must not be pushed live over JSON-RPC during a GUI preset
+# restore, because applying them interactively causes an error dialog, hangs, or
+# is device-specific:
+# - services.webserver* : the preset enables auth with a blank password (real
+#   credentials come from the Vercel "Kodi network/webserver settings" step);
+#   applying webserverauthentication=true live makes Kodi raise a modal error.
+# - services.zeroconf : enabling it live starts Zeroconf immediately, which hangs
+#   and errors on hosts without Bonjour/mDNS (e.g. Windows without Apple Bonjour).
+# - services.deviceuuid : a per-device identifier that should not be copied from
+#   the preset onto another box.
+# These are still written to guisettings.xml; the dedicated webserver step and a
+# normal restart handle the real values per device.
+GUISETTINGS_LIVE_APPLY_SKIP_IDS = (
+    "services.webserver",
+    "services.webserverauthentication",
+    "services.webserverusername",
+    "services.webserverpassword",
+    "services.zeroconf",
+    "services.deviceuuid",
+)
 SOURCES_PATH = "special://profile/sources.xml"
 SOURCES_BACKUP_DIR = os.path.join("backups", "sources")
 SOURCES_BUILTIN_PATH = os.path.join("resources", "sources", "sources.xml")
@@ -93,12 +113,15 @@ FENLIGHT_SETTINGS_SAVED_PRESETS_DIR = os.path.join("presets", "fenlightsettings"
 FENLIGHT_SETTINGS_BACKUP_DIR = os.path.join("backups", "fenlightsettings")
 FENLIGHT_AIOSTREAMS_MANIFEST_SETTING = "tb.usenet_search.aiostreams_manifest"
 FENLIGHT_GEMINI_SETTING_IDS = ("gemini_api", "gemini_api_2", "gemini_api_3")
-# Setting id prefixes carried over from the live Fen Light settings DB when a
-# preset is restored, so a full-DB restore does not sign the user out of Trakt
-# or wipe existing debrid logins. Covers Trakt auth (token/refresh/client/etc.)
-# and the debrid providers Fen stores in its own settings DB: Real-Debrid (rd),
-# Premiumize (pm), AllDebrid (ad), EasyDebrid (ed), and TorBox (tb).
+# Settings carried over from the live Fen Light settings DB when a preset is
+# restored, so a full-DB restore does not sign the user out of Trakt, wipe
+# existing debrid logins, or reset a personal OMDb API key. Prefixes cover Trakt
+# auth (token/refresh/client/etc.) and the debrid providers Fen stores in its
+# own settings DB: Real-Debrid (rd), Premiumize (pm), AllDebrid (ad), EasyDebrid
+# (ed), and TorBox (tb). The exact-id set covers standalone keys such as the
+# user's own OMDb API key, which otherwise reverts to Fen's shared default.
 FENLIGHT_PRESERVE_SETTING_PREFIXES = ("trakt.", "rd.", "pm.", "ad.", "ed.", "tb.")
+FENLIGHT_PRESERVE_SETTING_IDS = ("omdb_api",)
 A4KSUBTITLES_ADDON_IDS = (
     "service.subtitles.a4ksubtitles.patched",
 )
@@ -1201,35 +1224,161 @@ def _jsonrpc_setting_succeeded(response):
     return result is True or result == "OK"
 
 
+def _guisettings_type_map(execute_jsonrpc):
+    """Ask Kodi for the real type of every settable setting via
+    Settings.GetSettings, so values can be coerced to the type Kodi expects
+    (notably list settings, which need a JSON array rather than a comma string).
+    Returns {setting_id: setting_info_dict}, or {} if the query fails."""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "Settings.GetSettings",
+        "params": {"level": "expert"},
+        "id": 1,
+    }
+    try:
+        response = json.loads(execute_jsonrpc(json.dumps(payload)))
+        settings = (response.get("result") or {}).get("settings") or []
+        return {
+            item.get("id"): item
+            for item in settings
+            if isinstance(item, dict) and item.get("id")
+        }
+    except Exception as exc:
+        _log("Could not fetch GUI settings type map: %s" % exc)
+        return {}
+
+
+def _coerce_guisetting_list_element(part, element_type):
+    if element_type == "integer":
+        try:
+            return int(part)
+        except Exception:
+            return part
+    if element_type == "number":
+        try:
+            return float(part)
+        except Exception:
+            return part
+    if element_type in (None, ""):
+        # No schema hint: treat integer-looking parts as ints, else strings.
+        if part.lstrip("-").isdigit():
+            try:
+                return int(part)
+            except Exception:
+                return part
+    return part
+
+
+def _coerce_guisetting_value(text, setting_info):
+    """Coerce a guisettings.xml text value to the type Kodi expects. Falls back
+    to the best-guess coercion when the setting is not in the type map."""
+    if not setting_info:
+        return _jsonrpc_guisetting_value(text)
+    setting_type = setting_info.get("type")
+    raw = "" if text is None else text.strip()
+    if setting_type == "boolean":
+        return raw == "true"
+    if setting_type == "integer":
+        try:
+            return int(raw)
+        except Exception:
+            return raw
+    if setting_type == "number":
+        try:
+            return float(raw)
+        except Exception:
+            return raw
+    if setting_type == "list":
+        if raw == "":
+            return []
+        definition = setting_info.get("definition") or {}
+        element_type = definition.get("type") or definition.get("elementType")
+        return [_coerce_guisetting_list_element(p.strip(), element_type) for p in raw.split(",")]
+    # string / path / addon / action / date / time / etc.
+    return text if text is not None else ""
+
+
 def _apply_guisettings_live(root):
     execute_jsonrpc = getattr(xbmc, "executeJSONRPC", None)
     if not callable(execute_jsonrpc):
         return 0, 0
 
+    type_map = _guisettings_type_map(execute_jsonrpc)
     applied = 0
     failed = 0
     for node in root.findall("./setting"):
         setting_id = node.get("id")
         if not setting_id:
             continue
+        if setting_id in GUISETTINGS_LIVE_APPLY_SKIP_IDS:
+            _log("GUI live-apply skipped (device-specific/deferred): id=%s" % setting_id)
+            continue
+        value = _coerce_guisetting_value(node.text, type_map.get(setting_id))
         payload = {
             "jsonrpc": "2.0",
             "method": "Settings.SetSettingValue",
             "params": {
                 "setting": setting_id,
-                "value": _jsonrpc_guisetting_value(node.text),
+                "value": value,
             },
             "id": 1,
         }
         try:
             response = json.loads(execute_jsonrpc(json.dumps(payload)))
-            if _jsonrpc_setting_succeeded(response):
-                applied += 1
-            else:
-                failed += 1
-        except Exception:
+        except Exception as exc:
             failed += 1
+            _log(
+                "GUI live-apply error: id=%s value=%r (%s) exception=%s"
+                % (setting_id, value, type(value).__name__, exc)
+            )
+            continue
+        if _jsonrpc_setting_succeeded(response):
+            applied += 1
+        else:
+            failed += 1
+            reason = ""
+            if isinstance(response, dict):
+                reason = response.get("error") or ("result=%r" % response.get("result"))
+            _log(
+                "GUI live-apply failed: id=%s value=%r (%s) -> %s"
+                % (setting_id, value, type(value).__name__, reason)
+            )
+    _log("GUI live-apply summary: %s applied, %s failed" % (applied, failed))
     return applied, failed
+
+
+def _ensure_guisettings_language_installed(root):
+    """If the preset sets locale.language to a resource.language.* addon that is
+    not installed, trigger its installation from the Kodi repo so the language
+    (and its regional date/time/unit formats) can take effect after restart.
+    Setting locale.language to a language that is not installed is a no-op, which
+    is why a restored Dutch preset stayed on the default language until the
+    resource.language addon was present. Returns the language addon id when an
+    install was triggered, otherwise ''."""
+    node = root.find("./setting[@id='locale.language']")
+    language_id = (node.text or "").strip() if node is not None else ""
+    if not language_id.startswith("resource.language."):
+        return ""
+    if _addon_installed(language_id):
+        return ""
+    try:
+        _log("Installing missing language resource for GUI preset: %s" % language_id)
+        # Refresh repo addon lists so InstallAddon can resolve it, then trigger.
+        xbmc.executebuiltin("UpdateAddonRepos")
+        xbmc.executebuiltin("InstallAddon(%s)" % language_id)
+    except Exception as exc:
+        _log("Could not trigger install of %s: %s" % (language_id, exc))
+        return ""
+    # InstallAddon runs asynchronously. Wait for the addon to actually appear so
+    # the language is present before the user restarts (a quick restart otherwise
+    # interrupts the background download). Poll up to ~60s.
+    for _ in range(60):
+        xbmc.sleep(1000)
+        if _addon_installed(language_id):
+            _log("Language resource installed: %s" % language_id)
+            return language_id
+    _log("Language resource install did not complete in time: %s" % language_id)
+    return language_id
 
 
 def _write_guisettings_payload(payload, source_label):
@@ -1243,6 +1392,7 @@ def _write_guisettings_payload(payload, source_label):
     if os.path.exists(guisettings_path):
         backup_path = _backup_current_guisettings("guisettings-before-restore")
 
+    language_installing = _ensure_guisettings_language_installed(root)
     applied, failed = _apply_guisettings_live(root)
 
     tmp_path = guisettings_path + ".tmp"
@@ -1253,7 +1403,7 @@ def _write_guisettings_payload(payload, source_label):
     os.rename(tmp_path, guisettings_path)
 
     _log("Restored guisettings.xml from %s to %s" % (source_label, guisettings_path))
-    return guisettings_path, backup_path, applied, failed
+    return guisettings_path, backup_path, applied, failed, language_installing
 
 
 def _settings_root_from_values(values):
@@ -1462,11 +1612,18 @@ def _confirm_guisettings_restore(source_label):
     )
 
 
-def _restore_guisettings_message(source_label, guisettings_path, backup_path, applied, failed):
+def _restore_guisettings_message(
+    source_label, guisettings_path, backup_path, applied, failed, language_installing=""
+):
     message = (
         "GUI settings restored from %s. Restart Kodi immediately for the safest result."
         % source_label
     )
+    if language_installing:
+        message += (
+            "\n\nInstalling language %s so the interface language and regional "
+            "formats apply. This finishes on restart." % language_installing
+        )
     if backup_path:
         message += "\n\nBackup saved to: %s" % backup_path
     message += "\n\nLive settings applied: %s" % applied
@@ -1899,8 +2056,19 @@ def _capture_fenlight_preserved_settings(db_path):
                 "SELECT setting_id, setting_type, setting_default, setting_value FROM settings"
             )
             for setting_id, setting_type, setting_default, setting_value in cursor.fetchall():
-                if setting_id and setting_id.startswith(FENLIGHT_PRESERVE_SETTING_PREFIXES):
-                    rows.append((setting_id, setting_type, setting_default, setting_value))
+                if not setting_id:
+                    continue
+                if not (
+                    setting_id.startswith(FENLIGHT_PRESERVE_SETTING_PREFIXES)
+                    or setting_id in FENLIGHT_PRESERVE_SETTING_IDS
+                ):
+                    continue
+                # Skip blanks so a device with no real value falls through to the
+                # preset / Fen's own reseeded default instead of pinning a blank
+                # (e.g. an empty OMDb key would otherwise stay empty forever).
+                if setting_value is None or setting_value in ("", "empty_setting"):
+                    continue
+                rows.append((setting_id, setting_type, setting_default, setting_value))
         finally:
             connection.close()
     except Exception as exc:
@@ -2053,7 +2221,8 @@ def _restore_fenlight_settings_message(source_label, result):
     )
     if result.get("preserved_count"):
         message += (
-            "\n\nKept %s existing Trakt/debrid setting(s), so current logins are not lost."
+            "\n\nKept %s existing setting(s) from this device (Trakt, debrid, OMDb key), "
+            "so current logins and personal keys are not lost."
             % result["preserved_count"]
         )
     message += "\n\nSettings rows restored: %s" % result["row_count"]
@@ -3556,27 +3725,27 @@ def _backup_guisettings(addon):
 
 def _restore_guisettings_preset(addon, preset):
     payload = _read_guisettings_preset_payload(preset)
-    guisettings_path, backup_path, applied, failed = _write_guisettings_payload(
+    guisettings_path, backup_path, applied, failed, language_installing = _write_guisettings_payload(
         payload, _preset_label(preset)
     )
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_guisettings_restore", now)
     _set_setting(addon, "last_install", now)
     return _restore_guisettings_message(
-        _preset_label(preset), guisettings_path, backup_path, applied, failed
+        _preset_label(preset), guisettings_path, backup_path, applied, failed, language_installing
     )
 
 
 def _restore_guisettings_from_url(addon, url):
     payload = _download_guisettings_payload(url)
-    guisettings_path, backup_path, applied, failed = _write_guisettings_payload(
+    guisettings_path, backup_path, applied, failed, language_installing = _write_guisettings_payload(
         payload, "URL"
     )
     now = datetime.datetime.utcnow().isoformat() + "Z"
     _set_setting(addon, "last_guisettings_restore", now)
     _set_setting(addon, "last_install", now)
     return _restore_guisettings_message(
-        "URL", guisettings_path, backup_path, applied, failed
+        "URL", guisettings_path, backup_path, applied, failed, language_installing
     )
 
 
@@ -3690,7 +3859,7 @@ def _install_fenlight_settings_preset(addon):
         % ", ".join(result["label"] for result in results)
     )
     if preserved_total:
-        message += " Existing Trakt/debrid logins were kept."
+        message += " Existing Trakt/debrid logins and OMDb key were kept."
     return message
 
 

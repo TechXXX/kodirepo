@@ -1,14 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <settings version="2">
-    <setting id="gamesgeneral.enable" default="true">true</setting>
-    <setting id="gamesgeneral.showosdhelp" default="true">true</setting>
-    <setting id="gamesgeneral.enableautosave" default="true">true</setting>
-    <setting id="gamesgeneral.enablerewind" default="true">true</setting>
-    <setting id="gamesgeneral.rewindtime" default="true">60</setting>
-    <setting id="gamesachievements.username" default="true" />
-    <setting id="gamesachievements.password" default="true" />
-    <setting id="gamesachievements.token" default="true" />
-    <setting id="gamesachievements.loggedin" default="true">false</setting>
     <setting id="lookandfeel.skin">skin.dutchtech.fuse.3</setting>
     <setting id="lookandfeel.skintheme" default="true">SKINDEFAULT</setting>
     <setting id="lookandfeel.skincolors" default="true">SKINDEFAULT</setting>
@@ -22,8 +13,8 @@
     <setting id="locale.keyboardlayouts" default="true">English QWERTY</setting>
     <setting id="locale.activekeyboardlayout" default="true">English QWERTY</setting>
     <setting id="locale.country">NL</setting>
-    <setting id="locale.timezonecountry" default="true">?</setting>
-    <setting id="locale.timezone" default="true">Europe/Berlin</setting>
+    <setting id="locale.timezonecountry">Netherlands</setting>
+    <setting id="locale.timezone">Europe/Amsterdam</setting>
     <setting id="locale.shortdateformat" default="true">regional</setting>
     <setting id="locale.longdateformat" default="true">regional</setting>
     <setting id="locale.timeformat" default="true">regional</setting>
@@ -114,7 +105,6 @@
     <setting id="pictures.usetags" default="true">true</setting>
     <setting id="pictures.generatethumbs" default="true">true</setting>
     <setting id="pictures.showvideos" default="true">true</setting>
-    <setting id="pictures.displayresolution">71</setting>
     <setting id="scrapers.moviesdefault" default="true">metadata.themoviedb.org.python</setting>
     <setting id="scrapers.tvshowsdefault" default="true">metadata.tvshows.themoviedb.org.python</setting>
     <setting id="scrapers.musicvideosdefault" default="true">metadata.local</setting>
@@ -122,20 +112,16 @@
     <setting id="videoplayer.seeksteps" default="true">-600,-300,-180,-60,-30,-10,10,30,60,180,300,600</setting>
     <setting id="videoplayer.seekdelay" default="true">750</setting>
     <setting id="videoplayer.adjustrefreshrate" default="true">0</setting>
-    <setting id="winsystem.ishdrdisplay" default="true">true</setting>
     <setting id="videoplayer.usedisplayasclock" default="true">false</setting>
     <setting id="videoplayer.errorinaspect" default="true">0</setting>
     <setting id="videoplayer.stretch43" default="true">0</setting>
     <setting id="videoplayer.rendermethod" default="true">0</setting>
     <setting id="videoplayer.hqscalers" default="true">20</setting>
-    <setting id="videoplayer.usesuperresolution" default="true">false</setting>
     <setting id="videoplayer.usemediacodecsurface" default="true">true</setting>
     <setting id="videoplayer.usemediacodec" default="true">true</setting>
     <setting id="videoplayer.usedxva2" default="true">true</setting>
     <setting id="videoplayer.usevtb" default="true">true</setting>
     <setting id="videoplayer.highprecision" default="true">true</setting>
-    <setting id="videoplayer.convertdovi" default="true">false</setting>
-    <setting id="videoplayer.allowedhdrformats" default="true">0,1</setting>
     <setting id="videoplayer.stereoscopicplaybackmode" default="true">0</setting>
     <setting id="videoplayer.quitstereomodeonstop" default="true">true</setting>
     <setting id="videoplayer.teletextenabled" default="true">true</setting>
@@ -201,11 +187,6 @@
     <setting id="subtitles.downloadfirst" default="true">false</setting>
     <setting id="subtitles.tv" default="true" />
     <setting id="subtitles.movie" default="true" />
-    <setting id="pvrmanager.backendchannelgroupsorder" default="true">true</setting>
-    <setting id="pvrmanager.backendchannelorder" default="true">true</setting>
-    <setting id="pvrmanager.usebackendchannelnumbersalways" default="true">false</setting>
-    <setting id="pvrmanager.usebackendchannelnumbers" default="true">false</setting>
-    <setting id="pvrmanager.startgroupchannelnumbersfromone" default="true">false</setting>
     <setting id="pvrmenu.iconpath" default="true" />
     <setting id="epg.pastdaystodisplay" default="true">1</setting>
     <setting id="epg.futuredaystodisplay" default="true">3</setting>
@@ -214,7 +195,6 @@
     <setting id="epg.epgupdate" default="true">120</setting>
     <setting id="epg.preventupdateswhileplayingtv" default="true">false</setting>
     <setting id="pvrplayback.switchtofullscreenchanneltypes" default="true">3</setting>
-    <setting id="pvrmanager.preselectplayingchannel" default="true">false</setting>
     <setting id="pvrmenu.displaychannelinfo" default="true">5</setting>
     <setting id="pvrmenu.closechannelosdonswitch" default="true">true</setting>
     <setting id="pvrplayback.confirmchannelswitch" default="true">true</setting>
@@ -247,7 +227,6 @@
     <setting id="pvrtimers.hidedisabledtimers" default="true">false</setting>
     <setting id="services.devicename">KodiDutch</setting>
     <setting id="services.zeroconf" default="true">true</setting>
-    <setting id="services.deviceuuid">d39a6d96-6ad8-4b25-83d5-8db37e178345</setting>
     <setting id="services.webserver">true</setting>
     <setting id="services.webserverport" default="true">8080</setting>
     <setting id="services.webserverauthentication" default="true">true</setting>
@@ -289,64 +268,7 @@
     <setting id="filecache.chunksize" default="true">131072</setting>
     <setting id="weather.currentlocation" default="true">1</setting>
     <setting id="weather.addon" default="true" />
-    <setting id="videoscreen.monitor" default="true">Default</setting>
-    <setting id="videoscreen.screen" default="true">0</setting>
-    <setting id="videoscreen.resolution">71</setting>
-    <setting id="videoscreen.screenmode" default="true">DESKTOP</setting>
-    <setting id="videoscreen.fakefullscreen" default="true">true</setting>
-    <setting id="videoscreen.blankdisplays" default="true">false</setting>
-    <setting id="videoscreen.delayrefreshchange" default="true">0</setting>
-    <setting id="videoscreen.10bitsurfaces" default="true">0</setting>
-    <setting id="videoscreen.dither" default="true">false</setting>
-    <setting id="videoscreen.ditherdepth" default="true">8</setting>
-    <setting id="videoscreen.cmsenabled" default="true">false</setting>
-    <setting id="videoscreen.cmsmode" default="true">0</setting>
-    <setting id="videoscreen.cms3dlut" default="true" />
-    <setting id="videoscreen.displayprofile" default="true" />
-    <setting id="videoscreen.cmswhitepoint" default="true">0</setting>
-    <setting id="videoscreen.cmsprimaries" default="true">0</setting>
-    <setting id="videoscreen.cmsgammamode" default="true">0</setting>
-    <setting id="videoscreen.cmsgamma" default="true">220</setting>
-    <setting id="videoscreen.cmslutsize" default="true">6</setting>
-    <setting id="videoscreen.usesystemsdrpeakluminance" default="true">true</setting>
-    <setting id="videoscreen.guipeakluminance" default="true">40</setting>
-    <setting id="videoscreen.whitelist" default="true" />
-    <setting id="videoscreen.whitelistpulldown" default="true">false</setting>
-    <setting id="videoscreen.whitelistdoublerefreshrate" default="true">false</setting>
-    <setting id="videoscreen.stereoscopicmode" default="true">0</setting>
-    <setting id="videoscreen.preferedstereoscopicmode" default="true">100</setting>
-    <setting id="videoscreen.noofbuffers" default="true">3</setting>
-    <setting id="audiooutput.audiodevice">DARWINOSX:default|Default</setting>
-    <setting id="audiooutput.channels" default="true">1</setting>
-    <setting id="audiooutput.config" default="true">2</setting>
-    <setting id="audiooutput.volumesteps" default="true">90</setting>
-    <setting id="audiooutput.maintainoriginalvolume" default="true">true</setting>
-    <setting id="audiooutput.stereoupmix" default="true">false</setting>
-    <setting id="audiooutput.processquality" default="true">30</setting>
-    <setting id="audiooutput.atempothreshold" default="true">2</setting>
-    <setting id="audiooutput.samplerate" default="true">48000</setting>
-    <setting id="audiooutput.streamsilence" default="true">1</setting>
-    <setting id="audiooutput.streamnoise" default="true">true</setting>
-    <setting id="audiooutput.guisoundmode">0</setting>
-    <setting id="audiooutput.guisoundvolume" default="true">100</setting>
     <setting id="lookandfeel.soundskin" default="true">resource.uisounds.kodi</setting>
-    <setting id="audiooutput.passthrough" default="true">false</setting>
-    <setting id="audiooutput.passthroughdevice" default="true">Default</setting>
-    <setting id="audiooutput.ac3passthrough" default="true">true</setting>
-    <setting id="audiooutput.ac3transcode" default="true">false</setting>
-    <setting id="audiooutput.eac3passthrough" default="true">false</setting>
-    <setting id="audiooutput.dtspassthrough" default="true">false</setting>
-    <setting id="audiooutput.truehdpassthrough" default="true">false</setting>
-    <setting id="audiooutput.dtshdpassthrough" default="true">false</setting>
-    <setting id="audiooutput.dtshdcorefallback" default="true">true</setting>
-    <setting id="input.enablemouse" default="true">true</setting>
-    <setting id="input.enablejoystick" default="true">true</setting>
-    <setting id="input.asknewcontrollers" default="true">true</setting>
-    <setting id="input.rumblenotify" default="true">false</setting>
-    <setting id="input.controllerpoweroff" default="true">false</setting>
-    <setting id="input.appleremotemode" default="true">1</setting>
-    <setting id="input.appleremotealwayson" default="true">false</setting>
-    <setting id="input.appleremotesequencetime" default="true">500</setting>
     <setting id="network.usehttpproxy" default="true">false</setting>
     <setting id="network.httpproxytype" default="true">0</setting>
     <setting id="network.httpproxyserver" default="true" />

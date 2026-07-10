@@ -150,6 +150,37 @@
             </control>
         </control>
     </include>
+
+    <include name="Furniture_Category_Studio">
+        <control type="group">
+            <include>Dimension_Bottombar</include>
+            <control type="group">
+                <visible>Control.HasFocus(601)</visible>
+                <include>Furniture_HideOnNotification</include>
+                <control type="group">
+                    <height>80</height>
+                    <centertop>50%</centertop>
+                    <control type="group">
+                        <height>80</height>
+                        <top>-5</top>
+                        <control type="grouplist">
+                            <align>right</align>
+                            <orientation>horizontal</orientation>
+                            <itemgap>20</itemgap>
+                            <include>Furniture_SlidesOver</include>
+                            <control type="image">
+                                <width>300</width>
+                                <height>80</height>
+                                <aspectratio align="right">keep</aspectratio>
+                                <texture background="true">$INFO[Container(601).ListItem.Label,resource://resource.images.studios.coloured/,.png]</texture>
+                                <centertop>50%</centertop>
+                            </control>
+                        </control>
+                    </control>
+                </control>
+            </control>
+        </control>
+    </include>
     <include name="Furniture_Codecs">
         <param name="colordiffuse">white</param>
         <param name="infolabel_videoresolution">ListItem.VideoResolution</param>

@@ -798,6 +798,7 @@
                     <include>Furniture_Reposition</include>
                     <visible>!$EXP[Exp_InfoDialogs]</visible>
                     <include>Furniture_Footer_Right</include>
+                    <include>Furniture_Category_Studio</include>
                 </control>
             </control>
 
@@ -866,6 +867,7 @@
                     <include>Furniture_Reposition</include>
                     <visible>!$EXP[Exp_InfoDialogs]</visible>
                     <include>Furniture_Footer_Right</include>
+                    <include>Furniture_Category_Studio</include>
                 </control>
             </control>
 
