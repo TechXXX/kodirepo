@@ -15,6 +15,10 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
 - Patched TMDb Helper dependency: `plugin.video.themoviedb.helper.patched`.
 - Most fork-specific differences from upstream AF3 are add-on identity,
   artwork, and TMDb Helper route rewrites.
+- The KodiEnglish sibling skin at
+  `/Users/kalter/Documents/CODEX/KodiEnglish/skin.dutchtech.fuse.3.kodienglish`
+  should stay in lockstep with this tree, with only the KodiEnglish addon
+  identity, plugin target ids, and repo-local docs diverging.
 - Main XML entry points:
   - `1080i/Home.xml` starts the home window and delegates to `Hub_Window`.
   - `1080i/Includes.xml` is the include index for constants, views, widgets,

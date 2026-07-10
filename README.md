@@ -149,6 +149,9 @@ Current source-tree versions when this document was updated:
   patched TMDb Helper routing. Its non-core dependencies are all carried by
   this repo: Skin Variables, Texture Maker, the patched TMDb Helper, weather
   icons, studio icons, and the Roboto CJK font resource. It now also gives
+  the KodiEnglish sibling skin its lockstep source baseline, with only
+  KodiEnglish-specific addon identity and plugin target ids expected to diverge.
+  It now also gives
   Next Page widget rows a dedicated fallback background and suppresses ordinary
   artwork/foreground layers while those pagination items are focused. It also
   restores a direct Check for updates action inside the skin's add-on browser.
@@ -199,7 +202,8 @@ Current source-tree versions when this document was updated:
   Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
   id from this repo.
 - `skin.dutchtech.fuse.3/`
-  DutchTech Fuse 3 source forked from Arctic Fuse 3.
+  DutchTech Fuse 3 source forked from Arctic Fuse 3. This tree is also the
+  lockstep source baseline for `KodiEnglish/skin.dutchtech.fuse.3.kodienglish`.
 - `skin.arctic.horizon.2.1/`
   Forked skin source.
 - `scripts/`
