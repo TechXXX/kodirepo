@@ -63,6 +63,9 @@ SOURCES_BUILTIN_PATH = os.path.join("resources", "sources", "sources.xml")
 SOURCES_BUILTIN_PRESETS_DIR = os.path.join("resources", "sources", "presets")
 SOURCES_SAVED_PRESETS_DIR = os.path.join("presets", "sources")
 SOURCES_DOWNLOAD_MAX_BYTES = 2 * 1024 * 1024
+FAVOURITES_PATH = "special://profile/favourites.xml"
+FAVOURITES_BACKUP_DIR = os.path.join("backups", "favourites")
+FAVOURITES_BUILTIN_PATH = os.path.join("resources", "favourites", "favourites.xml")
 INSTALL_ALL_PRESET_ID = "macbook"
 PRESET_MANIFEST_FILENAME = "preset.json"
 SKIN_SETTINGS_SOURCE_DIR = os.path.join("resources", "skinsettings")
@@ -159,6 +162,7 @@ MENU_ITEMS = (
     ("[ALL] Cocoscrapers filters", "install_cocoscrapers"),
     ("[ALL] Kodi network/webserver settings", "install_advanced_network"),
     ("[ALL] Kodi keymaps", "install_keymaps"),
+    ("[ALL] Default favourites", "install_favourites"),
     ("Install everything", "install_all"),
     ("KodiSkin Widget Importer", "launch_widget_importer"),
     ("Utilities", "menu_utilities", True),
@@ -3827,6 +3831,87 @@ def _install_sources(addon):
     return _restore_sources_preset(addon, preset)
 
 
+def _favourites_path():
+    return _translate_path(FAVOURITES_PATH)
+
+
+def _favourites_backup_path(prefix):
+    backup_dir = _addon_data_dir(FAVOURITES_BACKUP_DIR)
+    return os.path.join(backup_dir, "%s-%s.xml" % (prefix, _utc_timestamp()))
+
+
+def _backup_current_favourites(prefix="favourites"):
+    path = _favourites_path()
+    if not os.path.exists(path):
+        raise RuntimeError("favourites.xml was not found in this Kodi profile.")
+    target_path = _favourites_backup_path(prefix)
+    _copy_binary_file(path, target_path)
+    _log("Backed up favourites.xml to %s" % target_path)
+    return target_path
+
+
+def _install_favourites(addon):
+    builtin_path = _addon_resource_path(FAVOURITES_BUILTIN_PATH)
+    if not os.path.exists(builtin_path):
+        raise RuntimeError("Bundled favourites.xml was not found.")
+    default_root = _parse_xml(builtin_path).getroot()
+    if default_root.tag != "favourites":
+        raise RuntimeError("Bundled favourites.xml must have a <favourites> root.")
+
+    favourites_path = _favourites_path()
+    backup_path = ""
+    if os.path.exists(favourites_path):
+        live_root = _parse_xml(favourites_path).getroot()
+        if live_root.tag != "favourites":
+            raise RuntimeError("favourites.xml must have a <favourites> root.")
+        backup_path = _backup_current_favourites("favourites-before-restore")
+    else:
+        userdata_path = _translate_path("special://profile")
+        if not os.path.isdir(userdata_path):
+            os.makedirs(userdata_path)
+        live_root = ET.Element("favourites")
+
+    # Merge: keep whatever the user already has, add only defaults that are not
+    # present (matched by the favourite's command/action text).
+    existing_commands = set()
+    for fav in live_root.findall("favourite"):
+        command = (fav.text or "").strip()
+        if command:
+            existing_commands.add(command)
+
+    added = 0
+    for fav in default_root.findall("favourite"):
+        command = (fav.text or "").strip()
+        if not command or command in existing_commands:
+            continue
+        new_fav = ET.SubElement(live_root, "favourite", dict(fav.attrib))
+        new_fav.text = fav.text
+        existing_commands.add(command)
+        added += 1
+
+    _indent_xml(live_root)
+    tree = ET.ElementTree(live_root)
+    tmp_path = favourites_path + ".tmp"
+    tree.write(tmp_path, encoding="utf-8", xml_declaration=True)
+    if os.path.exists(favourites_path):
+        os.remove(favourites_path)
+    os.rename(tmp_path, favourites_path)
+
+    _log("Merged default favourites (%s added) into %s" % (added, favourites_path))
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    _set_setting(addon, "last_favourites_restore", now)
+    _set_setting(addon, "last_install", now)
+
+    if added:
+        message = "Default favourites merged: %s added." % added
+    else:
+        message = "Default favourites already present; nothing to add."
+    if backup_path:
+        message += "\n\nBackup saved to: %s" % backup_path
+    message += "\n\nReload the skin or restart Kodi if the Favourites list does not refresh."
+    return message
+
+
 def _install_fenlight_settings_preset(addon):
     preset = _default_builtin_preset(_fenlight_settings_builtin_presets(), "Fen Light settings")
     targets = _fenlight_settings_targets()
@@ -4026,6 +4111,7 @@ def _run_action(action):
         "install_cocoscrapers",
         "install_advanced_network",
         "install_keymaps",
+        "install_favourites",
         "launch_widget_importer",
         "backup_guisettings",
         "save_guisettings_preset",
@@ -4130,6 +4216,14 @@ def _run_action(action):
             progress.close()
             _log("Install failed: %s\n%s" % (exc, traceback.format_exc()), xbmc.LOGERROR)
             _notify(str(exc), icon=xbmcgui.NOTIFICATION_ERROR, ms=8000)
+        return
+
+    if action == "install_favourites":
+        _run_progress_action(
+            "Kodi Setup Kit",
+            "Merging default favourites...",
+            lambda: _install_favourites(addon),
+        )
         return
 
     if action == "launch_widget_importer":
@@ -4619,6 +4713,12 @@ def _run_action(action):
                     "Installing Kodi keymaps...",
                     "Kodi keymaps",
                     lambda: _install_keymaps(addon),
+                ),
+                (
+                    98,
+                    "Merging default favourites...",
+                    "Default favourites",
+                    lambda: _install_favourites(addon),
                 ),
             )
             for percent, message, label, install_func in install_all_steps:

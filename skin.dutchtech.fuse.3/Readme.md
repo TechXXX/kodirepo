@@ -11,8 +11,9 @@ This package is a DutchTech-maintained fork of Jurialmunkey's Arctic Fuse 3 v3.2
 ## Maintainer Notes
 
 - Add-on id: `skin.dutchtech.fuse.3`.
-- Current source version: `3.2.9.12`.
+- Current source version: `3.2.9.17`.
 - Patched TMDb Helper dependency: `plugin.video.themoviedb.helper.patched`.
+- Repo-carried virtual keyboard autocomplete dependency: `plugin.program.autocompletion`.
 - Most fork-specific differences from upstream AF3 are add-on identity,
   artwork, and TMDb Helper route rewrites.
 - The KodiEnglish sibling skin at
@@ -49,3 +50,9 @@ the older media-info panel layout.
 `DialogNotification.xml` now schedules a silent recovery script. The script only
 calls `ReplaceWindow(Home)` when Kodi reports invalid active window and dialog
 ids, which avoids forcing Home during ordinary notifications.
+
+## 2026-07-12 Category Label Scroll Note
+
+Category selector labels now stay static when unfocused and only scroll on the
+focused row. The same change should stay mirrored in the KodiEnglish sibling
+skin.

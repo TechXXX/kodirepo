@@ -129,11 +129,13 @@ Current source-tree versions when this document was updated:
   from attaching to videos launched by other add-ons.
 - `service.kodi.favourites.sync` `0.2.36`
   Separate Google Drive favourites sync addon.
-- `plugin.program.famyt` `0.9.15`
+- `plugin.program.famyt` `0.9.20`
   Kodi Setup Kit, the private family bootstrap helper. It contains no
   credentials; the matching Vercel bridge supplies YouTube, TorBox,
   a4kSubtitles, and Kodi webserver secrets after the shared password is
-  provided. Read `KODI_SETUP_KIT_HANDOVER.md` before changing its install flow.
+  provided. It now also merges bundled default favourites into the live Kodi
+  profile with a backup-first restore path and includes that step in Install
+  everything. Read `KODI_SETUP_KIT_HANDOVER.md` before changing its install flow.
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
@@ -143,7 +145,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.12`
+- `skin.dutchtech.fuse.3` `3.2.9.17`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
@@ -159,7 +161,9 @@ Current source-tree versions when this document was updated:
   OSD, restores a direct Add-ons shortcut target, and routes favourites through
   Kodi's native favourites browser with the skin's dialog-style list layout. It
   now also runs a small notification recovery script that returns Kodi to Home
-  only when the active window and dialog ids are invalid.
+  only when the active window and dialog ids are invalid. It now also keeps
+  category selector labels static when unfocused and scrolls only the focused
+  row.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current

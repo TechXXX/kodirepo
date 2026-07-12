@@ -1,0 +1,5 @@
+<favourites>
+    <favourite name="Kodi Setup Kit" thumb="special://home/addons/plugin.program.famyt/resources/icon.png">RunAddon("plugin.program.famyt")</favourite>
+    <favourite name="Fen Light Patched" thumb="special://home/addons/plugin.video.fenlight.patched/resources/media/baslite_icon_blue.png">RunAddon("plugin.video.fenlight.patched")</favourite>
+    <favourite name="Clear All Cache (Excluding Favorites)" thumb="https://i.imgur.com/RDNxy36.png">PlayMedia("plugin://plugin.video.fenlight.patched/?mode=clear_all_cache&amp;isFolder=false&amp;iconImage=https%3A%2F%2Fi.imgur.com%2FRDNxy36.png")</favourite>
+</favourites>

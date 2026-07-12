@@ -61,6 +61,7 @@
             <font>font_main_bold</font>
             <textcolor>$PARAM[color_nf]</textcolor>
             <label>$INFO[Container($PARAM[id]).ListItemNoWrap($PARAM[pos]).Label]</label>
+            <scroll>false</scroll>
             <include content="Categories_Selector_Fake_Item_Visible">
                 <param name="id">$PARAM[id]</param>
                 <param name="altfocusid">$PARAM[altfocusid]</param>
@@ -78,6 +79,7 @@
             <font>font_main_bold</font>
             <textcolor>main_fg_90</textcolor>
             <label>$INFO[Container($PARAM[id]).ListItemNoWrap($PARAM[pos]).Label]</label>
+            <scroll>false</scroll>
             <include content="Categories_Selector_Fake_Item_Visible">
                 <param name="id">$PARAM[id]</param>
                 <param name="altfocusid">$PARAM[altfocusid]</param>
@@ -95,6 +97,7 @@
             <font>font_main_bold</font>
             <textcolor>main_fg_100</textcolor>
             <label>$INFO[Container($PARAM[id]).ListItemNoWrap($PARAM[pos]).Label]</label>
+            <scroll>true</scroll>
             <include content="Categories_Selector_Fake_Item_Visible">
                 <param name="id">$PARAM[id]</param>
                 <param name="altfocusid">$PARAM[altfocusid]</param>

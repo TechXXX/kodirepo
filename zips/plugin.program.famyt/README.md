@@ -7,7 +7,7 @@ family setup it was built for and is not useful without the matching private
 access details.
 
 Bundled profile presets include GUI settings, skin settings, Fen Light settings,
-a4kSubtitles settings, keymaps, and Kodi sources.
+a4kSubtitles settings, keymaps, Kodi sources, and default favourites.
 
 Menu items marked `[ALL]` are included when running Install everything.
 Private Kodi webserver credentials are supplied by the bridge, not bundled in
@@ -29,6 +29,8 @@ Kodi Setup Kit installs a repeatable family profile setup:
 - Kodi webserver credentials from the private Vercel bridge
 - bundled `sources.xml`, GUI settings, skin settings, Fen Light settings, and
   keymaps
+- bundled `favourites.xml`, merged into the live profile without removing
+  existing favourites
 - maintenance utilities such as thumbnail cache cleanup and debug bundle export
 
 ## Install Everything Order
@@ -44,6 +46,7 @@ Menu items marked `[ALL]` are the curated setup flow:
 7. Cocoscrapers filters
 8. Kodi network/webserver settings
 9. Kodi keymaps
+10. Default favourites
 
 Fen Light Gemini AI Search keys are available as a separate menu action.
 

@@ -1,6 +1,6 @@
 # Kodi Setup Kit Handover
 
-Last updated: 2026-06-27.
+Last updated: 2026-07-12.
 
 This document preserves the operational context for `plugin.program.famyt`,
 now named **Kodi Setup Kit**. The add-on started as a private YouTube API-key
@@ -28,7 +28,7 @@ tokens, OpenSubtitles credentials, AI keys, or Kodi webserver passwords.
 The Vercel bridge is the private secret source. The public add-on zip contains
 only installer logic, sanitized presets, artwork, keymaps, and profile defaults.
 
-Current Setup Kit version at this handover: `0.9.15`.
+Current Setup Kit version at this handover: `0.9.20`.
 
 ## Security Model
 
@@ -142,7 +142,7 @@ vars. Do a redacted smoke test only; do not print secret values.
 ## Main Menu Shape
 
 Top-level menu items marked `[ALL]` are included in `Install everything`.
-As of `0.9.15`, the first nine menu items are:
+As of `0.9.20`, the first ten menu items are:
 
 1. `[ALL] Kodi sources`
 2. `[ALL] Fen Light settings preset`
@@ -153,6 +153,7 @@ As of `0.9.15`, the first nine menu items are:
 7. `[ALL] Cocoscrapers filters`
 8. `[ALL] Kodi network/webserver settings`
 9. `[ALL] Kodi keymaps`
+10. `[ALL] Default favourites`
 
 `Install everything` runs exactly those steps in that order.
 
@@ -391,6 +392,24 @@ Notable behavior:
 - Some Shield/remote key events are mapped for subtitle/quick-rescrape habits.
 
 Restart Kodi after keymap install.
+
+### 10. Default Favourites
+
+Merges bundled default favourites into the live `special://profile/favourites.xml`
+without deleting the user's existing entries.
+
+Source:
+
+`plugin.program.famyt/resources/favourites/favourites.xml`
+
+Backups go under:
+
+`special://profile/addon_data/plugin.program.famyt/backups/favourites`
+
+The merge key is each favourite's command text. Existing live entries stay in
+place; only missing bundled commands are appended. If a live `favourites.xml`
+already exists, the installer creates a timestamped backup before writing the
+merged result.
 
 ## GUI Settings
 
