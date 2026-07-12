@@ -139,8 +139,34 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
+- `plugin.video.fod` `1.0.3`
+  Fights on Demand source carried with its full Kodi-side dependency stack so
+  the add-on can install from this repo without relying on external repos for
+  Routing, ResolveURL, MicroJen Scrapers, Unidecode, or their required helper
+  modules.
+- `script.module.beautifulsoup4` `4.9.3+matrix.1`
+  HTML parsing dependency required by MicroJen Scrapers.
 - `script.module.autocompletion` `2.1.1`
   Library dependency for the virtual keyboard autocomplete helper.
+- `script.module.inputstreamhelper` `0.8.5`
+  InputStream Helper dependency bundled for Fights on Demand compatibility.
+- `script.module.kodi-six` `0.1.3.1`
+  Python 2/3 Kodi wrapper dependency required by ResolveURL and MicroJen
+  Scrapers.
+- `script.module.microjenscrapers` `1.8`
+  Scraper module used by Fights on Demand for its hosted-source search flow.
+- `script.module.pyqrcode` `1.2.1+matrix.4`
+  QR code helper dependency required by ResolveURL.
+- `script.module.resolveurl` `5.1.206`
+  Resolver module used by Fights on Demand for hosted-link playback.
+- `script.module.routing` `0.2.3+matrix.1`
+  Plugin URL routing module required by Fights on Demand startup.
+- `script.module.simplejson` `3.19.1+matrix.1`
+  JSON helper dependency required by MicroJen Scrapers.
+- `script.module.soupsieve` `2.4.1`
+  Selector-engine dependency required by BeautifulSoup4.
+- `script.module.unidecode` `1.3.7`
+  Unicode transliteration helper used by Fights on Demand channel labeling.
 - `script.fenlight.quickrescrape` `0.0.4`
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
@@ -200,8 +226,30 @@ Current source-tree versions when this document was updated:
   matching Vercel bridge is documented in `KODI_SETUP_KIT_HANDOVER.md`.
 - `plugin.program.autocompletion/`
   Bundled virtual keyboard autocomplete helper source.
+- `plugin.video.fod/`
+  Fights on Demand source tree.
 - `script.module.autocompletion/`
   Bundled virtual keyboard autocomplete library source.
+- `script.module.beautifulsoup4/`
+  BeautifulSoup4 dependency source.
+- `script.module.inputstreamhelper/`
+  InputStream Helper dependency source.
+- `script.module.kodi-six/`
+  Kodi Six dependency source.
+- `script.module.microjenscrapers/`
+  MicroJen Scrapers dependency source.
+- `script.module.pyqrcode/`
+  pyQRcode dependency source.
+- `script.module.resolveurl/`
+  ResolveURL dependency source.
+- `script.module.routing/`
+  Routing dependency source.
+- `script.module.simplejson/`
+  simplejson dependency source.
+- `script.module.soupsieve/`
+  soupsieve dependency source.
+- `script.module.unidecode/`
+  Unidecode dependency source.
 - `skin.arctic.horizon.2.patched/`
   Patched Arctic Horizon 2 source that targets the patched TMDb Helper addon
   id from this repo.
