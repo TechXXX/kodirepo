@@ -1,4 +1,5 @@
 import xbmcaddon
+import traceback
 try:
     from resources.lib.DI import DI
     from resources.lib.plugin import run_hook, register_routes
@@ -48,24 +49,50 @@ def get_list(url: str) -> None:
     url = url.replace('.xmll', '.xml')
     _get_list(url)
 
+def _display_empty(message=None):
+    if message:
+        xbmc.log(f"FOD: {message}", xbmc.LOGINFO)
+    run_hook("display_list", [])
+
 def _get_list(url):
     #do_log(f" Reading url >  {url}" )
     if any(check.lower() in url.lower() for check in short_checker):
-        url = DI.session.get(url).url
-    response = run_hook("get_list", url)
+        try:
+            url = DI.session.get(url, timeout=(5, 20)).url
+        except Exception as exc:
+            _display_empty(f"Failed to resolve short URL {url}: {exc}")
+            return
+    try:
+        response = run_hook("get_list", url)
+    except Exception:
+        _display_empty(f"Failed to load list {url}\n{traceback.format_exc()}")
+        return
     if response:
         #do_log(f'default - response = \n {str(response)} ' )
+        try:
+            jen_list = run_hook("parse_list", url, response)
+        except Exception:
+            _display_empty(f"Failed to parse list {url}\n{traceback.format_exc()}")
+            return
+        #do_log(f'default - jen list = \n {str(jen_list)} ')
+        if not isinstance(jen_list, list):
+            _display_empty(f"No playable list items parsed from {url}")
+            return
         if ownAddon.getSettingBool("use_cache") and not "tmdb/search" in url:
             DI.db.set(url, response)
-        jen_list = run_hook("parse_list", url, response)
-        #do_log(f'default - jen list = \n {str(jen_list)} ')
-        jen_list = [run_hook("process_item", item) for item in jen_list]
-        jen_list = [
-        run_hook("get_metadata", item, return_item_on_failure=True) for item in jen_list
-        ]
+        try:
+            jen_list = [run_hook("process_item", item) for item in jen_list]
+            jen_list = [item for item in jen_list if item]
+            jen_list = [
+                run_hook("get_metadata", item, return_item_on_failure=True)
+                for item in jen_list
+            ]
+        except Exception:
+            _display_empty(f"Failed to build list {url}\n{traceback.format_exc()}")
+            return
         run_hook("display_list", jen_list)
     else:
-        run_hook("display_list", [])
+        _display_empty(f"No response for list {url}")
 
 @plugin.route("/play_video/<path:video>")
 def play_video(video: str):

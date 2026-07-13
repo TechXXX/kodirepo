@@ -139,11 +139,13 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
-- `plugin.video.fod` `1.0.3`
+- `plugin.video.fod` `1.0.4`
   Fights on Demand source carried with its full Kodi-side dependency stack so
   the add-on can install from this repo without relying on external repos for
   Routing, ResolveURL, MicroJen Scrapers, Unidecode, or their required helper
-  modules.
+  modules. The `1.0.4` bump guards the startup/root listing path so an
+  unavailable hosted feed times out, avoids caching the failure marker, and
+  closes the Kodi directory cleanly instead of trapping the busy dialog.
 - `script.module.beautifulsoup4` `4.9.3+matrix.1`
   HTML parsing dependency required by MicroJen Scrapers.
 - `script.module.autocompletion` `2.1.1`
@@ -227,7 +229,9 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion/`
   Bundled virtual keyboard autocomplete helper source.
 - `plugin.video.fod/`
-  Fights on Demand source tree.
+  Fights on Demand source tree. Its default root feed is hosted externally, so
+  network failures must be handled as empty directory results rather than
+  parser crashes.
 - `script.module.autocompletion/`
   Bundled virtual keyboard autocomplete library source.
 - `script.module.beautifulsoup4/`

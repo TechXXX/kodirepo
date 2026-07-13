@@ -2,7 +2,7 @@ import xbmc
 import xbmcaddon
 import json
 import time
-from ..DI import DI
+from ..DI import DI, is_failed_response
 from ..plugin import Plugin
 
 class cached_list(Plugin):
@@ -17,6 +17,8 @@ class cached_list(Plugin):
         if not cached:
             return
         response, created = cached
+        if is_failed_response(response):
+            return
 
         try:
             if (created + json.loads(response).get("cache_time", cache_timer)*60) < time.time():

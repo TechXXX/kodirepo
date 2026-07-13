@@ -7,6 +7,12 @@ import xbmc
 import xbmcaddon
 import json
 
+FAILED_RESPONSES = ("<<<< http plugin failed >>>>",)
+
+
+def is_failed_response(response: Optional[str]) -> bool:
+    return not response or str(response).strip() in FAILED_RESPONSES
+
 
 class _DB:
     def __init__(self):
@@ -28,12 +34,18 @@ class _DB:
                 self.close()
 
     def set(self, url: str, response: str) -> None:
+        if is_failed_response(response):
+            xbmc.log(f"Skipping failed FOD cache response for {url}", xbmc.LOGINFO)
+            return
         if url.startswith("m3u"):
             url = url.split("|")[1]
         created = time.time()
         cached = self.get(url)
         if cached:
             c_resp, c_created = cached
+            if is_failed_response(c_resp):
+                c_resp = "{}"
+                c_created = 0
             try:
                 if (c_created + json.loads(c_resp).get("cache_time", self.cache_timer)*60) > created:
                     created = c_created
