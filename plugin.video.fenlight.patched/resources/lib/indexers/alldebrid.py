@@ -9,6 +9,7 @@ from modules.utils import clean_file_name, normalize
 # logger = kodi_utils.logger
 
 build_url, make_listitem, execute_builtin = kodi_utils.build_url, kodi_utils.make_listitem, kodi_utils.execute_builtin
+add_context_menu_items = kodi_utils.add_context_menu_items
 default_ad_icon, fanart, set_view_mode = kodi_utils.get_icon('alldebrid'), kodi_utils.get_addon_fanart(), kodi_utils.set_view_mode
 add_items, set_content, end_directory = kodi_utils.add_items, kodi_utils.set_content, kodi_utils.end_directory
 show_busy_dialog, hide_busy_dialog, show_text = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.show_text
@@ -30,7 +31,7 @@ def ad_cloud(folder_id=None):
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_ad_icon, 'poster': default_ad_icon, 'thumb': default_ad_icon, 'fanart': fanart, 'banner': default_ad_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
@@ -60,7 +61,7 @@ def browse_ad_cloud(folder):
 				cm.append(('[B]Download File[/B]','RunPlugin(%s)' % build_url(down_file_params)))
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_ad_icon, 'poster': default_ad_icon, 'thumb': default_ad_icon, 'fanart': fanart, 'banner': default_ad_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')

@@ -8,6 +8,7 @@ from modules.utils import clean_file_name, normalize
 
 show_busy_dialog, hide_busy_dialog, show_text, execute_builtin, logger = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.show_text, kodi_utils.execute_builtin, kodi_utils.logger
 build_url, make_listitem, confirm_dialog, notification = kodi_utils.build_url, kodi_utils.make_listitem, kodi_utils.confirm_dialog, kodi_utils.notification
+add_context_menu_items, set_resolved_url = kodi_utils.add_context_menu_items, kodi_utils.set_resolved_url
 add_items, set_content, end_directory, set_view_mode = kodi_utils.add_items, kodi_utils.set_content, kodi_utils.end_directory, kodi_utils.set_view_mode
 default_tb_icon, fanart = kodi_utils.get_icon('torbox'), kodi_utils.get_addon_fanart()
 extensions = supported_video_extensions()
@@ -35,7 +36,7 @@ def tb_cloud(fresh=False):
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_tb_icon, 'poster': default_tb_icon, 'thumb': default_tb_icon, 'fanart': fanart, 'banner': default_tb_icon})
 				yield (url, listitem, True)
 			except: pass
@@ -84,9 +85,14 @@ def browse_tb_cloud(folder_id, media_type, fresh=False):
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				listitem.setProperty('IsPlayable', 'true')
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_tb_icon, 'poster': default_tb_icon, 'thumb': default_tb_icon, 'fanart': fanart, 'banner': default_tb_icon})
-				listitem.setInfo('video', {})
+				info_tag = listitem.getVideoInfoTag()
+				info_tag.setMediaType('video')
+				info_tag.setTitle(name)
+				info_tag.setPlot(' ')
+				info_tag.setFilenameAndPath(url)
 				yield (url, listitem, False)
 			except: pass
 	start = time()
@@ -121,8 +127,18 @@ def resolve_tb(params):
 	elif media_type == 'usenet': resolved_link = TorBox.unrestrict_usenet(file_id)
 	else: resolved_link = TorBox.unrestrict_webdl(file_id)
 	if params.get('play', 'false') != 'true': return resolved_link
-	from modules.player import FenLightPlayer
-	FenLightPlayer().run(resolved_link, 'video')
+	try:
+		listitem = make_listitem()
+		listitem.setPath(resolved_link)
+		listitem.setContentLookup(False)
+		listitem.setProperty('IsPlayable', 'true')
+		info_tag = listitem.getVideoInfoTag()
+		info_tag.setMediaType('video')
+		info_tag.setFilenameAndPath(build_url({'mode': 'torbox.resolve_tb', 'play': 'true', 'url': file_id, 'media_type': media_type}))
+		return set_resolved_url(listitem)
+	except:
+		from modules.player import FenLightPlayer
+		return FenLightPlayer().run(resolved_link, 'video')
 
 def tb_account_info():
 	try:

@@ -86,12 +86,29 @@ def get_addon_fanart():
 def build_url(url_params):
 	return '%s?%s' % (current_addon_url, urlencode(url_params))
 
+def localize(label):
+	try:
+		from modules.localization import localize as _localize
+		return _localize(label)
+	except:
+		return label
+
+def localize_context_menu(cm_items):
+	try:
+		from modules.localization import localize_context_menu as _localize_context_menu
+		return _localize_context_menu(cm_items)
+	except:
+		return cm_items
+
+def add_context_menu_items(listitem, cm_items):
+	return listitem.addContextMenuItems(localize_context_menu(cm_items))
+
 def add_dir(url_params, list_name, handle, iconImage='folder', fanartImage=None, isFolder=True):
 	fanart = fanartImage or get_addon_fanart()
 	icon = get_icon(iconImage)
 	url = build_url(url_params)
 	listitem = make_listitem()
-	listitem.setLabel(list_name)
+	listitem.setLabel(localize(list_name))
 	listitem.setArt({'icon': icon, 'poster': icon, 'thumb': icon, 'fanart': fanart, 'banner': fanart})
 	info_tag = listitem.getVideoInfoTag()
 	info_tag.setPlot(' ')
@@ -110,7 +127,7 @@ def set_content(handle, content):
 	setContent(handle, content)
 
 def set_category(handle, label):
-	setCategory(handle, label)
+	setCategory(handle, localize(label))
 
 def end_directory(handle, cacheToDisc=True):
 	endOfDirectory(handle, cacheToDisc=cacheToDisc)
@@ -415,7 +432,7 @@ def show_text(heading, text=None, file=None, font_size='small', kodi_log=False):
 	return open_window(('windows.textviewer', 'TextViewer'), 'textviewer.xml', heading=heading, text=text, font_size=font_size)
 
 def notification(line1, time=5000, icon=None):
-	kodi_dialog().notification('Fen Light Patched', line1, icon or addon_icon(), time)
+	kodi_dialog().notification('Fen Light Patched', localize(line1), icon or addon_icon(), time)
 
 def timeIt(func):
 	# Thanks to 123Venom

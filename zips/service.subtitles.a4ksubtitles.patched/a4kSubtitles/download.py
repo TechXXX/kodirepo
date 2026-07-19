@@ -187,8 +187,7 @@ def download(core, params):
         is_ai_translated = bool(actions_args.get('ai_translated', False))
         is_machine_translated = bool(actions_args.get('machine_translated', False))
         if is_ai_translated or is_machine_translated:
-            translation_label = 'AI-translated' if is_ai_translated else 'machine-translated'
-            core.kodi.notification('Selected subtitle is %s' % translation_label, time=4000)
+            core.kodi.notification(core.kodi.translated_subtitle_notification_text(is_ai_translated, is_machine_translated), time=4000)
 
         if core.api_mode_enabled:
             __copy_sub_local(core, filepath)

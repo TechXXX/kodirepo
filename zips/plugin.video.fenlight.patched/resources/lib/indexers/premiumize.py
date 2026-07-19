@@ -11,6 +11,7 @@ from modules.utils import clean_file_name, normalize
 # logger = kodi_utils.logger
 
 make_listitem, build_url = kodi_utils.make_listitem, kodi_utils.build_url
+add_context_menu_items = kodi_utils.add_context_menu_items
 add_items, set_content, end_directory = kodi_utils.add_items, kodi_utils.set_content, kodi_utils.end_directory
 show_busy_dialog, hide_busy_dialog, show_text, set_view_mode = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.show_text, kodi_utils.set_view_mode
 confirm_dialog, ok_dialog, kodi_dialog = kodi_utils.confirm_dialog, kodi_utils.ok_dialog, kodi_utils.kodi_dialog
@@ -48,7 +49,7 @@ def pm_cloud(folder_id=None, folder_name=None):
 				cm_append(('[B]Delete %s[/B]' % file_type.capitalize(),'RunPlugin(%s)' % build_url(delete_params)))
 				url = build_url(url_params)
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_pm_icon, 'poster': default_pm_icon, 'thumb': default_pm_icon, 'fanart': fanart, 'banner': default_pm_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
@@ -94,7 +95,7 @@ def pm_transfers():
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_pm_icon, 'poster': default_pm_icon, 'thumb': default_pm_icon, 'fanart': fanart, 'banner': default_pm_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')

@@ -223,7 +223,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.95">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.97">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -245,7 +245,13 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.93]:
+            <news>[v2.0.97]:
+  * Preserve Kodi resume points for direct TorBox cloud-storage playback by resolving files through Kodi's stable plugin URL.
+
+[v2.0.96]:
+  * Add Dutch UI labels for Fen Light menus, context menus, and Extras, with Dutch as the default menu language.
+
+[v2.0.93]:
   * Remove Fen Light's custom updater in favor of Kodi repository updates, refresh TorBox cloud cache handling, tighten Trakt watched-progress lookups, and add restore-default actions for OMDb and TheIntroDB API keys.
 
 [v2.0.92]:
@@ -1237,7 +1243,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.42" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.43" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1262,6 +1268,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.43]:
+  * Localize translated-subtitle notifications to Dutch when Fen Light Patched's menu language is set to Dutch.
+
 [v3.23.40]:
   * Ignore stale Fen selector subtitle payloads when playback no longer belongs to the matching Fen source, and clear stale selector temp files before global runtime subtitle handling.
 

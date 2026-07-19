@@ -19,6 +19,7 @@ set_content, set_sort_method, set_view_mode, end_directory = kodi_utils.set_cont
 make_listitem, build_url, add_items = kodi_utils.make_listitem, kodi_utils.build_url, kodi_utils.add_items
 nextpage_landscape, get_property, clear_property, focus_index = kodi_utils.nextpage_landscape, kodi_utils.get_property, kodi_utils.clear_property, kodi_utils.focus_index
 set_category, home, folder_path = kodi_utils.set_category, kodi_utils.home, kodi_utils.folder_path
+add_context_menu_items = kodi_utils.add_context_menu_items
 trakt_trending_popular_lists, trakt_get_lists, trakt_search_lists = trakt_api.trakt_trending_popular_lists, trakt_api.trakt_get_lists, trakt_api.trakt_search_lists
 trakt_fetch_collection_watchlist, get_trakt_list_contents = trakt_api.trakt_fetch_collection_watchlist, trakt_api.get_trakt_list_contents
 trakt_lists_with_media = trakt_api.trakt_lists_with_media
@@ -46,7 +47,7 @@ def search_trakt_lists(params):
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				yield (url, listitem, True)
 			except: pass
 	handle, search_title = int(sys.argv[1]), ''
@@ -92,7 +93,7 @@ def get_trakt_lists(params):
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				yield (url, listitem, True)
 			except: pass
 	handle = int(sys.argv[1])
@@ -141,7 +142,7 @@ def get_trakt_trending_popular_lists(params):
 				if not user == 'Trakt Official':
 					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'list_id': list_id})))
 					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
 				info_tag = listitem.getVideoInfoTag()
@@ -179,7 +180,7 @@ def get_trakt_lists_with_media(params):
 				if not user == 'Trakt Official':
 					cm_append(('[B]Like List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_like_a_list', 'list_id': list_id})))
 					cm_append(('[B]Unlike List[/B]', 'RunPlugin(%s)' % build_url({'mode': 'trakt.trakt_unlike_a_list', 'list_id': list_id})))
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setLabel(display)
 				listitem.setArt({'icon': trakt_icon, 'poster': trakt_icon, 'thumb': trakt_icon, 'fanart': fanart, 'banner': fanart})
 				info_tag = listitem.getVideoInfoTag()

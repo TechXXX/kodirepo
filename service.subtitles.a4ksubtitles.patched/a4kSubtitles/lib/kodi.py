@@ -5,6 +5,7 @@ import sys
 import json
 import re
 import importlib
+import sqlite3
 
 kodi = sys.modules[__name__]
 api_mode = os.getenv('A4KSUBTITLES_API_MODE')
@@ -95,6 +96,56 @@ def clear_property(prop):  # pragma: no cover
 
 def notification(text, time=3000):  # pragma: no cover
     xbmc.executebuiltin('Notification(%s, %s, %d, %s)' % (addon_name, text, time, addon_icon))
+
+def translate_path(value):  # pragma: no cover
+    try:
+        return xbmcvfs.translatePath(value)
+    except:
+        try:
+            return xbmc.translatePath(value)
+        except:
+            return value
+
+def fenlight_ui_language():  # pragma: no cover
+    language = get_property('fenlight.ui_language')
+    if not language:
+        language = _fenlight_ui_language_from_settings_db()
+    return str(language or 'en').strip().lower()
+
+def _fenlight_ui_language_from_settings_db():  # pragma: no cover
+    db_path = translate_path('special://profile/addon_data/plugin.video.fenlight.patched/databases/settings.db')
+    try:
+        if not db_path or not xbmcvfs.exists(db_path):
+            return ''
+    except:
+        return ''
+    dbcon = None
+    try:
+        dbcon = sqlite3.connect(db_path)
+        result = dbcon.execute('SELECT setting_value FROM settings WHERE setting_id = ?', ('ui_language',)).fetchone()
+        return result[0] if result else ''
+    except:
+        return ''
+    finally:
+        try:
+            if dbcon:
+                dbcon.close()
+        except:
+            pass
+
+def translated_subtitle_notification_text(is_ai_translated=True, is_machine_translated=False):  # pragma: no cover
+    if fenlight_ui_language() == 'nl':
+        if is_ai_translated:
+            return 'Geselecteerde ondertitel is AI-vertaald'
+        if is_machine_translated:
+            return 'Geselecteerde ondertitel is machinevertaald'
+    translation_label = 'AI-translated' if is_ai_translated else 'machine-translated'
+    return 'Selected subtitle is %s' % translation_label
+
+def gpt_translated_notification_text():  # pragma: no cover
+    if fenlight_ui_language() == 'nl':
+        return 'GPT4 live vertaald'
+    return 'GPT4 Translated'
 
 def get_progress_dialog():  # pragma: no cover
     wrapper = lambda: None

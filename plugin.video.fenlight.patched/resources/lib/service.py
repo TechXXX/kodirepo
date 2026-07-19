@@ -58,7 +58,8 @@ class OnUpdateChanges:
 		try:
 			migrations = (
 				('refresh_addon_keys', self.refresh_addon_keys),
-				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url)
+				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
+				('default_ui_language_dutch', self.default_ui_language_dutch)
 			)
 			for setting_id, migration in migrations:
 				update_setting_id = 'updatechecks.%s' % setting_id
@@ -110,6 +111,11 @@ class OnUpdateChanges:
 			logger('Fen Light Patched', 'TorBox Usenet AIOStreams URL migrated from ElfHosted public instance to Midnight.')
 		except Exception as e:
 			logger('Fen Light Patched', 'TorBox Usenet AIOStreams URL migration failed: %s' % str(e))
+
+	def default_ui_language_dutch(self):
+		from caches.settings_cache import set_setting
+		set_setting('ui_language', 'nl')
+		logger('Fen Light Patched', 'Default UI language set to Dutch')
 
 class CustomFonts:
 	def run(self):

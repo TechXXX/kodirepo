@@ -14,6 +14,7 @@ from modules.utils import get_datetime, title_key, adjust_premiered_date, append
 ok_dialog, container_content, close_all_dialog, external = kodi_utils.ok_dialog, kodi_utils.container_content, kodi_utils.close_all_dialog, kodi_utils.external
 set_property, get_icon, kodi_dialog, open_settings = kodi_utils.set_property, kodi_utils.get_icon, kodi_utils.kodi_dialog, kodi_utils.open_settings
 show_busy_dialog, hide_busy_dialog, notification, confirm_dialog = kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog, kodi_utils.notification, kodi_utils.confirm_dialog
+localize, container_refresh = kodi_utils.localize, kodi_utils.container_refresh
 external_scraper_settings, kodi_refresh, refresh_widgets, autoscrape_next_episode = kodi_utils.external_scraper_settings, kodi_utils.kodi_refresh, kodi_utils.refresh_widgets, settings.autoscrape_next_episode
 select_dialog, autoplay_next_episode, quality_filter = kodi_utils.select_dialog, settings.autoplay_next_episode, settings.quality_filter
 numeric_input, container_update, activate_window, folder_path = kodi_utils.numeric_input, kodi_utils.container_update, kodi_utils.activate_window, kodi_utils.folder_path
@@ -229,8 +230,8 @@ def playback_choice(params):
 	if media_type == 'episode': items.append({'line': 'Scrape with Custom Episode Groups Value', 'function': 'scrape_with_episode_group'})
 	if aliases: items.append({'line': 'Scrape with an Alias', 'function': 'scrape_with_aliases'})
 	items.append({'line': 'Scrape with Custom Values', 'function': 'scrape_with_custom_values'})
-	list_items = [{'line1': i['line'], 'icon': poster} for i in items]
-	kwargs = {'items': json.dumps(list_items), 'heading': 'Playback Options'}
+	list_items = [{'line1': localize(i['line']), 'icon': poster} for i in items]
+	kwargs = {'items': json.dumps(list_items), 'heading': localize('Playback Options')}
 	choice = select_dialog([i['function'] for i in items], **kwargs)
 	if choice == None: return notification('Cancelled', 2500)
 	if choice in ('clear_and_rescrape', 'scrape_with_custom_values'):
@@ -278,7 +279,7 @@ def playback_choice(params):
 			kwargs = {'items': json.dumps(list_items)}
 			custom_title = select_dialog(aliases, **kwargs)
 			if custom_title == None: return notification('Cancelled', 2500)
-		custom_title = kodi_dialog().input('Title', defaultt=custom_title)
+		custom_title = kodi_dialog().input(localize('Title'), defaultt=custom_title)
 		if not custom_title: return notification('Cancelled', 2500)
 		if media_type in ('movie', 'movies'): play_params = {'mode': 'playback.media', 'media_type': 'movie', 'tmdb_id': meta['tmdb_id'],
 						'custom_title': custom_title, 'prescrape': 'false'}
@@ -293,30 +294,30 @@ def playback_choice(params):
 			list_items = [{'line1': i, 'icon': poster} for i in aliases]
 			kwargs = {'items': json.dumps(list_items)}
 			alias_title = select_dialog(aliases, **kwargs)
-			if alias_title: custom_title = kodi_dialog().input('Title', defaultt=alias_title)
-			else: custom_title = kodi_dialog().input('Title', defaultt=default_title)
-		else: custom_title = kodi_dialog().input('Title', defaultt=default_title)
+			if alias_title: custom_title = kodi_dialog().input(localize('Title'), defaultt=alias_title)
+			else: custom_title = kodi_dialog().input(localize('Title'), defaultt=default_title)
+		else: custom_title = kodi_dialog().input(localize('Title'), defaultt=default_title)
 		if not custom_title: return notification('Cancelled', 2500)
 		def _process_params(default_value, custom_value, param_value):
 			if custom_value and custom_value != default_value: play_params[param_value] = custom_value
 		_process_params(default_title, custom_title, 'custom_title')
-		custom_year = kodi_dialog().input('Year', type=numeric_input, defaultt=default_year)
+		custom_year = kodi_dialog().input(localize('Year'), type=numeric_input, defaultt=default_year)
 		_process_params(default_year, custom_year, 'custom_year')
 		if media_type == 'episode':
-			custom_season = kodi_dialog().input('Season', type=numeric_input, defaultt=season)
+			custom_season = kodi_dialog().input(localize('Season'), type=numeric_input, defaultt=season)
 			_process_params(season, custom_season, 'custom_season')
-			custom_episode = kodi_dialog().input('Episode', type=numeric_input, defaultt=episode)
+			custom_episode = kodi_dialog().input(localize('Episode'), type=numeric_input, defaultt=episode)
 			_process_params(episode, custom_episode, 'custom_episode')
 			if any(i in play_params for i in ('custom_season', 'custom_episode')):
 				if autoplay_next_episode(): _process_params('', 'true', 'disable_autoplay_next_episode')
-		all_choice = confirm_dialog(heading=meta.get('rootname', ''), text='Scrape with ALL External Scrapers?', ok_label='Yes', cancel_label='No')
+		all_choice = confirm_dialog(heading=meta.get('rootname', ''), text=localize('Scrape with ALL External Scrapers?'), ok_label=localize('Yes'), cancel_label=localize('No'))
 		if all_choice == None: return notification('Cancelled', 2500)
 		if not all_choice:
-			default_choice = confirm_dialog(heading=meta.get('rootname', ''), text='Scrape with DEFAULT External Scrapers?', ok_label='Yes', cancel_label='No')
+			default_choice = confirm_dialog(heading=meta.get('rootname', ''), text=localize('Scrape with DEFAULT External Scrapers?'), ok_label=localize('Yes'), cancel_label=localize('No'))
 			if default_choice == None: return notification('Cancelled', 2500)
 			if default_choice: _process_params('', 'true', 'default_ext_only')
 		else:  _process_params('', 'true', 'disabled_ext_ignored')
-		disable_filters_choice = confirm_dialog(heading=meta.get('rootname', ''), text='Disable All Filters for Search?', ok_label='Yes', cancel_label='No')
+		disable_filters_choice = confirm_dialog(heading=meta.get('rootname', ''), text=localize('Disable All Filters for Search?'), ok_label=localize('Yes'), cancel_label=localize('No'))
 		if disable_filters_choice == None: return notification('Cancelled', 2500)
 		if disable_filters_choice:
 			_process_params('', 'true', 'ignore_scrape_filters')
@@ -365,8 +366,8 @@ def extras_buttons_choice(params):
 					('Restore [B]Movie[/B] Buttons to Default', 'restore.movie'),
 					('Restore [B]TV Show[/B] Buttons to Default', 'restore.tvshow'),
 					('Restore [B]Movie & TV Show[/B] Buttons to Default', 'restore.both')]
-		list_items = [{'line1': i[0]} for i in choices]
-		kwargs = {'items': json.dumps(list_items), 'heading': 'Choose Media Type to Set Buttons', 'narrow_window': 'true'}
+		list_items = [{'line1': localize(i[0])} for i in choices]
+		kwargs = {'items': json.dumps(list_items), 'heading': localize('Choose Media Type to Set Buttons'), 'narrow_window': 'true'}
 		choice = select_dialog(choices, **kwargs)
 		if choice == None:
 			if button_dict != orig_button_dict:
@@ -384,16 +385,16 @@ def extras_buttons_choice(params):
 				for item in [(i, default_setting_values(i)['setting_default']) for i in ('extras.tvshow.button%s' % i for i in range(10,18))]:
 					set_setting(item[0], item[1])
 			return ok_dialog(text='Success')
-	choices = [('[B]%s[/B]   |   %s' % (v['button_name'], v['button_label']), v['button_name'], v['button_label'], k) for k, v in button_dict.items() if media_type in k]
+	choices = [('[B]%s[/B]   |   %s' % (localize(v['button_name']), localize(v['button_label'])), v['button_name'], v['button_label'], k) for k, v in button_dict.items() if media_type in k]
 	list_items = [{'line1': i[0]} for i in choices]
-	kwargs = {'items': json.dumps(list_items), 'heading': 'Choose Button to Set', 'narrow_window': 'true'}
+	kwargs = {'items': json.dumps(list_items), 'heading': localize('Choose Button to Set'), 'narrow_window': 'true'}
 	choice = select_dialog(choices, **kwargs)
 	if choice == None: return extras_buttons_choice({'button_dict': button_dict, 'orig_button_dict': orig_button_dict})
 	button_name, button_label, button_setting = choice[1:]
 	choices = [(v, k) for k, v in extras_button_label_values[media_type].items() if not v == button_label]
 	choices = [i for i in choices if not i[0] == button_label]
-	list_items = [{'line1': i[0]} for i in choices]
-	kwargs = {'items': json.dumps(list_items), 'heading': 'Choose Action For %s' % button_name, 'narrow_window': 'true'}
+	list_items = [{'line1': localize(i[0])} for i in choices]
+	kwargs = {'items': json.dumps(list_items), 'heading': localize('Choose Action For %s') % localize(button_name), 'narrow_window': 'true'}
 	choice = select_dialog(choices, **kwargs)
 	if choice == None: return extras_buttons_choice({'button_dict': button_dict, 'orig_button_dict': orig_button_dict, 'media_type': media_type})
 	button_label, button_action = choice
@@ -404,11 +405,11 @@ def extras_lists_choice(params={}):
 	choices = [('Plot', 2000), ('Cast', 2050), ('Recommended', 2051), ('More Like This', 2052), ('Reviews', 2053), ('Comments', 2054), ('Trivia', 2055),
 			('Blunders', 2056), ('Parental Guide', 2057), ('In Trakt Lists', 2058), ('Videos', 2059), ('More from Year', 2060), ('More from Genres', 2061),
 			('More from Networks', 2062), ('More from Collection', 2063)]
-	list_items = [{'line1': i[0]} for i in choices]
+	list_items = [{'line1': localize(i[0])} for i in choices]
 	current_settings = extras_enabled_menus()
 	try: preselect = [choices.index(i) for i in choices if i[1] in current_settings]
 	except: preselect = []
-	kwargs = {'items': json.dumps(list_items), 'heading': 'Enable Content for Extras Lists', 'multi_choice': 'true', 'preselect': preselect}
+	kwargs = {'items': json.dumps(list_items), 'heading': localize('Enable Content for Extras Lists'), 'multi_choice': 'true', 'preselect': preselect}
 	selection = select_dialog(choices, **kwargs)
 	if selection  == []: return set_setting('extras.enabled', 'noop')
 	elif selection == None: return
@@ -551,6 +552,19 @@ def tmdb_fallback_language_choice(params={}):
 	delete_meta_cache(silent=True)
 	refresh_widgets('false')
 
+def ui_language_choice(params={}):
+	from modules.localization import LANGUAGE_CHOICES
+	current_language = get_setting('fenlight.ui_language', 'en')
+	try: preselect = [[i['id'] for i in LANGUAGE_CHOICES].index(current_language)]
+	except: preselect = [0]
+	list_items = [{'line1': localize(i['name'])} for i in LANGUAGE_CHOICES]
+	kwargs = {'items': json.dumps(list_items), 'heading': localize('Menu Language'), 'narrow_window': 'true', 'preselect': preselect}
+	choice = select_dialog(list(LANGUAGE_CHOICES), **kwargs)
+	if choice == None: return
+	set_setting('ui_language', choice['id'])
+	notification(localize('Menu language changed'), 2500)
+	container_refresh()
+
 def options_menu_choice(params, meta=None):
 	params_get = params.get
 	tmdb_id, content, poster = params_get('tmdb_id', None), params_get('content', None), params_get('poster', None)
@@ -603,9 +617,9 @@ def options_menu_choice(params, meta=None):
 		listing_append(('Open Tools', '', 'open_tools'))
 		if menu_type in ('movie', 'episode') or menu_type in single_ep_list: listing_append(('Open External Scraper Settings', '', 'open_external_scraper_settings'))
 		listing_append(('Open Settings', '', 'open_settings'))
-	list_items = [{'line1': item[0], 'line2': item[1] or item[0], 'icon': poster} for item in listing]
+	list_items = [{'line1': localize(item[0]), 'line2': localize(item[1] or item[0]), 'icon': poster} for item in listing]
 	heading = rootname or 'Options...'
-	kwargs = {'items': json.dumps(list_items), 'heading': heading, 'multi_line': 'true'}
+	kwargs = {'items': json.dumps(list_items), 'heading': localize(heading), 'multi_line': 'true'}
 	choice = select_dialog([i[2] for i in listing], **kwargs)
 	if choice == None: return
 	if choice == 'clear_media_cache':

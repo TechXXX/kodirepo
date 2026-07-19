@@ -277,6 +277,9 @@ def routing(sys):
 	if mode == 'tmdb_fallback_language_choice':
 		from indexers.dialogs import tmdb_fallback_language_choice
 		return tmdb_fallback_language_choice(params)
+	if mode == 'ui_language_choice':
+		from indexers.dialogs import ui_language_choice
+		return ui_language_choice(params)
 	if mode == 'person_data_dialog':
 		from indexers.people import person_data_dialog
 		return person_data_dialog(params)

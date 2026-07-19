@@ -13,7 +13,7 @@ from modules.metadata import movieset_meta, episodes_meta, movie_meta, tvshow_me
 from modules.episode_tools import EpisodeTools
 # logger = kodi_utils.logger
 
-get_icon, close_all_dialog = kodi_utils.get_icon, kodi_utils.close_all_dialog
+get_icon, close_all_dialog, localize = kodi_utils.get_icon, kodi_utils.close_all_dialog, kodi_utils.localize
 addon_fanart, empty_poster = kodi_utils.addon_fanart(), kodi_utils.empty_poster
 extras_button_label_values, show_busy_dialog, hide_busy_dialog = kodi_utils.extras_button_label_values, kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog
 container_update, activate_window, clear_property = kodi_utils.container_update, kodi_utils.activate_window, kodi_utils.clear_property
@@ -42,6 +42,13 @@ blunders_id, parentsguide_id, in_lists_id, videos_id, year_id, genres_id, networ
 items_list_ids = (recommended_id, more_like_this_id, year_id, genres_id, networks_id, collection_id)
 text_list_ids = (reviews_id, trivia_id, blunders_id, parentsguide_id, comments_id)
 open_folder_list_ids = (in_lists_id,)
+extras_label_properties = {
+	'plot': 'Plot', 'cast': 'Cast', 'recommended': 'Recommended', 'more_like_this': 'More Like This', 'reviews': 'Reviews',
+	'comments': 'Comments', 'trivia': 'Trivia', 'blunders': 'Blunders', 'parental_guide': 'Parental Guide', 'in_trakt_lists': 'In Trakt Lists',
+	'videos': 'Videos', 'more_from_year': 'More from Year', 'more_from_genres': 'More from Genres', 'more_from_networks': 'More from Networks',
+	'press_info_more_info': 'Press Info Button for More Info', 'press_context_search': 'Press Context Button for Search',
+	'press_context_like_list': 'Press Context Button To Like List', 'press_context_unlike_list': 'Press Context Button To UnLike List'
+}
 finished_tvshow = ('', 'Ended', 'Canceled')
 parentsguide_icons = {'Sex & Nudity': get_icon('sex_nudity'), 'Violence & Gore': get_icon('genre_war'), 'Profanity': get_icon('bad_language'),
 						'Alcohol, Drugs & Smoking': get_icon('drugs_alcohol'), 'Frightening & Intense Scenes': get_icon('genre_horror')}
@@ -264,7 +271,7 @@ class Extras(BaseDialog):
 					if compare in liked_lists: liked = 'true'
 					else: liked = 'false'
 					likes = item.get('likes', '')
-					likes_insert = '[CR]%s %s' % (likes, 'Likes' if likes > 1 else 'Like') if likes else '' 
+					likes_insert = '[CR]%s %s' % (likes, localize('Likes') if likes > 1 else localize('Like')) if likes else ''
 					listitem.setProperty('name', template % (count, batch_replace(item['name'].upper(), replacements), likes_insert, item['user']['ids']['slug'], item['item_count']))
 					listitem.setProperty('content_list', 'all_in_lists')
 					listitem.setProperty('thumbnail', icon)
@@ -330,7 +337,7 @@ class Extras(BaseDialog):
 					if ranking == 'NONE': ranking = 'NO RANK'
 					if item['content']: ranking += ' (x%02d)' % item['total_count']
 					icon = parentsguide_icons[name]
-					listitem.setProperty('name', name)
+					listitem.setProperty('name', localize(name))
 					listitem.setProperty('ranking', ranking)
 					listitem.setProperty('thumbnail', icon)
 					listitem.setProperty('content', item['content'])
@@ -465,12 +472,12 @@ class Extras(BaseDialog):
 		return release_data
 
 	def get_progress(self, percent_watched):
-		return '%s%% Watched' % percent_watched
+		return localize('%s%% Watched' % percent_watched)
 
 	def get_finish(self, percent_watched):
-		finish_str = 'No Finish Time'
+		finish_str = localize('No Finish Time')
 		if self.duration_data:
-			label = 'Finish Rewatching' if percent_watched == '100' else 'Finish Watching'
+			label = localize('Finish Rewatching' if percent_watched == '100' else 'Finish Watching')
 			kodi_clock = self.get_infolabel('System.Time')
 			if any(i in kodi_clock for i in ('AM', 'PM')): _format = '%I:%M %p'
 			else: _format = '%H:%M'
@@ -495,7 +502,7 @@ class Extras(BaseDialog):
 			last_ep = self.extra_info_get('last_episode_to_air')
 			last_aired = 'S%.2dE%.2d' % (last_ep['season_number'], last_ep['episode_number'])
 		else: return ''
-		return 'Last Aired: %s' % last_aired
+		return localize('Last Aired: %s' % last_aired)
 
 	def get_next_aired(self):
 		if self.status in finished_tvshow: return ''
@@ -503,7 +510,7 @@ class Extras(BaseDialog):
 			next_ep = self.extra_info_get('next_episode_to_air')
 			next_aired = 'S%.2dE%.2d' % (next_ep['season_number'], next_ep['episode_number'])
 		else: return ''
-		return 'Next Aired: %s' % next_aired
+		return localize('Next Aired: %s' % next_aired)
 
 	def get_next_episode(self):
 		self.nextep_season, self.nextep_episode = None, None
@@ -525,7 +532,7 @@ class Extras(BaseDialog):
 			episode_date, premiered = adjust_premiered_date(item_get('premiered'), date_offset())
 			if episode_date and self.current_date >= episode_date:
 				self.nextep_season, self.nextep_episode = nextep_season, nextep_episode
-				value = 'Next Episode: S%.2dE%.2d' % (self.nextep_season, self.nextep_episode)
+				value = localize('Next Episode: S%.2dE%.2d' % (self.nextep_season, self.nextep_episode))
 		except: pass
 		return value
 
@@ -581,10 +588,10 @@ class Extras(BaseDialog):
 		return self.show_text_media(text=self.plot)
 
 	def show_trailers(self):
-		if not self.youtube_installed_check(): return self.notification('Youtube Plugin needed for playback')
+		if not self.youtube_installed_check(): return self.notification(localize('Youtube Plugin needed for playback'))
 		self.set_current_params(set_starting_position=False)
 		self.window_player_url = self.get_trailer_url()
-		if not self.window_player_url: return self.notification('No Trailer Found')
+		if not self.window_player_url: return self.notification(localize('No Trailer Found'))
 		return window_player(self)
 
 	def show_images(self):
@@ -616,7 +623,7 @@ class Extras(BaseDialog):
 		self.close()
 
 	def play_nextep(self):
-		if self.nextep_season == None: return ok_dialog(text='No Episodes Available')
+		if self.nextep_season == None: return ok_dialog(text=localize('No Episodes Available'))
 		url_params = {'mode': 'playback.media', 'media_type': 'episode', 'tmdb_id': self.tmdb_id, 'season': self.nextep_season,
 					'episode': self.nextep_episode}
 		Sources().playback_prep(url_params)
@@ -630,7 +637,7 @@ class Extras(BaseDialog):
 
 	def show_director(self):
 		try: director = self.meta_get('director', None)[0]
-		except: return self.notification('No Director Information Available')
+		except: return self.notification(localize('No Director Information Available'))
 		if not director: return
 		self.set_current_params(set_starting_position=False)
 		self.new_params = {'mode': 'person_data_dialog', 'key_id': director, 'is_external': self.is_external, 'stacked': 'true'}
@@ -682,7 +689,7 @@ class Extras(BaseDialog):
 				self.restore_setting_default({'setting_id': setting_id.replace('fenlight.', ''), 'silent': 'true'})
 				button_action = self.get_setting(setting_id)
 				button_label = extras_button_label_values[self.media_type][button_action]
-			self.setProperty(label_base % item, button_label)
+			self.setProperty(label_base % item, localize(button_label))
 			self.button_action_dict[item] = button_action
 		self.button_action_dict[50] = 'show_plot'
 
@@ -735,6 +742,7 @@ class Extras(BaseDialog):
 
 	def set_properties(self):
 		self.assign_buttons()
+		for prop, label in extras_label_properties.items(): self.setProperty('label.%s' % prop, localize(label))
 		self.setProperty('media_type', self.media_type), self.setProperty('title', self.title), self.setProperty('year', self.year), self.setProperty('plot', self.plot)
 		self.setProperty('genre', ', '.join(self.genre)), self.setProperty('network', ', '.join(self.network)), self.setProperty('enable_scrollbars', self.enable_scrollbars)
 		self.setProperty('display_extra_ratings', 'true' if self.display_extra_ratings else 'false')

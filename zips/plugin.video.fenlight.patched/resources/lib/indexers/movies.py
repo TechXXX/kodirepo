@@ -8,6 +8,7 @@ from modules.watched_status import get_database, watched_info_movie, get_watched
 logger = kodi_utils.logger
 
 make_listitem, build_url, nextpage_landscape = kodi_utils.make_listitem, kodi_utils.build_url, kodi_utils.nextpage_landscape
+add_context_menu_items = kodi_utils.add_context_menu_items
 string, external, add_items, add_dir, get_property = str, kodi_utils.external, kodi_utils.add_items, kodi_utils.add_dir, kodi_utils.get_property
 set_content, end_directory, set_view_mode, folder_path = kodi_utils.set_content, kodi_utils.end_directory, kodi_utils.set_view_mode, kodi_utils.folder_path
 poster_empty, fanart_empty, set_property = kodi_utils.empty_poster, kodi_utils.addon_fanart(), kodi_utils.set_property
@@ -204,7 +205,7 @@ class Movies:
 				info_tag.setResumePoint(float(progress))
 				set_properties({'WatchedProgress': progress})
 			listitem.setLabel(title)
-			listitem.addContextMenuItems(cm)
+			add_context_menu_items(listitem, cm)
 			listitem.setArt({'poster': poster, 'fanart': fanart, 'icon': poster, 'clearlogo': clearlogo, 'landscape': landscape, 'thumb': thumb})
 			properties = {'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params,
 							'belongs_to_collection': belongs_to_movieset, 'fenlight.more_like_this_params': more_like_this_params}

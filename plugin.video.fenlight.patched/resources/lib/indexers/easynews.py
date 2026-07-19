@@ -14,6 +14,7 @@ show_busy_dialog, hide_busy_dialog, show_text, set_view_mode = kodi_utils.show_b
 default_easynews_icon, get_addon_fanart, sleep = kodi_utils.get_icon('easynews'), kodi_utils.get_addon_fanart, kodi_utils.sleep
 add_items, set_content, end_directory = kodi_utils.add_items, kodi_utils.set_content, kodi_utils.end_directory
 make_listitem, ok_dialog = kodi_utils.make_listitem, kodi_utils.ok_dialog
+add_context_menu_items = kodi_utils.add_context_menu_items
 fanart = get_addon_fanart()
 EasyNews = import_easynews()
 
@@ -56,7 +57,7 @@ def easynews_file_browser(files, handle):
 				cm.append(('[B]Download File[/B]', 'RunPlugin(%s)' % build_url(down_file_params)))
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				thumbnail = item_get('thumbnail', default_easynews_icon)
 				listitem.setArt({'icon': thumbnail, 'poster': thumbnail, 'thumb': thumbnail, 'fanart': fanart, 'banner': default_easynews_icon})
 				info_tag = listitem.getVideoInfoTag()

@@ -13,6 +13,7 @@ add_items, set_content, end_directory = kodi_utils.add_items, kodi_utils.set_con
 notification, execute_builtin, confirm_dialog = kodi_utils.notification, kodi_utils.execute_builtin, kodi_utils.confirm_dialog
 default_rd_icon, fanart = kodi_utils.get_icon('realdebrid'), kodi_utils.get_addon_fanart()
 make_listitem, build_url = kodi_utils.make_listitem, kodi_utils.build_url
+add_context_menu_items = kodi_utils.add_context_menu_items
 extensions = supported_video_extensions()
 RealDebrid = RealDebridAPI()
 
@@ -31,7 +32,7 @@ def rd_cloud():
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_rd_icon, 'poster': default_rd_icon, 'thumb': default_rd_icon, 'fanart': fanart, 'banner': default_rd_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
@@ -64,7 +65,7 @@ def rd_downloads():
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_rd_icon, 'poster': default_rd_icon, 'thumb': default_rd_icon, 'fanart': fanart, 'banner': default_rd_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')
@@ -94,7 +95,7 @@ def browse_rd_cloud(folder_id):
 				cm.append(('[B]Download File[/B]','RunPlugin(%s)' % build_url(down_file_params)))
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_rd_icon, 'poster': default_rd_icon, 'thumb': default_rd_icon, 'fanart': fanart, 'banner': default_rd_icon})
 				info_tag = listitem.getVideoInfoTag()
 				info_tag.setPlot(' ')

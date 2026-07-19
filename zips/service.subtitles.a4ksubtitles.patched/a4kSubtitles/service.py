@@ -707,7 +707,7 @@ def start(api):
             if notification_state['shown']:
                 return
             notification_state['shown'] = True
-            core.kodi.notification('GPT4 Translated', time=4000)
+            core.kodi.notification(core.kodi.gpt_translated_notification_text(), time=4000)
 
         def cleanup_live_partial_files(keep_file=''):
             try:

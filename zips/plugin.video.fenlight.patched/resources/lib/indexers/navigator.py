@@ -10,6 +10,7 @@ from modules.watched_status import get_recently_watched
 # logger = k.logger
 
 tp, build_url, notification, addon, make_listitem, list_dirs = k.translate_path, k.build_url, k.notification, k.addon, k.make_listitem, k.list_dirs
+localize, add_context_menu_items = k.localize, k.add_context_menu_items
 add_item, set_content, end_directory, set_view_mode, add_items, get_infolabel = k.add_item, k.set_content, k.end_directory, k.set_view_mode, k.add_items, k.get_infolabel
 set_sort_method, set_category, container_refresh_input, current_window_object = k.set_sort_method, k.set_category, k.container_refresh_input, k.current_window_object
 close_all_dialog, sleep, home, get_property, set_property, fanart = k.close_all_dialog, k.sleep, k.home, k.get_property, k.set_property, k.get_addon_fanart()
@@ -207,6 +208,7 @@ class Navigator:
 
 	def tools(self):
 		self.add({'mode': 'open_settings', 'isFolder': 'false'}, 'Settings', 'settings')
+		self.add({'mode': 'ui_language_choice', 'isFolder': 'false'}, 'Menu Language', 'settings2')
 		if get_setting('fenlight.external_scraper.module') not in ('empty_setting', ''):
 			self.add({'mode': 'open_external_scraper_settings', 'isFolder': 'false'}, 'External Scraper Settings', 'settings')
 		self.add({'mode': 'navigator.tips'}, 'Tips for Use', 'settings2')
@@ -491,11 +493,11 @@ class Navigator:
 		url_params['iconImage'] = icon
 		url = build_url(url_params)
 		listitem = make_listitem()
-		listitem.setLabel(list_name)
+		listitem.setLabel(localize(list_name))
 		listitem.setArt({'icon': icon, 'poster': poster, 'thumb': icon, 'fanart': fanart, 'banner': icon, 'landscape': icon})
 		info_tag = listitem.getVideoInfoTag()
 		info_tag.setPlot(' ')
-		if cm_items and not self.is_home: listitem.addContextMenuItems(cm_items)
+		if cm_items and not self.is_home: add_context_menu_items(listitem, cm_items)
 		add_item(int(sys.argv[1]), url, listitem, isFolder)
 
 	def end_directory(self):

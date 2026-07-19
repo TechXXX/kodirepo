@@ -10,6 +10,7 @@ from modules.utils import clean_file_name, normalize
 make_listitem, build_url, show_busy_dialog, hide_busy_dialog = kodi_utils.make_listitem, kodi_utils.build_url, kodi_utils.show_busy_dialog, kodi_utils.hide_busy_dialog
 show_text, confirm_dialog, notification, execute_builtin = kodi_utils.show_text, kodi_utils.confirm_dialog, kodi_utils.notification, kodi_utils.execute_builtin
 add_items, set_content, end_directory, set_view_mode = kodi_utils.add_items, kodi_utils.set_content, kodi_utils.end_directory, kodi_utils.set_view_mode
+add_context_menu_items = kodi_utils.add_context_menu_items
 default_oc_icon, fanart = kodi_utils.get_icon('offcloud'), kodi_utils.get_addon_fanart()
 extensions = supported_video_extensions()
 Offcloud = OffcloudAPI()
@@ -37,7 +38,7 @@ def oc_cloud():
 				url = build_url(url_params)
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_oc_icon, 'poster': default_oc_icon, 'thumb': default_oc_icon, 'fanart': fanart, 'banner': default_oc_icon})
 				yield (url, listitem, is_folder)
 			except: pass
@@ -64,7 +65,7 @@ def browse_oc_cloud(folder_id):
 				cm.append(('[B]Download File[/B]','RunPlugin(%s)' % build_url(down_file_params)))
 				listitem = make_listitem()
 				listitem.setLabel(display)
-				listitem.addContextMenuItems(cm)
+				add_context_menu_items(listitem, cm)
 				listitem.setArt({'icon': default_oc_icon, 'poster': default_oc_icon, 'thumb': default_oc_icon, 'fanart': fanart, 'banner': default_oc_icon})
 				listitem.setInfo('video', {})
 				yield (url, listitem, False)

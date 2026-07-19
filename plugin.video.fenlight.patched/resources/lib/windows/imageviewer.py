@@ -4,7 +4,7 @@ from windows.base_window import BaseDialog, window_manager, select_dialog
 from indexers.people import person_data_dialog
 from indexers.dialogs import favorites_choice
 from modules.settings import download_directory
-from modules.kodi_utils import addon_fanart, get_icon, nextpage
+from modules.kodi_utils import addon_fanart, get_icon, localize, nextpage
 # from modules.kodi_utils import logger
 
 backup_thumbnail = get_icon('genre_family')
@@ -54,7 +54,7 @@ class ThumbImageViewer(BaseDialog):
 				if choice == 'delete_image': return self.reset_after_delete(chosen_listitem, position)
 				elif choice == 'download_image':
 					name, thumb, path = chosen_listitem.getProperty('name'), chosen_listitem.getProperty('thumb'), chosen_listitem.getProperty('path')
-					if not path: return self.notification('No Image Path to Download')
+					if not path: return self.notification(localize('No Image Path to Download'))
 					params = {'mode': 'downloader.runner', 'action': 'image', 'name': name, 'thumb_url': thumb, 'image_url': path, 'media_type': 'image', 'image': path}
 					self.execute_code('RunPlugin(%s)' % self.build_url(params))
 				elif choice == 'manage_favorite':
@@ -81,7 +81,7 @@ class ThumbImageViewer(BaseDialog):
 		else: choices_append(('Download File', 'download_image'))
 		if enable_favorite: choices_append(('Favorites Manager', 'manage_favorite'))
 		if self.current_page > 1: choices_append(('Exit Images', 'exit_image'))
-		list_items = [{'line1': i[0]} for i in choices]
+		list_items = [{'line1': localize(i[0])} for i in choices]
 		kwargs = {'items': json.dumps(list_items), 'narrow_window': 'true'}
 		choice = select_dialog([i[1] for i in choices], **kwargs)
 		return choice
@@ -108,7 +108,7 @@ class ThumbImageViewer(BaseDialog):
 	def make_next_page(self):
 		try:
 			listitem = self.make_listitem()
-			listitem.setProperties({'name': 'Next Page (%s) >>' % str(self.current_page + 1), 'thumb': nextpage, 'next_page_item': 'true'})
+			listitem.setProperties({'name': localize('Next Page (%s) >>' % str(self.current_page + 1)), 'thumb': nextpage, 'next_page_item': 'true'})
 			self.list_items.append(listitem)
 		except: pass
 

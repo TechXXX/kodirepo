@@ -7,6 +7,7 @@ from modules import kodi_utils
 # logger = kodi_utils.logger
 
 kodi_dialog = kodi_utils.kodi_dialog
+localize = kodi_utils.localize
 hide_busy_dialog, addon_fanart, empty_poster = kodi_utils.hide_busy_dialog, kodi_utils.addon_fanart(), kodi_utils.empty_poster
 get_icon, img_url = kodi_utils.get_icon, kodi_utils.img_url
 
@@ -77,21 +78,21 @@ class SourcesResults(BaseDialog):
 				else: filtered_list = [i for i in self.item_list if i.getProperty(filter_type) == filter_value]
 			elif filter_type == 'special':
 				if filter_value == 'title':
-					keywords = kodi_dialog().input('Enter Keyword (Comma Separated for Multiple)')
+					keywords = kodi_dialog().input(localize('Enter Keyword (Comma Separated for Multiple)'))
 					if not keywords: return
 					keywords.replace(' ', '')
 					keywords = keywords.split(',')
 					choice = [upper(i) for i in keywords]
 					filtered_list = [i for i in self.item_list if all(x in i.getProperty('name') for x in choice)]
 				elif filter_value == 'extraInfo':
-					list_items = [{'line1': item[0], 'icon': self.poster} for item in source_filters]
-					kwargs = {'items': json.dumps(list_items), 'heading': 'Filter Results', 'multi_choice': 'true'}
+					list_items = [{'line1': localize(item[0]), 'icon': self.poster} for item in source_filters]
+					kwargs = {'items': json.dumps(list_items), 'heading': localize('Filter Results'), 'multi_choice': 'true'}
 					choice = select_dialog(source_filters, **kwargs)
 					if choice == None: return
 					choice = [i[1] for i in choice]
 					filtered_list = [i for i in self.item_list if all(x in i.getProperty('extraInfo') for x in choice)]
 				elif filter_value == 'showuncached': filtered_list = self.make_items(self.uncached_results)
-			if not filtered_list: return ok_dialog(text='No Results')
+			if not filtered_list: return ok_dialog(text=localize('No Results'))
 			self.set_filter(filtered_list)
 
 	def onAction(self, action):
@@ -185,7 +186,7 @@ class SourcesResults(BaseDialog):
 		def builder(data):
 			for item in data:
 				listitem = self.make_listitem()
-				listitem.setProperties({'label': item[0], 'filter_type': item[1], 'filter_value': item[2]})
+				listitem.setProperties({'label': localize(item[0]), 'filter_type': item[1], 'filter_value': item[2]})
 				yield listitem
 		duplicates = set()
 		qualities = [i.getProperty('quality') for i in self.item_list \
@@ -244,7 +245,7 @@ class SourcesResults(BaseDialog):
 		if browse_pack_params: choices_append(('Browse', browse_pack_params))
 		if down_pack_params: choices_append(('Download Pack', down_pack_params))
 		if down_file_params: choices_append(('Download File', down_file_params))
-		list_items = [{'line1': i[0], 'icon': self.poster} for i in choices]
+		list_items = [{'line1': localize(i[0]), 'icon': self.poster} for i in choices]
 		kwargs = {'items': json.dumps(list_items)}
 		choice = select_dialog([i[1] for i in choices], **kwargs)
 		return choice
@@ -256,7 +257,7 @@ class SourcesResults(BaseDialog):
 		self.setFocusId(self.window_id)
 		self.setProperty('total_results', string(len(filtered_list)))
 		self.setProperty('filter_applied', 'true')
-		self.setProperty('filter_info', '| Press [B]BACK[/B] to Cancel')
+		self.setProperty('filter_info', '| %s' % localize('Press BACK to Cancel'))
 
 	def clear_filter(self):
 		self.filter_applied = False
