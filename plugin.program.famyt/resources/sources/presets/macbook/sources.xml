@@ -79,11 +79,6 @@
             <allowsharing>true</allowsharing>
         </source>
         <source>
-            <name>FOD</name>
-            <path pathversion="1">http://mylostsoulspace.co.uk/repo/</path>
-            <allowsharing>true</allowsharing>
-        </source>
-        <source>
             <name>AH21</name>
             <path pathversion="1">https://definiek.github.io/ah2.1/</path>
             <allowsharing>true</allowsharing>

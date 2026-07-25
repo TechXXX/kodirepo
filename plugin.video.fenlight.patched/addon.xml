@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.97">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.98">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -20,7 +20,11 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.97]:
+        <news>[v2.0.98]:
+  * Add Kodi favourites actions to movie, TV show, season, and episode context menus, with Dutch labels for the new favourites flow.
+  * Prefer provider release names over shortened filename stems during subtitle-selector matching so release-specific subtitles rank more accurately.
+
+[v2.0.97]:
   * Preserve Kodi resume points for direct TorBox cloud-storage playback by resolving files through Kodi's stable plugin URL.
 
 [v2.0.96]:

@@ -54,6 +54,7 @@ def build_season_list(params):
 				extras_params = build_url({'mode': 'extras_menu_choice', 'tmdb_id': tmdb_id, 'media_type': 'tvshow', 'is_external': is_external})
 				options_params = build_url({'mode': 'options_menu_choice', 'content': 'season', 'tmdb_id': tmdb_id, 'poster': show_poster, 'is_external': is_external})
 				cm_append(('[B]Extras[/B]', run_plugin % extras_params))
+				cm_append(('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': title, 'path': url_params, 'thumb': poster, 'is_folder': 'true'})))
 				cm_append(('[B]Options[/B]', run_plugin % options_params))
 				if playcount:
 					if hide_watched: continue
@@ -79,7 +80,7 @@ def build_season_list(params):
 				listitem.setLabel(title)
 				listitem.setArt({'poster': poster, 'season.poster': poster, 'fanart': show_fanart, 'clearlogo': show_clearlogo, 'landscape': show_landscape, 'thumb': thumb,
 								'icon': show_landscape, 'tvshow.poster': poster, 'tvshow.clearlogo': show_clearlogo})
-				add_context_menu_items(listitem, cm)
+				add_context_menu_items(listitem, cm, True)
 				yield (url_params, listitem, True)
 			except: pass
 	handle, is_external, is_home, category_name = int(sys.argv[1]), external(), home(), 'Season'

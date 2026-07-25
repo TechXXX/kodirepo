@@ -268,6 +268,9 @@ def routing(sys):
 	if mode == 'refresh_widgets':
 		from modules.kodi_utils import refresh_widgets
 		return refresh_widgets(_get('show_notification', 'false'))
+	if mode == 'kodi_favourites.add':
+		from modules.kodi_utils import add_kodi_favourite
+		return add_kodi_favourite(params)
 	if mode == 'mpaa_region_choice':
 		from indexers.dialogs import mpaa_region_choice
 		return mpaa_region_choice(params)

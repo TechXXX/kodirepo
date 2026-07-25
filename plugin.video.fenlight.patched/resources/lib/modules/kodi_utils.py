@@ -3,6 +3,8 @@ import sys
 import os
 import xbmc, xbmcgui, xbmcplugin, xbmcvfs, xbmcaddon
 from os import path as osPath
+from xml.etree import ElementTree
+from xml.sax.saxutils import escape, quoteattr
 from urllib.parse import urlencode
 from modules import icons
 try: xbmc_actor = xbmc.Actor
@@ -100,8 +102,43 @@ def localize_context_menu(cm_items):
 	except:
 		return cm_items
 
-def add_context_menu_items(listitem, cm_items):
-	return listitem.addContextMenuItems(localize_context_menu(cm_items))
+def add_context_menu_items(listitem, cm_items, replace_items=False):
+	return listitem.addContextMenuItems(localize_context_menu(cm_items), replace_items)
+
+def add_kodi_favourite(params):
+	name, target = params.get('name') or params.get('title') or 'Fen Light Patched', params.get('path')
+	thumb, is_folder = params.get('thumb', ''), params.get('is_folder') == 'true'
+	if not target:
+		return notification('Error', 3500)
+	command = 'ActivateWindow(10025,"%s",return)' % target if is_folder else 'PlayMedia("%s")' % target
+	favourites_path = translatePath('special://profile/favourites.xml')
+	try:
+		if exists(favourites_path):
+			favourites_file = File(favourites_path)
+			content = favourites_file.read()
+			favourites_file.close()
+			if isinstance(content, bytes): content = content.decode('utf-8')
+		else:
+			content = '<favourites>\n</favourites>\n'
+		try:
+			root = ElementTree.fromstring(content)
+			if any((item.text or '') == command for item in root.findall('favourite')):
+				return notification('Already in favourites', 3500)
+		except:
+			if escape(command) in content:
+				return notification('Already in favourites', 3500)
+		attrs = ' name=%s' % quoteattr(name)
+		if thumb: attrs += ' thumb=%s' % quoteattr(thumb)
+		favourite = '    <favourite%s>%s</favourite>' % (attrs, escape(command))
+		insert_at = content.rfind('</favourites>')
+		if insert_at == -1: content = '<favourites>\n%s\n</favourites>\n' % favourite
+		else: content = '%s%s\n%s' % (content[:insert_at], favourite, content[insert_at:])
+		favourites_file = File(favourites_path, 'w')
+		favourites_file.write(content)
+		favourites_file.close()
+		return notification('Added to favourites', 3500)
+	except:
+		return notification('Error', 3500)
 
 def add_dir(url_params, list_name, handle, iconImage='folder', fanartImage=None, isFolder=True):
 	fanart = fanartImage or get_addon_fanart()

@@ -64,6 +64,7 @@ def build_episode_list(params):
 				extras_params = build_url({'mode': 'extras_menu_choice', 'tmdb_id': tmdb_id, 'media_type': 'episode', 'is_external': is_external})
 				url_params = build_url({'mode': 'playback.media', 'media_type': 'episode', 'tmdb_id': tmdb_id, 'season': season, 'episode': episode})
 				cm_append(('[B]Extras[/B]', run_plugin % extras_params))
+				cm_append(('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': display, 'path': url_params, 'thumb': thumb})))
 				cm_append(('[B]Options[/B]', run_plugin % options_params))
 				cm_append(('[B]Playback Options[/B]', run_plugin % \
 							build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id})))
@@ -92,7 +93,7 @@ def build_episode_list(params):
 					info_tag.setResumePoint(float(progress))
 					set_properties({'WatchedProgress': progress})
 				listitem.setLabel(display)
-				add_context_menu_items(listitem, cm)
+				add_context_menu_items(listitem, cm, True)
 				listitem.setArt({'poster': show_poster, 'fanart': show_fanart, 'thumb': thumb, 'icon':thumb, 'clearlogo': show_clearlogo, 'landscape': show_landscape,
 							'season.poster': season_poster, 'tvshow.poster': show_poster, 'tvshow.clearlogo': show_clearlogo})
 				set_properties({'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params, 'episode_type': episode_type,
@@ -222,6 +223,7 @@ def build_single_episode(list_type, params={}):
 			extras_params = build_url({'mode': 'extras_menu_choice', 'tmdb_id': tmdb_id, 'media_type': 'episode', 'is_external': is_external})
 			url_params = build_url({'mode': 'playback.media', 'media_type': 'episode', 'tmdb_id': tmdb_id, 'season': season, 'episode': episode})
 			cm_append(('[B]Extras[/B]', run_plugin % extras_params))
+			cm_append(('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': display, 'path': url_params, 'thumb': thumb})))
 			cm_append(('[B]Options[/B]', run_plugin % options_params))
 			cm_append(('[B]Playback Options[/B]', run_plugin % \
 						build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id})))
@@ -259,7 +261,7 @@ def build_single_episode(list_type, params={}):
 				info_tag.setResumePoint(float(progress))
 				set_properties({'WatchedProgress': progress})
 			listitem.setLabel(display)
-			add_context_menu_items(listitem, cm)
+			add_context_menu_items(listitem, cm, True)
 			listitem.setArt({'poster': show_poster, 'fanart': show_fanart, 'thumb': thumb, 'icon':thumb, 'clearlogo': show_clearlogo, 'landscape': show_landscape,
 							'season.poster': season_poster, 'tvshow.poster': show_poster, 'tvshow.clearlogo': show_clearlogo})
 			set_properties({'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params, 'episode_type': episode_type,

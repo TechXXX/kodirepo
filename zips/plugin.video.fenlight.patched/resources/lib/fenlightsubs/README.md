@@ -50,6 +50,24 @@ metadata back to a Fen source:
 `selector_subtitle_payload` as Kodi window properties for patched a4k's service
 loop.
 
+## Debug Artifacts On The MacBook
+
+For live Kodi runs on this Mac, start with:
+
+- current Kodi log:
+  `/Users/kalter/Library/Logs/kodi.log`
+- previous Kodi log after restart:
+  `/Users/kalter/Library/Logs/kodi.old.log`
+- selector shadow snapshots:
+  `/Users/kalter/Library/Application Support/Kodi/userdata/addon_data/plugin.video.fenlight/subtitle_selector_shadow`
+- patched a4k downloaded subtitle temp files:
+  `/Users/kalter/Library/Application Support/Kodi/userdata/addon_data/service.subtitles.a4ksubtitles.patched/temp`
+
+The selector shadow directory intentionally uses the unpatched
+`plugin.video.fenlight` profile name. Useful files include
+`sources_<timestamp>.json`, `subtitles_<timestamp>.json`, `latest_sources*.json`,
+and `trace_*.json`.
+
 ## Change Policy
 
 If a subtitle-backed source is promoted incorrectly, start here. Prefer a

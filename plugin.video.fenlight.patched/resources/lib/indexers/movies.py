@@ -162,6 +162,7 @@ class Movies:
 			movieset_active = self.open_movieset and belongs_to_movieset == 'true'
 			if self.open_extras or movieset_active: cm_append(('[B]Playback[/B]', run_plugin % play_params))
 			if not self.open_extras or movieset_active: cm_append(('[B]Extras[/B]', run_plugin % extras_params))
+			cm.insert(1, ('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': title, 'path': play_params, 'thumb': poster})))
 			if movieset_active: url_params = build_url({'mode': 'open_movieset_choice', 'key_id': movieset_id, 'name': movieset_name, 'is_external': self.is_external})
 			elif self.open_extras: url_params = extras_params
 			else: url_params = play_params
@@ -205,7 +206,7 @@ class Movies:
 				info_tag.setResumePoint(float(progress))
 				set_properties({'WatchedProgress': progress})
 			listitem.setLabel(title)
-			add_context_menu_items(listitem, cm)
+			add_context_menu_items(listitem, cm, True)
 			listitem.setArt({'poster': poster, 'fanart': fanart, 'icon': poster, 'clearlogo': clearlogo, 'landscape': landscape, 'thumb': thumb})
 			properties = {'fenlight.extras_params': extras_params, 'fenlight.options_params': options_params,
 							'belongs_to_collection': belongs_to_movieset, 'fenlight.more_like_this_params': more_like_this_params}

@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.20" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.21" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
@@ -44,7 +44,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.9.20
+            <news>v0.9.21
+- Remove the retired FOD source from the bundled MacBook sources preset
+
+v0.9.20
 - Add bundled default favourites merge with backup support and Install everything coverage
 
 v0.9.19
@@ -223,7 +226,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.97">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.98">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -245,7 +248,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.97]:
+            <news>[v2.0.98]:
+  * Add Kodi favourites actions to movie, TV show, season, and episode context menus, with Dutch labels for the new favourites flow.
+  * Prefer provider release names over shortened filename stems during subtitle-selector matching so release-specific subtitles rank more accurately.
+
+[v2.0.97]:
   * Preserve Kodi resume points for direct TorBox cloud-storage playback by resolving files through Kodi's stable plugin URL.
 
 [v2.0.96]:

@@ -182,10 +182,11 @@ def adapt_a4k_subtitle(subtitle: dict[str, Any]) -> dict[str, Any]:
     action_args = subtitle.get("action_args") or {}
     filename = action_args.get("filename") or subtitle.get("filename") or ""
     release_alias = action_args.get("release_name") or subtitle.get("release_name") or ""
+    # a4k stores the provider release filename in release_name; filename can be a shorter stem.
     release_name = (
-        filename
+        release_alias
+        or filename
         or subtitle.get("name")
-        or release_alias
         or ""
     )
 
@@ -193,6 +194,7 @@ def adapt_a4k_subtitle(subtitle: dict[str, Any]) -> dict[str, Any]:
         subtitle.get("comment", ""),
         subtitle.get("comments", ""),
         subtitle.get("service", ""),
+        "Filename: %s" % filename if filename and filename != release_name else "",
         "Release: %s" % release_alias if release_alias else "",
         action_args.get("comment", ""),
     ]
