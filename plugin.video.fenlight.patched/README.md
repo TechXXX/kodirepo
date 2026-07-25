@@ -169,6 +169,8 @@ Useful local paths for debugging this machine:
 
 - Kodi log:
   `/Users/kalter/Library/Logs/kodi.log`
+- Previous Kodi log after restart:
+  `/Users/kalter/Library/Logs/kodi.old.log`
 - Installed Fen addon:
   `/Users/kalter/Library/Application Support/Kodi/addons/plugin.video.fenlight.patched`
 - Fen userdata:
@@ -191,6 +193,21 @@ Selector shadow snapshots are intentionally odd:
 
 The snapshot directory still uses the unpatched `plugin.video.fenlight` profile
 name. Do not "fix" that path casually; existing debug tooling may depend on it.
+Look there for `sources_<timestamp>.json`, `subtitles_<timestamp>.json`,
+`latest_sources*.json`, and `trace_*.json` when reconstructing a
+subtitle-aware autoplay run.
+
+Patched a4k runtime subtitle output is separate:
+
+- a4k downloaded subtitle temp files:
+  `/Users/kalter/Library/Application Support/Kodi/userdata/addon_data/service.subtitles.a4ksubtitles.patched/temp`
+
+For a completed playback, the decisive lines are usually in `kodi.log` under:
+
+- `Subtitle retry pool gathered subtitles once`
+- `Subtitle retry pool promoted ... source(s)`
+- `Using selector-matched runtime subtitle`
+- `Setting subtitles:`
 
 ## Known Edge Cases
 
