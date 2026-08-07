@@ -36,6 +36,20 @@ The selector does not own:
 a4k subtitle rows. It returns ranked items while preserving the original source
 and subtitle objects.
 
+When adapting a4k rows, treat `action_args.release_name` as the provider
+release identity. `action_args.filename` and top-level `name` can be shorter
+display stems and should only be fallbacks/context. This matters for exact
+scene/source matches such as:
+
+- source: `Mean.Girls.2004.1080p.BluRay.x265-RARBG`
+- a4k display filename: `Mean.Girls.2004.1080p.BluRay`
+- a4k release identity:
+  `action_args.release_name = Mean.Girls.2004.1080p.BluRay.x265-RARBG`
+
+The release identity should score as `exact_normalized_match` (`100`) and beat
+generic title/year subtitles such as `Mean Girls (2004)`, which normally score
+as containment matches.
+
 `integration.build_kodi_selector_playback_metadata(...)` attaches runtime
 metadata back to a Fen source:
 
@@ -73,6 +87,10 @@ and `trace_*.json`.
 If a subtitle-backed source is promoted incorrectly, start here. Prefer a
 small selector scoring change with a clear fixture or debug trace over an ad
 hoc sort rule in `sources.py`.
+
+Before changing score constants, inspect the adapted fields. Many a4k results
+carry their best release identity under `action_args.release_name`; a shorter
+visible name is not proof that a better release match is unavailable.
 
 Do not solve media-title edge cases by hardcoding individual titles. If the
 problem is that providers use a different show identity than TMDb, document the

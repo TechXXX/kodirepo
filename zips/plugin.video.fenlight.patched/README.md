@@ -1,6 +1,6 @@
 # Fen Light Patched Agent Notes
 
-Last reviewed: 2026-07-05 against `plugin.video.fenlight.patched` `2.0.95`.
+Last reviewed: 2026-07-25 against `plugin.video.fenlight.patched` `2.0.95`.
 
 This is the production-facing patched Fen Light addon in `kodirepo`. Future
 agents should read this before changing scraping, playback, subtitle pairing,
@@ -100,6 +100,11 @@ Pre-play autoplay ranking:
 - Fen gathers configured-language subtitles once per title/run.
 - `resources/lib/fenlightsubs/integration.py` ranks the full source list
   against the full subtitle result list.
+- a4k subtitle rows can carry two different release-looking fields:
+  `action_args.release_name` is the provider release identity, while
+  `action_args.filename` can be a shorter display/stem. Fen's adapter must
+  prefer `action_args.release_name` for selector scoring so exact release
+  matches can score `100` before falling back to filename/name/comment text.
 - The best subtitle-backed sources, up to
   `subtitle_fallback_candidate_limit = 10`, are promoted ahead of the raw
   source order.
@@ -197,6 +202,10 @@ Look there for `sources_<timestamp>.json`, `subtitles_<timestamp>.json`,
 `latest_sources*.json`, and `trace_*.json` when reconstructing a
 subtitle-aware autoplay run.
 
+The repo checkout and the installed Kodi addon are separate copies on this Mac.
+When patching live Kodi for immediate testing, also apply the same change to the
+repo or it will be lost on the next install/sync.
+
 Patched a4k runtime subtitle output is separate:
 
 - a4k downloaded subtitle temp files:
@@ -210,6 +219,28 @@ For a completed playback, the decisive lines are usually in `kodi.log` under:
 - `Setting subtitles:`
 
 ## Known Edge Cases
+
+### a4k Nested Release Names
+
+Captured `Mean Girls` debugging on 2026-07-25 showed why Fen must rank on
+a4k's nested `action_args.release_name`, not only the top-level/display
+subtitle name.
+
+Example source:
+
+- `Mean.Girls.2004.1080p.BluRay.x265-RARBG`
+
+The matching a4k subtitle row exposed:
+
+- display/filename stem: `Mean.Girls.2004.1080p.BluRay`
+- provider release identity:
+  `action_args.release_name = Mean.Girls.2004.1080p.BluRay.x265-RARBG`
+
+If Fen scores only the shorter display stem, the result is a weaker
+title/source-quality overlap and can lose to a generic `Mean Girls (2004)`
+containment match. With `action_args.release_name` as the direct release
+identity, the source/subtitle pair is an `exact_normalized_match` and should
+rank ahead of generic title/year subtitles.
 
 ### The Terror: Devil In Silver
 

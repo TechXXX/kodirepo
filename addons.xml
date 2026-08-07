@@ -226,11 +226,11 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.98">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.99">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
-            <import addon="plugin.video.youtube" version="7.4.4" />
+            <import addon="plugin.video.youtube" />
         </requires>
         <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
             <provides>video</provides>
@@ -248,7 +248,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.98]:
+            <news>[v2.0.99]:
+  * Drop the YouTube add-on version floor so installs no longer fail on boxes whose cached add-on list predates the newest YouTube release. YouTube is still required and a fresh install still pulls in the newest version available.
+
+[v2.0.98]:
   * Add Kodi favourites actions to movie, TV show, season, and episode context menus, with Dutch labels for the new favourites flow.
   * Prefer provider release names over shortened filename stems during subtitle-selector matching so release-specific subtitles rank more accurately.
 
