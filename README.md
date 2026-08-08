@@ -151,6 +151,9 @@ Current source-tree versions when this document was updated:
   Scrapers.
 - `script.module.microjenscrapers` `1.8`
   Scraper module for MicroJen-style hosted-source add-ons.
+- `script.module.magneto` `6.07.04`
+  Magnet-provider aggregation module packaged in this repo so DutchTech forks
+  can serve it directly through the normal repo feed and bundled zip output.
 - `script.module.pyqrcode` `1.2.1+matrix.4`
   QR code helper dependency required by ResolveURL.
 - `script.module.resolveurl` `5.1.206`
@@ -232,6 +235,8 @@ Current source-tree versions when this document was updated:
   Kodi Six dependency source.
 - `script.module.microjenscrapers/`
   MicroJen Scrapers dependency source.
+- `script.module.magneto/`
+  Magneto module source.
 - `script.module.pyqrcode/`
   pyQRcode dependency source.
 - `script.module.resolveurl/`
