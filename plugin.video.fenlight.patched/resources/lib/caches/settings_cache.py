@@ -306,7 +306,7 @@ default_settings = [
 {'setting_id': 'introdb.api_key', 'setting_type': 'string', 'setting_default': 'theintrodb:user_3FPNGy5GsmygafofvZVtaClYgqC:zw2mD7IyUBpi-sFfMae5P1VLlc5llIXqPrIVtesZmAY'},
 #==================== External
 {'setting_id': 'provider.external', 'setting_type': 'boolean', 'setting_default': 'true'},
-{'setting_id': 'external_scraper.name', 'setting_type': 'string', 'setting_default': 'CocoScrapers Module'},
+{'setting_id': 'external_scraper.name', 'setting_type': 'string', 'setting_default': 'Magneto Module'},
 #==================== Real Debrid
 {'setting_id': 'rd.token', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'rd.enabled', 'setting_type': 'boolean', 'setting_default': 'false'},
@@ -470,7 +470,7 @@ default_settings = [
 {'setting_id': 'mpaa_region_display_name', 'setting_type': 'string', 'setting_default': 'United States'},
 {'setting_id': 'tmdb_language_display_name', 'setting_type': 'string', 'setting_default': 'English'},
 {'setting_id': 'tmdb_fallback_language_display_name', 'setting_type': 'string', 'setting_default': 'English'},
-{'setting_id': 'external_scraper.module', 'setting_type': 'string', 'setting_default': 'script.module.cocoscrapers'},
+{'setting_id': 'external_scraper.module', 'setting_type': 'string', 'setting_default': 'script.module.magneto'},
 {'setting_id': 'trakt.next_daily_clear', 'setting_type': 'string', 'setting_default': '0'},
 {'setting_id': 'trakt.expires', 'setting_type': 'string', 'setting_default': '0'},
 {'setting_id': 'trakt.refresh', 'setting_type': 'string', 'setting_default': '0'},
@@ -480,6 +480,7 @@ default_settings = [
 {'setting_id': 'updatechecks.refresh_addon_keys', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'updatechecks.migrate_tb_usenet_aiostreams_url', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'updatechecks.default_ui_language_dutch', 'setting_type': 'string', 'setting_default': 'false'},
+{'setting_id': 'updatechecks.migrate_external_scraper_to_magneto', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'rd.client_id', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'rd.refresh', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'rd.secret', 'setting_type': 'string', 'setting_default': 'empty_setting'},

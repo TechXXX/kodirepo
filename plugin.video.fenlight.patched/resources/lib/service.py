@@ -59,7 +59,8 @@ class OnUpdateChanges:
 			migrations = (
 				('refresh_addon_keys', self.refresh_addon_keys),
 				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
-				('default_ui_language_dutch', self.default_ui_language_dutch)
+				('default_ui_language_dutch', self.default_ui_language_dutch),
+				('migrate_external_scraper_to_magneto', self.migrate_external_scraper_to_magneto)
 			)
 			for setting_id, migration in migrations:
 				update_setting_id = 'updatechecks.%s' % setting_id
@@ -116,6 +117,80 @@ class OnUpdateChanges:
 		from caches.settings_cache import set_setting
 		set_setting('ui_language', 'nl')
 		logger('Fen Light Patched', 'Default UI language set to Dutch')
+
+	def migrate_external_scraper_to_magneto(self):
+		from caches.settings_cache import get_setting, set_setting
+		current_module = get_setting('fenlight.external_scraper.module', '')
+		if current_module != 'script.module.cocoscrapers': return
+		try:
+			import xbmcaddon
+			xbmcaddon.Addon('script.module.magneto')
+		except Exception as e:
+			raise Exception('Magneto module unavailable: %s' % str(e))
+		self.apply_magneto_provider_defaults()
+		self.sync_magneto_undesirables_from_coco()
+		set_setting('external_scraper.module', 'script.module.magneto')
+		set_setting('external_scraper.name', 'Magneto Module')
+		logger('Fen Light Patched', 'External scraper migrated from CocoScrapers to Magneto.')
+
+	def apply_magneto_provider_defaults(self):
+		try:
+			import os, xbmcaddon, xml.etree.ElementTree as ET
+			magneto_addon = xbmcaddon.Addon('script.module.magneto')
+			settings_path = os.path.join(magneto_addon.getAddonInfo('path'), 'resources', 'settings.xml')
+			settings_root = ET.parse(settings_path).getroot()
+			provider_defaults = []
+			for item in settings_root.iter('setting'):
+				setting_id = item.attrib.get('id', '')
+				setting_default = item.attrib.get('default')
+				if setting_id.startswith('provider.') and setting_default in ('true', 'false'):
+					provider_defaults.append((setting_id, setting_default))
+			for setting_id, setting_default in provider_defaults:
+				magneto_addon.setSetting(setting_id, setting_default)
+			logger('Fen Light Patched', 'Applied %s Magneto provider defaults.' % len(provider_defaults))
+		except Exception as e:
+			logger('Fen Light Patched', 'Magneto provider defaults sync failed: %s' % str(e))
+
+	def sync_magneto_undesirables_from_coco(self):
+		coco_settings = {
+			'filter.undesirables': 'true',
+			'filter.foreign.single.audio': 'true'
+		}
+		try:
+			import xbmcaddon
+			try:
+				coco_addon = xbmcaddon.Addon('script.module.cocoscrapers')
+				for setting_id in coco_settings:
+					value = coco_addon.getSetting(setting_id)
+					if value in ('true', 'false'): coco_settings[setting_id] = value
+			except Exception as e:
+				logger('Fen Light Patched', 'CocoScrapers undesirables settings unavailable; using Coco defaults: %s' % str(e))
+			magneto_addon = xbmcaddon.Addon('script.module.magneto')
+			for setting_id, value in coco_settings.items():
+				magneto_addon.setSetting(setting_id, value)
+		except Exception as e:
+			logger('Fen Light Patched', 'Magneto undesirables settings sync failed: %s' % str(e))
+		try:
+			self.merge_magneto_undesirables_database()
+		except Exception as e:
+			logger('Fen Light Patched', 'Magneto undesirables database sync failed: %s' % str(e))
+
+	def merge_magneto_undesirables_database(self):
+		import os, sqlite3, xbmcvfs
+		profile_path = xbmcvfs.translatePath('special://profile/addon_data')
+		coco_db = os.path.join(profile_path, 'script.module.cocoscrapers', 'undesirables.db')
+		magneto_profile = os.path.join(profile_path, 'script.module.magneto')
+		magneto_db = os.path.join(magneto_profile, 'undesirables.db')
+		if not os.path.exists(coco_db): return
+		if not os.path.exists(magneto_profile): os.makedirs(magneto_profile)
+		with sqlite3.connect(coco_db) as coco_con:
+			rows = coco_con.execute('SELECT keyword, user_defined, enabled FROM undesirables').fetchall()
+		if not rows: return
+		with sqlite3.connect(magneto_db) as magneto_con:
+			magneto_con.execute('CREATE TABLE IF NOT EXISTS undesirables (keyword TEXT NOT NULL, user_defined BOOL NOT NULL, enabled BOOL NOT NULL, UNIQUE(keyword))')
+			magneto_con.executemany('INSERT OR REPLACE INTO undesirables VALUES (?, ?, ?)', rows)
+			magneto_con.commit()
+		logger('Fen Light Patched', 'Copied %s CocoScrapers undesirables entries to Magneto.' % len(rows))
 
 class CustomFonts:
 	def run(self):
