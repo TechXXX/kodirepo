@@ -1,3 +1,7 @@
+[COLOR red][B]Version 6.07.05[/B][/COLOR]
+- Updated bundled provider defaults from live Kodi.
+- Apply Magneto provider defaults once during the addon update.
+
 [COLOR red][B]Version 6.07[/B][/COLOR]
 - Changed router/service entry points.
 - Fixed kickass2, knaben.

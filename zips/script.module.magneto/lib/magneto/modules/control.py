@@ -42,6 +42,8 @@ dataPath = transPath(addonInfo('profile'))
 cacheFile = joinPath(dataPath, 'cache.db')
 undesirablescacheFile = joinPath(dataPath, 'undesirables.db')
 settingsFile = joinPath(dataPath, 'settings.xml')
+providerDefaultsVersionFile = joinPath(dataPath, 'provider-defaults.version')
+PROVIDER_DEFAULTS_MIGRATION = '2026-08-08-live-kodi'
 
 def getKodiVersion(full=False):
 	if full: return xbmc.getInfoLabel("System.BuildVersion")
@@ -218,6 +220,27 @@ def getProviderDefaults():
 			provider_defaults[setting_id] = setting_default or 'false'
 	except: pass
 	return provider_defaults
+
+def applyProviderDefaults():
+	provider_defaults = getProviderDefaults()
+	for setting_id, setting_default in provider_defaults.items():
+		setSetting(setting_id, setting_default)
+	homeWindow.clearProperty('magneto_settings')
+	return len(provider_defaults)
+
+def applyProviderDefaultsMigration():
+	try:
+		previous_migration = ''
+		if xbmcvfs.exists(providerDefaultsVersionFile):
+			with open(providerDefaultsVersionFile, 'r') as fh: previous_migration = fh.read()
+		if previous_migration == PROVIDER_DEFAULTS_MIGRATION: return 0
+		count = applyProviderDefaults()
+		with open(providerDefaultsVersionFile, 'w') as fh: fh.write(PROVIDER_DEFAULTS_MIGRATION)
+		return count
+	except:
+		from magneto.modules import log_utils
+		log_utils.error()
+		return 0
 
 def hide():
 	execute('Dialog.Close(busydialog)')

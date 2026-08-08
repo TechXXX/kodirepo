@@ -56,16 +56,9 @@ def routing(sys):
 		help.get(name)
 
 	elif action == 'Defaults':
-		from magneto import sources
 		try:
-			provider_defaults = control.getProviderDefaults()
-			sourceList = []
-			sourceList = sources(ret_all=True)
-			for name, source in sourceList:
-				source_setting = 'provider.' + name
-				default_setting = provider_defaults.get(source_setting) or 'false'
-				control.setSetting(source_setting, default_setting)
-			control.notification(message='Success')
+			count = control.applyProviderDefaults()
+			control.notification(message='Success' if count else 'Error')
 		except: control.notification(message='Error')
 
 	elif action == 'toggleAll':
@@ -198,3 +191,5 @@ class SettingsServiceMonitor(control.monitor_class):
 		if not control.isVersionUpdate(): return
 		control.clean_settings()
 		xbmc.log('[ script.module.magneto ]  Settings file cleaned complete', LOGINFO)
+		count = control.applyProviderDefaultsMigration()
+		if count: xbmc.log('[ script.module.magneto ]  Provider defaults applied: %s' % count, LOGINFO)

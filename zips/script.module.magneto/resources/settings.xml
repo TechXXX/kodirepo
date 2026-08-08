@@ -11,8 +11,8 @@
     <setting type="action" label="Enable Only Pack Capable Torrent Providers" visible="false" action="RunPlugin(plugin://script.module.magneto/?action=toggleAllPackTorrent)" />
     <setting type="action" label="[COLOR firebrick]-- torrent scraper Info --[/COLOR]" visible="false" action="RunPlugin(plugin://script.module.magneto/?action=ShowHelp&amp;name=torrentInfo)" />
     <setting label="Websites" type="lsep" />
-    <setting id="provider.1337x" type="bool" label="$NUMBER[1337]X" default="true" />
-    <setting id="provider.bitsearch" type="bool" label="BITSEARCH (Pack capable)" default="true" />
+    <setting id="provider.1337x" type="bool" label="$NUMBER[1337]X" default="false" />
+    <setting id="provider.bitsearch" type="bool" label="BITSEARCH (Pack capable)" default="false" />
     <setting id="provider.eztv" type="bool" label="EZTV (Pack capable/Shows only)" default="false" />
     <setting id="provider.kickass2" type="bool" label="KICKASS2 (Pack capable)" default="false" />
     <setting id="provider.knaben" type="bool" label="KNABEN" default="true" />
@@ -35,7 +35,7 @@
     <setting id="provider.torrentsdb" type="bool" label="TORRENTSDB (Pack capable)" default="false" />
     <setting id="provider.torz" type="bool" label="STREMTHRU TORZ P2P (Pack capable)" default="false" />
         <setting id="torz.url" label="torz instance" type="enum" default="0" values="Kuu-lection|Munif|Midnightignite" subsetting="true" visible="eq(-1,true)" />
-    <setting id="provider.zilean" type="bool" label="ZILEAN (Pack capable)" default="true" />
+    <setting id="provider.zilean" type="bool" label="ZILEAN (Pack capable)" default="false" />
         <setting id="zilean.url" label="zilean instance" type="enum" default="0" values="Kuu-lection|Midnightignite" subsetting="true" visible="eq(-1,true)" />
     <setting id="provider.dmm" type="bool" label="DMM (Pack capable)" default="false" />
 </category>
@@ -73,7 +73,7 @@
 
 <category label="AIOStreams"> <!-- AIOStreams -->
     <setting label="Results" type="lsep" />
-    <setting id="provider.aiostreams" type="bool" label="" default="false" visible="false" />
+    <setting id="provider.aiostreams" type="bool" label="" default="true" visible="false" />
     <setting id="results.list_format" type="enum" label="Results Format" default="1" values="List|Wide List" />
     <setting id="highlight.type" label="Result Hightlight Type" type="enum" default="1" values="Resolution|Single Color" />
     <setting id="scraper_single_highlight" label="" type="text" default="dodgerblue" visible="false" />

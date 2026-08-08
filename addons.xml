@@ -862,7 +862,7 @@ v0.5.9 (2022-03-22)
 - Fix non-UTF-8 byte string decoding in Python 2.</news>
         </extension>
     </addon>
-    <addon id="script.module.magneto" version="6.07.04" name="Magneto Module" provider-name="Magneto">
+    <addon id="script.module.magneto" version="6.07.05" name="Magneto Module" provider-name="Magneto">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" />
