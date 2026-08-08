@@ -226,7 +226,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.101">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.102">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -249,7 +249,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.101]:
+            <news>[v2.0.102]:
+  * Add a direct Rescrape &amp; Select Source context-menu shortcut below Extras for movie and episode rows.
+
+[v2.0.101]:
   * Let Fen Light Patched load Magneto through its legacy external scraper entrypoint, fixing the Error Importing External Module message after migration.
 
 [v2.0.100]:
@@ -1280,7 +1283,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.43" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.44" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1305,6 +1308,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.44]:
+  * Preserve raw OpenSubtitles download payloads before post-processing, tighten IMDb episode/title lookups, and send the IMDb GraphQL referer expected by current metadata endpoints.
+
 [v3.23.43]:
   * Localize translated-subtitle notifications to Dutch when Fen Light Patched's menu language is set to Dutch.
 

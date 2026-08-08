@@ -350,7 +350,7 @@ def parse_search_response(core, service_name, meta, response):
                 'lang': language,
                 'filename': filename,
                 'release_name': release_name,
-                'gzip': True,
+                'raw': True,
                 'ai_translated': result.get('ai_translated', False),
                 'machine_translated': result.get('machine_translated', False),
                 'hd': bool(result.get('hd', False)),

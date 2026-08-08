@@ -155,6 +155,7 @@ class Movies:
 			playcount = get_watched_status_movie(self.watched_info, str_tmdb_id)
 			play_params = build_url({'mode': 'playback.media', 'media_type': 'movie', 'tmdb_id': tmdb_id})
 			extras_params = build_url({'mode': 'extras_menu_choice', 'media_type': 'movie', 'tmdb_id': tmdb_id, 'is_external': self.is_external})
+			rescrape_params = build_url({'mode': 'playback_choice', 'media_type': 'movie', 'meta': tmdb_id, 'choice': 'clear_and_rescrape'})
 			options_params = build_url({'mode': 'options_menu_choice', 'content': 'movie', 'tmdb_id': tmdb_id, 'poster': poster, 'is_external': self.is_external})
 			more_like_this_params = build_url({'mode': 'build_movie_list', 'action': 'imdb_more_like_this', 'key_id': imdb_id,
 											'name': 'More Like This based on %s' % title, 'is_external': self.is_external})
@@ -163,6 +164,8 @@ class Movies:
 			if self.open_extras or movieset_active: cm_append(('[B]Playback[/B]', run_plugin % play_params))
 			if not self.open_extras or movieset_active: cm_append(('[B]Extras[/B]', run_plugin % extras_params))
 			cm.insert(1, ('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': title, 'path': play_params, 'thumb': poster})))
+			try: cm.insert([i[0] for i in cm].index('[B]Extras[/B]') + 1, ('[B]Rescrape & Select Source[/B]', run_plugin % rescrape_params))
+			except: pass
 			if movieset_active: url_params = build_url({'mode': 'open_movieset_choice', 'key_id': movieset_id, 'name': movieset_name, 'is_external': self.is_external})
 			elif self.open_extras: url_params = extras_params
 			else: url_params = play_params

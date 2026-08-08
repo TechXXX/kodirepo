@@ -231,10 +231,13 @@ def playback_choice(params):
 	if media_type == 'episode': items.append({'line': 'Scrape with Custom Episode Groups Value', 'function': 'scrape_with_episode_group'})
 	if aliases: items.append({'line': 'Scrape with an Alias', 'function': 'scrape_with_aliases'})
 	items.append({'line': 'Scrape with Custom Values', 'function': 'scrape_with_custom_values'})
-	list_items = [{'line1': localize(i['line']), 'icon': poster} for i in items]
-	kwargs = {'items': json.dumps(list_items), 'heading': localize('Playback Options')}
-	choice = select_dialog([i['function'] for i in items], **kwargs)
-	if choice == None: return notification('Cancelled', 2500)
+	item_functions = [i['function'] for i in items]
+	choice = params.get('choice')
+	if choice not in item_functions:
+		list_items = [{'line1': localize(i['line']), 'icon': poster} for i in items]
+		kwargs = {'items': json.dumps(list_items), 'heading': localize('Playback Options')}
+		choice = select_dialog(item_functions, **kwargs)
+		if choice == None: return notification('Cancelled', 2500)
 	if choice in ('clear_and_rescrape', 'scrape_with_custom_values'):
 		show_busy_dialog()
 		from caches.base_cache import clear_cache
