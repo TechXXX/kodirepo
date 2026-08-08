@@ -664,7 +664,10 @@ class Sources():
 	def import_external_scrapers(self):
 		try:
 			append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
-			self.ext_sources = manual_module_import('%s.sources_%s' % (self.ext_name, self.ext_name))
+			try: self.ext_sources = manual_module_import('%s.sources_%s' % (self.ext_name, self.ext_name))
+			except:
+				manual_function_import(self.ext_name, 'sources')
+				self.ext_sources = None
 			self.provider_defaults = [k.split('.')[1] for k, v in manual_function_import('%s.modules.control' % self.ext_name, 'getProviderDefaults')().items() if v == 'true']
 		except: return False
 		return True

@@ -8,7 +8,7 @@ from caches.settings_cache import get_setting, set_setting, set_default, default
 from modules.downloader import manager
 from modules import kodi_utils, settings, metadata
 from modules.source_utils import clear_scrapers_cache, get_aliases_titles, make_alias_dict, audio_filter_choices, source_filters
-from modules.utils import get_datetime, title_key, adjust_premiered_date, append_module_to_syspath, manual_module_import
+from modules.utils import get_datetime, title_key, adjust_premiered_date, append_module_to_syspath, manual_function_import, manual_module_import
 # logger = kodi_utils.logger
 
 ok_dialog, container_content, close_all_dialog, external = kodi_utils.ok_dialog, kodi_utils.container_content, kodi_utils.close_all_dialog, kodi_utils.external
@@ -103,7 +103,8 @@ def external_scraper_choice(params):
 	try:
 		append_module_to_syspath('special://home/addons/%s/lib' % module_id)
 		main_folder_name = module_id.split('.')[-1]
-		manual_module_import('%s.sources_%s' % (main_folder_name, main_folder_name))
+		try: manual_module_import('%s.sources_%s' % (main_folder_name, main_folder_name))
+		except: manual_function_import(main_folder_name, 'sources')
 		success = True
 	except: success = False
 	if success:
