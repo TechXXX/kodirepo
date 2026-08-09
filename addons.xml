@@ -1283,7 +1283,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.44" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.45" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1308,6 +1308,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.45]:
+  * Preserve existing raw subtitle language suffixes while still appending a subtitle extension, so OpenSubtitles raw downloads no longer generate double-language filenames.
+
 [v3.23.44]:
   * Preserve raw OpenSubtitles download payloads before post-processing, tighten IMDb episode/title lookups, and send the IMDb GraphQL referer expected by current metadata endpoints.
 

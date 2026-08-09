@@ -84,14 +84,32 @@ def __extract_zip(core, archivepath, filename, episodeid):
 
     return dest
 
-def __insert_lang_code_in_filename(core, filename, lang_code):
+def __filename_lang_suffix_matches(core, name, lang_code):
+    nameparts = name.rsplit(".", 1)
+    if len(nameparts) <= 1:
+        return False
+
+    suffix = nameparts[1].lower()
+    if suffix == lang_code.lower():
+        return True
+
+    return core.utils.get_lang_id(suffix, core.kodi.xbmc.ISO_639_2) == lang_code
+
+def __insert_lang_code_in_filename(core, filename, lang_code, raw=False):
     name = core.utils.strip_non_ascii_and_unprintable(filename)
     nameparts = name.rsplit(".", 1)
 
     # Because this can be called via "raw" subtitles where sub ext exists we will ensure it ends with the subtitle ext.
     # Otherwise we will use "filename.lang_code" later the ext will be added on unzip process.
-    if len(nameparts) > 1 and ("." + nameparts[1] in subtitles_exts_all):
+    if len(nameparts) > 1 and ("." + nameparts[1].lower() in subtitles_exts_all):
+        if raw and __filename_lang_suffix_matches(core, nameparts[0], lang_code):
+            return name
         return ".".join([nameparts[0], lang_code, nameparts[1]])
+
+    if raw:
+        if __filename_lang_suffix_matches(core, name, lang_code):
+            return "{0}.srt".format(name)
+        return "{0}.{1}.srt".format(name, lang_code)
 
     return "{0}.{1}".format(name, lang_code)
 
@@ -163,7 +181,7 @@ def download(core, params):
     try:
         actions_args = params['action_args']
         lang_code = core.utils.get_lang_id(actions_args['lang'], core.kodi.xbmc.ISO_639_2)
-        filename = __insert_lang_code_in_filename(core, actions_args['filename'], lang_code)
+        filename = __insert_lang_code_in_filename(core, actions_args['filename'], lang_code, actions_args.get('raw', False))
         filename = core.utils.slugify_filename(filename)
         filename = filename.strip()
         archivepath = core.os.path.join(core.utils.temp_dir, 'sub.zip')
