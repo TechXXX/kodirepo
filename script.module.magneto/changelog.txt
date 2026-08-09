@@ -1,3 +1,6 @@
+[COLOR red][B]Version 6.07.06[/B][/COLOR]
+- Match bundled provider defaults to the live MacBook provider selection.
+
 [COLOR red][B]Version 6.07.05[/B][/COLOR]
 - Updated bundled provider defaults from live Kodi.
 - Apply Magneto provider defaults once during the addon update.

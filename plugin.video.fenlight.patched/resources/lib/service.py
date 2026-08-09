@@ -60,7 +60,8 @@ class OnUpdateChanges:
 				('refresh_addon_keys', self.refresh_addon_keys),
 				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
 				('default_ui_language_dutch', self.default_ui_language_dutch),
-				('migrate_external_scraper_to_magneto', self.migrate_external_scraper_to_magneto)
+				('migrate_external_scraper_to_magneto', self.migrate_external_scraper_to_magneto),
+				('sync_live_magneto_provider_defaults', self.sync_live_magneto_provider_defaults)
 			)
 			for setting_id, migration in migrations:
 				update_setting_id = 'updatechecks.%s' % setting_id
@@ -133,6 +134,10 @@ class OnUpdateChanges:
 		set_setting('external_scraper.name', 'Magneto Module')
 		logger('Fen Light Patched', 'External scraper migrated from CocoScrapers to Magneto.')
 
+	def sync_live_magneto_provider_defaults(self):
+		if not self.apply_magneto_provider_defaults():
+			raise Exception('Magneto provider defaults were not applied.')
+
 	def apply_magneto_provider_defaults(self):
 		try:
 			import os, xbmcaddon, xml.etree.ElementTree as ET
@@ -145,11 +150,14 @@ class OnUpdateChanges:
 				setting_default = item.attrib.get('default')
 				if setting_id.startswith('provider.') and setting_default in ('true', 'false'):
 					provider_defaults.append((setting_id, setting_default))
+			if not provider_defaults: raise Exception('No Magneto provider defaults found.')
 			for setting_id, setting_default in provider_defaults:
 				magneto_addon.setSetting(setting_id, setting_default)
 			logger('Fen Light Patched', 'Applied %s Magneto provider defaults.' % len(provider_defaults))
+			return True
 		except Exception as e:
 			logger('Fen Light Patched', 'Magneto provider defaults sync failed: %s' % str(e))
+			return False
 
 	def sync_magneto_undesirables_from_coco(self):
 		coco_settings = {
