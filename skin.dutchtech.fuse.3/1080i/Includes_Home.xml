@@ -21,6 +21,18 @@
         <value condition="!String.IsEmpty(Skin.String(HomeSwitcher.1104.Icon))">$INFO[Skin.String(HomeSwitcher.1104.Icon)]</value>
         <value>special://skin/extras/icons/shapes.png</value>
     </variable>
+    <variable name="Home_Icon_1106">
+        <value condition="!String.IsEmpty(Skin.String(HomeSwitcher.1106.Icon))">$INFO[Skin.String(HomeSwitcher.1106.Icon)]</value>
+        <value>special://skin/extras/icons/calendar.png</value>
+    </variable>
+    <variable name="Home_Icon_1107">
+        <value condition="!String.IsEmpty(Skin.String(HomeSwitcher.1107.Icon))">$INFO[Skin.String(HomeSwitcher.1107.Icon)]</value>
+        <value>special://skin/extras/icons/tv.png</value>
+    </variable>
+    <variable name="Home_Icon_1108">
+        <value condition="!String.IsEmpty(Skin.String(HomeSwitcher.1108.Icon))">$INFO[Skin.String(HomeSwitcher.1108.Icon)]</value>
+        <value>special://skin/extras/icons/addons.png</value>
+    </variable>
 
     <include name="Home_ControlList_Item">
         <property name="enabled">true</property>

@@ -172,7 +172,8 @@
                                 <width>300</width>
                                 <height>80</height>
                                 <aspectratio align="right">keep</aspectratio>
-                                <texture background="true">$INFO[Container(601).ListItem.Label,resource://resource.images.studios.coloured/,.png]</texture>
+                                <texture background="true">$INFO[Container(601).ListItem.Icon]</texture>
+                                <visible>!String.IsEmpty(Container(601).ListItem.Icon)</visible>
                                 <centertop>50%</centertop>
                             </control>
                         </control>

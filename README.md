@@ -170,7 +170,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.17`
+- `skin.dutchtech.fuse.3` `3.2.9.18`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
@@ -188,7 +188,8 @@ Current source-tree versions when this document was updated:
   now also runs a small notification recovery script that returns Kodi to Home
   only when the active window and dialog ids are invalid. It now also keeps
   category selector labels static when unfocused and scrolls only the focused
-  row.
+  row. It now also restores fallback icons for built-in home slots and stops
+  hub category labels from being resolved through the studio-icon resource pack.
 - `skin.arctic.horizon.2.patched` `0.8.30.13`
   Patched Arctic Horizon 2 production build intended to target
   `plugin.video.themoviedb.helper.patched` from this repo. The current
