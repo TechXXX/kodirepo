@@ -139,6 +139,11 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
+- `resource.images.studios.coloured` `0.0.25`
+  Coloured studio-logo resource used by the DutchTech Fuse skin. This build is
+  based on the official `0.0.24` texture bundle and adds a plain Apple TV
+  studio icon entry (`Apple TV.png`) generated from Fen Light's provider
+  artwork, so Kodi no longer falls through on Apple TV studio metadata.
 - `script.module.beautifulsoup4` `4.9.3+matrix.1`
   HTML parsing dependency required by MicroJen Scrapers.
 - `script.module.autocompletion` `2.1.1`
@@ -226,6 +231,9 @@ Current source-tree versions when this document was updated:
   matching Vercel bridge is documented in `KODI_SETUP_KIT_HANDOVER.md`.
 - `plugin.program.autocompletion/`
   Bundled virtual keyboard autocomplete helper source.
+- `resource.images.studios.coloured/`
+  Coloured studio-logo image resource, including the Apple TV studio-icon
+  source PNG and patched texture bundle.
 - `script.module.autocompletion/`
   Bundled virtual keyboard autocomplete library source.
 - `script.module.beautifulsoup4/`
