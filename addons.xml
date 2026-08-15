@@ -1286,6 +1286,24 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.0" provider-name="DutchTech">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.service" library="service.py" start="startup" />
+        <extension point="xbmc.python.script" library="default.py">
+            <provides>executable</provides>
+        </extension>
+        <extension point="xbmc.python.pluginsource" library="plugin.py" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Upload Kodi and Fen Light diagnostic logs</summary>
+            <description lang="en_GB">Collects redacted Kodi/Fen Light diagnostics and uploads them to a private log receiver.</description>
+            <platform>all</platform>
+            <license>MIT</license>
+            <news>v0.1.0
+- Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
+        </extension>
+    </addon>
     <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.45" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
