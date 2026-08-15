@@ -190,6 +190,10 @@ def ensure_default_settings(addon):
         log("Filled default log receiver URL.")
     if not get_setting(addon, "auth_token", "") and set_setting_string(addon, "auth_token", DEFAULT_AUTH_TOKEN):
         log("Filled default upload token.")
+    if get_setting(addon, "defaults.tv_safe_v1", "") != "true":
+        if set_setting_string(addon, "auto_error_upload", "false"):
+            log("Applied TV-safe default: disabled error-triggered uploads.")
+        set_setting_string(addon, "defaults.tv_safe_v1", "true")
     configured = get_setting(addon, "device_name", "").strip()
     if configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
         return
@@ -541,14 +545,10 @@ def run_upload(reason="manual", interactive=False):
         log(message)
         if interactive:
             show_dialog(message)
-        else:
-            notify("Logs uploaded")
     else:
         log(result.message, level="error")
         if interactive:
             show_dialog(result.message, error=True)
-        else:
-            notify(result.message, error=True)
     return result
 
 
@@ -600,13 +600,20 @@ def service_main():
 
     interval_minutes = setting_int(addon, "error_scan_interval_minutes", 5, minimum=1, maximum=1440)
     min_gap_minutes = setting_int(addon, "min_auto_upload_gap_minutes", 60, minimum=5, maximum=1440)
-    log("Service started. Error scan interval: %s minutes" % interval_minutes)
+    log(
+        "Service started. Startup upload: %s. Error-triggered uploads: %s. Error scan interval: %s minutes"
+        % (
+            setting_bool(addon, "upload_on_startup", True),
+            setting_bool(addon, "auto_error_upload", False),
+            interval_minutes,
+        )
+    )
 
     while not monitor.abortRequested():
         if monitor.waitForAbort(interval_minutes * 60):
             break
         addon = get_addon()
-        if not setting_bool(addon, "auto_error_upload", True):
+        if not setting_bool(addon, "auto_error_upload", False):
             continue
         signature = recent_error_signature(addon)
         if not signature or signature == baseline_signature:

@@ -1286,7 +1286,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.5" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.6" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1304,7 +1304,10 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.5
+            <news>v0.1.6
+- Make automatic uploads TV-safe by default: startup-only diagnostics, no background error polling unless enabled, and no popup notifications for automatic uploads.
+
+v0.1.5
 - Prefill the public upload-only receiver token so trusted installs can upload diagnostics without manual token entry.
 
 v0.1.4
