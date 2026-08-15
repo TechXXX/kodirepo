@@ -1,9 +1,10 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.103">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.104">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
         <import addon="plugin.video.youtube"/>
         <import addon="script.module.magneto" version="6.07.06"/>
+        <import addon="service.kodilog.uploader"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
         <provides>video</provides>
@@ -21,7 +22,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.103]:
+        <news>[v2.0.104]:
+  * Install Kodi Log Uploader as a version-independent dependency for startup and manual diagnostics.
+
+[v2.0.103]:
   * Sync existing Magneto provider selections to the curated live-MacBook defaults during addon update.
 
 [v2.0.102]:
