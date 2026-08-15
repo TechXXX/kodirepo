@@ -36,6 +36,7 @@ except ImportError:  # pragma: no cover - Python 2 fallback.
 ADDON_ID = "service.kodilog.uploader"
 DEFAULT_TARGET_ADDON_ID = "plugin.video.fenlight.kodienglish"
 DEFAULT_SERVER_URL = "https://logs.basaio.duckdns.org/upload"
+DEFAULT_AUTH_TOKEN = "27c45ed5c5c31c47c1f22f230c350604ce0c6a77418ced1d158543d87bb82548"
 DEFAULT_MAX_LOG_KB = 4096
 DEVICE_NAME_PLACEHOLDERS = ("", "shield", "kodi")
 MAX_ARCHIVE_BYTES = 25 * 1024 * 1024
@@ -187,6 +188,8 @@ def ensure_default_settings(addon):
         pass
     elif set_setting_string(addon, "server_url", DEFAULT_SERVER_URL):
         log("Filled default log receiver URL.")
+    if not get_setting(addon, "auth_token", "") and set_setting_string(addon, "auth_token", DEFAULT_AUTH_TOKEN):
+        log("Filled default upload token.")
     configured = get_setting(addon, "device_name", "").strip()
     if configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
         return
