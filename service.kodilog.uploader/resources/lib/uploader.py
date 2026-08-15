@@ -36,6 +36,7 @@ ADDON_ID = "service.kodilog.uploader"
 DEFAULT_TARGET_ADDON_ID = "plugin.video.fenlight.kodienglish"
 DEFAULT_SERVER_URL = "https://logs.basaio.duckdns.org/upload"
 DEFAULT_MAX_LOG_KB = 4096
+DEVICE_NAME_PLACEHOLDERS = ("", "shield", "kodi")
 MAX_ARCHIVE_BYTES = 25 * 1024 * 1024
 FENLIGHT_PATTERNS = (
     "fen light",
@@ -182,9 +183,15 @@ def set_setting_string(addon, setting_id, value):
 
 def ensure_default_settings(addon):
     if get_setting(addon, "server_url", ""):
-        return
-    if set_setting_string(addon, "server_url", DEFAULT_SERVER_URL):
+        pass
+    elif set_setting_string(addon, "server_url", DEFAULT_SERVER_URL):
         log("Filled default log receiver URL.")
+    configured = get_setting(addon, "device_name", "").strip()
+    if configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
+        return
+    detected = detected_device_name()
+    if detected and detected.lower() != configured.lower() and set_setting_string(addon, "device_name", detected):
+        log("Filled local device name: %s" % detected)
 
 
 def setting_bool(addon, setting_id, default=False):
@@ -235,11 +242,31 @@ def now_utc():
         return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
 
+def sanitize_device_name(name):
+    name = re.sub(r"[^A-Za-z0-9._-]+", "-", (name or "")).strip(".-")
+    return name[:80] or ""
+
+
+def detected_device_name():
+    candidates = (
+        kodi_info_label("System.FriendlyName"),
+        socket.gethostname(),
+        platform.node(),
+        kodi_info_label("System.ProfileName"),
+    )
+    ignored = ("", "localhost", "localhost.localdomain", "unknown", "none")
+    for candidate in candidates:
+        name = sanitize_device_name(candidate)
+        if name and name.lower() not in ignored:
+            return name
+    return "kodi"
+
+
 def safe_device_name(addon):
-    configured = get_setting(addon, "device_name", "")
-    name = configured or socket.gethostname() or "kodi"
-    name = re.sub(r"[^A-Za-z0-9._-]+", "-", name).strip(".-")
-    return name[:80] or "kodi"
+    configured = sanitize_device_name(get_setting(addon, "device_name", ""))
+    if configured and configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
+        return configured
+    return detected_device_name()
 
 
 def target_addon_id(addon):
