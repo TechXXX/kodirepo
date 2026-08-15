@@ -40,6 +40,26 @@ DEFAULT_AUTH_TOKEN = "27c45ed5c5c31c47c1f22f230c350604ce0c6a77418ced1d158543d87b
 DEFAULT_MAX_LOG_KB = 4096
 DEVICE_NAME_PLACEHOLDERS = ("", "shield", "kodi")
 MAX_ARCHIVE_BYTES = 25 * 1024 * 1024
+DIAGNOSTIC_ADDONS = (
+    ("plugin.video.fenlight.kodienglish", "Fen Light English"),
+    ("plugin.video.fenlight.patched", "Fen Light Patched"),
+    ("script.module.cocoscrapers", "CocoScrapers"),
+    ("script.module.cocoscrapers.kodienglish", "CocoScrapers KodiEnglish"),
+    ("script.module.magneto", "Magneto"),
+    ("script.module.resolveurl", "ResolveURL"),
+    ("plugin.video.themoviedb.helper.patched.kodienglish", "TMDb Helper Patched English"),
+    ("plugin.video.themoviedb.helper.patched", "TMDb Helper Patched"),
+    ("plugin.video.themoviedb.helper", "TMDb Helper"),
+    ("service.subtitles.a4ksubtitles.patched", "a4kSubtitles Patched"),
+    ("service.subtitles.a4ksubtitles", "a4kSubtitles"),
+    ("repository.kodienglish", "KodiEnglish Repository"),
+    ("repository.dutchtech", "DutchTech Repository"),
+)
+FENLIGHT_DIAGNOSTIC_SETTINGS = (
+    "provider.external",
+    "external_scraper.module",
+    "external_scraper.name",
+)
 FENLIGHT_PATTERNS = (
     "fen light",
     "fenlight",
@@ -242,6 +262,15 @@ def kodi_info_label(label):
         return ""
 
 
+def kodi_cond_visibility(condition):
+    if xbmc is None:
+        return False
+    try:
+        return bool(xbmc.getCondVisibility(condition))
+    except Exception:
+        return False
+
+
 def now_utc():
     try:
         value = datetime.datetime.now(datetime.timezone.utc)
@@ -255,18 +284,22 @@ def sanitize_device_name(name):
     return name[:80] or ""
 
 
-def kodi_services_device_name():
+def kodi_setting_value(setting_id):
     for special_path in ("special://profile/guisettings.xml", "special://masterprofile/guisettings.xml"):
         path = translate_path(special_path)
         if not path or not os.path.exists(path):
             continue
         try:
-            setting = ET.parse(path).find(".//setting[@id='services.devicename']")
+            setting = ET.parse(path).find(".//setting[@id='%s']" % setting_id)
             if setting is not None and setting.text:
                 return setting.text
         except Exception as exc:
-            log("Could not read Kodi device name from %s: %s" % (path, exc), level="warning")
+            log("Could not read Kodi setting %s from %s: %s" % (setting_id, path, exc), level="warning")
     return ""
+
+
+def kodi_services_device_name():
+    return kodi_setting_value("services.devicename")
 
 
 def detected_device_name():
@@ -382,6 +415,181 @@ def target_addon_details(addon_id):
     return details
 
 
+def addon_snapshot(addon_id, label=None):
+    addon = get_addon(addon_id)
+    snapshot = {
+        "id": addon_id,
+        "label": label or addon_id,
+        "installed": addon is not None,
+        "enabled": kodi_cond_visibility("System.HasAddon(%s)" % addon_id),
+    }
+    if addon is None:
+        return snapshot
+    for key in ("name", "version", "path", "profile"):
+        try:
+            snapshot[key] = addon.getAddonInfo(key)
+        except Exception:
+            snapshot[key] = ""
+    return snapshot
+
+
+def read_addon_settings(addon_id, setting_ids):
+    values = {}
+    addon = get_addon(addon_id)
+    if addon is None:
+        return values
+    for setting_id in setting_ids:
+        values[setting_id] = get_setting(addon, setting_id, "")
+    return values
+
+
+def current_skin_snapshot():
+    skin_id = (
+        kodi_setting_value("lookandfeel.skin")
+        or kodi_info_label("Skin.String(skin.id)")
+        or kodi_info_label("System.CurrentSkin")
+    )
+    addon = get_addon(skin_id) if skin_id else None
+    snapshot = {
+        "id": skin_id,
+        "name": kodi_info_label("System.CurrentSkin"),
+        "theme": kodi_setting_value("lookandfeel.skintheme"),
+        "colors": kodi_setting_value("lookandfeel.skincolors"),
+    }
+    if addon is not None:
+        for key in ("name", "version"):
+            try:
+                snapshot[key] = addon.getAddonInfo(key)
+            except Exception:
+                pass
+    return snapshot
+
+
+def kodi_environment_snapshot(device_name):
+    return {
+        "device_name": device_name,
+        "services_device_name": kodi_services_device_name(),
+        "friendly_name": kodi_info_label("System.FriendlyName"),
+        "profile_name": kodi_info_label("System.ProfileName"),
+        "kodi_version": kodi_info_label("System.BuildVersion"),
+        "kodi_build_date": kodi_info_label("System.BuildDate"),
+        "skin": current_skin_snapshot(),
+        "language": kodi_info_label("System.Language"),
+        "region": kodi_info_label("System.Region"),
+        "platform": platform.platform(),
+        "hostname": socket.gethostname(),
+        "python_version": sys.version,
+    }
+
+
+def diagnostics_summary(addon, device_name, target_details):
+    target_id = target_addon_id(addon)
+    addons = [addon_snapshot(addon_id, label) for addon_id, label in DIAGNOSTIC_ADDONS]
+    installed = {item["id"]: item for item in addons}
+    fenlight_settings = read_addon_settings(target_id, FENLIGHT_DIAGNOSTIC_SETTINGS)
+
+    def any_installed(*addon_ids):
+        return any(installed.get(addon_id, {}).get("installed", False) for addon_id in addon_ids)
+
+    def any_enabled(*addon_ids):
+        return any(installed.get(addon_id, {}).get("enabled", False) for addon_id in addon_ids)
+
+    return {
+        "created_at_utc": now_utc(),
+        "target_addon_id": target_id,
+        "target_addon": target_details,
+        "environment": kodi_environment_snapshot(device_name),
+        "addons": addons,
+        "dependency_check": {
+            "fen_light_installed": bool(target_details.get("installed")),
+            "fen_light_variant_installed": any_installed(
+                "plugin.video.fenlight.kodienglish",
+                "plugin.video.fenlight.patched",
+            ),
+            "cocoscrapers_installed": any_installed(
+                "script.module.cocoscrapers",
+                "script.module.cocoscrapers.kodienglish",
+            ),
+            "magneto_installed": installed.get("script.module.magneto", {}).get("installed", False),
+            "resolveurl_installed": installed.get("script.module.resolveurl", {}).get("installed", False),
+            "tmdb_helper_installed": any_installed(
+                "plugin.video.themoviedb.helper.patched.kodienglish",
+                "plugin.video.themoviedb.helper.patched",
+                "plugin.video.themoviedb.helper",
+            ),
+            "a4k_installed": any_installed(
+                "service.subtitles.a4ksubtitles.patched",
+                "service.subtitles.a4ksubtitles",
+            ),
+            "repository_kodienglish_installed": installed.get("repository.kodienglish", {}).get("installed", False),
+            "repository_kodienglish_enabled": installed.get("repository.kodienglish", {}).get("enabled", False),
+            "repository_variant_enabled": any_enabled("repository.kodienglish", "repository.dutchtech"),
+            "external_scraper_enabled": fenlight_settings.get("provider.external", ""),
+            "external_scraper_module": fenlight_settings.get("external_scraper.module", ""),
+            "external_scraper_name": fenlight_settings.get("external_scraper.name", ""),
+        },
+        "fenlight_settings": fenlight_settings,
+    }
+
+
+def diagnostic_value(value):
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, str) and value.lower() in ("true", "false"):
+        return "yes" if value.lower() == "true" else "no"
+    if value in (None, ""):
+        return ""
+    return str(value)
+
+
+def diagnostics_summary_text(summary):
+    dependency = summary.get("dependency_check", {})
+    environment = summary.get("environment", {})
+    skin = environment.get("skin", {})
+    lines = [
+        "Kodi Log Uploader diagnostics summary",
+        "Created UTC: %s" % summary.get("created_at_utc", ""),
+        "",
+        "Environment",
+        "Device name: %s" % environment.get("device_name", ""),
+        "Kodi Services device name: %s" % environment.get("services_device_name", ""),
+        "Kodi version: %s" % environment.get("kodi_version", ""),
+        "Kodi build date: %s" % environment.get("kodi_build_date", ""),
+        "Skin: %s %s (%s)" % (skin.get("name", ""), skin.get("version", ""), skin.get("id", "")),
+        "Language: %s" % environment.get("language", ""),
+        "Region: %s" % environment.get("region", ""),
+        "Platform: %s" % environment.get("platform", ""),
+        "",
+        "Dependency Check",
+        "Fen Light installed: %s" % diagnostic_value(dependency.get("fen_light_installed")),
+        "Fen Light variant installed: %s" % diagnostic_value(dependency.get("fen_light_variant_installed")),
+        "CocoScrapers installed: %s" % diagnostic_value(dependency.get("cocoscrapers_installed")),
+        "Magneto installed: %s" % diagnostic_value(dependency.get("magneto_installed")),
+        "ResolveURL installed: %s" % diagnostic_value(dependency.get("resolveurl_installed")),
+        "TMDb Helper installed: %s" % diagnostic_value(dependency.get("tmdb_helper_installed")),
+        "a4k installed: %s" % diagnostic_value(dependency.get("a4k_installed")),
+        "KodiEnglish repository installed: %s" % diagnostic_value(dependency.get("repository_kodienglish_installed")),
+        "KodiEnglish repository enabled: %s" % diagnostic_value(dependency.get("repository_kodienglish_enabled")),
+        "Repository variant enabled: %s" % diagnostic_value(dependency.get("repository_variant_enabled")),
+        "External scraper enabled: %s" % diagnostic_value(dependency.get("external_scraper_enabled")),
+        "External scraper module: %s" % diagnostic_value(dependency.get("external_scraper_module")),
+        "External scraper name: %s" % diagnostic_value(dependency.get("external_scraper_name")),
+        "",
+        "Selected Add-ons",
+    ]
+    for item in summary.get("addons", []):
+        lines.append(
+            "- {label}: installed={installed}, enabled={enabled}, version={version}, id={id}".format(
+                label=item.get("label", item.get("id", "")),
+                installed=diagnostic_value(item.get("installed")),
+                enabled=diagnostic_value(item.get("enabled")),
+                version=item.get("version", ""),
+                id=item.get("id", ""),
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
 def collect_log_entries(addon):
     log_dir = translate_path("special://logpath/")
     max_log_kb = setting_int(addon, "max_log_kb", DEFAULT_MAX_LOG_KB, minimum=64, maximum=16384)
@@ -436,6 +644,7 @@ def collect_archive(reason):
     target_details = target_addon_details(target_id)
     log_dir, logs, read_errors = collect_log_entries(addon)
     device_name = safe_device_name(addon)
+    diagnostics = diagnostics_summary(addon, device_name, target_details)
     manifest = {
         "upload_id": upload_id,
         "created_at_utc": now_utc(),
@@ -455,6 +664,8 @@ def collect_archive(reason):
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED, allowZip64=True) as archive:
         archive.writestr("manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
+        archive.writestr("diagnostics/summary.json", json.dumps(diagnostics, indent=2, sort_keys=True))
+        archive.writestr("diagnostics/summary.txt", diagnostics_summary_text(diagnostics))
         archive.writestr("logs/fenlight_excerpt.log", fenlight_excerpt(logs))
         for entry in logs:
             archive.writestr("logs/%s" % entry["name"], entry["text"])
