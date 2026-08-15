@@ -34,6 +34,7 @@ except ImportError:  # pragma: no cover - Python 2 fallback.
 
 ADDON_ID = "service.kodilog.uploader"
 DEFAULT_TARGET_ADDON_ID = "plugin.video.fenlight.kodienglish"
+DEFAULT_SERVER_URL = "https://logs.basaio.duckdns.org/upload"
 DEFAULT_MAX_LOG_KB = 4096
 MAX_ARCHIVE_BYTES = 25 * 1024 * 1024
 FENLIGHT_PATTERNS = (
@@ -163,6 +164,27 @@ def get_setting(addon, setting_id, default=""):
         return value
     except Exception:
         return default
+
+
+def set_setting_string(addon, setting_id, value):
+    if addon is None:
+        return False
+    try:
+        if hasattr(addon, "setSettingString"):
+            addon.setSettingString(setting_id, value)
+        else:
+            addon.setSetting(setting_id, value)
+        return True
+    except Exception as exc:
+        log("Could not set %s: %s" % (setting_id, exc), level="warning")
+        return False
+
+
+def ensure_default_settings(addon):
+    if get_setting(addon, "server_url", ""):
+        return
+    if set_setting_string(addon, "server_url", DEFAULT_SERVER_URL):
+        log("Filled default log receiver URL.")
 
 
 def setting_bool(addon, setting_id, default=False):
@@ -408,7 +430,8 @@ def normalize_upload_url(url):
 
 def upload_archive(data, manifest):
     addon = get_addon()
-    server_url = normalize_upload_url(get_setting(addon, "server_url", ""))
+    ensure_default_settings(addon)
+    server_url = normalize_upload_url(get_setting(addon, "server_url", DEFAULT_SERVER_URL))
     token = get_setting(addon, "auth_token", "")
     if not server_url:
         return UploadResult(False, "Server URL is not configured.", upload_id=manifest.get("upload_id"))
@@ -458,6 +481,7 @@ def upload_archive(data, manifest):
 
 
 def run_upload(reason="manual", interactive=False):
+    ensure_default_settings(get_addon())
     try:
         data, manifest = collect_archive(reason)
         result = upload_archive(data, manifest)
@@ -509,6 +533,7 @@ def recent_error_signature(addon):
 
 def service_main():
     addon = get_addon()
+    ensure_default_settings(addon)
     if xbmc is None:
         log("Kodi runtime is unavailable; service loop not started.", level="warning")
         return

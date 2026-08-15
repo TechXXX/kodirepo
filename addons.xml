@@ -1286,7 +1286,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.1" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.2" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1304,7 +1304,10 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.1
+            <news>v0.1.2
+- Prefill the private receiver URL and repair blank existing URL settings on startup/manual upload.
+
+v0.1.1
 - Add Kodi artwork for the log uploader.
 
 v0.1.0
