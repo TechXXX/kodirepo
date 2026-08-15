@@ -12,6 +12,7 @@ import sys
 import time
 import traceback
 import uuid
+import xml.etree.ElementTree as ET
 import zipfile
 
 try:
@@ -247,14 +248,29 @@ def sanitize_device_name(name):
     return name[:80] or ""
 
 
+def kodi_services_device_name():
+    for special_path in ("special://profile/guisettings.xml", "special://masterprofile/guisettings.xml"):
+        path = translate_path(special_path)
+        if not path or not os.path.exists(path):
+            continue
+        try:
+            setting = ET.parse(path).find(".//setting[@id='services.devicename']")
+            if setting is not None and setting.text:
+                return setting.text
+        except Exception as exc:
+            log("Could not read Kodi device name from %s: %s" % (path, exc), level="warning")
+    return ""
+
+
 def detected_device_name():
     candidates = (
+        kodi_services_device_name(),
         kodi_info_label("System.FriendlyName"),
         socket.gethostname(),
         platform.node(),
         kodi_info_label("System.ProfileName"),
     )
-    ignored = ("", "localhost", "localhost.localdomain", "unknown", "none")
+    ignored = ("", "kodi", "localhost", "localhost.localdomain", "unknown", "none")
     for candidate in candidates:
         name = sanitize_device_name(candidate)
         if name and name.lower() not in ignored:
