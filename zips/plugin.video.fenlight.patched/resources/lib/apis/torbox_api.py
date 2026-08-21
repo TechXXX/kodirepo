@@ -243,12 +243,13 @@ class TorBoxAPI:
 			file_key = selected_files[0]['url']
 			file_url = self.unrestrict_link(file_key)
 			if not store_to_cloud: Thread(target=self.delete_torrent, args=(torrent_id,)).start()
+			else: logger('Fen Light Patched', 'TorBox resolve keeping transfer alive | torrent_id=%s | title=%s | success=%s' % (torrent_id, title, bool(file_url)))
 			return file_url
 		except:
 			if torrent_id: self.delete_torrent(torrent_id)
 			return None
 
-	def display_magnet_pack(self, magnet_url, info_hash):
+	def display_magnet_pack(self, magnet_url, info_hash, download=False):
 		from modules.source_utils import supported_video_extensions
 		try:
 			torrent_id = None
@@ -259,7 +260,10 @@ class TorBoxAPI:
 			torrent_files = self.torrent_info(torrent_id)
 			torrent_files = [{'link': '%d,%d' % (torrent_id, item['id']), 'filename': item['short_name'], 'size': item['size']} \
 							for item in torrent_files['data']['files'] if item['short_name'].lower().endswith(tuple(extensions))]
-			Thread(target=self.delete_torrent, args=(torrent_id,)).start()
+			if download:
+				logger('Fen Light Patched', 'TorBox pack download keeping transfer alive | torrent_id=%s | files=%s' % (torrent_id, len(torrent_files)))
+			else:
+				Thread(target=self.delete_torrent, args=(torrent_id,)).start()
 			return torrent_files or None
 		except Exception:
 			if torrent_id: self.delete_torrent(torrent_id)

@@ -12,7 +12,7 @@ from modules.sources import Sources
 from modules.settings import download_directory
 from modules.source_utils import clean_title
 from modules.utils import clean_file_name, safe_string, remove_accents, normalize
-# logger = kodi_utils.logger
+logger = kodi_utils.logger
 
 video_extensions, image_extensions, get_icon, kodi_dialog = kodi_utils.video_extensions, kodi_utils.image_extensions, kodi_utils.get_icon, kodi_utils.kodi_dialog
 add_items, set_sort_method, set_content, end_directory = kodi_utils.add_items, kodi_utils.set_sort_method, kodi_utils.set_content, kodi_utils.end_directory
@@ -25,9 +25,16 @@ set_view_mode, make_listitem, list_dirs = kodi_utils.set_view_mode, kodi_utils.m
 fanart = kodi_utils.get_addon_fanart()
 sources = Sources()
 ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-icons = {'Real-Debrid': 'realdebrid', 'Premiumize.me': 'premiumize', 'AllDebrid': 'alldebrid', 'Offcloud': 'offcloud', 'EasyDebrid': 'easydebrid', 'Torbox': 'torbox'}
+icons = {'Real-Debrid': 'realdebrid', 'Premiumize.me': 'premiumize', 'AllDebrid': 'alldebrid', 'Offcloud': 'offcloud', 'EasyDebrid': 'easydebrid', 'Torbox': 'torbox', 'TorBox': 'torbox'}
 levels =['../../../..', '../../..', '../..', '..']
 status_property_string = 'fenlight.download_status.%s'
+
+def safe_url_for_log(url):
+	try:
+		if not url: return 'empty'
+		parsed = urlparse(url.split('|')[0])
+		return '%s://%s' % (parsed.scheme, parsed.netloc)
+	except: return 'unparseable'
 
 def runner(params):
 	action = params.get('action')
@@ -136,6 +143,7 @@ class Downloader:
 		self.provider = self.params_get('provider')
 		self.action = self.params_get('action')
 		self.source = self.params_get('source')
+		self.source_provider = ''
 		self.final_name = None
 
 	def download_runner(self):
@@ -177,12 +185,16 @@ class Downloader:
 			if self.action == 'meta.single':
 				try:
 					source = json.loads(self.source)
+					source_providers = (source.get('cache_provider'), source.get('debrid'), source.get('provider'), source.get('scrape_provider'))
+					self.source_provider = ','.join([str(i) for i in source_providers if i])
 					if source.get('scrape_provider', '') == 'easynews': source['url_dl'] = source['down_url']
-					url = sources.resolve_sources(source, meta=self.meta)
-					if 'torbox' in url:
+					url = sources.resolve_sources(source, meta=self.meta, download=True)
+					if url and any(str(i).lower() in ('torbox', 'tb_cloud') for i in source_providers if i):
 						from apis.torbox_api import TorBoxAPI
 						url = TorBoxAPI().add_headers_to_url(url)
-				except: pass
+				except Exception as e:
+					logger('Fen Light Patched', 'Download resolve failed | action=%s | provider=%s | media=%s | error=%s' % (
+						self.action, self.provider, self.media_type, str(e)))
 			elif self.action == 'meta.pack':
 				if self.provider == 'Real-Debrid':
 					from apis.real_debrid_api import RealDebridAPI as debrid_function
@@ -227,6 +239,8 @@ class Downloader:
 		except: pass
 		self.url = url
 		self.headers = headers
+		logger('Fen Light Patched', 'Download resolved URL | action=%s | provider=%s | source_provider=%s | media=%s | host=%s | headers=%s' % (
+			self.action, self.provider, self.source_provider, self.media_type, safe_url_for_log(self.url), sorted(self.headers.keys())))
 
 	def get_download_folder(self):
 		self.down_folder = download_directory(self.media_type)
@@ -283,12 +297,19 @@ class Downloader:
 
 	def download_check(self):
 		self.resp = self.get_response()
-		if not self.resp: return False
+		if not self.resp:
+			logger('Fen Light Patched', 'Download check failed | reason=no_response | action=%s | provider=%s | url=%s' % (
+				self.action, self.provider, safe_url_for_log(self.url)))
+			return False
 		try: self.content = int(self.resp.headers['Content-Length'])
 		except: self.content = 0
 		try: self.resumable = 'bytes' in self.resp.headers['Accept-Ranges'].lower()
 		except: self.resumable = False
-		if self.content < 1: return False
+		if self.content < 1:
+			logger('Fen Light Patched', 'Download check failed | reason=no_content_length | action=%s | provider=%s | url=%s | status=%s | content_type=%s | transfer_encoding=%s | accept_ranges=%s' % (
+				self.action, self.provider, safe_url_for_log(self.url), getattr(self.resp, 'status', 'unknown'),
+				self.resp.headers.get('Content-Type'), self.resp.headers.get('Transfer-Encoding'), self.resp.headers.get('Accept-Ranges')))
+			return False
 		self.size = 1024 * 1024
 		self.mb = self.content / (1024 * 1024)
 		if self.content < self.size: self.size = self.content
@@ -372,7 +393,10 @@ class Downloader:
 			req = Request(self.url, headers=headers)
 			resp = urlopen(req, context=ctx, timeout=30)
 			return resp
-		except: return None
+		except Exception as e:
+			logger('Fen Light Patched', 'Download HTTP open failed | action=%s | provider=%s | url=%s | error=%s' % (
+				self.action, self.provider, safe_url_for_log(self.url), str(e)))
+			return None
 
 	def finish_download(self, status):
 		if self.action == 'image':
