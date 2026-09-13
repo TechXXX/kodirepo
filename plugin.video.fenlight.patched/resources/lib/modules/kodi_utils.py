@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
+import json
 import xbmc, xbmcgui, xbmcplugin, xbmcvfs, xbmcaddon
 from os import path as osPath
 from xml.etree import ElementTree
@@ -108,8 +109,30 @@ def add_context_menu_items(listitem, cm_items, replace_items=False):
 def add_kodi_favourite(params):
 	name, target = params.get('name') or params.get('title') or 'Fen Light Patched', params.get('path')
 	thumb, is_folder = params.get('thumb', ''), params.get('is_folder') == 'true'
-	if not target:
-		return notification('Error', 3500)
+	if not target: return notification('Error', 3500)
+	kodi_added, kodi_exists = _add_kodi_favourite_jsonrpc(name, target, thumb, is_folder)
+	if not kodi_added:
+		kodi_added, kodi_exists = _write_kodi_favourite_xml(name, target, thumb, is_folder)
+	fenlight_added, fenlight_exists = _add_fenlight_favourite(params)
+	if kodi_added or fenlight_added: return notification('Added to favourites', 3500)
+	if kodi_exists or fenlight_exists: return notification('Already in favourites', 3500)
+	return notification('Error', 3500)
+
+def _add_kodi_favourite_jsonrpc(name, target, thumb, is_folder):
+	try:
+		json_params = {'title': name, 'thumbnail': thumb}
+		if is_folder:
+			json_params.update({'type': 'window', 'window': 'videos', 'windowparameter': target})
+		else:
+			json_params.update({'type': 'media', 'path': target})
+		response = json.loads(execute_JSON(json.dumps({'jsonrpc': '2.0', 'method': 'Favourites.AddFavourite', 'params': json_params, 'id': 1})) or '{}')
+		if response.get('result') == 'OK': return True, False
+		error_message = ((response.get('error') or {}).get('message') or '').lower()
+		return False, 'already' in error_message or 'exist' in error_message
+	except:
+		return False, False
+
+def _write_kodi_favourite_xml(name, target, thumb, is_folder):
 	command = 'ActivateWindow(10025,"%s",return)' % target if is_folder else 'PlayMedia("%s")' % target
 	favourites_path = translatePath('special://profile/favourites.xml')
 	try:
@@ -123,10 +146,10 @@ def add_kodi_favourite(params):
 		try:
 			root = ElementTree.fromstring(content)
 			if any((item.text or '') == command for item in root.findall('favourite')):
-				return notification('Already in favourites', 3500)
+				return False, True
 		except:
 			if escape(command) in content:
-				return notification('Already in favourites', 3500)
+				return False, True
 		attrs = ' name=%s' % quoteattr(name)
 		if thumb: attrs += ' thumb=%s' % quoteattr(thumb)
 		favourite = '    <favourite%s>%s</favourite>' % (attrs, escape(command))
@@ -136,9 +159,23 @@ def add_kodi_favourite(params):
 		favourites_file = File(favourites_path, 'w')
 		favourites_file.write(content)
 		favourites_file.close()
-		return notification('Added to favourites', 3500)
+		return True, False
 	except:
-		return notification('Error', 3500)
+		return False, False
+
+def _add_fenlight_favourite(params):
+	media_type, tmdb_id = params.get('media_type'), params.get('tmdb_id')
+	if not media_type or not tmdb_id: return False, False
+	if media_type == 'tvshow' and params.get('is_anime') in (True, 'True', 'true'): media_type = 'anime'
+	if not media_type in ('movie', 'tvshow', 'anime'): return False, False
+	try:
+		from caches.favorites_cache import favorites_cache
+		tmdb_id = str(tmdb_id)
+		title = params.get('title') or params.get('name') or ''
+		if any(i['tmdb_id'] == tmdb_id for i in favorites_cache.get_favorites(media_type)): return False, True
+		return favorites_cache.set_favourite(media_type, tmdb_id, title), False
+	except:
+		return False, False
 
 def add_dir(url_params, list_name, handle, iconImage='folder', fanartImage=None, isFolder=True):
 	fanart = fanartImage or get_addon_fanart()
