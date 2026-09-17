@@ -12,6 +12,7 @@ ExtendedMap = namedtuple("ExtendedMap", "base unique_id overwrite data")
 FTV_WITHOUT_SEASONS = 0
 FTV_TVSHOWS_SEASONS = 1
 FTV_SEASONS_SEASONS = 2
+TMDB_ARTWORK_TYPES = ('backdrops', 'posters', 'stills', 'logos', 'profiles', )
 
 
 def get_blanks_none(i):
@@ -640,6 +641,8 @@ class ItemMapperMethods:
         data = []
 
         for artwork_type, artworks in items.items():
+            if artwork_type not in TMDB_ARTWORK_TYPES:
+                continue
             for artwork in artworks:
                 path = artwork['file_path']
                 data.append(
