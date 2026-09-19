@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import os
+import re
 import sys
 import time
 import traceback
@@ -206,8 +207,8 @@ class Sources():
 			results = self.filter_audio(results)
 			for file_type in filter_keys: results = self.special_filter(results, file_type)
 		results = self.sort_preferred_autoplay(results)
-		results = self.sort_first(results)
 		results = self.sort_subtitle_ready_autoplay(results)
+		results = self.sort_first(results)
 		return results
 
 	def sort_results(self, results):
@@ -1019,6 +1020,63 @@ class Sources():
 		if not pack_id or not source_id: return results
 		return [i for i in results if not (i.get('sports_event_cloud') and i.get('sports_event_pack_id') == pack_id and i.get('id') != source_id)]
 
+	def _preferred_cloud_subtitle_languages(self):
+		preferred = str(jsonrpc_get_system_setting('locale.subtitlelanguage', '') or '').strip()
+		languages = {preferred.lower()} if preferred else set()
+		for language_format in (getattr(kodi_utils.xbmc, 'ISO_639_1', None), getattr(kodi_utils.xbmc, 'ISO_639_2', None)):
+			if language_format is None: continue
+			try:
+				converted = kodi_utils.convertLanguage(preferred, language_format)
+				if converted: languages.add(str(converted).lower())
+			except: pass
+		language_aliases = {
+			'dutch': ('nl', 'nld', 'dut', 'nederlands'),
+			'english': ('en', 'eng'),
+			'german': ('de', 'deu', 'ger'),
+			'french': ('fr', 'fra', 'fre'),
+			'spanish': ('es', 'spa'),
+		}
+		for language in tuple(languages):
+			for name, aliases in language_aliases.items():
+				if language == name or language in aliases: languages.update((name,) + aliases)
+		return languages
+
+	def _prepare_cloud_subtitles(self, item):
+		if item.get('scrape_provider') != 'tb_cloud': return []
+		subtitles = item.get('cloud_subtitles') or []
+		if not subtitles: return []
+		preferred_languages = self._preferred_cloud_subtitle_languages()
+		subtitles = sorted(subtitles, key=lambda subtitle: (
+			0 if subtitle.get('language', '').lower() in preferred_languages else 1,
+			0 if subtitle.get('same_stem') else 1,
+			0 if subtitle.get('language') else 1,
+			subtitle.get('name', '').lower(),
+		))
+		subtitle_dir = kodi_utils.translate_path('special://profile/addon_data/plugin.video.fenlight.patched/cloud_subtitles')
+		try: kodi_utils.make_directories(subtitle_dir)
+		except: pass
+		debrid_function = self.debrid_importer('tb_cloud')()
+		prepared = []
+		for subtitle in subtitles[:3]:
+			try:
+				file_id = '%d,%d' % (int(subtitle['folder_id']), int(subtitle['id']))
+				direct_debrid_link = subtitle.get('direct_debrid_link')
+				if direct_debrid_link == 'usenet': subtitle_url = debrid_function.unrestrict_usenet(file_id)
+				elif direct_debrid_link == 'webdl': subtitle_url = debrid_function.unrestrict_webdl(file_id)
+				else: subtitle_url = debrid_function.unrestrict_link(file_id)
+				if not subtitle_url: continue
+				file_name = os.path.basename((subtitle.get('name') or 'cloud.srt').replace('\\', '/'))
+				file_name = re.sub(r'[^A-Za-z0-9._ -]+', '_', file_name)
+				destination = os.path.join(subtitle_dir, '%s_%s_%s' % (subtitle['folder_id'], subtitle['id'], file_name))
+				if not kodi_utils.path_exists(destination):
+					if not kodi_utils.copy_file(subtitle_url, destination): destination = subtitle_url
+				prepared.append(destination)
+			except: continue
+		if prepared:
+			logger('Fen Light Patched', 'TorBox cloud sidecar subtitles prepared | source=%s | count=%s | first=%s' % (
+				item.get('name', ''), len(prepared), subtitles[0].get('name', '')))
+		return prepared
+
 	def play_file(self, results, source={}):
 		self.playback_successful, self.cancel_all_playback = None, False
 		try:
@@ -1084,6 +1142,7 @@ class Sources():
 						if self.progress_dialog.iscanceled() or monitor.abortRequested(): break
 						url = self.resolve_sources(item)
 						if url:
+							item['cloud_subtitle_paths'] = self._prepare_cloud_subtitles(item)
 							resolve_percent = 0
 							self.progress_dialog.busy_spinner('false')
 							self.progress_dialog.update_resolver(percent=resolve_percent)

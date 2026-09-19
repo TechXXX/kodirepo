@@ -226,7 +226,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.106">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.107">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -250,7 +250,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.106]:
+            <news>[v2.0.107]:
+  * Detect and attach matching TorBox cloud sidecar subtitles during playback, with preferred-language ordering.
+  * Tighten TorBox cloud episode matching for files with explicit season/episode markers.
+
+[v2.0.106]:
   * Add favourites through Kodi's live favourites service and sync movie/TV rows into Fen Light favourites.
 
 [v2.0.104]:

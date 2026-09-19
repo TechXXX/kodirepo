@@ -13,6 +13,7 @@ internal_results, check_title, clean_title, get_aliases_titles = source_utils.in
 get_file_info, release_info_format, seas_ep_filter = source_utils.get_file_info, source_utils.release_info_format, source_utils.seas_ep_filter
 TorBox = TorBoxAPI()
 extensions = source_utils.supported_video_extensions()
+subtitle_extensions = ('.srt', '.ass', '.ssa', '.vtt', '.sub')
 
 class source:
 	def __init__(self):
@@ -25,6 +26,7 @@ class source:
 			self.folder_results, self.scrape_results = [], []
 			filter_title = filter_by_name(self.scrape_provider)
 			self.media_type, title = info.get('media_type'), info.get('title')
+			self.title = title
 			self.year, self.season, self.episode = int(info.get('year')), info.get('season'), info.get('episode')
 			self.tmdb_id, self.imdb_id = info.get('tmdb_id'), info.get('imdb_id')
 			self.force_usenet_search = info.get('force_tb_usenet_search') in (True, 'true', 'True')
@@ -71,14 +73,21 @@ class source:
 						if item.get('package_size'):
 							try: size_label = 'PACK %.2f GB' % round(float(int(item['package_size']))/1073741824, 2)
 							except: pass
-						video_quality, details = get_file_info(name_info=release_info_format(file_name))
+						release_name = item.get('release_name') or item.get('name') or file_name
+						video_quality, details = get_file_info(name_info=release_info_format(release_name))
 						if source_label: details = ' | '.join([i for i in (details, source_label) if i])
+						cloud_subtitles = item.get('cloud_subtitles') or []
+						if cloud_subtitles:
+							subtitle_languages = sorted(set(i.get('language', '').upper() for i in cloud_subtitles if i.get('language')))
+							subtitle_label = 'CLOUD SUBS%s' % (' %s' % '/'.join(subtitle_languages) if subtitle_languages else '')
+							details = ' | '.join([i for i in (details, subtitle_label) if i])
 						sports_event_cloud = self._is_sports_event_movie() and direct_debrid_link not in ('usenet_search', 'aiostreams_usenet')
 						sports_event_part = self._sports_event_part_label(file_name) if sports_event_cloud else ''
 						sports_event_pack_id = '%s:%s:%s' % (self.scrape_provider, direct_debrid_link or 'torrent', item.get('folder_id')) if sports_event_cloud else ''
 						source_item = {'name': file_name, 'display_name': display_name, 'quality': video_quality, 'size': size, 'size_label': size_label,
 									'extraInfo': details, 'url_dl': file_dl, 'id': source_id, 'downloads': False, 'direct': True, 'source': source_site,
 								'scrape_provider': self.scrape_provider, 'direct_debrid_link': direct_debrid_link, 'hash': item.get('hash'),
+								'cloud_subtitles': cloud_subtitles,
 								'sports_event_cloud': sports_event_cloud, 'sports_event_part': sports_event_part, 'sports_event_pack_id': sports_event_pack_id}
 						yield source_item
 					except: pass
@@ -99,7 +108,9 @@ class source:
 				if not item['download_finished']: continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
-				for file in self._cloud_video_files(item.get('files', [])):
+				files = item.get('files', [])
+				for file in self._cloud_video_files(files):
+					file = dict(file)
 					file_name = file.get('short_name') or file.get('name') or ''
 					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
@@ -108,9 +119,11 @@ class source:
 						if self._is_sports_event_movie():
 							if not self._sports_event_file_matches(normalized): continue
 						elif not any(x in normalized for x in year_query_list): continue
-					elif not seas_ep_filter(self.season, self.episode, normalized): continue
+					elif not self._cloud_episode_matches(file_name): continue
 					file['short_name'] = file_name
+					file['release_name'] = ' '.join(i for i in (item.get('name'), file.get('name'), file_name) if i)
 					file['folder_id'] = folder_id
+					file['cloud_subtitles'] = self._cloud_subtitle_files(files, file_name, folder_id)
 					append(file)
 		except: return
 
@@ -124,7 +137,9 @@ class source:
 				if not item['download_finished']: continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
-				for file in self._cloud_video_files(item.get('files', [])):
+				files = item.get('files', [])
+				for file in self._cloud_video_files(files):
+					file = dict(file)
 					file_name = file.get('short_name') or file.get('name') or ''
 					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
@@ -133,10 +148,12 @@ class source:
 						if self._is_sports_event_movie():
 							if not self._sports_event_file_matches(normalized): continue
 						elif not any(x in normalized for x in year_query_list): continue
-					elif not seas_ep_filter(self.season, self.episode, normalized): continue
+					elif not self._cloud_episode_matches(file_name): continue
 					file['short_name'] = file_name
+					file['release_name'] = ' '.join(i for i in (item.get('name'), file.get('name'), file_name) if i)
 					file['folder_id'] = folder_id
 					file['direct_debrid_link'] = 'usenet'
+					file['cloud_subtitles'] = self._cloud_subtitle_files(files, file_name, folder_id, 'usenet')
 					append(file)
 		except: return
 
@@ -150,7 +167,9 @@ class source:
 				if not item['download_finished']: continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
-				for file in self._cloud_video_files(item.get('files', [])):
+				files = item.get('files', [])
+				for file in self._cloud_video_files(files):
+					file = dict(file)
 					file_name = file.get('short_name') or file.get('name') or ''
 					if not folder_matches and not self._matches_cloud_folder_query(file_name): continue
 					normalized = normalize(file_name)
@@ -159,11 +178,13 @@ class source:
 						if self._is_sports_event_movie():
 							if not self._sports_event_file_matches(normalized): continue
 						elif not any(x in normalized for x in year_query_list): continue
-					elif not seas_ep_filter(self.season, self.episode, normalized): continue
+					elif not self._cloud_episode_matches(file_name): continue
 					file['short_name'] = file_name
+					file['release_name'] = ' '.join(i for i in (item.get('name'), file.get('name'), file_name) if i)
 					file['name'] = file_name
 					file['folder_id'] = folder_id
 					file['direct_debrid_link'] = 'webdl'
+					file['cloud_subtitles'] = self._cloud_subtitle_files(files, file_name, folder_id, 'webdl')
 					append(file)
 		except: return
 
@@ -217,6 +238,53 @@ class source:
 			file_name = item.get('short_name') or item.get('name') or ''
 			if file_name.endswith(tuple(extensions)): video_files.append(item)
 		return video_files
+
+	def _cloud_subtitle_files(self, files, video_file_name, folder_id, direct_debrid_link=False):
+		video_stem = clean_title(normalize(re.sub(r'\.[^.]+$', '', video_file_name or '')))
+		subtitles = []
+		for item in files:
+			file_name = item.get('short_name') or item.get('name') or ''
+			if not file_name.lower().endswith(subtitle_extensions): continue
+			normalized = normalize(file_name)
+			if self.media_type == 'episode':
+				if not self._cloud_episode_matches(file_name, title_check=False): continue
+			else:
+				subtitle_stem = re.sub(r'(?i)(?:[._ -](?:[a-z]{2,3}))?\.(?:srt|ass|ssa|vtt|sub)$', '', file_name)
+				if clean_title(normalize(subtitle_stem)) != video_stem: continue
+			language_match = re.search(r'(?i)[._ -]([a-z]{2,3})\.(?:srt|ass|ssa|vtt|sub)$', file_name)
+			language = language_match.group(1).lower() if language_match else ''
+			subtitle_stem = re.sub(r'(?i)(?:[._ -](?:[a-z]{2,3}))?\.(?:srt|ass|ssa|vtt|sub)$', '', file_name)
+			subtitle = dict(item)
+			subtitle.update({
+				'name': file_name,
+				'folder_id': folder_id,
+				'direct_debrid_link': direct_debrid_link,
+				'language': language,
+				'same_stem': clean_title(normalize(subtitle_stem)) == video_stem,
+			})
+			subtitles.append(subtitle)
+		subtitles.sort(key=lambda item: (not item.get('same_stem'), not bool(item.get('language')), item.get('name', '').lower()))
+		return subtitles
+
+	def _cloud_episode_matches(self, file_name, title_check=True):
+		file_name = normalize(file_name or '')
+		patterns = (
+			r'(?i)(?:^|[^a-z0-9])s(?:eason)?[._ -]*0*(\d{1,3})[._ -]*e(?:p(?:isode)?)?[._ -]*0*(\d{1,4})(?:[._ -]*e(?:p(?:isode)?)?[._ -]*0*(\d{1,4}))?',
+			r'(?i)(?:^|[^a-z0-9])0*(\d{1,3})x0*(\d{1,4})'
+		)
+		explicit_marker = False
+		for pattern in patterns:
+			for match in re.finditer(pattern, file_name):
+				explicit_marker = True
+				season = int(match.group(1))
+				episodes = [int(value) for value in match.groups()[1:] if value is not None]
+				if season != int(self.season) or int(self.episode) not in episodes: continue
+				if not title_check: return True
+				if check_title(self.title, file_name, self.aliases, self.year, self.season, self.episode): return True
+				title_prefix = clean_title(normalize(file_name[:match.start()]))
+				if not title_prefix or title_prefix in self._cloud_title_queries(): return True
+		if explicit_marker: return False
+		return seas_ep_filter(self.season, self.episode, file_name)
 
 	def _matches_cloud_folder_query(self, name):
 		name = clean_title(normalize(name or ''))

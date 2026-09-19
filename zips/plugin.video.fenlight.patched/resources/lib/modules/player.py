@@ -272,6 +272,10 @@ class FenLightPlayer(xbmc_player):
 		listitem = make_listitem()
 		listitem.setPath(self.url)
 		listitem.setContentLookup(False)
+		cloud_subtitle_paths = (getattr(self, 'playing_item', {}) or {}).get('cloud_subtitle_paths') or []
+		if cloud_subtitle_paths:
+			try: listitem.setSubtitles(cloud_subtitle_paths)
+			except: pass
 		if self.is_generic:
 			info_tag = listitem.getVideoInfoTag()
 			info_tag.setMediaType('video')
