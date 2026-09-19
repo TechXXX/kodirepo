@@ -227,7 +227,7 @@ class Sources():
 			folder_results = [i for i in results if i['scrape_provider'] == 'folders']
 			results = [i for i in results if not i in folder_results]
 		else: folder_results = []
-		results = [i for i in results if i['quality'] in self.quality_filter]
+		results = [i for i in results if self._personal_cloud_result(i) or i['quality'] in self.quality_filter]
 		if self.filter_size_method:
 			min_size = string_to_float(get_setting('fenlight.results.%s_size_min' % self.media_type, '0'), '0') / 1000
 			if min_size == 0.0 and not self.include_unknown_size: min_size = 0.02
@@ -236,22 +236,27 @@ class Sources():
 				max_size = ((0.125 * (0.90 * string_to_float(get_setting('results.line_speed', '25'), '25'))) * duration)/1000
 			elif self.filter_size_method == 2:
 				max_size = string_to_float(get_setting('fenlight.results.%s_size_max' % self.media_type, '10000'), '10000') / 1000
-			results = [i for i in results if i['scrape_provider'] == 'folders' or min_size <= i['size'] <= max_size]
+			results = [i for i in results if self._personal_cloud_result(i) or i['scrape_provider'] == 'folders' or min_size <= i['size'] <= max_size]
 		results += folder_results
 		return results
 
+	def _personal_cloud_result(self, item):
+		provider = item.get('scrape_provider')
+		if not provider in cloud_scrapers: return False
+		return not (provider == 'tb_cloud' and item.get('direct_debrid_link') in ('usenet_search', 'aiostreams_usenet'))
+
 	def filter_audio(self, results):
-		return [i for i in results if not any(x in i['extraInfo'] for x in audio_filters())]
+		return [i for i in results if self._personal_cloud_result(i) or not any(x in i['extraInfo'] for x in audio_filters())]
 
 	def special_filter(self, results, file_type):
 		enable_setting, key = filter_status(file_type), filter_keys[file_type]
 		if key == '[B]HEVC[/B]' and enable_setting == 0:
 			hevc_max_quality = self._get_quality_rank(get_setting('fenlight.filter.hevc.%s' % ('max_autoplay_quality' if self.autoplay else 'max_quality'), '4K'))
-			results = [i for i in results if not key in i['extraInfo'] or i['quality_rank'] >= hevc_max_quality]
+			results = [i for i in results if self._personal_cloud_result(i) or not key in i['extraInfo'] or i['quality_rank'] >= hevc_max_quality]
 		if enable_setting == 1:
 			if key == '[B]D/VISION[/B]' and filter_status('hdr') == 0:
-				results = [i for i in results if all(x in i['extraInfo'] for x in (key, '[B]HDR[/B]')) or not key in i['extraInfo']]
-			else: results = [i for i in results if not key in i['extraInfo']]
+				results = [i for i in results if self._personal_cloud_result(i) or all(x in i['extraInfo'] for x in (key, '[B]HDR[/B]')) or not key in i['extraInfo']]
+			else: results = [i for i in results if self._personal_cloud_result(i) or not key in i['extraInfo']]
 		return results
 
 	def sort_first(self, results):
@@ -259,9 +264,9 @@ class Sources():
 			sort_first_scrapers = []
 			if 'folders' in self.all_scrapers and sort_to_top('folders'): sort_first_scrapers.append('folders')
 			sort_first_scrapers.extend([i for i in self.all_scrapers if i in cloud_scrapers and sort_to_top(i)])
-			if not sort_first_scrapers: return results
-			sort_first = [i for i in results if i['scrape_provider'] in sort_first_scrapers
-						and not (i.get('scrape_provider') == 'tb_cloud' and i.get('direct_debrid_link') in ('usenet_search', 'aiostreams_usenet'))]
+			sort_first = [i for i in results if self._personal_cloud_result(i) or (i['scrape_provider'] in sort_first_scrapers
+						and not (i.get('scrape_provider') == 'tb_cloud' and i.get('direct_debrid_link') in ('usenet_search', 'aiostreams_usenet')))]
+			if not sort_first: return results
 			sort_first.sort(key=lambda k: (self._sort_folder_to_top(k['scrape_provider']), k['quality_rank']))
 			sort_last = [i for i in results if not i in sort_first]
 			results = sort_first + sort_last

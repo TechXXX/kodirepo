@@ -232,22 +232,28 @@ class TorBoxAPI:
 			torrent_files = self.torrent_info(torrent_id)
 			selected_files = [{'url': '%d,%d' % (torrent_id, item['id']), 'filename': item['short_name'], 'size': item['size']} \
 							for item in torrent_files['data']['files'] if item['short_name'].lower().endswith(tuple(extensions))]
-			if not selected_files: return None
+			if not selected_files:
+				logger('Fen Light Patched', 'TorBox resolve rejected transfer | reason=no_video_files | torrent_id=%s | title=%s' % (torrent_id, title))
+				return None
 			if season:
 				selected_files = [i for i in selected_files if seas_ep_filter(season, episode, i['filename'])]
 			else:
-				if self._m2ts_check(selected_files): return None
+				if self._m2ts_check(selected_files):
+					logger('Fen Light Patched', 'TorBox resolve rejected transfer | reason=m2ts_folder | torrent_id=%s | title=%s' % (torrent_id, title))
+					return None
 				selected_files = [i for i in selected_files if not any(x in i['filename'] for x in extras_filtering_list)]
 				selected_files.sort(key=lambda k: k['size'], reverse=True)
-			if not selected_files: return None
+			if not selected_files:
+				logger('Fen Light Patched', 'TorBox resolve rejected transfer | reason=media_filter | torrent_id=%s | title=%s' % (torrent_id, title))
+				return None
 			file_key = selected_files[0]['url']
 			file_url = self.unrestrict_link(file_key)
-			if not store_to_cloud: Thread(target=self.delete_torrent, args=(torrent_id,)).start()
-			else: logger('Fen Light Patched', 'TorBox resolve keeping transfer alive | torrent_id=%s | title=%s | success=%s' % (torrent_id, title, bool(file_url)))
+			if store_to_cloud and file_url: logger('Fen Light Patched', 'TorBox resolve keeping transfer alive | torrent_id=%s | title=%s | success=True' % (torrent_id, title))
 			return file_url
 		except:
-			if torrent_id: self.delete_torrent(torrent_id)
 			return None
+		finally:
+			if torrent_id and (not store_to_cloud or not file_url): Thread(target=self.delete_torrent, args=(torrent_id,)).start()
 
 	def display_magnet_pack(self, magnet_url, info_hash, download=False):
 		from modules.source_utils import supported_video_extensions
