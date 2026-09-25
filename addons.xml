@@ -226,7 +226,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.108">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.109">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -250,7 +250,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.108]:
+            <news>[v2.0.109]:
+  * Suppress IntroDB skip and next-episode triggers during unstable playback time jumps.
+  * Filter TorBox episode resolves against extras clips before choosing the largest file.
+
+[v2.0.108]:
   * Keep personal cloud results from being hidden by quality, size, audio, and video-format filters.
   * Clean up failed TorBox resolve transfers while keeping successful stored transfers alive.
 

@@ -179,6 +179,8 @@ class TorBoxAPI:
 			if season:
 				pre_filter_count = len(selected_files)
 				selected_files = [i for i in selected_files if seas_ep_filter(season, episode, i['filename'])]
+				selected_files = [i for i in selected_files if not any(x in i['filename'].lower() for x in extras_filtering_list)]
+				selected_files.sort(key=lambda k: k['size'], reverse=True)
 				if not selected_files:
 					logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=episode_filter | usenet_id=%s | before=%s | target=S%02dE%02d' % (
 						usenet_id, pre_filter_count, int(season), int(episode)))
@@ -186,7 +188,7 @@ class TorBoxAPI:
 				if self._m2ts_check(selected_files):
 					logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=m2ts_folder | usenet_id=%s' % usenet_id)
 					return None
-				selected_files = [i for i in selected_files if not any(x in i['filename'] for x in extras_filtering_list)]
+				selected_files = [i for i in selected_files if not any(x in i['filename'].lower() for x in extras_filtering_list)]
 				selected_files.sort(key=lambda k: k['size'], reverse=True)
 			if not selected_files: return None
 			chosen_file = selected_files[0]
@@ -237,11 +239,13 @@ class TorBoxAPI:
 				return None
 			if season:
 				selected_files = [i for i in selected_files if seas_ep_filter(season, episode, i['filename'])]
+				selected_files = [i for i in selected_files if not any(x in i['filename'].lower() for x in extras_filtering_list)]
+				selected_files.sort(key=lambda k: k['size'], reverse=True)
 			else:
 				if self._m2ts_check(selected_files):
 					logger('Fen Light Patched', 'TorBox resolve rejected transfer | reason=m2ts_folder | torrent_id=%s | title=%s' % (torrent_id, title))
 					return None
-				selected_files = [i for i in selected_files if not any(x in i['filename'] for x in extras_filtering_list)]
+				selected_files = [i for i in selected_files if not any(x in i['filename'].lower() for x in extras_filtering_list)]
 				selected_files.sort(key=lambda k: k['size'], reverse=True)
 			if not selected_files:
 				logger('Fen Light Patched', 'TorBox resolve rejected transfer | reason=media_filter | torrent_id=%s | title=%s' % (torrent_id, title))

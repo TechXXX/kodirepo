@@ -27,6 +27,9 @@ post_stop_bookmark_clear_retry_ms = 500
 post_stop_bookmark_clear_attempts = 3
 audio_language_check_attempts_max = 8
 audio_language_check_settle_ms = 150
+playback_time_jump_threshold = 90
+playback_time_jump_settle_checks = 8
+nextep_near_end_confirmations = 3
 unwanted_audio_language_map = {
 	'ru': 'Russian',
 	'rus': 'Russian',
@@ -155,6 +158,7 @@ class FenLightPlayer(xbmc_player):
 						if audio_language_decision == 'skip': return
 						ensure_dialog_dead = True
 						self.playback_close_dialogs()
+					self.update_playback_time_guard()
 					self.introdb_handle_skip_segments()
 					sleep(1000)
 					self.current_point = round(float(self.curr_time/self.total_time * 100), 1)
@@ -164,7 +168,7 @@ class FenLightPlayer(xbmc_player):
 					if self.autoplay_nextep or self.autoscrape_nextep:
 						if not self.nextep_info_gathered: self.info_next_ep()
 						else: self.apply_introdb_next_episode_timing()
-						if round(self.total_time - self.curr_time) <= self.start_prep: self.run_next_ep(); break
+						if self.should_run_next_ep(): self.run_next_ep(); break
 				except: pass
 			hide_busy_dialog()
 			if not self.media_marked: self.media_watched_marker()
@@ -371,6 +375,50 @@ class FenLightPlayer(xbmc_player):
 		if not self.media_marked: self.media_watched_marker(force_watched=True)
 		EpisodeTools(self.meta).play_random_continual(False)
 
+	def update_playback_time_guard(self):
+		try:
+			current_time, total_time = float(self.curr_time), float(self.total_time)
+			self.playback_time_unstable = False
+			if total_time <= 0 or current_time < 0 or current_time > total_time + 15:
+				self.playback_time_settle_checks = max(self.playback_time_settle_checks, playback_time_jump_settle_checks)
+				self.nextep_near_end_count = 0
+				self.playback_time_unstable = True
+				return
+			last_time = self.last_playback_time
+			if last_time is not None and abs(current_time - last_time) > playback_time_jump_threshold:
+				self.playback_time_settle_checks = playback_time_jump_settle_checks
+				self.nextep_near_end_count = 0
+				logger('Fen Light Patched', 'Player time jump detected; suppressing timed actions briefly | previous=%.1f | current=%.1f | total=%.1f' % (
+					last_time, current_time, total_time))
+			if self.playback_time_settle_checks > 0:
+				self.playback_time_settle_checks -= 1
+				self.playback_time_unstable = True
+			self.last_playback_time = current_time
+		except:
+			self.playback_time_unstable = True
+
+	def should_run_next_ep(self):
+		try:
+			if getattr(self, 'playback_time_unstable', False):
+				self.nextep_near_end_count = 0
+				return False
+			total_time, current_time = float(self.total_time), float(self.curr_time)
+			remaining = total_time - current_time
+			if total_time <= 0 or current_time < 0 or remaining < -5:
+				self.nextep_near_end_count = 0
+				return False
+			if round(remaining) > self.start_prep:
+				self.nextep_near_end_count = 0
+				return False
+			self.nextep_near_end_count += 1
+			if self.nextep_near_end_count < nextep_near_end_confirmations: return False
+			logger('Fen Light Patched', 'Next episode trigger confirmed | current=%.1f | total=%.1f | remaining=%.1f | start_prep=%s' % (
+				current_time, total_time, remaining, self.start_prep))
+			return True
+		except:
+			self.nextep_near_end_count = 0
+			return False
+
 	def set_resume_point(self, listitem):
 		if self.playback_percent > 0.0: listitem.setProperty('StartPercent', str(self.playback_percent))
 
@@ -444,6 +492,7 @@ class FenLightPlayer(xbmc_player):
 	def introdb_handle_skip_segments(self):
 		try:
 			if not st.introdb_enabled() or not self.introdb_lookup_done or not self.introdb_segments: return
+			if getattr(self, 'playback_time_unstable', False): return
 			if st.introdb_skip_intro(): self.introdb_maybe_show_skip('intro')
 			if st.introdb_skip_recap(): self.introdb_maybe_show_skip('recap')
 		except:
@@ -518,6 +567,8 @@ class FenLightPlayer(xbmc_player):
 			self.introdb_lookup_started, self.introdb_lookup_done = False, False
 			self.introdb_segments, self.introdb_skip_state = {}, {}
 			self.introdb_next_timing_applied = False
+			self.last_playback_time, self.playback_time_unstable = None, False
+			self.playback_time_settle_checks, self.nextep_near_end_count = 0, 0
 			self.playback_started = False
 			self.playback_successful, self.cancel_all_playback = None, False
 			self.playing_item = self.sources_object.playing_item
