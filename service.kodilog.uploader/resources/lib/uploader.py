@@ -203,6 +203,28 @@ def set_setting_string(addon, setting_id, value):
         return False
 
 
+def set_setting_bool(addon, setting_id, value):
+    # Kodi rejects setSettingString() on a setting declared type="bool", so bool
+    # settings must go through setSettingBool() (or the untyped setSetting()).
+    if addon is None:
+        return False
+    value = bool(value)
+    try:
+        if hasattr(addon, "setSettingBool"):
+            addon.setSettingBool(setting_id, value)
+        else:
+            addon.setSetting(setting_id, "true" if value else "false")
+        return True
+    except Exception as exc:
+        try:
+            addon.setSetting(setting_id, "true" if value else "false")
+            return True
+        except Exception:
+            pass
+        log("Could not set %s: %s" % (setting_id, exc), level="warning")
+        return False
+
+
 def ensure_default_settings(addon):
     if get_setting(addon, "server_url", ""):
         pass
@@ -211,9 +233,9 @@ def ensure_default_settings(addon):
     if not get_setting(addon, "auth_token", "") and set_setting_string(addon, "auth_token", DEFAULT_AUTH_TOKEN):
         log("Filled default upload token.")
     if get_setting(addon, "defaults.tv_safe_v1", "") != "true":
-        if set_setting_string(addon, "auto_error_upload", "false"):
+        if set_setting_bool(addon, "auto_error_upload", False):
             log("Applied TV-safe default: disabled error-triggered uploads.")
-        set_setting_string(addon, "defaults.tv_safe_v1", "true")
+        set_setting_bool(addon, "defaults.tv_safe_v1", True)
     configured = get_setting(addon, "device_name", "").strip()
     if configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
         return
