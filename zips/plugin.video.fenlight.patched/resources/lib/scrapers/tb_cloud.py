@@ -105,7 +105,7 @@ class source:
 			try: my_cloud_files = TorBox.user_cloud()
 			except: return self.sources
 			for item in my_cloud_files['data']:
-				if not item['download_finished']: continue
+				if not self._cloud_item_is_playable(item): continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				files = item.get('files', [])
@@ -134,7 +134,7 @@ class source:
 			try: my_cloud_files_usenet = TorBox.user_cloud_usenet()
 			except: return self.sources
 			for item in my_cloud_files_usenet['data']:
-				if not item['download_finished']: continue
+				if not self._cloud_item_is_playable(item): continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				files = item.get('files', [])
@@ -164,7 +164,7 @@ class source:
 			try: my_cloud_files_webdl = TorBox.user_cloud_webdl()
 			except: return self.sources
 			for item in my_cloud_files_webdl['data']:
-				if not item['download_finished']: continue
+				if not self._cloud_item_is_playable(item): continue
 				folder_matches = self._matches_cloud_folder_query(item.get('name'))
 				folder_id = item['id']
 				files = item.get('files', [])
@@ -187,6 +187,12 @@ class source:
 					file['cloud_subtitles'] = self._cloud_subtitle_files(files, file_name, folder_id, 'webdl')
 					append(file)
 		except: return
+
+	def _cloud_item_is_playable(self, item):
+		if not item.get('download_finished'): return False
+		if item.get('download_present') is False: return False
+		state = str(item.get('download_state') or item.get('status') or '').lower()
+		return not any(marker in state for marker in ('expired', 'failed', 'deleted', 'removed', 'unavailable'))
 
 	def _scrape_usenet_search(self):
 		try:
