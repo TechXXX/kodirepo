@@ -1,0 +1,6 @@
+{
+  "case": "Californication S04E05 embedded English versus external OpenSubtitles SRT",
+  "expected_offset_ms": 1000,
+  "embedded_start_ms": [8133, 15300, 22100, 28600, 34900, 42300, 51000, 59300, 68100, 76100, 84600, 93200, 101700, 111200, 120400, 130100],
+  "external_start_ms": [7133, 14300, 21100, 27600, 33900, 41300, 50000, 58300, 67100, 75100, 83600, 92200, 100700, 110200, 119400, 129100]
+}

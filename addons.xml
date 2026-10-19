@@ -1351,7 +1351,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.45" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.46" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1376,6 +1376,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.46]:
+  * Align a selector-downloaded external UTF-8 SRT in the background when its timing has a strong match with an embedded Matroska text subtitle track. The bounded probe reads container metadata, Cue indexes, and sampled block headers only; uncertain results keep the original subtitle.
+
 [v3.23.45]:
   * Preserve existing raw subtitle language suffixes while still appending a subtitle extension, so OpenSubtitles raw downloads no longer generate double-language filenames.
 

@@ -268,11 +268,12 @@ def start(api):
     ai_translation_active = False
     ai_translation_source = ''
     attached_subtitle_active = False
+    sync_started_subfiles = set()
 
     def reset():
         nonlocal has_done_subs_check, prev_playing_filename, ai_last_timestamp, ai_tries
         nonlocal fast_selector_poll_until, ai_translation_active, ai_translation_source
-        nonlocal attached_subtitle_active
+        nonlocal attached_subtitle_active, sync_started_subfiles
 
         has_done_subs_check = False
         prev_playing_filename = ''
@@ -282,6 +283,7 @@ def start(api):
         ai_translation_active = False
         ai_translation_source = ''
         attached_subtitle_active = False
+        sync_started_subfiles = set()
 
     def prepare_runtime_attach_subfile(subfile):
         try:
@@ -421,6 +423,90 @@ def start(api):
                 return '-->' in handle.read(4096)
         except:
             return False
+
+    def start_background_subtitle_sync(subfile):
+        """Align a newly attached external SRT without delaying playback."""
+        if not subfile or '.autosync.' in core.os.path.basename(subfile):
+            return
+        try:
+            if not core.kodi.get_bool_setting('general', 'auto_sync_subtitles'):
+                return
+        except:
+            return
+
+        playback_url = current_playing_url()
+        if playback_url.startswith('plugin://'):
+            playback_url = core.kodi.get_property(selector_playback_url_prop) or ''
+        if not playback_url or playback_url.startswith('plugin://'):
+            core.logger.debug('Background subtitle sync skipped: no direct playback URL')
+            return
+
+        sync_key = '%s|%s' % (playback_url, subfile)
+        if sync_key in sync_started_subfiles:
+            return
+        sync_started_subfiles.add(sync_key)
+        selector_source_key = core.kodi.get_property(selector_source_key_prop)
+
+        def worker():
+            try:
+                from a4kSubtitles.subtitle_sync import embedded_cue_starts, find_offset, retime_srt, subtitle_starts
+
+                with open(subfile, 'rb') as handle:
+                    original_bytes = handle.read()
+                try:
+                    original_text = original_bytes.decode('utf-8-sig')
+                except UnicodeDecodeError:
+                    core.logger.debug('Background subtitle sync skipped: external SRT is not UTF-8')
+                    return
+
+                reference_starts = embedded_cue_starts(playback_url)
+                result = find_offset(reference_starts, subtitle_starts(original_text))
+                if not result:
+                    core.logger.debug(
+                        'Background subtitle sync found no confident timing match | embedded_cues=%s | subtitle=%s' % (
+                            len(reference_starts), subfile,
+                        )
+                    )
+                    return
+
+                offset_ms = result['offset_ms']
+                if abs(offset_ms) < 150:
+                    core.logger.debug('Background subtitle sync: subtitle already aligned | subtitle=%s' % subfile)
+                    return
+
+                # Do not attach a completed worker result to a later episode.
+                if not core.kodi.xbmc.Player().isPlayingVideo():
+                    return
+                if current_playing_url() != playback_url:
+                    return
+                if selector_source_key and core.kodi.get_property(selector_source_key_prop) != selector_source_key:
+                    return
+
+                root, extension = core.os.path.splitext(subfile)
+                output_file = '%s.autosync.%+dms%s' % (root, offset_ms, extension or '.srt')
+                with open(output_file, 'w', encoding='utf-8') as handle:
+                    handle.write(retime_srt(original_text, offset_ms))
+
+                # Recheck after writing, because range probing is asynchronous.
+                if not core.kodi.xbmc.Player().isPlayingVideo() or current_playing_url() != playback_url:
+                    return
+                core.kodi.xbmc.Player().setSubtitles(output_file)
+                try:
+                    core.kodi.xbmc.Player().showSubtitles(True)
+                except:
+                    pass
+                core.logger.debug(
+                    'Background subtitle sync applied | offset_ms=%s | votes=%s | matched_cues=%s | subtitle=%s' % (
+                        offset_ms, result['votes'], result['matched_cues'], output_file,
+                    )
+                )
+            except Exception as exc:
+                core.logger.debug('Background subtitle sync failed: %s' % exc)
+
+        import threading
+        thread = threading.Thread(target=worker, name='a4k-subtitle-sync')
+        thread.daemon = True
+        thread.start()
 
     def ai_translated_subfile_path(subfile, target_language, live=False):
         folder = core.os.path.dirname(subfile)
@@ -859,6 +945,7 @@ def start(api):
             core.logger.debug('Setting subtitles: %s' % subfile)
             core.kodi.xbmc.Player().setSubtitles(subfile)
             attached_subtitle_active = True
+            start_background_subtitle_sync(subfile)
             return True
 
         return translate_and_attach_subfile(
