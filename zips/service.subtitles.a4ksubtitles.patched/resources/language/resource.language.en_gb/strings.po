@@ -68,10 +68,6 @@ msgctxt "#33112"
 msgid "AI Model (forced GPT-4.1 mini)"
 msgstr ""
 
-msgctxt "#33113"
-msgid "Auto-sync external subtitles"
-msgstr ""
-
 # Services
 msgctxt "#33201"
 msgid "OpenSubtitles"

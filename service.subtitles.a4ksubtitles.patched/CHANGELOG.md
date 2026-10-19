@@ -1,10 +1,6 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
-* v3.23.46:
-  * Add background timing alignment for selector-downloaded external UTF-8 SRTs. The worker starts only after subtitle attachment, samples the Matroska Cue index through bounded local or HTTP range reads, and replaces the active subtitle only for a clearly dominant fixed offset.
-  * Add a derived numeric regression fixture for Californication S04E05. Its embedded English track establishes that the selected external OpenSubtitles SRT needs a `+1000 ms` shift; no episode media or subtitle text is stored in the repository.
-
 * [v3.23.43](https://github.com/newt-sc/a4kSubtitles%20Patched/releases/tag/service.subtitles.a4ksubtitles.patched%2Fservice.subtitles.a4ksubtitles.patched-3.23.43):
   * Localize translated-subtitle notifications to Dutch when Fen Light Patched's menu language is set to Dutch.
 

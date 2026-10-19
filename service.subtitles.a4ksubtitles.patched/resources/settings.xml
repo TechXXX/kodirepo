@@ -126,16 +126,6 @@
                         <heading>33112</heading>
                     </control>
                 </setting>
-                <setting id="general.auto_sync_subtitles" type="boolean" label="33113" help="">
-                    <level>0</level>
-                    <default>true</default>
-                    <dependencies>
-                        <dependency type="enable">
-                            <condition operator="is" setting="general.auto_download">true</condition>
-                        </dependency>
-                    </dependencies>
-                    <control type="toggle"/>
-                </setting>
             </group>
         </category>
         <category id="services" label="33002" help="">

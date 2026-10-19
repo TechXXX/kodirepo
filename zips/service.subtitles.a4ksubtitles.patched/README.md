@@ -18,8 +18,6 @@ Current important behavior:
 - exposes API mode so patched Fenlight can gather subtitles once per title/run
 - preserves OpenSubtitles translation flags for ranking and notifications
 - prefers built-in subtitle streams before downloading an external file
-- background timing alignment for a selector-downloaded external SRT when an
-  embedded Matroska text-subtitle timeline establishes a high-confidence match
 - shows universal `[AI]`, `[MT]`, and OpenSubtitles-backed `[HD]` badges in
   manual subtitle search rows
 
@@ -109,22 +107,6 @@ of doing a fresh broad runtime search. If playback has moved to another addon
 or a different source, a4k clears the stale selector props and temp subtitle
 files instead of attaching the old Fen subtitle. It still checks for an already
 available preferred-language Kodi subtitle stream first.
-
-### Background subtitle timing alignment
-
-After the service has attached a selector-downloaded external UTF-8 SRT, it
-starts a background probe. It reads only the Matroska header, track table, Cue
-index, and sampled block headers from the resolved local/direct HTTP source;
-it does not extract or download an embedded subtitle track. The probe compares
-cue start times, requires a dominant fixed offset, and only then rewrites and
-reloads a temporary SRT. Playback and subtitle selection continue while this
-runs. Unsupported containers, incomplete indexes, ambiguous timing, and
-non-UTF-8 external files leave the original subtitle in place.
-
-The General setting **Auto-sync external subtitles** is enabled by default.
-`tests/fixtures/californication_s04e05_timing.json` is a derived numeric
-regression fixture for the observed `+1000 ms` case; the media and subtitle
-text remain local manual-test assets.
 
 Keep this property contract stable. If the payload shape changes, update Fen's
 `resources/lib/fenlightsubs/integration.py`, Fen's `modules/player.py`, and
