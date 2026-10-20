@@ -375,12 +375,16 @@ def __apply_language_filter(meta, results):
 
 def __apply_limit(core, all_results, meta):
     limit = core.kodi.get_int_setting('general.results_limit')
-    lang_limit = int(limit / len(meta.languages))
-    if lang_limit * len(meta.languages) < limit:
+    languages = getattr(meta, 'languages', None) or []
+    if not languages:
+        return []
+
+    lang_limit = int(limit / len(languages))
+    if lang_limit * len(languages) < limit:
         lang_limit += 1
 
     results = []
-    for lang in meta.languages:
+    for lang in languages:
         lang_results = list(filter(lambda x: x['lang'] == lang, all_results))
         if len(lang_results) < lang_limit:
             lang_limit += lang_limit - len(lang_results)
