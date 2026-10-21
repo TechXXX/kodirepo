@@ -226,12 +226,12 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.110">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.111">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
             <import addon="plugin.video.youtube" />
-            <import addon="script.module.magneto" version="6.07.06" />
+            <import addon="script.module.cocoscrapers" version="1.0.43" />
             <import addon="service.kodilog.uploader" />
         </requires>
         <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
@@ -250,7 +250,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.110]:
+            <news>[v2.0.111]:
+  * Use CocoScrapers 1.0.43 as the default external scraper and migrate existing Magneto selections to CocoScrapers.
+
+[v2.0.110]:
   * Exclude expired, failed, deleted, unavailable, and missing TorBox cloud downloads from sources before autoplay.
 
 [v2.0.109]:
@@ -737,6 +740,34 @@ v0.0.4
             <assets>
                 <icon>resources/icon.png</icon>
             </assets>
+        </extension>
+    </addon>
+    <addon id="script.module.cocoscrapers" name="CocoScrapers Module" version="1.0.43" provider-name="CocoJoe">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="script.module.requests" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="lib/default.py">
+            <provides>executable</provides>
+        </extension>
+        <extension point="xbmc.service" library="lib/service.py" start="startup" />
+        <extension point="xbmc.python.module" library="lib" />
+        <extension point="xbmc.addon.metadata">
+            <reuselanguageinvoker>false</reuselanguageinvoker>
+            <summary lang="en">CocoScrapers Module</summary>
+            <description>A module that can be used to provide site scrapers.</description>
+            <platform>all</platform>
+            <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+            <forum />
+            <website />
+            <source />
+            <disclaimer lang="en">The author is not responsible for the use of this addon. The author is not responsible for the content found using this addon. The author does not host or own any content found within this addon.[CR]The author is in no way affiliated with Kodi, Team Kodi, or the XBMC Foundation.[CR]This is a Non-profit resource, organized solely for educational purposes which is protected under the Fair-Use doctrine of the Copyright Act, Specifically section 107, which does promote freedom of expression, by permitting the unlicensed use of copyright-protected works.</disclaimer>
+            <assets>
+                <icon>icon.png</icon>
+                <fanart>fanart.png</fanart>
+                <screenshot />
+            </assets>
+            <news>Update Torlock, Knaben, Nyaa, YTS and Kickass</news>
         </extension>
     </addon>
     <addon id="script.module.idna" name="idna" version="3.10.0" provider-name="Kim Davies">
