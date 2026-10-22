@@ -1339,7 +1339,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.8" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.9" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1357,8 +1357,11 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.8
-- Fix TV-safe defaults never being applied: the bool settings were written with setSettingString, which Kodi rejects, so the defaults were retried and logged an "Invalid setting type" warning on every run.
+            <news>v0.1.9
+- Add Kodi's configured weather location to diagnostics, allowing the private log page to show a city when available.
+
+v0.1.8
+- Fix TV-safe defaults never being applied on Kodi 19+.
 
 v0.1.7
 - Add lightweight diagnostics summary with selected add-on versions, dependency status, Fen Light external scraper settings, repository state, skin, and Kodi environment.

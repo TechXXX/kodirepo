@@ -204,8 +204,6 @@ def set_setting_string(addon, setting_id, value):
 
 
 def set_setting_bool(addon, setting_id, value):
-    # Kodi rejects setSettingString() on a setting declared type="bool", so bool
-    # settings must go through setSettingBool() (or the untyped setSetting()).
     if addon is None:
         return False
     value = bool(value)
@@ -498,6 +496,7 @@ def kodi_environment_snapshot(device_name):
         "skin": current_skin_snapshot(),
         "language": kodi_info_label("System.Language"),
         "region": kodi_info_label("System.Region"),
+        "weather_location": kodi_info_label("Weather.Location"),
         "platform": platform.platform(),
         "hostname": socket.gethostname(),
         "python_version": sys.version,
@@ -580,6 +579,7 @@ def diagnostics_summary_text(summary):
         "Skin: %s %s (%s)" % (skin.get("name", ""), skin.get("version", ""), skin.get("id", "")),
         "Language: %s" % environment.get("language", ""),
         "Region: %s" % environment.get("region", ""),
+        "Weather location: %s" % environment.get("weather_location", ""),
         "Platform: %s" % environment.get("platform", ""),
         "",
         "Dependency Check",
