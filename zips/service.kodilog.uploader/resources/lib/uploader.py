@@ -55,6 +55,10 @@ DIAGNOSTIC_ADDONS = (
     ("repository.kodienglish", "KodiEnglish Repository"),
     ("repository.dutchtech", "DutchTech Repository"),
 )
+COCOSCRAPERS_ADDONS = (
+    ("script.module.cocoscrapers", "CocoScrapers"),
+    ("script.module.cocoscrapers.kodienglish", "CocoScrapers KodiEnglish"),
+)
 FENLIGHT_DIAGNOSTIC_SETTINGS = (
     "provider.external",
     "external_scraper.module",
@@ -453,6 +457,49 @@ def addon_snapshot(addon_id, label=None):
     return snapshot
 
 
+def cocoscrapers_provider_snapshot():
+    """Collect only CocoScrapers' provider toggles, never raw settings values."""
+    snapshots = []
+    for addon_id, label in COCOSCRAPERS_ADDONS:
+        addon = get_addon(addon_id)
+        snapshot = {
+            "id": addon_id,
+            "label": label,
+            "installed": addon is not None,
+            "enabled": kodi_cond_visibility("System.HasAddon(%s)" % addon_id),
+            "providers": [],
+        }
+        if addon is None:
+            snapshots.append(snapshot)
+            continue
+
+        try:
+            snapshot["version"] = addon.getAddonInfo("version")
+            addon_path = translate_path(addon.getAddonInfo("path"))
+            settings_path = os.path.join(addon_path, "resources", "settings.xml")
+            settings_root = ET.parse(settings_path).getroot()
+            provider_ids = sorted(
+                set(
+                    setting.get("id", "")
+                    for setting in settings_root.findall(".//setting")
+                    if setting.get("id", "").startswith("provider.")
+                    and setting.get("type", "").lower() in ("bool", "boolean")
+                )
+            )
+            snapshot["providers"] = [
+                {
+                    "id": provider_id,
+                    "enabled": str(get_setting(addon, provider_id, "")).strip().lower()
+                    in ("true", "1", "yes", "on"),
+                }
+                for provider_id in provider_ids
+            ]
+        except Exception as exc:
+            log("Could not collect CocoScrapers provider toggles for %s: %s" % (addon_id, exc), level="warning")
+        snapshots.append(snapshot)
+    return snapshots
+
+
 def read_addon_settings(addon_id, setting_ids):
     values = {}
     addon = get_addon(addon_id)
@@ -508,6 +555,7 @@ def diagnostics_summary(addon, device_name, target_details):
     addons = [addon_snapshot(addon_id, label) for addon_id, label in DIAGNOSTIC_ADDONS]
     installed = {item["id"]: item for item in addons}
     fenlight_settings = read_addon_settings(target_id, FENLIGHT_DIAGNOSTIC_SETTINGS)
+    cocoscrapers_providers = cocoscrapers_provider_snapshot()
 
     def any_installed(*addon_ids):
         return any(installed.get(addon_id, {}).get("installed", False) for addon_id in addon_ids)
@@ -550,6 +598,7 @@ def diagnostics_summary(addon, device_name, target_details):
             "external_scraper_name": fenlight_settings.get("external_scraper.name", ""),
         },
         "fenlight_settings": fenlight_settings,
+        "cocoscrapers_providers": cocoscrapers_providers,
     }
 
 
@@ -609,6 +658,10 @@ def diagnostics_summary_text(summary):
                 id=item.get("id", ""),
             )
         )
+    lines.extend(("", "CocoScrapers Enabled Providers"))
+    for addon in summary.get("cocoscrapers_providers", []):
+        enabled = [item.get("id", "") for item in addon.get("providers", []) if item.get("enabled")]
+        lines.append("- %s: %s" % (addon.get("label", addon.get("id", "")), ", ".join(enabled) or "none"))
     return "\n".join(lines) + "\n"
 
 
@@ -688,6 +741,10 @@ def collect_archive(reason):
         archive.writestr("manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
         archive.writestr("diagnostics/summary.json", json.dumps(diagnostics, indent=2, sort_keys=True))
         archive.writestr("diagnostics/summary.txt", diagnostics_summary_text(diagnostics))
+        archive.writestr(
+            "diagnostics/cocoscrapers-providers.json",
+            json.dumps(diagnostics.get("cocoscrapers_providers", []), indent=2, sort_keys=True),
+        )
         archive.writestr("logs/fenlight_excerpt.log", fenlight_excerpt(logs))
         for entry in logs:
             archive.writestr("logs/%s" % entry["name"], entry["text"])
