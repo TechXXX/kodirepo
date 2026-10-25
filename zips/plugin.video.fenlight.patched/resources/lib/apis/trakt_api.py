@@ -29,6 +29,7 @@ empty_setting_check = (None, 'empty_setting', '')
 standby_date = '2050-01-01T01:00:00.000Z'
 res_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 API_ENDPOINT = 'https://api.trakt.tv/%s'
+AUTH_ENDPOINT = 'https://auth.trakt.tv/%s'
 timeout = 20
 EXPIRY_1_DAY, EXPIRY_1_WEEK = 24, 168
 TRAKT_AUTH_PROMPT_PROPERTY = 'fenlight.trakt_auth_prompt_active'
@@ -74,6 +75,7 @@ def _trakt_prompt_for_auth():
 		clear_property(TRAKT_AUTH_PROMPT_PROPERTY)
 
 def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, method=None, pagination=False, page_no=1):
+	url = (AUTH_ENDPOINT if path.startswith('oauth/') else API_ENDPOINT) % path
 	def send_query():
 		resp = None
 		if with_auth:
@@ -87,16 +89,16 @@ def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, meth
 		try:
 			if method:
 				if method == 'post':
-					resp = requests.post(API_ENDPOINT % path, headers=headers, timeout=timeout)
+					resp = requests.post(url, headers=headers, timeout=timeout)
 				elif method == 'delete':
-					resp = requests.delete(API_ENDPOINT % path, headers=headers, timeout=timeout)
+					resp = requests.delete(url, headers=headers, timeout=timeout)
 				elif method == 'sort_by_headers':
-					resp = requests.get(API_ENDPOINT % path, params=params, headers=headers, timeout=timeout)
+					resp = requests.get(url, params=params, headers=headers, timeout=timeout)
 			elif data is not None:
 				assert not params
-				resp = requests.post(API_ENDPOINT % path, json=data, headers=headers, timeout=timeout)
-			elif is_delete: resp = requests.delete(API_ENDPOINT % path, headers=headers, timeout=timeout)
-			else: resp = requests.get(API_ENDPOINT % path, params=params, headers=headers, timeout=timeout)
+				resp = requests.post(url, json=data, headers=headers, timeout=timeout)
+			elif is_delete: resp = requests.delete(url, headers=headers, timeout=timeout)
+			else: resp = requests.get(url, params=params, headers=headers, timeout=timeout)
 		except Exception as e: return logger('Trakt Error', str(e))
 		if resp.status_code in (401, 429):
 			return resp
@@ -177,7 +179,7 @@ def trakt_get_device_token(device_codes):
 			time_passed = 0
 			while not progressDialog.iscanceled() and time_passed < expires_in:
 				sleep(max(sleep_interval, 1)*1000)
-				response = requests.post(API_ENDPOINT % 'oauth/device/token', data=json.dumps(data), headers=headers, timeout=timeout)
+				response = requests.post(AUTH_ENDPOINT % 'oauth/device/token', data=json.dumps(data), headers=headers, timeout=timeout)
 				status_code = response.status_code
 				if status_code == 200:
 					result = response.json()
