@@ -30,6 +30,7 @@ audio_language_check_settle_ms = 150
 playback_time_jump_threshold = 90
 playback_time_jump_settle_checks = 8
 nextep_near_end_confirmations = 3
+introdb_skip_expiry_grace = 3
 unwanted_audio_language_map = {
 	'ru': 'Russian',
 	'rus': 'Russian',
@@ -384,6 +385,7 @@ class FenLightPlayer(xbmc_player):
 				self.nextep_near_end_count = 0
 				self.playback_time_unstable = True
 				return
+			self.max_playback_time_seen = max(self.max_playback_time_seen, current_time)
 			last_time = self.last_playback_time
 			if last_time is not None and abs(current_time - last_time) > playback_time_jump_threshold:
 				self.playback_time_settle_checks = playback_time_jump_settle_checks
@@ -509,7 +511,14 @@ class FenLightPlayer(xbmc_player):
 			current_time = float(self.curr_time)
 			total_time = float(self.total_time)
 		except: return
-		if end_time <= start_time or current_time < start_time or current_time >= end_time - 0.5: return
+		if end_time <= start_time: return
+		if float(getattr(self, 'max_playback_time_seen', 0) or 0) >= end_time + introdb_skip_expiry_grace:
+			state['shown'] = True
+			return
+		if current_time >= end_time - 0.5:
+			state['shown'] = True
+			return
+		if current_time < start_time: return
 		state['shown'] = True
 		skip_target = end_time + 1.0
 		if total_time and skip_target >= total_time: skip_target = max(end_time, total_time - 5)
@@ -568,6 +577,7 @@ class FenLightPlayer(xbmc_player):
 			self.introdb_segments, self.introdb_skip_state = {}, {}
 			self.introdb_next_timing_applied = False
 			self.last_playback_time, self.playback_time_unstable = None, False
+			self.max_playback_time_seen = 0.0
 			self.playback_time_settle_checks, self.nextep_near_end_count = 0, 0
 			self.playback_started = False
 			self.playback_successful, self.cancel_all_playback = None, False

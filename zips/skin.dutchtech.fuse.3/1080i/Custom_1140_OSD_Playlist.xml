@@ -16,7 +16,7 @@
                 <include>OSD_Info_Dimensions</include>
 
                 <include content="OSD_View_Line">
-                    <param name="label">$LOCALIZE[559]</param>
+                    <param name="label">$VAR[Label_OSD_Playlist_Title]</param>
                 </include>
 
                 <!-- Episodes List -->

@@ -43,6 +43,32 @@ def refresh_item(tmdb_type, tmdb_id, season=None, episode=None, **kwargs):
     container_refresh()
 
 
+def refresh_cacheonly(path=None, **kwargs):
+    from urllib.parse import unquote_plus, urlencode
+    from tmdbhelper.lib.addon.logger import kodi_log
+    from tmdbhelper.lib.items.router import Router
+    from tmdbhelper.lib.script.method.kodi_utils import container_refresh
+
+    if path:
+        paramstring = unquote_plus(path)
+    else:
+        params = {k: v for k, v in kwargs.items() if k not in ('refresh_cacheonly', 'path') and v is not None}
+        if not params:
+            return
+        params['cacheonly'] = 'false'
+        params['tmdbhelper_cache_refresh'] = 'true'
+        paramstring = urlencode(params, doseq=True)
+
+    kodi_log(['lib.script.method.tmdb - refresh_cacheonly\n', paramstring], 1)
+    try:
+        items = Router(-1, paramstring).get_directory(items_only=True)
+    except Exception as exc:
+        kodi_log(['lib.script.method.tmdb - refresh_cacheonly failed\n', f'{exc}'], 1)
+        return
+    if items:
+        container_refresh()
+
+
 def delete_itemtype(mediatype=None, confirmation=True, **kwargs):
     from xbmcgui import Dialog
     from tmdbhelper.lib.addon.dialog import ProgressDialog

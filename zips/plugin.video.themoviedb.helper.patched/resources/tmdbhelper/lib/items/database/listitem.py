@@ -281,6 +281,7 @@ class ListItemDetails:
     parent_params = {}
     timer_lists = {}
     log_timers = False
+    cacheonly_refresh_required = False
 
     def __init__(self, common_apis=None):
         self.common_apis = common_apis or CommonContainerAPIs()
@@ -295,4 +296,7 @@ class ListItemDetails:
             connection=self.connection, cache_refresh=self.cache_refresh, cache_translations=self.cache_translations)
 
     def configure_listitems_threaded(self, items):
-        return ListItemThread(self, [ListItemConfig(self, i) for i in items]).configured_items
+        item_thread = ListItemThread(self, [ListItemConfig(self, i) for i in items])
+        configured_items = item_thread.configured_items
+        self.cacheonly_refresh_required = bool(item_thread.uncached_items)
+        return configured_items

@@ -226,7 +226,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.111">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.112">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -250,7 +250,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.111]:
+            <news>[v2.0.112]:
+  * Prevent late IntroDB skips after playback has already passed an intro segment.
+  * Localize the Next Episode dialog in Dutch.
+
+[v2.0.111]:
   * Use CocoScrapers 1.0.43 as the default external scraper and migrate existing Magneto selections to CocoScrapers.
 
 [v2.0.110]:
@@ -505,7 +509,7 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.16" name="TMDb Helper Patched" provider-name="DutchTech">
+    <addon id="plugin.video.themoviedb.helper.patched" version="6.15.2.17" name="TMDb Helper Patched" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
             <import addon="script.module.requests" version="2.9.1" />
@@ -1391,7 +1395,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.46" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.47" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1416,6 +1420,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.47]:
+  * Return no subtitle results when no search language is configured, instead of raising a division-by-zero error while applying the result limit.
+
 [v3.23.46]:
   * Return no subtitle results when no search language is configured, instead of raising a division-by-zero error while applying the result limit.
 
@@ -1604,12 +1611,12 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.18">
+    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.19">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="script.skinvariables" version="2.2.1" />
             <import addon="script.texturemaker" version="0.2.11" />
-            <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.15" />
+            <import addon="plugin.video.themoviedb.helper.patched" version="6.15.2.17" />
             <import addon="resource.images.weathericons.white" version="0.0.6" />
             <import addon="resource.images.studios.coloured" version="0.0.23" />
             <import addon="resource.font.robotocjksc" version="0.0.3" />

@@ -2,10 +2,11 @@ from tmdbhelper.lib.addon.plugin import convert_type, get_localized, get_setting
 from tmdbhelper.lib.items.database.baseview_factories.factory import BaseViewFactory
 from tmdbhelper.lib.items.container import ContainerDirectory, ContainerCacheOnlyDirectory
 from jurialmunkey.window import get_property
-from jurialmunkey.parser import try_int
+from jurialmunkey.parser import boolean, try_int
 
 
 class ListSeasons(ContainerDirectory):
+    cacheonly_refresh_enabled = True
     hide_unaired = True
 
     def get_special_seasons(self, tmdb_id):
@@ -40,7 +41,8 @@ class ListSeasons(ContainerDirectory):
             'filter_value': 0,
         } if not get_setting('seasons_specials') else {}
 
-        sync = BaseViewFactory('seasons', 'tv', tmdb_id, filters=filters, limit=limit)
+        cache_refresh = 'never' if boolean(kwargs.get('cacheonly')) else None
+        sync = BaseViewFactory('seasons', 'tv', tmdb_id, filters=filters, limit=limit, cache_refresh=cache_refresh)
         self.container_content = convert_type('season', 'container')
         try:
             return sync.data + self.get_special_seasons(tmdb_id)
@@ -49,8 +51,11 @@ class ListSeasons(ContainerDirectory):
 
 
 class ListFlatSeasons(ContainerCacheOnlyDirectory):
+    cacheonly_refresh_enabled = True
+
     def get_items(self, tmdb_id, limit=None, **kwargs):
-        sync = BaseViewFactory('flatseasons', 'tv', tmdb_id, filters=self.filters, limit=limit)
+        cache_refresh = 'never' if boolean(kwargs.get('cacheonly', self.default_cacheonly)) else None
+        sync = BaseViewFactory('flatseasons', 'tv', tmdb_id, filters=self.filters, limit=limit, cache_refresh=cache_refresh)
         self.kodi_db = self.get_kodi_database('tv')
         self.container_content = convert_type('episode', 'container')
         self.plugin_category = get_localized(32040)
@@ -58,8 +63,11 @@ class ListFlatSeasons(ContainerCacheOnlyDirectory):
 
 
 class ListAnticipatedEpisodes(ContainerCacheOnlyDirectory):
+    cacheonly_refresh_enabled = True
+
     def get_items(self, tmdb_id, limit=None, **kwargs):
-        sync = BaseViewFactory('anticipatedepisodes', 'tv', tmdb_id, filters=self.filters, limit=limit)
+        cache_refresh = 'never' if boolean(kwargs.get('cacheonly', self.default_cacheonly)) else None
+        sync = BaseViewFactory('anticipatedepisodes', 'tv', tmdb_id, filters=self.filters, limit=limit, cache_refresh=cache_refresh)
         self.kodi_db = self.get_kodi_database('tv')
         self.container_content = convert_type('episode', 'container')
         self.plugin_category = get_localized(32040)
@@ -67,12 +75,15 @@ class ListAnticipatedEpisodes(ContainerCacheOnlyDirectory):
 
 
 class ListEpisodes(ContainerCacheOnlyDirectory):
+    cacheonly_refresh_enabled = True
+
     @property
     def hide_unaired(self):
         return get_setting('seasons_anticipated')
 
     def get_items(self, tmdb_id, season, limit=None, **kwargs):
-        sync = BaseViewFactory('episodes', 'tv', tmdb_id, season=season, filters=self.filters, limit=limit)
+        cache_refresh = 'never' if boolean(kwargs.get('cacheonly', self.default_cacheonly)) else None
+        sync = BaseViewFactory('episodes', 'tv', tmdb_id, season=season, filters=self.filters, limit=limit, cache_refresh=cache_refresh)
         self.kodi_db = self.get_kodi_database('tv')
         self.container_content = convert_type('episode', 'container')
         self.plugin_category = f'{get_localized(20373)} {season}'
