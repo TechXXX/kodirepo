@@ -53,6 +53,22 @@ For in-place source edits, the safe pattern is:
 - rebuild `addons.xml` and `addons.xml.md5` if needed
 - commit and push intentionally
 
+Before committing, run:
+
+```bash
+python3 scripts/validate_repo_packages.py
+```
+
+This checks every source `addon.xml` against the exact archive Kodi will
+request. It fails when a version in `addons.xml` would point Kodi at a missing,
+corrupt, or mismatched `zips/<addon-id>/<addon-id>-<version>.zip` package.
+Both normal publish scripts run the same check automatically.
+
+Do not rebuild `addons.xml` from a source tree unless every addon whose source
+version changed has also had its package output regenerated. The a4k 3.23.47
+incident was caused by publishing global metadata that advertised a newer source
+version while retaining the older ZIP.
+
 That is the correct pattern for doc-only or source-tree-only edits.
 
 ## Main-Only Versioning

@@ -15,6 +15,7 @@ from build_repo import (
     import_root_addon_zips,
     mirror_addon_source,
     package_addon,
+    validate_addon_packages,
     write_md5,
 )
 
@@ -96,6 +97,7 @@ def main() -> None:
     update_addon_outputs(root_dir, imported_ids, source_dirs)
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
+    validate_addon_packages(root_dir, source_dirs)
 
     print(f"Updated addons: {', '.join(imported_ids)}")
     publish_changes(root_dir, imported_ids)

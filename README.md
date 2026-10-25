@@ -13,6 +13,8 @@ Active workflow rule:
 - every Kodi-visible addon update must bump the affected addon's `addon.xml`
   version to a number strictly higher than the version already advertised in
   `addons.xml`; never replace a same-version zip and call it an update
+- before every release, run `python3 scripts/validate_repo_packages.py`; it
+  verifies every advertised addon version has its exact matching ZIP package
 
 For subtitle-selector and AI-search promotion work, this repo matters because
 it is the production-facing package source for the patched Fenlight, the
@@ -453,6 +455,9 @@ Important future-agent nuance:
   use dedicated changelog files such as `CHANGELOG.md` or addon-owned changelog
   text files instead
 - if `addon.xml` changes, also regenerate `addons.xml`
+- after regenerating `addons.xml`, run `python3 scripts/validate_repo_packages.py`
+  before committing; do not advertise a source version whose package ZIP was not
+  rebuilt in the same release
 - do not edit `addons.xml.md5` by hand
 - keep GitHub Pages pointed at `main` `/docs`; do not serve the whole repo root
   because the package archive tree is too large for reliable Pages deploys

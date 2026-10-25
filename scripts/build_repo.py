@@ -275,6 +275,36 @@ def build_addons_xml(addon_dirs: list[Path], output_path: Path) -> None:
     )
 
 
+def validate_addon_packages(root_dir: Path, addon_dirs: list[Path]) -> None:
+    """Ensure every version advertised by the source tree has an installable ZIP."""
+    errors = []
+    for addon_dir in addon_dirs:
+        addon_id, version = get_addon_info(addon_dir / "addon.xml")
+        archive_path = root_dir / "zips" / addon_id / f"{addon_id}-{version}.zip"
+        if not archive_path.is_file():
+            errors.append(f"Missing package: {archive_path.relative_to(root_dir)}")
+            continue
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                bad_member = archive.testzip()
+                if bad_member:
+                    errors.append(
+                        f"Corrupt package: {archive_path.relative_to(root_dir)} ({bad_member})"
+                    )
+                    continue
+                packaged_root = ET.fromstring(archive.read(f"{addon_id}/addon.xml"))
+        except (KeyError, OSError, zipfile.BadZipFile, ET.ParseError) as exc:
+            errors.append(f"Invalid package: {archive_path.relative_to(root_dir)} ({exc})")
+            continue
+        if packaged_root.attrib.get("id") != addon_id or packaged_root.attrib.get("version") != version:
+            errors.append(
+                f"Package metadata mismatch: {archive_path.relative_to(root_dir)} "
+                f"does not contain {addon_id} {version}"
+            )
+    if errors:
+        raise SystemExit("Repository package validation failed:\n" + "\n".join(errors))
+
+
 def write_md5(file_path: Path) -> None:
     digest = hashlib.md5(file_path.read_bytes()).hexdigest()
     file_path.with_suffix(file_path.suffix + ".md5").write_text(digest, encoding="utf-8")
@@ -361,6 +391,7 @@ def main() -> None:
 
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
+    validate_addon_packages(root_dir, source_dirs)
 
     print(f"Built Kodi repo metadata for {len(source_dirs)} addons")
     print(f"Repository version: {repo_version}")

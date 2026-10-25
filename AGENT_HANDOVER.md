@@ -33,6 +33,17 @@ whether an update exists from `addon.xml` / `addons.xml`, and clients may cache
 same-version zips. Do not replace an already-published same-version package and
 call it an update.
 
+Package invariant: every addon version advertised in `addons.xml` must have an
+exact matching archive at `zips/<addon-id>/<addon-id>-<version>.zip`, whose
+embedded `addon.xml` has the same id and version. Run
+`python3 scripts/validate_repo_packages.py` after any manual packaging flow and
+before committing. The normal build/publish scripts also enforce this invariant.
+
+Never regenerate repo-wide `addons.xml` after changing an addon source version
+unless that addon's package mirror and ZIP were regenerated in the same release.
+In October 2026, a4k `3.23.47` was advertised without its ZIP and Kodi correctly
+received a 404 during update.
+
 Useful scripts:
 
 - `scripts/build_repo.py`
