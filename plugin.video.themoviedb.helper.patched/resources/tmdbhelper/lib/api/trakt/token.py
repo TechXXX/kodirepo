@@ -21,6 +21,7 @@ from tmdbhelper.lib.addon.tmdate import (
 class TraktStoredAccessToken:
 
     refreshes_allowed = 3
+    quick_auth_timeout = 5
     mutex_lockname = 'TraktCheckingAuthorization'
     check_auth_url = 'https://api.trakt.tv/sync/last_activities'
     access_message = ''
@@ -130,23 +131,33 @@ class TraktStoredAccessToken:
         self.kodi_log('Trakt authentication token confirmed.')
         return True
 
-    def authorization_check(self, refresh_token=None):
-        with TimerFunc('Trakt authorization check took', inline=True) as tf:
-            if refresh_token:
-                self.stored_authorization = self.trakt_api.set_authorisation_token(refresh_token)
-            if not self.confirm_authorization():
-                return
-            if get_setting('startup_notifications'):
-                Dialog().notification(
-                    'TMDbHelper',
-                    f'Trakt authorized in {timer() - tf.timer_a:.3f}s',
-                    icon=f'{ADDONPATH}/icon.png')
+    def authorization_check(self, refresh_token=None, timeout=None):
+        previous_timeout = self.trakt_api.timeout
+        self.trakt_api.timeout = min(previous_timeout, timeout) if timeout else previous_timeout
+        try:
+            with TimerFunc('Trakt authorization check took', inline=True) as tf:
+                if refresh_token:
+                    self.stored_authorization = self.trakt_api.set_authorisation_token(refresh_token)
+                if not self.confirm_authorization():
+                    return
+                if get_setting('startup_notifications'):
+                    Dialog().notification(
+                        'TMDbHelper',
+                        f'Trakt authorized in {timer() - tf.timer_a:.3f}s',
+                        icon=f'{ADDONPATH}/icon.png')
+        finally:
+            self.trakt_api.timeout = previous_timeout
         return self.expires_in_timestamp
 
     @cached_property
     def winprop_traktisauth(self):
         winprop_traktisauth = get_property('TraktIsAuth', is_type=float)
-        winprop_traktisauth = winprop_traktisauth or self.authorization_check()  # If we dont have TraktIsAuth but were asking to check it then we're on first start so lets check that the stored token is valid
+        if winprop_traktisauth:
+            return winprop_traktisauth
+        if self.has_valid_token:
+            self.update_traktisauth_property()
+            return self.expires_in_timestamp or 0
+        winprop_traktisauth = self.authorization_check(timeout=self.quick_auth_timeout)
         return winprop_traktisauth or 0
 
     @property
@@ -207,7 +218,7 @@ class TraktStoredAccessToken:
         return get_property('TraktUserToken', f'{value}')
 
     def refresh_authorization_token(self):
-        return self.authorization_check(refresh_token=self.refresh_token)
+        return self.authorization_check(refresh_token=self.refresh_token, timeout=self.quick_auth_timeout)
 
     @property
     def refresh_cooldown_active(self):

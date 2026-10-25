@@ -41,17 +41,19 @@ class EpisodeMediaList(MediaList):
 
     @cached_property
     def parent_precache_tvshow(self):
-        return self.get_parent_data('tvshow')
+        return self.get_parent_data('tvshow', cache_refresh=self.cache_refresh)
 
     @cached_property
     def parent_precache_season(self):
-        return self.get_parent_data('season', season=self.season)
+        return self.get_parent_data('season', season=self.season, cache_refresh=self.cache_refresh)
 
     @property
     def data_cond(self):
         """ Determines if any data is returned """
         if not self.tmdb_id:
             return False
+        if self.cache_refresh == 'never':
+            return True
         if not self.parent_precache_tvshow:  # Do some precaching here as we need this data to join
             return False
         if not self.parent_precache_season:  # Do some precaching here as we need this data to join

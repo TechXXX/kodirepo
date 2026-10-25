@@ -12,7 +12,7 @@ Viewlists to retrieve data from database as a directory of listitems (e.g. cast 
 """
 
 
-def BaseViewFactory(import_attr, tmdb_type, tmdb_id, season=None, episode=None, filters=None, limit=None, sort_by=None, sort_how=None, offset=None):
+def BaseViewFactory(import_attr, tmdb_type, tmdb_id, season=None, episode=None, filters=None, limit=None, sort_by=None, sort_how=None, offset=None, cache_refresh=None):
     mediatype = convert_type(tmdb_type, 'dbtype', season=season, episode=episode)
     clsimport = importmodule(
         module_name=f'tmdbhelper.lib.items.database.baseview_factories.concrete_classes.{import_attr}',
@@ -29,4 +29,5 @@ def BaseViewFactory(import_attr, tmdb_type, tmdb_id, season=None, episode=None, 
     obj.sort_how = sort_how
     obj.limit = limit
     obj.offset = offset
+    obj.cache_refresh = cache_refresh
     return obj

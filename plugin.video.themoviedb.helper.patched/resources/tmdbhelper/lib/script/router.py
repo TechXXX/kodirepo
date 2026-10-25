@@ -52,6 +52,8 @@ class Script(object):
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'sync_tmdb')(**kwargs),
         'refresh_details':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'refresh_item')(**kwargs),
+        'refresh_cacheonly':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'refresh_cacheonly')(**kwargs),
         'delete_itemtype':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'delete_itemtype')(**kwargs),
         'delete_listdata':

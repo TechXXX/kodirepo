@@ -8,6 +8,8 @@ from tmdbhelper.lib.addon.logger import TimerList
 
 class ContainerDirectoryCommon(CommonContainerAPIs):
     default_cacheonly = False
+    cacheonly_refresh_enabled = False
+    cacheonly_refresh_cooldown = 300
     update_listing = False  # endOfDirectory(updateListing=) set True to replace current path
     plugin_category = ''  # Container.PluginCategory / ListItem.Property(widget)
     container_content = ''  # Container.Content({})
@@ -240,6 +242,76 @@ class ContainerDirectoryCommon(CommonContainerAPIs):
             addSortMethod(self.handle, **i)
         endOfDirectory(self.handle, updateListing=self.update_listing)
 
+    def get_cacheonly_refresh_paramstring(self):
+        if not self.cacheonly_refresh_enabled:
+            return
+        if not self.is_cacheonly:
+            return
+        if self.handle == -1:
+            return
+
+        from urllib.parse import urlencode
+        params = {
+            k: v for k, v in self.params.items()
+            if k not in ('reload', 'tmdbhelper_cache_refresh') and v is not None
+        }
+        params['cacheonly'] = 'false'
+        params['tmdbhelper_cache_refresh'] = 'true'
+        return urlencode(params, doseq=True)
+
+    @staticmethod
+    def is_default_artwork(artwork):
+        return not artwork or '/resources/icons/themoviedb/default.png' in f'{artwork}'
+
+    def has_cacheonly_incomplete_artwork(self, items):
+        if not items:
+            return True
+
+        for li in items:
+            if not li or getattr(li, 'next_page', False):
+                continue
+            art = li.art or {}
+            if any(
+                art.get(key) and not self.is_default_artwork(art.get(key))
+                for key in ('thumb', 'poster', 'fanart', 'landscape')
+            ):
+                continue
+            return True
+
+        return False
+
+    def get_cacheonly_refresh_required(self, items=None, force=False):
+        if force:
+            return True
+        if not self.cacheonly_refresh_enabled:
+            return False
+        if not self.is_cacheonly:
+            return False
+        try:
+            if self.lidc.cacheonly_refresh_required:
+                return True
+        except AttributeError:
+            pass
+        return self.has_cacheonly_incomplete_artwork(items)
+
+    def schedule_cacheonly_refresh(self, items=None, force=False):
+        paramstring = self.get_cacheonly_refresh_paramstring()
+        if not paramstring:
+            return
+        if not self.get_cacheonly_refresh_required(items, force=force):
+            return
+
+        from hashlib import md5
+        from urllib.parse import quote_plus
+        from jurialmunkey.window import get_property
+        from tmdbhelper.lib.addon.tmdate import get_timestamp, set_timestamp
+
+        propname = f'TMDbHelper.CacheOnlyRefresh.{md5(paramstring.encode("utf-8")).hexdigest()}'
+        if get_timestamp(get_property(propname, is_type=float) or 0):
+            return
+        get_property(propname, set_property=f'{set_timestamp(self.cacheonly_refresh_cooldown)}')
+        executebuiltin(f'RunScript(plugin.video.themoviedb.helper.patched,refresh_cacheonly,path={quote_plus(paramstring)})')
+
     def get_collection_tmdb_id(self, tmdb_id=None, **kwargs):
         try:
             from tmdbhelper.lib.items.database.baseitem_factories.factory import BaseItemFactory
@@ -277,6 +349,8 @@ class ContainerDirectoryCommon(CommonContainerAPIs):
             items = self.get_directory_items()
 
             if not items:
+                if not items_only:
+                    self.schedule_cacheonly_refresh(force=True)
                 return
 
             if not build_items:
@@ -294,6 +368,7 @@ class ContainerDirectoryCommon(CommonContainerAPIs):
                     return items
                 self.add_items(items)
             self.finish_container()
+            self.schedule_cacheonly_refresh(items)
 
         if self.log_timers:
             from tmdbhelper.lib.files.futils import write_to_file

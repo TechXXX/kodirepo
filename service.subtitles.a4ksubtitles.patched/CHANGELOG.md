@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.47:
+  * Return no subtitle results when the configured language list is empty instead of dividing by zero while enforcing the per-language result limit.
+
 * v3.23.46:
   * Return no subtitle results when the configured language list is empty instead of dividing by zero while enforcing the per-language result limit.
 

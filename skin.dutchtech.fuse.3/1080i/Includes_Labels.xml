@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <includes>
 
+    <variable name="Label_OSD_Playlist_Title">
+        <value condition="VideoPlayer.Content(episodes)">$LOCALIZE[20360]</value>
+        <value>$LOCALIZE[559]</value>
+    </variable>
+
     <variable name="Label_Setting_Plotline_Movies">
         <value condition="Skin.String(Plotline.Movie,Genre)">$LOCALIZE[515]</value>
         <value condition="Skin.String(Plotline.Movie,Director)">$LOCALIZE[20339]</value>
