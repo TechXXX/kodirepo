@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.114">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.115">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -22,7 +22,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.114]:
+        <news>[v2.0.115]:
+  * Keep IntroDB intro and recap skip prompts in Dutch when Kodi uses English.
+
+[v2.0.114]:
   * Widen the Next Episode dialog buttons and keep their labels static.
 
 [v2.0.113]:

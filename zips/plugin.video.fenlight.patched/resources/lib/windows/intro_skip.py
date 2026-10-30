@@ -1,31 +1,9 @@
 # -*- coding: utf-8 -*-
-from modules import kodi_utils
 from windows.base_window import BaseDialog
 
 button_skip = 11
 button_close = 12
-labels = {
-	'en': {'intro': 'Skip Intro', 'recap': 'Skip Recap', 'skip': 'Skip', 'close': 'Close'},
-	'nl': {'intro': 'Intro overslaan', 'recap': 'Samenvatting overslaan', 'skip': 'Overslaan', 'close': 'Sluiten'}
-}
-
-
-def _is_dutch_language():
-	try:
-		xbmc = kodi_utils.xbmc
-		language_values = []
-		for lang_format in (getattr(xbmc, 'ISO_639_1', None), getattr(xbmc, 'ISO_639_2', None), getattr(xbmc, 'ENGLISH_NAME', None)):
-			if lang_format is None: continue
-			try: language_values.append(xbmc.getLanguage(lang_format, False))
-			except TypeError:
-				try: language_values.append(xbmc.getLanguage(lang_format))
-				except: pass
-			except: pass
-		try: language_values.append(xbmc.getLanguage())
-		except: pass
-		language_values = [str(i).lower() for i in language_values if i]
-		return any(i.startswith('nl') or i.startswith('dut') or 'dutch' in i or 'nederlands' in i for i in language_values)
-	except: return False
+labels = {'intro': 'Intro overslaan', 'recap': 'Samenvatting overslaan', 'skip': 'Overslaan', 'close': 'Sluiten'}
 
 
 class IntroSkip(BaseDialog):
@@ -65,7 +43,7 @@ class IntroSkip(BaseDialog):
 		self.close()
 
 	def set_properties(self):
-		dialog_labels = labels['nl'] if _is_dutch_language() else labels['en']
+		dialog_labels = labels
 		label = dialog_labels.get(self.segment_type, dialog_labels['intro'])
 		title = self.meta.get('title') or ''
 		season = int(self.meta.get('season') or 0)
