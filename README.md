@@ -177,7 +177,7 @@ Current source-tree versions when this document was updated:
   Android helper script that installs a Shield-friendly shortcut and runs Fen
   Light Patched source-select/rescrape for the focused AH2 movie or episode
   item. It ships custom icon and fanart assets for Kodi's add-on browser.
-- `skin.dutchtech.fuse.3` `3.2.9.18`
+- `skin.dutchtech.fuse.3` `3.2.9.19`
   DutchTech-owned fork of the latest Arctic Fuse 3 `v3.2.9` release with a
   separate addon id, DutchTech name/provider metadata, custom icon/fanart, and
   patched TMDb Helper routing. Its non-core dependencies are all carried by
@@ -185,6 +185,11 @@ Current source-tree versions when this document was updated:
   icons, studio icons, and the Roboto CJK font resource. It now also gives
   the KodiEnglish sibling skin its lockstep source baseline, with only
   KodiEnglish-specific addon identity and plugin target ids expected to diverge.
+
+- `skin.dutchtech.fuse.3.nexus` `3.2.9.20`
+  Separate Kodi 20 Nexus edition of DutchTech Fuse 3. It uses its own add-on
+  and Skin Variables identity so it can coexist with the Kodi 21 Omega build.
+
   It now also gives
   Next Page widget rows a dedicated fallback background and suppresses ordinary
   artwork/foreground layers while those pagination items are focused. It also

@@ -50,6 +50,17 @@ Useful scripts:
 - `scripts/publish_addon_update.py`
 - `scripts/README.md`
 
+## Kodi 20 Skin Edition
+
+`skin.dutchtech.fuse.3` is the Kodi 21 Omega build and requires `xbmc.gui`
+`5.17.0`. Do not lower that requirement in place.
+
+`skin.dutchtech.fuse.3.nexus` is the distinct Kodi 20 Nexus edition. It uses
+`xbmc.gui` `5.16.0` and a separate skin ID so Skin Variables-generated includes,
+settings, and per-user widget data cannot collide with the Omega build. Keep
+the two source trees in sync for DutchTech changes where the Kodi 20 API allows
+it, but validate the Nexus package independently before publishing.
+
 ## Kodi Setup Kit / famYT
 
 `plugin.program.famyt` is now user-facing as Kodi Setup Kit. It is the private
