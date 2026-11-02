@@ -252,8 +252,36 @@
     <include name="Furniture_Footer_Left_Content">
         <control type="group">
             <include>Dimension_Bottombar</include>
-            <include content="View_Furniture_Footer_ViewLine" condition="Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml)">
-                <param name="visible">true</param>
+            <include content="View_Furniture_Footer_ViewLine">
+                <param name="visible">Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml) + String.IsEqual(Container(501).ListItem.DBType,episode) + Integer.IsEqual(Container.NumItems,1)</param>
+                <param name="use_subtext">true</param>
+                <param name="label">$INFO[Container.NumItems,, aflevering]</param>
+                <param name="sublabel">$LOCALIZE[31135]$INFO[Container.CurrentPage, , $LOCALIZE[20163] ]$INFO[Container.NumPages]</param>
+                <param name="sub_visible">Control.HasFocus(60) | Control.HasFocus(610)</param>
+            </include>
+            <include content="View_Furniture_Footer_ViewLine">
+                <param name="visible">Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml) + String.IsEqual(Container(501).ListItem.DBType,episode) + !Integer.IsEqual(Container.NumItems,1)</param>
+                <param name="use_subtext">true</param>
+                <param name="label">$INFO[Container.NumItems,, afleveringen]</param>
+                <param name="sublabel">$LOCALIZE[31135]$INFO[Container.CurrentPage, , $LOCALIZE[20163] ]$INFO[Container.NumPages]</param>
+                <param name="sub_visible">Control.HasFocus(60) | Control.HasFocus(610)</param>
+            </include>
+            <include content="View_Furniture_Footer_ViewLine">
+                <param name="visible">Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml) + String.Contains(Container.FolderPath,mode=build_season_list) + !String.IsEqual(Container(501).ListItem.DBType,episode) + Integer.IsEqual(Container.NumItems,1)</param>
+                <param name="use_subtext">true</param>
+                <param name="label">$INFO[Container.NumItems,, seizoen]</param>
+                <param name="sublabel">$LOCALIZE[31135]$INFO[Container.CurrentPage, , $LOCALIZE[20163] ]$INFO[Container.NumPages]</param>
+                <param name="sub_visible">Control.HasFocus(60) | Control.HasFocus(610)</param>
+            </include>
+            <include content="View_Furniture_Footer_ViewLine">
+                <param name="visible">Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml) + String.Contains(Container.FolderPath,mode=build_season_list) + !String.IsEqual(Container(501).ListItem.DBType,episode) + !Integer.IsEqual(Container.NumItems,1)</param>
+                <param name="use_subtext">true</param>
+                <param name="label">$INFO[Container.NumItems,, seizoenen]</param>
+                <param name="sublabel">$LOCALIZE[31135]$INFO[Container.CurrentPage, , $LOCALIZE[20163] ]$INFO[Container.NumPages]</param>
+                <param name="sub_visible">Control.HasFocus(60) | Control.HasFocus(610)</param>
+            </include>
+            <include content="View_Furniture_Footer_ViewLine">
+                <param name="visible">Window.IsMedia + !Window.IsVisible(addonbrowser) + !Window.IsVisible(eventlog) + !Window.IsVisible(MyMusicPlaylistEditor.xml) + !String.IsEqual(Container(501).ListItem.DBType,episode) + !String.Contains(Container.FolderPath,mode=build_episode_list) + !String.Contains(Container.FolderPath,mode=build_season_list)</param>
                 <param name="use_subtext">true</param>
                 <param name="label">$INFO[Container.NumItems,, $LOCALIZE[31022]]</param>
                 <param name="sublabel">$LOCALIZE[31135]$INFO[Container.CurrentPage, , $LOCALIZE[20163] ]$INFO[Container.NumPages]</param>
