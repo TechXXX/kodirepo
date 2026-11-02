@@ -28,7 +28,7 @@ tokens, OpenSubtitles credentials, AI keys, or Kodi webserver passwords.
 The Vercel bridge is the private secret source. The public add-on zip contains
 only installer logic, sanitized presets, artwork, keymaps, and profile defaults.
 
-Current Setup Kit version at this handover: `0.9.20`.
+Current Setup Kit version at this handover: `0.9.22`.
 
 ## Security Model
 
@@ -141,8 +141,14 @@ vars. Do a redacted smoke test only; do not print secret values.
 
 ## Main Menu Shape
 
-Top-level menu items marked `[ALL]` are included in `Install everything`.
-As of `0.9.20`, the first ten menu items are:
+`Install everything` is the top-level curated flow. Its individual actions are
+in `Included in Install everything (manual re-run)` so they can be re-run only
+deliberately. `Optional setup (not included)` contains the actions which a
+normal full setup does not run: Fen Light Gemini AI Search keys and KodiSkin
+Widget Importer. Settings backups, restores, and utilities are grouped
+separately.
+
+As of `0.9.22`, Install everything runs these ten actions:
 
 1. `[ALL] Kodi sources`
 2. `[ALL] Fen Light settings preset`

@@ -151,26 +151,38 @@ COCOSCRAPERS_DISABLED_DEFAULT_UNDESIRABLES = (
     "dutchreleaseteam",
 )
 
-MENU_ITEMS = (
-    ("[ALL] Kodi sources", "install_sources"),
-    ("[ALL] Fen Light settings preset", "install_fenlightsettings"),
-    ("[ALL] a4kSubtitles settings preset", "install_a4ksubtitlessettings_preset"),
-    ("[ALL] YouTube credentials", "install_youtube"),
-    ("[ALL] TorBox API key and Manifest URL", "install_torbox"),
-    ("Fen Light Gemini AI Search keys", "install_fenlight_gemini"),
-    ("[ALL] a4kSubtitles credentials", "install_a4ksubtitles"),
-    ("[ALL] Cocoscrapers filters", "install_cocoscrapers"),
-    ("[ALL] Kodi network/webserver settings", "install_advanced_network"),
-    ("[ALL] Kodi keymaps", "install_keymaps"),
-    ("[ALL] Default favourites", "install_favourites"),
-    ("Install everything", "install_all"),
-    ("KodiSkin Widget Importer", "launch_widget_importer"),
+INSTALL_ALL_MENU_ITEMS = (
+    ("[ALL] Kodi sources (manual re-run)", "install_sources"),
+    ("[ALL] Fen Light settings preset (manual re-run)", "install_fenlightsettings"),
+    ("[ALL] a4kSubtitles settings preset (manual re-run)", "install_a4ksubtitlessettings_preset"),
+    ("[ALL] YouTube credentials (manual re-run)", "install_youtube"),
+    ("[ALL] TorBox API key and Manifest URL (manual re-run)", "install_torbox"),
+    ("[ALL] a4kSubtitles credentials (manual re-run)", "install_a4ksubtitles"),
+    ("[ALL] Cocoscrapers filters (manual re-run)", "install_cocoscrapers"),
+    ("[ALL] Kodi network/webserver settings (manual re-run)", "install_advanced_network"),
+    ("[ALL] Kodi keymaps (manual re-run)", "install_keymaps"),
+    ("[ALL] Default favourites (manual re-run)", "install_favourites"),
+)
+
+OPTIONAL_SETUP_MENU_ITEMS = (
+    ("[NOT INCLUDED] Fen Light Gemini AI Search keys", "install_fenlight_gemini"),
+    ("[NOT INCLUDED] KodiSkin Widget Importer", "launch_widget_importer"),
+)
+
+MAINTENANCE_MENU_ITEMS = (
     ("Utilities", "menu_utilities", True),
     ("Kodi GUI settings", "menu_guisettings", True),
     ("Kodi sources", "menu_sources", True),
     ("Fen Light settings", "menu_fenlightsettings", True),
     ("a4kSubtitles backup/restore", "menu_a4ksubtitlessettings", True),
     ("Skin settings", "menu_skinsettings", True),
+)
+
+MENU_ITEMS = (
+    ("Install everything", "install_all"),
+    ("Included in Install everything (manual re-run)", "menu_install_all", True),
+    ("Optional setup (not included)", "menu_optional_setup", True),
+    ("Settings, backups and utilities", "menu_maintenance", True),
 )
 
 GUISETTINGS_MENU_ITEMS = (
@@ -4076,6 +4088,18 @@ def _run_utility_action(action, addon):
 
 
 def _run_action(action):
+    if action == "menu_install_all":
+        _show_menu(INSTALL_ALL_MENU_ITEMS)
+        return
+
+    if action == "menu_optional_setup":
+        _show_menu(OPTIONAL_SETUP_MENU_ITEMS)
+        return
+
+    if action == "menu_maintenance":
+        _show_menu(MAINTENANCE_MENU_ITEMS)
+        return
+
     if action == "menu_guisettings":
         _show_menu(GUISETTINGS_MENU_ITEMS)
         return

@@ -9,7 +9,10 @@ access details.
 Bundled profile presets include GUI settings, skin settings, Fen Light settings,
 a4kSubtitles settings, keymaps, Kodi sources, and default favourites.
 
-Menu items marked `[ALL]` are included when running Install everything.
+The first screen separates the curated `Install everything` flow from
+`Optional setup (not included)`, and keeps individual included actions in the
+`Included in Install everything (manual re-run)` folder. This makes it safe to
+see what remains after the main setup without accidentally re-running a preset.
 Private Kodi webserver credentials are supplied by the bridge, not bundled in
 the GUI preset.
 
@@ -35,7 +38,7 @@ Kodi Setup Kit installs a repeatable family profile setup:
 
 ## Install Everything Order
 
-Menu items marked `[ALL]` are the curated setup flow:
+`Install everything` is the curated setup flow:
 
 1. Kodi sources
 2. Fen Light settings preset
@@ -48,7 +51,9 @@ Menu items marked `[ALL]` are the curated setup flow:
 9. Kodi keymaps
 10. Default favourites
 
-Fen Light Gemini AI Search keys are available as a separate menu action.
+Fen Light Gemini AI Search keys and KodiSkin Widget Importer are in `Optional
+setup (not included)`. The individual actions bundled by `Install everything`
+are available only as manual re-runs in their own folder.
 
 The order matters. Fen Light settings can wipe TorBox values if restored after
 TorBox, and the sanitized a4k preset can wipe a4k credentials if restored after

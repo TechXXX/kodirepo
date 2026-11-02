@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.21"
+       version="0.9.22"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.21
+<news>v0.9.22
+- Group the Setup Kit menu into the main setup, optional actions not included in it, and manual re-runs of included actions
+
+v0.9.21
 - Remove the retired FOD source from the bundled MacBook sources preset
 
 v0.9.20
