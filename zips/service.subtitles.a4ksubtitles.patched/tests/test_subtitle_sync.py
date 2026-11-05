@@ -34,6 +34,16 @@ class SubtitleSyncTest(unittest.TestCase):
         target = list(range(500, 25500, 1000))
         self.assertIsNone(find_offset(reference, target))
 
+    def test_sparse_embedded_samples_can_confirm_a_fixed_offset(self):
+        # Representative timing samples from Californication S04E06.  A
+        # front-loaded bounded Cluster scan finds these early English cues;
+        # their Dutch counterparts consistently need an eight-second delay.
+        reference = [8008, 10218, 13138, 15473, 17892, 23356, 24733, 28862, 33783]
+        target = [0, 2236, 6340, 8108, 15349, 18318, 20888, 23957, 25826, 28962, 32533, 35885]
+        result = find_offset(reference, target)
+        self.assertIsNotNone(result)
+        self.assertEqual(8000, result['offset_ms'])
+
     def test_srt_retime_preserves_body_and_moves_cues(self):
         source = '1\n00:00:07,133 --> 00:00:08,000\nTest line\n'
         shifted = retime_srt(source, 1000)

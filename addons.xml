@@ -1407,7 +1407,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.49" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.50" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1432,6 +1432,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.50]:
+  * Make bounded embedded-subtitle timing sampling begin with consecutive early Matroska clusters, allowing a confident correction when evenly distributed samples are too sparse.
+
 [v3.23.49]:
   * Force the experimental subtitle timing correction off once for existing profiles, so testing always requires an explicit opt-in.
 
@@ -1713,7 +1716,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.48">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.49">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>

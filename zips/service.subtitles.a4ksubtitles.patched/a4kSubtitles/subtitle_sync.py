@@ -307,7 +307,12 @@ def _cluster_times(data, track_number, scale):
 
 def _sample_cluster_times(reader, segment_data, cue_positions, track_number, scale):
     remaining_requests = max(0, reader.max_requests - reader.requests)
-    positions = _sample(cue_positions, min(14, remaining_requests)) if remaining_requests else []
+    # Start with consecutive Cue-indexed clusters.  Text subtitle blocks often
+    # appear shortly after a Cluster starts; evenly spreading a small request
+    # budget across an entire episode can therefore collect too few samples to
+    # validate an otherwise obvious fixed offset.  A fixed offset is global,
+    # so an early contiguous window is both more useful and no less safe.
+    positions = cue_positions[:min(14, remaining_requests)] if remaining_requests else []
     result = []
     for position in positions:
         cluster = reader.read(segment_data + position, CLUSTER_READ_BYTES)
