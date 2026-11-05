@@ -277,6 +277,15 @@ def get_int_setting(group, id=None):
 def get_bool_setting(group, id=None):
     return get_setting(group, id).lower() == 'true'
 
+def migrate_auto_sync_subtitles_to_opt_in():
+    """Disable the experimental sync switch once for existing profiles."""
+    migration_key = 'migration.auto_sync_subtitles_opt_in_v1'
+    if get_setting(migration_key).lower() == 'true':
+        return False
+    set_setting('general', 'auto_sync_subtitles', 'false')
+    set_setting(migration_key, 'true')
+    return True
+
 def get_versionstring():
     return xbmc.getInfoLabel('System.BuildVersionCode')
 

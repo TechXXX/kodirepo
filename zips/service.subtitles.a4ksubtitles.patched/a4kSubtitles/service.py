@@ -247,6 +247,11 @@ def _selector_payload_requires_ai_translation(payload):
 
 def start(api):
     core = api.core
+    try:
+        if core.kodi.migrate_auto_sync_subtitles_to_opt_in():
+            core.logger.debug('Disabled experimental background subtitle sync for first opt-in')
+    except Exception as exc:
+        core.logger.debug('Background subtitle sync opt-in migration skipped: %s' % exc)
     core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
     core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
     monitor = core.kodi.xbmc.Monitor()

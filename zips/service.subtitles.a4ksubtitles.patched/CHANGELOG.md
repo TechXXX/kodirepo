@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.49:
+  * Migrate existing profiles to the experimental subtitle-timing feature's explicit opt-in state. The migration turns it off once, then preserves the user's later choice.
+
 * v3.23.48:
   * Restore background subtitle timing correction as an opt-in test feature. It retimes an external UTF-8 SRT only after a high-confidence fixed-offset match against the embedded English text-subtitle timeline, then displays the applied offset on screen.
 

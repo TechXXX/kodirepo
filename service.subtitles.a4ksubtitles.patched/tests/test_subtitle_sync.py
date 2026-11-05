@@ -10,7 +10,10 @@ ADDON_ROOT = os.path.dirname(HERE)
 if ADDON_ROOT not in sys.path:
     sys.path.insert(0, ADDON_ROOT)
 
+os.environ.setdefault('A4KSUBTITLES_API_MODE', '{"kodi": true}')
+
 from a4kSubtitles.subtitle_sync import find_offset, retime_srt, subtitle_starts
+from a4kSubtitles.lib import kodi
 
 
 class SubtitleSyncTest(unittest.TestCase):
@@ -36,6 +39,16 @@ class SubtitleSyncTest(unittest.TestCase):
         shifted = retime_srt(source, 1000)
         self.assertEqual([8133], subtitle_starts(shifted))
         self.assertIn('Test line', shifted)
+
+    def test_existing_profiles_are_migrated_to_explicit_opt_in_once(self):
+        kodi.set_setting('migration.auto_sync_subtitles_opt_in_v1', '')
+        kodi.set_setting('general', 'auto_sync_subtitles', 'true')
+        self.assertTrue(kodi.migrate_auto_sync_subtitles_to_opt_in())
+        self.assertFalse(kodi.get_bool_setting('general', 'auto_sync_subtitles'))
+
+        kodi.set_setting('general', 'auto_sync_subtitles', 'true')
+        self.assertFalse(kodi.migrate_auto_sync_subtitles_to_opt_in())
+        self.assertTrue(kodi.get_bool_setting('general', 'auto_sync_subtitles'))
 
 
 if __name__ == '__main__':

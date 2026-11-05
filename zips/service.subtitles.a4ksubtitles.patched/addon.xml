@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.48"
+       version="3.23.49"
        provider-name="DutchTech">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,6 +27,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
+[v3.23.49]:
+  * Force the experimental subtitle timing correction off once for existing profiles, so testing always requires an explicit opt-in.
+
 [v3.23.48]:
   * Add an opt-in background timing correction for external UTF-8 SRT subtitles. It applies only after a strong embedded English text-track timing match and shows the applied offset on screen.
 
