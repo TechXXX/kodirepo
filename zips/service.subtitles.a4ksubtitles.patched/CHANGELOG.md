@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.48:
+  * Restore background subtitle timing correction as an opt-in test feature. It retimes an external UTF-8 SRT only after a high-confidence fixed-offset match against the embedded English text-subtitle timeline, then displays the applied offset on screen.
+
 * v3.23.47:
   * Return no subtitle results when the configured language list is empty instead of dividing by zero while enforcing the per-language result limit.
 
