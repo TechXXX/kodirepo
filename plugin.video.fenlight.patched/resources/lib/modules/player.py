@@ -422,6 +422,13 @@ class FenLightPlayer(xbmc_player):
 			return False
 
 	def set_resume_point(self, listitem):
+		if self.force_start_over:
+			# Fen progress was cleared by the resume dialog, but Kodi may still
+			# hold an independent bookmark for the plugin URL. StartOffset is
+			# Kodi's explicit instruction to begin at the supplied second.
+			listitem.setProperty('StartOffset', '0')
+			listitem.setProperty('StartPercent', '0')
+			return
 		if self.playback_percent > 0.0: listitem.setProperty('StartPercent', str(self.playback_percent))
 
 	def info_next_ep(self):
@@ -569,6 +576,7 @@ class FenLightPlayer(xbmc_player):
 		if not self.is_generic:
 			self.meta = self.sources_object.meta
 			self.meta_get, self.kodi_monitor, self.playback_percent = self.meta.get, xbmc_monitor(), self.sources_object.playback_percent or 0.0
+			self.force_start_over = bool(getattr(self.sources_object, 'force_start_over', False))
 			self.playing_filename = self.sources_object.playing_filename
 			self.media_marked, self.nextep_info_gathered = False, False
 			self.audio_language_checked, self.audio_language_rejected = False, False

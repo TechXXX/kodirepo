@@ -229,7 +229,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.115">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.116">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -253,7 +253,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.115]:
+            <news>[v2.0.116]:
+  * Honor Start Over in the resume dialog by explicitly overriding Kodi's separate plugin-URL bookmark.
+
+[v2.0.115]:
   * Keep IntroDB intro and recap skip prompts in Dutch when Kodi uses English.
 
 [v2.0.114]:
@@ -1716,7 +1719,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.49">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.50">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>

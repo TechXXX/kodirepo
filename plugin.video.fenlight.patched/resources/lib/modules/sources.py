@@ -1169,6 +1169,10 @@ class Sources():
 		except: pass
 
 	def get_playback_percent(self):
+		# Kodi also maintains a resume bookmark for the plugin URL. Keep an
+		# explicit marker for this playback so the player can override that
+		# separate bookmark when the user chooses Start Over.
+		self.force_start_over = False
 		if self.media_type == 'movie': percent = get_progress_status_movie(get_bookmarks_movie(), str(self.tmdb_id))
 		elif any((self.random, self.random_continual)): return 0.0
 		else: percent = get_progress_status_episode(get_bookmarks_episode(self.tmdb_id, self.season), self.episode)
@@ -1176,6 +1180,7 @@ class Sources():
 		action = self.get_resume_status(percent)
 		if action == 'cancel': return None
 		if action == 'start_over':
+			self.force_start_over = True
 			erase_bookmark(self.media_type, self.tmdb_id, self.season, self.episode)
 			return 0.0
 		return float(percent)
