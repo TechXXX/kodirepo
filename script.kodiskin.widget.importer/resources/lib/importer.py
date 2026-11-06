@@ -82,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.25 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.26 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -188,6 +188,18 @@ class KodiUI:
     def yesno(self, heading: str, *lines: str) -> bool:
         message = "\n".join([line for line in lines if line])
         if self.dialog:
+            yes_button = getattr(xbmcgui, "DLG_YESNO_YES_BTN", None)
+            if yes_button is not None:
+                try:
+                    return bool(
+                        self.dialog.yesno(
+                            heading,
+                            message,
+                            defaultbutton=yes_button,
+                        )
+                    )
+                except TypeError:
+                    pass
             try:
                 return bool(self.dialog.yesno(heading, message))
             except TypeError:

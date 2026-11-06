@@ -95,6 +95,10 @@ Public HTTP and pCloud links are download-only sources, so they cannot be used a
 export destinations without an authenticated upload connection. A folder mounted
 in Kodi, including a network share, can be used for both importing and exporting.
 
+On Kodi 20 and newer, the add-on focuses **Yes** by default on its confirmation
+dialogs. The confirmation remains required before it overwrites widget files or
+skin settings.
+
 The built-in preloaded widget sources are:
 
 ```text
