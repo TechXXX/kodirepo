@@ -17,14 +17,10 @@ device:
   Variables skins.
 - The importer does not convert one widget format into the other.
 
-Widget paths from video add-ons such as POV or Umbrella are retained exactly
-when importing that add-on's own backup, so those backups are portable between
-supported Kodi devices. The optional retargeting feature can change compatible
-Fen-family widget paths to Fen, Fen Light, Red Light, or POV. Umbrella uses a
-different route format, so the importer translates the stable, known
-Fen/POV/Red Light routes into their Umbrella equivalents. A widget with no safe
-Umbrella equivalent is skipped, so Kodi never asks to install its original
-Fen-family add-on.
+Widget paths from video add-ons such as POV are retained exactly when importing
+that add-on's own backup, so those backups are portable between supported Kodi
+devices. The optional retargeting feature can change compatible Fen-family
+widget paths to Fen, Fen Light, Red Light, or POV.
 
 ## What it imports
 
@@ -76,9 +72,9 @@ The preloaded Dutch AH2 setup import overwrites matching Skin Shortcuts files an
 
 Before import, the add-on scans Fen-family paths, including POV and Red Light. If it finds one, it asks whether to keep the original add-on IDs or retarget those links to another video add-on.
 
-Built-in choices include Fen, Fen Light, Fen Light Patched, Fen Light AI Search, the KodiEnglish Fen Light forks, **Red Light** (`plugin.video.redlight`), **POV** (`plugin.video.pov`), and **Umbrella** (`plugin.video.umbrella`). Installed compatible add-ons are shown first in the picker. Red Light is a Fen Light fork and POV is Fen-derived, so their compatible routes can use the same ID-rewrite workflow. You can also enter a custom Fen/Fen Light-style add-on ID such as `plugin.video.fenlight.yourfork`.
+Built-in choices include Fen, Fen Light, Fen Light Patched, Fen Light AI Search, the KodiEnglish Fen Light forks, **Red Light** (`plugin.video.redlight`), and **POV** (`plugin.video.pov`). Installed compatible add-ons are shown first in the picker. Red Light is a Fen Light fork and POV is Fen-derived, so their compatible routes can use the same ID-rewrite workflow. You can also enter a custom Fen/Fen Light-style add-on ID such as `plugin.video.fenlight.yourfork`.
 
-For Fen, Fen Light, Red Light, and POV, retargeting changes only the `plugin://plugin.video...` add-on ID and preserves the rest of the shortcut URL. Choosing Umbrella activates a separate converter for the supported common routes: Trakt movie/TV trends, most watched, box office, common TMDb movie lists, watched/in-progress lists, searches, movie genres/years, and Trakt user lists. Other paths, such as AI search, provider menus, or a route with no exact Umbrella counterpart, are omitted rather than leaving a widget that triggers a Fen/Fen Light installation prompt. The AF3 home-widget preset also adds native **Movies** and **Movies Trending** Umbrella entries.
+For Fen, Fen Light, Red Light, and POV, retargeting changes only the `plugin://plugin.video...` add-on ID and preserves the rest of the shortcut URL.
 
 ## Usage
 

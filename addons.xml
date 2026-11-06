@@ -665,7 +665,7 @@ v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
-    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.27" provider-name="Kalter">
+    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.28" provider-name="Kalter">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -674,7 +674,7 @@ v0.0.4
         </extension>
         <extension point="xbmc.addon.metadata">
             <summary lang="en_GB">Import widget backups and preloaded setups.</summary>
-            <description lang="en_GB">Imports and exports portable widget backup ZIPs for Skin Shortcuts and Arctic Fuse 3 Skin Variables, offers Dutch and English AF3 presets with settings files plus a Dutch AH2 preset, supports local and Kodi-accessible network locations, and can retarget compatible Fen, Fen Light, Red Light, POV, or Umbrella plugin ids while preserving a restore backup before overwriting anything.</description>
+            <description lang="en_GB">Imports and exports portable widget backup ZIPs for Skin Shortcuts and Arctic Fuse 3 Skin Variables, offers Dutch and English AF3 presets with settings files plus a Dutch AH2 preset, supports local and Kodi-accessible network locations, and can retarget compatible Fen, Fen Light, Red Light, and POV plugin ids while preserving a restore backup before overwriting anything.</description>
             <assets>
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
