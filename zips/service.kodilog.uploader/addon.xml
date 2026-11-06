@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.kodilog.uploader"
        name="Kodi Log Uploader"
-       version="0.1.10"
+       version="0.1.11"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,7 +20,10 @@
       <icon>resources/icon.png</icon>
       <fanart>resources/fanart.jpg</fanart>
     </assets>
-    <news>v0.1.10
+    <news>v0.1.11
+- Report the AI translation toggle and presence of its API key for the requested device, without uploading the key.
+
+v0.1.10
 - Include a safe CocoScrapers provider snapshot: provider IDs and enabled states only.
 
 v0.1.9

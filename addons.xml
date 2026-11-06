@@ -1364,7 +1364,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.10" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.11" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1382,7 +1382,10 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.10
+            <news>v0.1.11
+- Report the AI translation toggle and presence of its API key for the requested device, without uploading the key.
+
+v0.1.10
 - Include a safe CocoScrapers provider snapshot: provider IDs and enabled states only.
 
 v0.1.9

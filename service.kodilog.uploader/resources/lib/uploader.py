@@ -39,6 +39,7 @@ DEFAULT_SERVER_URL = "https://logs.basaio.duckdns.org/upload"
 DEFAULT_AUTH_TOKEN = "27c45ed5c5c31c47c1f22f230c350604ce0c6a77418ced1d158543d87bb82548"
 DEFAULT_MAX_LOG_KB = 4096
 DEVICE_NAME_PLACEHOLDERS = ("", "shield", "kodi")
+TARGET_A4K_AI_DEVICE_SHA256 = "f674e364e24d50c0e25581c457e7cc1a020a0c9535afb87c8c0ddf183f5f8231"
 MAX_ARCHIVE_BYTES = 25 * 1024 * 1024
 DIAGNOSTIC_ADDONS = (
     ("plugin.video.fenlight.kodienglish", "Fen Light English"),
@@ -550,6 +551,27 @@ def kodi_environment_snapshot(device_name):
     }
 
 
+def target_a4k_ai_status(device_name):
+    """Report the requested device's a4k AI state without including its key."""
+    normalized = (device_name or "").strip().casefold()
+    if hashlib.sha256(normalized.encode("utf-8")).hexdigest() != TARGET_A4K_AI_DEVICE_SHA256:
+        return None
+    try:
+        a4k = xbmcaddon.Addon("service.subtitles.a4ksubtitles.patched")
+    except Exception:
+        return {"installed": False}
+    try:
+        use_ai = a4k.getSetting("general.use_ai").strip().lower() == "true"
+        api_key = a4k.getSetting("general.ai_api_key").strip()
+        return {
+            "installed": True,
+            "use_ai": use_ai,
+            "ai_key_configured": bool(api_key and api_key != "empty_setting"),
+        }
+    except Exception:
+        return {"installed": True, "status": "unavailable"}
+
+
 def diagnostics_summary(addon, device_name, target_details):
     target_id = target_addon_id(addon)
     addons = [addon_snapshot(addon_id, label) for addon_id, label in DIAGNOSTIC_ADDONS]
@@ -563,7 +585,7 @@ def diagnostics_summary(addon, device_name, target_details):
     def any_enabled(*addon_ids):
         return any(installed.get(addon_id, {}).get("enabled", False) for addon_id in addon_ids)
 
-    return {
+    summary = {
         "created_at_utc": now_utc(),
         "target_addon_id": target_id,
         "target_addon": target_details,
@@ -600,6 +622,10 @@ def diagnostics_summary(addon, device_name, target_details):
         "fenlight_settings": fenlight_settings,
         "cocoscrapers_providers": cocoscrapers_providers,
     }
+    a4k_ai = target_a4k_ai_status(device_name)
+    if a4k_ai is not None:
+        summary["a4k_ai_translation"] = a4k_ai
+    return summary
 
 
 def diagnostic_value(value):
@@ -662,6 +688,15 @@ def diagnostics_summary_text(summary):
     for addon in summary.get("cocoscrapers_providers", []):
         enabled = [item.get("id", "") for item in addon.get("providers", []) if item.get("enabled")]
         lines.append("- %s: %s" % (addon.get("label", addon.get("id", "")), ", ".join(enabled) or "none"))
+    if "a4k_ai_translation" in summary:
+        a4k_ai = summary["a4k_ai_translation"]
+        lines.extend((
+            "",
+            "a4kSubtitles AI Translation",
+            "Installed: %s" % diagnostic_value(a4k_ai.get("installed")),
+            "Use AI for subtitle translation: %s" % diagnostic_value(a4k_ai.get("use_ai")),
+            "AI API key configured: %s" % diagnostic_value(a4k_ai.get("ai_key_configured")),
+        ))
     return "\n".join(lines) + "\n"
 
 
