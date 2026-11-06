@@ -19,10 +19,11 @@ device:
 
 Widget paths from video add-ons such as POV or Umbrella are retained exactly
 when importing that add-on's own backup, so those backups are portable between
-supported Kodi devices. The optional path-retargeting feature is deliberately
-limited to Fen/Fen Light-compatible add-ons: replacing only the add-on ID in an
-unrelated add-on's URL would leave its different route parameters behind and
-produce broken widgets.
+supported Kodi devices. The optional retargeting feature can change compatible
+Fen-family widget paths to Fen, Fen Light, Red Light, or POV. Umbrella is also
+available as an explicit, warned ID rewrite: its URL actions are different, so
+the importer preserves its own backups but cannot translate a Fen/POV/Red Light
+route into Umbrella's route format.
 
 ## What it imports
 
@@ -72,11 +73,11 @@ The preloaded Dutch AH2 setup import overwrites matching Skin Shortcuts files an
 
 ## Video add-on retargeting
 
-Before import, the add-on scans shortcut paths for Fen-style video add-ons. If it finds one, it asks whether to keep the original add-on IDs or retarget those links to another video add-on.
+Before import, the add-on scans Fen-family paths, including POV and Red Light. If it finds one, it asks whether to keep the original add-on IDs or retarget those links to another video add-on.
 
-Built-in choices include Fen, Fen Light, Fen Light Patched, Fen Light AI Search, and the KodiEnglish Fen Light forks. It does not list every installed video add-on, because these widget paths are Fen/Fen Light-specific and are not expected to work with unrelated video add-ons. You can also enter a custom Fen/Fen Light-style add-on ID such as `plugin.video.fenlight.yourfork`.
+Built-in choices include Fen, Fen Light, Fen Light Patched, Fen Light AI Search, the KodiEnglish Fen Light forks, **Red Light** (`plugin.video.redlight`), **POV** (`plugin.video.pov`), and **Umbrella** (`plugin.video.umbrella`). Red Light is a Fen Light fork and POV is Fen-derived, so their compatible routes can use the same ID-rewrite workflow. You can also enter a custom Fen/Fen Light-style add-on ID such as `plugin.video.fenlight.yourfork`.
 
-The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves the rest of the shortcut URL untouched.
+Retargeting changes only the `plugin://plugin.video...` add-on ID; it preserves the rest of the shortcut URL. The add-on warns before choosing Umbrella because Umbrella uses different action and parameter names. Select Umbrella only for an Umbrella-compatible backup or if you intend to edit incompatible widgets afterwards; the importer does not pretend to convert Fen/POV/Red Light routes into Umbrella routes.
 
 ## Usage
 

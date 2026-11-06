@@ -82,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.21 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.23 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -100,7 +100,12 @@ KNOWN_VIDEO_TARGETS = [
     ("plugin.video.fenlight.kodienglish", "Fen Light English"),
     ("plugin.video.fenlight.patched.kodienglish", "Fen Light Patched English"),
     ("plugin.video.fen", "Fen"),
+    ("plugin.video.redlight", "Red Light"),
+    ("plugin.video.pov", "POV"),
+    ("plugin.video.umbrella", "Umbrella"),
 ]
+FEN_DERIVED_VIDEO_ADDON_IDS = {"plugin.video.redlight", "plugin.video.pov"}
+ROUTE_INCOMPATIBLE_VIDEO_TARGET_IDS = {"plugin.video.umbrella"}
 
 
 class ImportCancelled(Exception):
@@ -313,7 +318,7 @@ def main() -> None:
 
             rewrite_note = ""
             if video_rewrite:
-                rewrite_note = "Retargeted Fen-style paths to {}. ".format(video_rewrite.target_id)
+                rewrite_note = "Retargeted video add-on paths to {}. ".format(video_rewrite.target_id)
             settings_note = ""
             if settings_backup_dir:
                 settings_note = "Settings backup: {}".format(settings_backup_dir)
@@ -1018,7 +1023,7 @@ def choose_video_addon_rewrite(
     target_ids = build_video_target_choices(source_ids)
     labels = ["Keep original add-ons"]
     labels.extend(video_target_label(addon_id) for addon_id in target_ids)
-    labels.append("Custom Fen/Fen Light add-on id")
+    labels.append("Custom compatible add-on id")
 
     choice = ui.select("Widget video add-on: {}".format(scan_label), labels)
     if choice < 0:
@@ -1026,17 +1031,24 @@ def choose_video_addon_rewrite(
     if choice == 0:
         return None
     if choice == len(labels) - 1:
-        target_id = strip_quotes(ui.input("Target Fen/Fen Light add-on id", source_ids[0]))
+        target_id = strip_quotes(ui.input("Target compatible add-on id", source_ids[0]))
         if not target_id:
             raise ImportCancelled()
     else:
         target_id = target_ids[choice - 1]
 
-    if not looks_like_fen_video_addon_id(target_id):
+    if not looks_like_retarget_target_id(target_id):
         raise ImportErrorWithMessage(
-            "Invalid Fen/Fen Light add-on id: {}".format(target_id)
+            "Unsupported video add-on id: {}".format(target_id)
         )
     if len(source_ids) == 1 and source_ids[0] == target_id:
+        return None
+    if target_id in ROUTE_INCOMPATIBLE_VIDEO_TARGET_IDS and not ui.yesno(
+        ADDON_NAME,
+        "Umbrella uses different URL actions from Fen, POV, and Red Light.",
+        "This changes only the plugin id; it does not convert route parameters.",
+        "Continue only with an Umbrella-compatible widget backup.",
+    ):
         return None
     return VideoAddonRewrite(source_ids, target_id)
 
@@ -1078,13 +1090,19 @@ def addon_is_installed(addon_id: str) -> bool:
 def is_switchable_video_addon(addon_id: str) -> bool:
     if addon_id in HELPER_VIDEO_ADDON_IDS:
         return False
-    if addon_id in {target_id for target_id, _name in KNOWN_VIDEO_TARGETS}:
+    if addon_id in FEN_DERIVED_VIDEO_ADDON_IDS:
         return True
     return looks_like_fen_video_addon_id(addon_id)
 
 
 def looks_like_fen_video_addon_id(value: str) -> bool:
     return bool(re.match(r"^plugin\.video\.fen(?:light)?(?:[._-][A-Za-z0-9_.-]+)?$", value))
+
+
+def looks_like_retarget_target_id(value: str) -> bool:
+    if value in {target_id for target_id, _name in KNOWN_VIDEO_TARGETS}:
+        return True
+    return looks_like_fen_video_addon_id(value)
 
 
 def video_target_label(addon_id: str) -> str:
