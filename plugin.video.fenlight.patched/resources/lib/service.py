@@ -60,7 +60,8 @@ class OnUpdateChanges:
 				('refresh_addon_keys', self.refresh_addon_keys),
 				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
 				('default_ui_language_dutch', self.default_ui_language_dutch),
-				('migrate_external_scraper_to_cocoscrapers', self.migrate_external_scraper_to_cocoscrapers)
+				('migrate_external_scraper_to_cocoscrapers', self.migrate_external_scraper_to_cocoscrapers),
+				('always_resume_playback', self.always_resume_playback)
 			)
 			for setting_id, migration in migrations:
 				update_setting_id = 'updatechecks.%s' % setting_id
@@ -130,6 +131,19 @@ class OnUpdateChanges:
 		set_setting('external_scraper.module', 'script.module.cocoscrapers')
 		set_setting('external_scraper.name', 'CocoScrapers Module')
 		logger('Fen Light Patched', 'External scraper migrated from Magneto to CocoScrapers.')
+
+	def always_resume_playback(self):
+		from caches.settings_cache import get_setting, set_setting
+		for media_type in ('movie', 'episode'):
+			setting_id = 'auto_resume_%s' % media_type
+			if get_setting('fenlight.%s' % setting_id) != '1': set_setting(setting_id, '1')
+		for setting_id in ('myvideos.selectaction', 'myvideos.playaction'):
+			request = {'jsonrpc': '2.0', 'method': 'Settings.SetSettingValue',
+				'params': {'setting': setting_id, 'value': 2}, 'id': 1}
+			response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+			if response.get('result') not in (True, 'OK'):
+				raise RuntimeError('Could not set Kodi %s: %s' % (setting_id, response.get('error', response)))
+		logger('Fen Light Patched', 'Kodi and Fen resume settings set to Always.')
 
 class CustomFonts:
 	def run(self):

@@ -25,7 +25,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.22" provider-name="DutchTech">
+    <addon id="plugin.program.famyt" name="Kodi Setup Kit" version="0.9.23" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.fenlight.quickrescrape" version="0.0.5" />
@@ -44,7 +44,10 @@
             <platform>all</platform>
             <license>MIT</license>
             <source>https://github.com/TechXXX/kodirepo</source>
-            <news>v0.9.22
+            <news>v0.9.23
+- Set the bundled Kodi GUI presets to Resume for both the default select action and play action
+
+v0.9.22
 - Group the Setup Kit menu into the main setup, optional actions not included in it, and manual re-runs of included actions
 
 v0.9.21
@@ -229,7 +232,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.116">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.117">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -253,7 +256,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.116]:
+            <news>[v2.0.117]:
+  * Set Kodi's default video actions to Resume and Fen's movie and episode auto-resume to Always on the next service start.
+
+[v2.0.116]:
   * Honor Start Over in the resume dialog by explicitly overriding Kodi's separate plugin-URL bookmark.
 
 [v2.0.115]:

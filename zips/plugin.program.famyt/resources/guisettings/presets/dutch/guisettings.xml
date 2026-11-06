@@ -50,7 +50,7 @@
     <setting id="filelists.showaddsourcebuttons" default="true">true</setting>
     <setting id="filelists.showhidden">true</setting>
     <setting id="filelists.allowfiledeletion">true</setting>
-    <setting id="myvideos.selectaction" default="true">1</setting>
+    <setting id="myvideos.selectaction">2</setting>
     <setting id="myvideos.selectdefaultversion" default="true">false</setting>
     <setting id="myvideos.playaction">2</setting>
     <setting id="myvideos.usetags" default="true">false</setting>
