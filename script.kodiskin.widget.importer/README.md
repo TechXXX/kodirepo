@@ -2,6 +2,28 @@
 
 Kodi script add-on for importing preloaded AF3/AH2 setups or custom Skin Shortcuts and Arctic Fuse 3 shortcut backups from ZIP file, direct URL, network path, local path, pCloud public link, or pCloud short link.
 
+## Platform and device support
+
+KodiSkin Widget Importer uses Kodi's own virtual file-system APIs, so the same
+package and workflow work across Kodi platforms: Android and Android TV
+(including NVIDIA Shield), CoreELEC/LibreELEC, Windows, macOS, and Linux.
+The source can be a local file, network path, or URL that the device can read.
+
+Compatibility is determined by the active skin's widget format, not by the
+device:
+
+- Skin Shortcuts XML backups import into Skin Shortcuts skins.
+- Arctic Fuse 3 / Skin Variables JSON backups import into compatible AF3 / Skin
+  Variables skins.
+- The importer does not convert one widget format into the other.
+
+Widget paths from video add-ons such as POV or Umbrella are retained exactly
+when importing that add-on's own backup, so those backups are portable between
+supported Kodi devices. The optional path-retargeting feature is deliberately
+limited to Fen/Fen Light-compatible add-ons: replacing only the add-on ID in an
+unrelated add-on's URL would leave its different route parameters behind and
+produce broken widgets.
+
 ## What it imports
 
 For Skin Shortcuts skins:
