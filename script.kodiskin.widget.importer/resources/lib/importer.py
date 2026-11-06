@@ -82,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.24 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.25 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -1075,7 +1075,9 @@ def build_video_target_choices(source_ids: Sequence[str]) -> List[str]:
     target_ids: List[str] = []
     for addon_id, _name in KNOWN_VIDEO_TARGETS:
         append_unique(target_ids, addon_id)
-    return target_ids
+    installed = [addon_id for addon_id in target_ids if addon_is_installed(addon_id)]
+    not_installed = [addon_id for addon_id in target_ids if addon_id not in installed]
+    return installed + not_installed
 
 
 def addon_is_installed(addon_id: str) -> bool:
