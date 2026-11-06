@@ -82,12 +82,13 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.23 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.24 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
 PCLOUD_API_EU = "https://eapi.pcloud.com"
 PLUGIN_VIDEO_RE = re.compile(r"plugin://(plugin\.video\.[A-Za-z0-9_.-]+)")
+PLUGIN_VIDEO_URL_RE = re.compile(r"plugin://(plugin\.video\.[A-Za-z0-9_.-]+)/?\?[^\s\"'<>]+")
 HELPER_VIDEO_ADDON_IDS = {
     "plugin.video.themoviedb.helper",
     "plugin.video.themoviedb.helper.patched",
@@ -105,7 +106,7 @@ KNOWN_VIDEO_TARGETS = [
     ("plugin.video.umbrella", "Umbrella"),
 ]
 FEN_DERIVED_VIDEO_ADDON_IDS = {"plugin.video.redlight", "plugin.video.pov"}
-ROUTE_INCOMPATIBLE_VIDEO_TARGET_IDS = {"plugin.video.umbrella"}
+ROUTE_TRANSLATION_VIDEO_TARGET_IDS = {"plugin.video.umbrella"}
 
 
 class ImportCancelled(Exception):
@@ -1043,11 +1044,11 @@ def choose_video_addon_rewrite(
         )
     if len(source_ids) == 1 and source_ids[0] == target_id:
         return None
-    if target_id in ROUTE_INCOMPATIBLE_VIDEO_TARGET_IDS and not ui.yesno(
+    if target_id in ROUTE_TRANSLATION_VIDEO_TARGET_IDS and not ui.yesno(
         ADDON_NAME,
         "Umbrella uses different URL actions from Fen, POV, and Red Light.",
-        "This changes only the plugin id; it does not convert route parameters.",
-        "Continue only with an Umbrella-compatible widget backup.",
+        "Known routes will be translated; unknown routes keep their original add-on.",
+        "Continue with the Umbrella conversion?",
     ):
         return None
     return VideoAddonRewrite(source_ids, target_id)
@@ -1468,6 +1469,9 @@ def rewrite_video_addons_in_bytes(data: bytes, video_rewrite: VideoAddonRewrite)
 
 
 def rewrite_video_addons_in_text(text: str, video_rewrite: VideoAddonRewrite) -> str:
+    if video_rewrite.target_id in ROUTE_TRANSLATION_VIDEO_TARGET_IDS:
+        return rewrite_fen_family_urls_to_umbrella(text, video_rewrite.source_ids)
+
     source_ids = set(video_rewrite.source_ids)
 
     def replace(match: re.Match[str]) -> str:
@@ -1477,6 +1481,94 @@ def rewrite_video_addons_in_text(text: str, video_rewrite: VideoAddonRewrite) ->
         return match.group(0)
 
     return PLUGIN_VIDEO_RE.sub(replace, text)
+
+
+def rewrite_fen_family_urls_to_umbrella(text: str, source_ids: Sequence[str]) -> str:
+    source_id_set = set(source_ids)
+
+    def replace(match: re.Match[str]) -> str:
+        if match.group(1) not in source_id_set:
+            return match.group(0)
+        return fen_family_url_to_umbrella(match.group(0)) or match.group(0)
+
+    return PLUGIN_VIDEO_URL_RE.sub(replace, text)
+
+
+def fen_family_url_to_umbrella(source_url: str) -> Optional[str]:
+    """Translate the stable Fen-family widget routes supported by Umbrella.
+
+    Returning ``None`` deliberately preserves a source path that has no
+    Umbrella equivalent. That is safer than replacing only its add-on id.
+    """
+    parsed = urllib.parse.urlparse(source_url.replace("&amp;", "&"))
+    query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    mode = first_query_value(query, "mode")
+    action = first_query_value(query, "action")
+    folder_name = first_query_value(query, "name") or first_query_value(query, "list_name")
+
+    movie_routes = {
+        "trakt_movies_trending": ("movies", "trakttrending"),
+        "trakt_movies_trending_recent": ("movies", "trakttrending_recent"),
+        "trakt_movies_most_watched": ("movies", "traktmostwatched"),
+        "trakt_movies_top10_boxoffice": ("movies", "traktboxoffice"),
+        "tmdb_movies_popular": ("tmdbmovies", "tmdb_popular"),
+        "tmdb_movies_latest_releases": ("tmdbmovies", "tmdb_discovery_released"),
+        "in_progress_movies": ("moviesUnfinished", "traktunfinished"),
+        "watched_movies": ("movies", "trakthistory"),
+    }
+    tv_routes = {
+        "trakt_tv_trending": ("tvshows", "trakttrending"),
+        "in_progress_tvshows": ("episodesUnfinished", "traktunfinished"),
+    }
+
+    if mode == "build_movie_list" and action in movie_routes:
+        umbrella_action, umbrella_url = movie_routes[action]
+        return umbrella_plugin_url(umbrella_action, umbrella_url, folder_name, source_url)
+    if mode == "build_tvshow_list" and action in tv_routes:
+        umbrella_action, umbrella_url = tv_routes[action]
+        return umbrella_plugin_url(umbrella_action, umbrella_url, folder_name, source_url)
+    if mode == "build_movie_list" and action == "tmdb_movies_search":
+        return umbrella_plugin_url("movieSearch", "", folder_name, source_url)
+    if mode == "build_tvshow_list" and action == "tmdb_tv_search":
+        return umbrella_plugin_url("tvSearch", "", folder_name, source_url)
+    if mode == "navigator.genres":
+        menu_type = first_query_value(query, "menu_type")
+        if menu_type == "movie":
+            return umbrella_plugin_url("movieGenres", "tmdb_genre", folder_name, source_url)
+        if menu_type == "tvshow":
+            return umbrella_plugin_url("tvGenres", "tmdb_genre", folder_name, source_url)
+    if mode == "navigator.decades":
+        menu_type = first_query_value(query, "menu_type")
+        if menu_type == "movie":
+            return umbrella_plugin_url("movieYears", "tmdb_year", folder_name, source_url)
+        if menu_type == "tvshow":
+            return umbrella_plugin_url("tvYears", "tmdb_year", folder_name, source_url)
+    if mode == "trakt.list.build_trakt_list":
+        user = first_query_value(query, "user")
+        slug = first_query_value(query, "slug")
+        if user and slug:
+            trakt_url = (
+                "https://api.trakt.tv/users/{}/lists/{}/items/movies?limit=40&page=1".format(
+                    user, slug
+                )
+            )
+            return umbrella_plugin_url("mixed", trakt_url, folder_name, source_url)
+    return None
+
+
+def first_query_value(query: Dict[str, List[str]], key: str) -> str:
+    values = query.get(key, [])
+    return values[0] if values else ""
+
+
+def umbrella_plugin_url(action: str, url: str, folder_name: str, source_url: str) -> str:
+    params: List[Tuple[str, str]] = [("action", action)]
+    if url:
+        params.append(("url", url))
+    if folder_name:
+        params.append(("folderName", folder_name))
+    result = "plugin://plugin.video.umbrella/?" + urllib.parse.urlencode(params)
+    return result.replace("&", "&amp;") if "&amp;" in source_url else result
 
 
 def resolve_pcloud_download_url(public_link: str) -> str:

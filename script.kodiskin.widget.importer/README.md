@@ -20,10 +20,10 @@ device:
 Widget paths from video add-ons such as POV or Umbrella are retained exactly
 when importing that add-on's own backup, so those backups are portable between
 supported Kodi devices. The optional retargeting feature can change compatible
-Fen-family widget paths to Fen, Fen Light, Red Light, or POV. Umbrella is also
-available as an explicit, warned ID rewrite: its URL actions are different, so
-the importer preserves its own backups but cannot translate a Fen/POV/Red Light
-route into Umbrella's route format.
+Fen-family widget paths to Fen, Fen Light, Red Light, or POV. Umbrella uses a
+different route format, so the importer translates the stable, known
+Fen/POV/Red Light routes into their Umbrella equivalents. A route with no safe
+Umbrella equivalent is deliberately left pointing to its original add-on.
 
 ## What it imports
 
@@ -77,7 +77,7 @@ Before import, the add-on scans Fen-family paths, including POV and Red Light. I
 
 Built-in choices include Fen, Fen Light, Fen Light Patched, Fen Light AI Search, the KodiEnglish Fen Light forks, **Red Light** (`plugin.video.redlight`), **POV** (`plugin.video.pov`), and **Umbrella** (`plugin.video.umbrella`). Red Light is a Fen Light fork and POV is Fen-derived, so their compatible routes can use the same ID-rewrite workflow. You can also enter a custom Fen/Fen Light-style add-on ID such as `plugin.video.fenlight.yourfork`.
 
-Retargeting changes only the `plugin://plugin.video...` add-on ID; it preserves the rest of the shortcut URL. The add-on warns before choosing Umbrella because Umbrella uses different action and parameter names. Select Umbrella only for an Umbrella-compatible backup or if you intend to edit incompatible widgets afterwards; the importer does not pretend to convert Fen/POV/Red Light routes into Umbrella routes.
+For Fen, Fen Light, Red Light, and POV, retargeting changes only the `plugin://plugin.video...` add-on ID and preserves the rest of the shortcut URL. Choosing Umbrella activates a separate converter for the supported common routes: Trakt movie/TV trends, most watched, box office, common TMDb movie lists, watched/in-progress lists, searches, movie genres/years, and Trakt user lists. Other paths, such as AI search, provider menus, or a route with no exact Umbrella counterpart, remain on their original add-on rather than being converted incorrectly.
 
 ## Usage
 
