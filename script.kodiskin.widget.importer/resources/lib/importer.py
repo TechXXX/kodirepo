@@ -42,14 +42,14 @@ SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
-PRELOADED_AH2_SETUP_LABEL = "Preloaded AH2 setup"
-PRELOADED_AF3_DUTCH_SETUP_LABEL = "Preloaded AF3 DutchTech setup"
-PRELOADED_AF3_ENGLISH_SETUP_LABEL = "Preloaded AF3 English widgets"
-PRELOADED_AH2_WIDGET_LABEL = "Preloaded AH2 widgets"
-PRELOADED_AF3_WIDGET_LABEL = "MacBook AF3 DutchTech widgets"
+PRELOADED_AH2_SETUP_LABEL = "Preloaded Dutch AH2 setup"
+PRELOADED_AF3_DUTCH_SETUP_LABEL = "Preloaded DutchTech AF3 widgets + English settings"
+PRELOADED_AF3_ENGLISH_SETUP_LABEL = "Preloaded English AF3 widgets"
+PRELOADED_AH2_WIDGET_LABEL = "Preloaded Dutch AH2 widgets"
+PRELOADED_AF3_WIDGET_LABEL = "DutchTech AF3 widgets"
 PRELOADED_AF3_ENGLISH_WIDGET_LABEL = "English AF3 widgets"
-PRELOADED_AH2_SETTINGS_LABEL = "MacBook Arctic Horizon 2 settings"
-PRELOADED_AF3_SETTINGS_LABEL = "MacBook Arctic Fuse 3 settings"
+PRELOADED_AH2_SETTINGS_LABEL = "Dutch Arctic Horizon 2 settings"
+PRELOADED_AF3_SETTINGS_LABEL = "English Arctic Fuse 3 settings"
 SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
     "skinvariables-shortcut-context.json",
@@ -70,19 +70,19 @@ PRELOADED_WIDGET_SOURCES = [
 ]
 PRELOADED_SKIN_SETTINGS = [
     (
-        "MacBook Arctic Horizon 2 settings",
+        PRELOADED_AH2_SETTINGS_LABEL,
         "skin.arctic.horizon.2.patched",
         "ah2",
         "resources/preloaded/skin-settings/skin.arctic.horizon.2.patched/settings.xml",
     ),
     (
-        "MacBook Arctic Fuse 3 settings",
+        PRELOADED_AF3_SETTINGS_LABEL,
         "skin.arctic.fuse.3",
         "af3",
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.19 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.21 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -308,7 +308,7 @@ def main() -> None:
                     len(skinvariables_package.files)
                 )
             if complete_af3_setup:
-                imported_note = "{} Imported MacBook AF3 skin settings.".format(imported_note)
+                imported_note = "{} Imported English AF3 skin settings.".format(imported_note)
 
             ui.ok(
                 ADDON_NAME,
@@ -382,7 +382,7 @@ def main() -> None:
                 final_note = settings_note
         imported_note = "Imported {} Skin Shortcuts files.".format(len(package.files))
         if complete_ah2_setup:
-            imported_note = "{} Imported MacBook AH2 skin settings.".format(imported_note)
+            imported_note = "{} Imported Dutch AH2 skin settings.".format(imported_note)
 
         ui.ok(
             ADDON_NAME,
@@ -620,7 +620,7 @@ def confirm_import(
         mode_note = "Mode: add onto existing local files"
     settings_note = ""
     if include_skin_settings:
-        settings_note = " MacBook AH2 skin settings.xml will also replace the active skin settings."
+        settings_note = " Dutch AH2 skin settings.xml will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
@@ -650,7 +650,7 @@ def confirm_skinvariables_import(
     menu_note = ", ".join(item.menu_name for item in package.files)
     settings_note = ""
     if include_skin_settings:
-        settings_note = " MacBook AF3 skin settings.xml will also replace the active skin settings."
+        settings_note = " English AF3 skin settings.xml will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
