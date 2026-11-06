@@ -42,14 +42,14 @@ SKIN_SETTINGS_NAME = "settings.xml"
 SKINVARIABLES_GENERATOR_NAME = "skinvariables-generator.json"
 SKINVARIABLES_SHORTCUT_PREFIX = "skinvariables-shortcut-"
 SKINVARIABLES_SHORTCUT_SUFFIX = ".json"
-PRELOADED_AH2_SETUP_LABEL = "Preloaded Dutch AH2 setup"
-PRELOADED_AF3_DUTCH_SETUP_LABEL = "Preloaded DutchTech AF3 widgets + English settings"
-PRELOADED_AF3_ENGLISH_SETUP_LABEL = "Preloaded English AF3 widgets"
+PRELOADED_AH2_SETUP_LABEL = "Preloaded Dutch AH2 Widgets + Settings file"
+PRELOADED_AF3_DUTCH_SETUP_LABEL = "Preloaded Dutch AF3 Widgets + Settings file"
+PRELOADED_AF3_ENGLISH_SETUP_LABEL = "Preloaded English AF3 Widgets + Settings file"
 PRELOADED_AH2_WIDGET_LABEL = "Preloaded Dutch AH2 widgets"
 PRELOADED_AF3_WIDGET_LABEL = "DutchTech AF3 widgets"
 PRELOADED_AF3_ENGLISH_WIDGET_LABEL = "English AF3 widgets"
-PRELOADED_AH2_SETTINGS_LABEL = "Dutch Arctic Horizon 2 settings"
-PRELOADED_AF3_SETTINGS_LABEL = "English Arctic Fuse 3 settings"
+PRELOADED_AH2_SETTINGS_LABEL = "Arctic Horizon 2 settings file"
+PRELOADED_AF3_SETTINGS_LABEL = "Arctic Fuse 3 settings file"
 SKINVARIABLES_SKIP_FILES = {
     "skinvariables-shortcut-config.json",
     "skinvariables-shortcut-context.json",
@@ -216,6 +216,22 @@ class KodiUI:
         except TypeError:
             return self.dialog.browse(1, "Choose widget backup ZIP", "files", ".zip")
 
+    def browse_folder(self) -> str:
+        if not self.dialog:
+            return ""
+        try:
+            return self.dialog.browseSingle(
+                0,
+                "Choose widget export folder",
+                "files",
+                "",
+                False,
+                False,
+                "",
+            )
+        except TypeError:
+            return self.dialog.browse(0, "Choose widget export folder", "files")
+
     def progress(self, heading: str, message: str):
         if not xbmcgui:
             return None
@@ -230,18 +246,24 @@ def main() -> None:
     try:
         action = choose_action(ui)
         ui.log("Selected action: {}".format(action))
+        if action == "export":
+            export_active_widgets(ui)
+            return
         if action == "skin_settings":
             import_preloaded_skin_settings(ui)
             return
-        complete_af3_setup = action == "preloaded_af3_dutchtech_setup"
-        preloaded_af3_english = action == "preloaded_af3_english_widgets"
+        complete_af3_setup = action in {
+            "preloaded_af3_dutchtech_setup",
+            "preloaded_af3_english_setup",
+        }
+        preloaded_af3_english = action == "preloaded_af3_english_setup"
         complete_ah2_setup = action == "preloaded_ah2_setup"
-        if complete_af3_setup:
-            source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
-            ui.log("Using preloaded AF3 DutchTech setup source")
-        elif preloaded_af3_english:
+        if preloaded_af3_english:
             source = preloaded_widget_source(PRELOADED_AF3_ENGLISH_WIDGET_LABEL)
-            ui.log("Using preloaded AF3 English widget source")
+            ui.log("Using preloaded AF3 English setup source")
+        elif complete_af3_setup:
+            source = preloaded_widget_source(PRELOADED_AF3_WIDGET_LABEL)
+            ui.log("Using preloaded AF3 Dutch setup source")
         elif complete_ah2_setup:
             source = preloaded_widget_source(PRELOADED_AH2_WIDGET_LABEL)
             ui.log("Using preloaded AH2 setup source")
@@ -308,7 +330,7 @@ def main() -> None:
                     len(skinvariables_package.files)
                 )
             if complete_af3_setup:
-                imported_note = "{} Imported English AF3 skin settings.".format(imported_note)
+                imported_note = "{} Imported AF3 skin settings.".format(imported_note)
 
             ui.ok(
                 ADDON_NAME,
@@ -382,7 +404,7 @@ def main() -> None:
                 final_note = settings_note
         imported_note = "Imported {} Skin Shortcuts files.".format(len(package.files))
         if complete_ah2_setup:
-            imported_note = "{} Imported Dutch AH2 skin settings.".format(imported_note)
+            imported_note = "{} Imported AH2 skin settings.".format(imported_note)
 
         ui.ok(
             ADDON_NAME,
@@ -404,8 +426,9 @@ def choose_action(ui: KodiUI) -> str:
     options = [
         PRELOADED_AF3_DUTCH_SETUP_LABEL,
         PRELOADED_AF3_ENGLISH_SETUP_LABEL,
-        "Import widgets from source",
         PRELOADED_AH2_SETUP_LABEL,
+        "Import widgets from source",
+        "Export active widgets to ZIP",
     ]
     choice = ui.select(ADDON_NAME, options)
     if choice < 0:
@@ -413,10 +436,127 @@ def choose_action(ui: KodiUI) -> str:
     if choice == 0:
         return "preloaded_af3_dutchtech_setup"
     if choice == 1:
-        return "preloaded_af3_english_widgets"
-    if choice == 3:
+        return "preloaded_af3_english_setup"
+    if choice == 2:
         return "preloaded_ah2_setup"
+    if choice == 4:
+        return "export"
     return "widgets"
+
+
+def export_active_widgets(ui: KodiUI) -> None:
+    target_skin = get_current_skin()
+    if not target_skin:
+        raise ImportErrorWithMessage("Could not detect the active Kodi skin.")
+
+    if skin_supports_skinvariables(target_skin):
+        files = active_af3_widget_files(target_skin)
+        family = "AF3"
+    else:
+        files = active_skinshortcuts_widget_files(target_skin)
+        family = "Skin Shortcuts"
+
+    if not files:
+        raise ImportErrorWithMessage(
+            "No {} widget files were found for the active skin ({}).".format(
+                family, target_skin
+            )
+        )
+
+    filename = "kodiskin-widgets-{}-{}.zip".format(
+        target_skin, time.strftime("%Y%m%d-%H%M%S")
+    )
+    destination = choose_export_destination(ui, filename)
+    if vfs_exists(destination) and not ui.yesno(
+        ADDON_NAME,
+        "A widget export already exists at:",
+        destination,
+        "Replace it?",
+    ):
+        return
+
+    work_dir = make_work_dir()
+    archive_path = work_dir / filename
+    try:
+        with zipfile.ZipFile(str(archive_path), "w", zipfile.ZIP_DEFLATED) as archive:
+            for source, archive_name in files:
+                archive.writestr(archive_name, read_bytes_vfs(source))
+        copy_vfs(str(archive_path), destination)
+    finally:
+        shutil.rmtree(str(work_dir), ignore_errors=True)
+
+    ui.ok(
+        ADDON_NAME,
+        "Exported {} {} widget file(s).".format(len(files), family),
+        "ZIP: {}".format(destination),
+        "Import this ZIP from any Kodi device using Import widgets from source.",
+    )
+
+
+def active_af3_widget_files(target_skin: str) -> List[Tuple[str, str]]:
+    source_dir = vfs_join(SKINVARIABLES_NODES_DATA, target_skin)
+    files: List[Tuple[str, str]] = []
+    for name in list_vfs_file_names(source_dir):
+        if (
+            not name.startswith(SKINVARIABLES_SHORTCUT_PREFIX)
+            or not name.endswith(SKINVARIABLES_SHORTCUT_SUFFIX)
+            or name in SKINVARIABLES_SKIP_FILES
+        ):
+            continue
+        files.append(
+            (
+                vfs_join(source_dir, name),
+                "userdata/addon_data/script.skinvariables/nodes/{}/{}".format(
+                    target_skin, name
+                ),
+            )
+        )
+    return files
+
+
+def active_skinshortcuts_widget_files(target_skin: str) -> List[Tuple[str, str]]:
+    files: List[Tuple[str, str]] = []
+    for name in list_vfs_file_names(SHORTCUTS_DATA):
+        is_widget_data = name.startswith(target_skin + "-") and name.endswith(".DATA.xml")
+        is_properties = name == target_skin + ".properties"
+        if not (is_widget_data or is_properties):
+            continue
+        files.append(
+            (
+                vfs_join(SHORTCUTS_DATA, name),
+                "userdata/addon_data/script.skinshortcuts/{}".format(name),
+            )
+        )
+    return files
+
+
+def choose_export_destination(ui: KodiUI, filename: str) -> str:
+    options = [
+        "Browse for local or network folder",
+        "Enter local or network folder path",
+    ]
+    choice = ui.select(ADDON_NAME, options)
+    if choice < 0:
+        raise ImportCancelled()
+
+    if choice == 0:
+        destination = strip_quotes(ui.browse_folder())
+    else:
+        destination = strip_quotes(
+            ui.input("Export folder (local, special://, or smb://)", "special://profile/")
+        )
+    if not destination:
+        raise ImportCancelled()
+    if is_pcloud_public_link(destination) or urllib.parse.urlparse(destination).scheme in {
+        "http",
+        "https",
+    }:
+        raise ImportErrorWithMessage(
+            "Public URL and pCloud links are import-only. Export to a local or network folder instead."
+        )
+    if destination.lower().endswith(".zip"):
+        return destination
+    return vfs_join(destination, filename)
 
 
 def choose_source(ui: KodiUI) -> str:
@@ -620,7 +760,7 @@ def confirm_import(
         mode_note = "Mode: add onto existing local files"
     settings_note = ""
     if include_skin_settings:
-        settings_note = " Dutch AH2 skin settings.xml will also replace the active skin settings."
+        settings_note = " The bundled AH2 settings file will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
@@ -650,7 +790,7 @@ def confirm_skinvariables_import(
     menu_note = ", ".join(item.menu_name for item in package.files)
     settings_note = ""
     if include_skin_settings:
-        settings_note = " English AF3 skin settings.xml will also replace the active skin settings."
+        settings_note = " The bundled AF3 settings file will also replace the active skin settings."
     return ui.yesno(
         ADDON_NAME,
         "Source skin: {}".format(package.source_skin),
@@ -1644,6 +1784,16 @@ def vfs_exists(path: str) -> bool:
     if xbmcvfs:
         return bool(xbmcvfs.exists(path))
     return translate_path(path).exists()
+
+
+def list_vfs_file_names(path: str) -> List[str]:
+    if xbmcvfs:
+        _, files = xbmcvfs.listdir(path)
+        return sorted(files)
+    target = translate_path(path)
+    if not target.exists():
+        return []
+    return sorted(item.name for item in target.iterdir() if item.is_file())
 
 
 def copy_vfs(source: str, dest: str) -> None:

@@ -41,8 +41,8 @@ For Arctic Fuse 3 / Skin Variables skins:
 
 For skin settings:
 
-- preloaded Dutch `settings.xml` for `skin.arctic.horizon.2.patched`
-- preloaded English `settings.xml` for `skin.arctic.fuse.3`
+- a bundled `settings.xml` for `skin.arctic.horizon.2.patched`
+- a bundled `settings.xml` for `skin.arctic.fuse.3`
 
 The add-on imports AF3 shortcut JSON into the active skin's Skin Variables node folder. This supports AF3 forks with their own add-on IDs, such as `skin.dutchtech.fuse.3` and `skin.dutchtech.fuse.3.kodienglish`.
 
@@ -66,9 +66,9 @@ Skin Shortcuts XML backups are not converted into Arctic Fuse 3 Skin Variables J
 
 Skin settings imports overwrite the active skin's `settings.xml` after making a backup. When the target skin is active, the add-on also applies the imported settings through Kodi skin builtins so Kodi's in-memory settings do not overwrite the imported file on shutdown. The preset can be imported into compatible forks because the add-on writes to the currently active skin id.
 
-The preloaded DutchTech AF3 setup imports the DutchTech shortcut nodes and also replaces the active skin's `settings.xml` with the bundled English AF3 settings after making backups. The on-screen label calls this out explicitly.
+Both preloaded AF3 setups import their respective shortcut nodes and also replace the active skin's `settings.xml` with the bundled AF3 settings file after making backups.
 
-The preloaded AH2 Dutch setup import overwrites matching Skin Shortcuts files and also replaces the active skin's `settings.xml` with the bundled Dutch profile settings after making backups.
+The preloaded Dutch AH2 setup import overwrites matching Skin Shortcuts files and also replaces the active skin's `settings.xml` with the bundled AH2 settings file after making backups.
 
 ## Video add-on retargeting
 
@@ -82,12 +82,17 @@ The retarget only changes the `plugin://plugin.video...` add-on ID. It leaves th
 
 1. Install the ZIP package for this add-on in Kodi.
 2. Run **KodiSkin Widget Importer** from Program add-ons.
-3. Choose **Preloaded DutchTech AF3 widgets + English settings** for the bundled DutchTech shortcut nodes together with the English AF3 settings, **Preloaded English AF3 widgets** for the bundled English AF3 shortcut nodes, **Import widgets from source** for URL/path/ZIP imports, or **Preloaded Dutch AH2 setup** for the bundled Dutch AH2 widget source and settings.
+3. Choose **Preloaded Dutch AF3 Widgets + Settings file** or **Preloaded English AF3 Widgets + Settings file** for a complete AF3 preset. The preloaded Dutch AH2 preset follows those AF3 choices; **Import widgets from source** is kept separately for URL/path/ZIP imports.
 4. For widget sources, choose **Preloaded widgets**, paste a pCloud public link, pCloud short link, direct ZIP URL, local ZIP path, or network ZIP path, or browse for a local ZIP.
 5. For widget sources, choose whether to keep or retarget detected video add-on paths.
 6. For widget sources, choose whether to overwrite matching local shortcut files or add onto them.
-7. For skin settings, choose the Dutch AH2 or English AF3 preset and confirm the active target skin.
-8. Reload the skin or restart Kodi if the skin does not refresh immediately.
+7. Each preloaded preset includes its matching bundled settings file; confirm the active target skin before it is replaced.
+8. Choose **Export active widgets to ZIP** to create a portable backup of the active skin's widget files (skin settings are not included). Save it locally, to a Kodi network location such as `smb://`, or to another Kodi-supported virtual path; import it later using **Import widgets from source**.
+9. Reload the skin or restart Kodi if the skin does not refresh immediately.
+
+Public HTTP and pCloud links are download-only sources, so they cannot be used as
+export destinations without an authenticated upload connection. A folder mounted
+in Kodi, including a network share, can be used for both importing and exporting.
 
 The built-in preloaded widget sources are:
 
@@ -100,8 +105,8 @@ English AF3 widgets: bundled with the add-on
 The built-in preloaded skin settings presets are:
 
 ```text
-Dutch Arctic Horizon 2 settings
-English Arctic Fuse 3 settings
+Arctic Horizon 2 settings file
+Arctic Fuse 3 settings file
 ```
 
 ## Import modes
