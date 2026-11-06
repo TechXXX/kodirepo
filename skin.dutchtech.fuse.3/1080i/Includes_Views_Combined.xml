@@ -111,7 +111,7 @@
                         <visible>Container(52$PARAM[id]).ListItem.IsFolder</visible>
                         <onclick condition="Container(53$PARAM[id]).ListItem.IsFolder">Container.Update($INFO[Container(53$PARAM[id]).ListItem.FolderPath])</onclick>
                         <onclick condition="Container(53$PARAM[id]).ListItem.IsFolder">SetFocus(50)</onclick>
-                        <onclick condition="!Container(53$PARAM[id]).ListItem.IsFolder">PlayMedia($ESCINFO[Container(53$PARAM[id]).ListItem.FileNameAndPath])</onclick>
+                        <onclick condition="!Container(53$PARAM[id]).ListItem.IsFolder">Action(play)</onclick>
                         <content target="$VAR[Path_CollectionNode_Target]" sortby="$VAR[View_Combined_SortBy]" sortorder="ascending">$VAR[View_53$PARAM[id]_Content]</content>
                         <onfocus>SetProperty(TMDbHelper.WidgetContainer,53$PARAM[id])</onfocus>
                         <onfocus>ClearProperty(Background.ShowOverlay,Home)</onfocus>
