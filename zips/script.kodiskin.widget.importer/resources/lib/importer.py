@@ -82,7 +82,7 @@ PRELOADED_SKIN_SETTINGS = [
         "resources/preloaded/skin-settings/skin.arctic.fuse.3/settings.xml",
     ),
 ]
-USER_AGENT = "{}/0.1.26 Kodi".format(ADDON_ID)
+USER_AGENT = "{}/0.1.27 Kodi".format(ADDON_ID)
 IMPORT_MODE_OVERWRITE = "overwrite"
 IMPORT_MODE_APPEND = "append"
 PCLOUD_API_DEFAULT = "https://api.pcloud.com"
@@ -1059,7 +1059,7 @@ def choose_video_addon_rewrite(
     if target_id in ROUTE_TRANSLATION_VIDEO_TARGET_IDS and not ui.yesno(
         ADDON_NAME,
         "Umbrella uses different URL actions from Fen, POV, and Red Light.",
-        "Known routes will be translated; unknown routes keep their original add-on.",
+        "Known routes will be translated; unsupported widgets will be skipped.",
         "Continue with the Umbrella conversion?",
     ):
         return None
@@ -1209,7 +1209,7 @@ def import_skinvariables_shortcuts(
 
     for item in files:
         dest = vfs_join(target_dir, item.target_name)
-        source_data = read_import_bytes(item.source_path, video_rewrite)
+        source_data = read_import_bytes(item.source_path, video_rewrite, item.target_name)
         if import_mode == IMPORT_MODE_APPEND and vfs_exists(dest):
             added = merge_skinvariables_data(dest, source_data)
             ui.log("Merged {} shortcut row(s) into {}".format(added, item.target_name))
@@ -1256,11 +1256,15 @@ def copy_import_file(
 
 
 def read_import_bytes(
-    source_path: Path, video_rewrite: Optional[VideoAddonRewrite]
+    source_path: Path,
+    video_rewrite: Optional[VideoAddonRewrite],
+    target_name: str = "",
 ) -> bytes:
     data = source_path.read_bytes()
     if not video_rewrite:
         return data
+    if video_rewrite.target_id in ROUTE_TRANSLATION_VIDEO_TARGET_IDS:
+        return filter_umbrella_widget_payload(data, video_rewrite.source_ids, target_name)
     return rewrite_video_addons_in_bytes(data, video_rewrite)
 
 
@@ -1506,6 +1510,136 @@ def rewrite_fen_family_urls_to_umbrella(text: str, source_ids: Sequence[str]) ->
         return fen_family_url_to_umbrella(match.group(0)) or match.group(0)
 
     return PLUGIN_VIDEO_URL_RE.sub(replace, text)
+
+
+def filter_umbrella_widget_payload(
+    data: bytes, source_ids: Sequence[str], target_name: str = ""
+) -> bytes:
+    """Translate known routes and remove widget entries with no Umbrella route.
+
+    A retained Fen-family URL makes Kodi offer to install that source add-on.
+    For an Umbrella conversion, omission is the safe fallback instead.
+    """
+    text = data.decode("utf-8-sig", "replace")
+    try:
+        payload = json.loads(text)
+    except Exception:
+        payload = None
+    if isinstance(payload, list):
+        filtered, _skipped = filter_umbrella_json_rows(payload, source_ids)
+        if target_name.endswith("homewidgets.json"):
+            ensure_umbrella_movie_hubs(filtered)
+        return (json.dumps(filtered, ensure_ascii=False, indent=4) + "\n").encode("utf-8")
+
+    try:
+        root = ET.fromstring(data)
+    except ET.ParseError:
+        return rewrite_fen_family_urls_to_umbrella(text, source_ids).encode("utf-8")
+
+    for shortcut in list(root.findall("shortcut")):
+        keep = True
+        for element in shortcut.iter():
+            if not element.text:
+                continue
+            converted, supported = umbrella_convert_or_skip_value(element.text, source_ids)
+            if not supported:
+                keep = False
+                break
+            element.text = converted
+        if not keep:
+            root.remove(shortcut)
+    indent_element(root)
+    return ET.tostring(root, encoding="utf-8") + b"\n"
+
+
+def filter_umbrella_json_rows(
+    rows: Sequence[object], source_ids: Sequence[str]
+) -> Tuple[List[object], int]:
+    filtered: List[object] = []
+    skipped = 0
+    for row in rows:
+        converted, supported = filter_umbrella_json_value(row, source_ids)
+        if supported:
+            filtered.append(converted)
+        else:
+            skipped += 1
+    return filtered, skipped
+
+
+def filter_umbrella_json_value(value: object, source_ids: Sequence[str]) -> Tuple[object, bool]:
+    if isinstance(value, str):
+        return umbrella_convert_or_skip_value(value, source_ids)
+    if isinstance(value, dict):
+        converted: Dict[object, object] = {}
+        for key, child in value.items():
+            rewritten, supported = filter_umbrella_json_value(child, source_ids)
+            if not supported:
+                return value, False
+            converted[key] = rewritten
+        return converted, True
+    if isinstance(value, list):
+        converted: List[object] = []
+        for child in value:
+            rewritten, supported = filter_umbrella_json_value(child, source_ids)
+            if not supported:
+                return value, False
+            converted.append(rewritten)
+        return converted, True
+    return value, True
+
+
+def umbrella_convert_or_skip_value(value: str, source_ids: Sequence[str]) -> Tuple[str, bool]:
+    source_id_set = set(source_ids)
+    unsupported_route = False
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal unsupported_route
+        if match.group(1) not in source_id_set:
+            return match.group(0)
+        converted = fen_family_url_to_umbrella(match.group(0))
+        if converted:
+            return converted
+        unsupported_route = True
+        return match.group(0)
+
+    rewritten = PLUGIN_VIDEO_URL_RE.sub(replace, value)
+    if unsupported_route:
+        return value, False
+    return rewritten, True
+
+
+def ensure_umbrella_movie_hubs(rows: List[object]) -> None:
+    paths = {
+        row.get("path")
+        for row in rows
+        if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+    hubs = [
+        (
+            "Movies",
+            "plugin://plugin.video.umbrella/?action=movieNavigator&folderName=Movies",
+            "guid-umbrella-movies-hub",
+        ),
+        (
+            "Movies Trending",
+            "plugin://plugin.video.umbrella/?action=movies&url=trakttrending&folderName=Trending",
+            "guid-umbrella-movies-trending",
+        ),
+    ]
+    for label, path, guid in hubs:
+        if path in paths:
+            continue
+        rows.insert(
+            0,
+            {
+                "label": label,
+                "path": path,
+                "target": "videos",
+                "guid": guid,
+                "widget_style": "Poster",
+            },
+        )
+        paths.add(path)
 
 
 def fen_family_url_to_umbrella(source_url: str) -> Optional[str]:
