@@ -139,12 +139,15 @@ class OnUpdateChanges:
 			setting_id = 'auto_resume_%s' % media_type
 			if get_setting('fenlight.%s' % setting_id) != '1': set_setting(setting_id, '1')
 		for setting_id in ('myvideos.selectaction', 'myvideos.playaction'):
-			request = {'jsonrpc': '2.0', 'method': 'Settings.SetSettingValue',
-				'params': {'setting': setting_id, 'value': 2}, 'id': 1}
-			response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
-			if response.get('result') not in (True, 'OK'):
-				raise RuntimeError('Could not set Kodi %s: %s' % (setting_id, response.get('error', response)))
-		logger('Fen Light Patched', 'Kodi and Fen resume settings set to Always.')
+			try:
+				request = {'jsonrpc': '2.0', 'method': 'Settings.SetSettingValue',
+					'params': {'setting': setting_id, 'value': 2}, 'id': 1}
+				response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+				if response.get('result') not in (True, 'OK'):
+					logger('Fen Light Patched', 'Kodi resume setting %s skipped: %s' % (setting_id, response.get('error', response)))
+			except Exception as e:
+				logger('Fen Light Patched', 'Kodi resume setting %s skipped: %s' % (setting_id, str(e)))
+		logger('Fen Light Patched', 'Fen resume settings set to Always.')
 
 	def enable_digital_release_indicators_trakt_trending(self):
 		from caches.settings_cache import set_setting
