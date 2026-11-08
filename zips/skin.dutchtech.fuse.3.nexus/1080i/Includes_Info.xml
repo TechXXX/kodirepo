@@ -7,6 +7,7 @@
         <param name="icon_w">32</param>
         <param name="bordersize">0</param>
         <param name="max_width">680</param>
+        <param name="icon_visible">true</param>
         <definition>
             <control type="image">
                 <width>$PARAM[icon_w]</width>
@@ -14,7 +15,7 @@
                 <aspectratio>keep</aspectratio>
                 <centertop>50%</centertop>
                 <texture colordiffuse="$PARAM[colordiffuse]_90">$PARAM[icon]</texture>
-                <visible>$PARAM[visible]</visible>
+                <visible>$PARAM[visible] + $PARAM[icon_visible]</visible>
                 <bordersize>$PARAM[bordersize]</bordersize>
             </control>
             <control type="label">
@@ -197,6 +198,26 @@
                         <param name="item">Item03</param>
                         <param name="visible">String.IsEqual($PARAM[container]$PARAM[listitem].DBType,tvshow) | String.IsEqual($PARAM[container]$PARAM[listitem].DBType,season)</param>
                         <param name="service">$PARAM[service]</param>
+                    </include>
+
+                    <!-- Fen Light Trakt Trending: worldwide digital / physical release status -->
+                    <include content="Info_Meta_Object">
+                        <param name="icon_visible">false</param>
+                        <param name="label">[COLOR=ff00bf6f]●[/COLOR] Beschikbaar</param>
+                        <param name="visible">String.IsEqual($PARAM[container]$PARAM[listitem].Property(DigitalReleaseStatus),released)</param>
+                        <param name="colordiffuse">$PARAM[colordiffuse]</param>
+                    </include>
+                    <include content="Info_Meta_Object">
+                        <param name="icon_visible">false</param>
+                        <param name="label">[COLOR=ffff4d4d]●[/COLOR] Nog niet uit</param>
+                        <param name="visible">String.IsEqual($PARAM[container]$PARAM[listitem].Property(DigitalReleaseStatus),unreleased)</param>
+                        <param name="colordiffuse">$PARAM[colordiffuse]</param>
+                    </include>
+                    <include content="Info_Meta_Object">
+                        <param name="icon_visible">false</param>
+                        <param name="label">[COLOR=ffd9d9d9]●[/COLOR] Onbekend</param>
+                        <param name="visible">String.IsEqual($PARAM[container]$PARAM[listitem].Property(DigitalReleaseStatus),unknown)</param>
+                        <param name="colordiffuse">$PARAM[colordiffuse]</param>
                     </include>
 
                     <!-- Total Episodes (Service Disabled) -->
