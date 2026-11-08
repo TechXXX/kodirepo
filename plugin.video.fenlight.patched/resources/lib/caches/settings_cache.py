@@ -223,6 +223,7 @@ default_settings = [
 #==================== Special Open Actions
 {'setting_id': 'media_open_action_movie', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'None', '1': 'Open Extras', '2': 'Open Movie Set', '3': 'Both'}},
 {'setting_id': 'media_open_action_tvshow', 'setting_type': 'action', 'setting_default': '0', 'settings_options': {'0': 'None', '1': 'Open Extras'}},
+{'setting_id': 'digital_release_indicators_trakt_trending', 'setting_type': 'boolean', 'setting_default': 'true'},
 
 
 #==================================================================================#
@@ -482,6 +483,7 @@ default_settings = [
 {'setting_id': 'updatechecks.default_ui_language_dutch', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'updatechecks.migrate_external_scraper_to_cocoscrapers', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'updatechecks.always_resume_playback', 'setting_type': 'string', 'setting_default': 'false'},
+{'setting_id': 'updatechecks.enable_digital_release_indicators_trakt_trending', 'setting_type': 'string', 'setting_default': 'false'},
 {'setting_id': 'rd.client_id', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'rd.refresh', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'rd.secret', 'setting_type': 'string', 'setting_default': 'empty_setting'},

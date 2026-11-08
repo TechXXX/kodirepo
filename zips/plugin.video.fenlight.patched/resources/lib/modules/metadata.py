@@ -14,14 +14,54 @@ tmdb_image_url, youtube_url, date_format = 'https://image.tmdb.org/t/p/%s%s', 'p
 EXPIRES_1_DAYS, EXPIRES_4_DAYS, EXPIRES_7_DAYS, EXPIRES_14_DAYS, EXPIRES_30_DAYS, EXPIRES_182_DAYS = 24, 96, 168, 336, 720, 4368
 invalid_error_codes = (6, 34, 37)
 
-def movie_meta(id_type, media_id, api_key, mpaa_region, current_date, current_time=None):
+def digital_release_info(release_dates, current_date):
+	"""Return the worldwide TMDb digital/physical release state and earliest date."""
+	unknown = ('unknown', 'Onbekend', '')
+	if not isinstance(release_dates, dict): return unknown
+	results = release_dates.get('results')
+	if not isinstance(results, list) or not results: return unknown
+	release_dates_found, incomplete, qualifying_dates = False, False, []
+	for country in results:
+		if not isinstance(country, dict):
+			incomplete = True
+			continue
+		country_dates = country.get('release_dates')
+		if not isinstance(country_dates, list):
+			incomplete = True
+			continue
+		if country_dates: release_dates_found = True
+		for release in country_dates:
+			if not isinstance(release, dict):
+				incomplete = True
+				continue
+			if release.get('type') not in (4, 5): continue
+			release_date = release.get('release_date')
+			if not isinstance(release_date, str) or len(release_date) < 10:
+				incomplete = True
+				continue
+			try: date_value = jsondate_to_datetime(release_date[:10], date_format, True)
+			except: date_value = None
+			if not date_value:
+				incomplete = True
+				continue
+			qualifying_dates.append((date_value, release_date[:10]))
+	if qualifying_dates:
+		qualifying_dates.sort(key=lambda item: item[0])
+		earliest_date = qualifying_dates[0][1]
+		if any(date_value <= current_date for date_value, _ in qualifying_dates): return ('released', 'Beschikbaar', earliest_date)
+		if not incomplete: return ('unreleased', 'Nog niet uit', earliest_date)
+		return unknown
+	if incomplete or not release_dates_found: return unknown
+	return ('unreleased', 'Nog niet uit', '')
+
+def movie_meta(id_type, media_id, api_key, mpaa_region, current_date, current_time=None, include_release_dates=False):
 	if id_type == 'trakt_dict':
 		if media_id.get('tmdb', None): id_type, media_id = 'tmdb_id', media_id['tmdb']
 		elif media_id.get('imdb', None): id_type, media_id = 'imdb_id', media_id['imdb']
 		else: id_type, media_id = None, None
 	if media_id == None: return None
 	meta = metacache_get('movie', id_type, media_id, current_time)
-	if meta: return meta
+	if meta and (not include_release_dates or 'release_dates' in meta): return meta
 	try:
 		if id_type in ('tmdb_id', 'imdb_id'): data = movie_details(media_id, api_key)
 		else:
@@ -130,7 +170,8 @@ def movie_meta(id_type, media_id, api_key, mpaa_region, current_date, current_ti
 				'poster': poster, 'fanart': fanart, 'genre': genre, 'title': title, 'original_title': original_title, 'english_title': english_title, 'year': year, 'cast': cast,
 				'duration': duration, 'rootname': rootname, 'country': country, 'country_codes': country_codes, 'mpaa': mpaa,'writer': writer, 'all_trailers': all_trailers,
 				'director': director, 'alternative_titles': alternative_titles, 'plot': plot, 'studio': studio, 'extra_info': extra_info, 'mediatype': 'movie', 'tvdb_id': 'None',
-				'clearlogo': clearlogo, 'landscape': landscape, 'spoken_language': spoken_language, 'keywords': keywords}
+				'clearlogo': clearlogo, 'landscape': landscape, 'spoken_language': spoken_language, 'keywords': keywords,
+				'release_dates': data_get('release_dates')}
 		metacache_set('movie', id_type, meta, movie_expiry(current_date, meta), current_time)
 	except: pass
 	return meta

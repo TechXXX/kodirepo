@@ -313,6 +313,9 @@ The production playback triangle is:
 - Fen Light Patched owns metadata lookup, source scraping, source ordering,
   resolving, playback, watched/progress updates, and pre-play subtitle-aware
   retry-pool promotion.
+  Its Trakt Trending Movies view can also show the TMDb worldwide digital or
+  physical release state: available, not yet released, or unknown when the
+  release data is incomplete.
 - a4kSubtitles Patched owns subtitle provider searches, manual subtitle UI,
   runtime subtitle attachment, built-in subtitle preference, and full-file AI
   subtitle translation fallback.

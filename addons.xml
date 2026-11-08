@@ -232,7 +232,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.117">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.118">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -665,7 +665,7 @@ v0.0.4
 - Add package artwork.</news>
         </extension>
     </addon>
-    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.28" provider-name="Kalter">
+    <addon id="script.kodiskin.widget.importer" name="KodiSkin Widget Importer" version="0.1.29" provider-name="Kalter">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1644,7 +1644,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.21">
+    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.22">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="script.skinvariables" version="2.2.1" />

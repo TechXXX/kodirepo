@@ -57,6 +57,7 @@ class OnUpdateChanges:
 		from caches.settings_cache import get_setting, set_setting
 		try:
 			migrations = (
+				('enable_digital_release_indicators_trakt_trending', self.enable_digital_release_indicators_trakt_trending),
 				('refresh_addon_keys', self.refresh_addon_keys),
 				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
 				('default_ui_language_dutch', self.default_ui_language_dutch),
@@ -144,6 +145,11 @@ class OnUpdateChanges:
 			if response.get('result') not in (True, 'OK'):
 				raise RuntimeError('Could not set Kodi %s: %s' % (setting_id, response.get('error', response)))
 		logger('Fen Light Patched', 'Kodi and Fen resume settings set to Always.')
+
+	def enable_digital_release_indicators_trakt_trending(self):
+		from caches.settings_cache import set_setting
+		set_setting('digital_release_indicators_trakt_trending', 'true')
+		logger('Fen Light Patched', 'Digital release indicators for Trakt Trending enabled by update.')
 
 class CustomFonts:
 	def run(self):

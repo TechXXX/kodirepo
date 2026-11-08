@@ -337,6 +337,9 @@ def widget_hide_next_page():
 def widget_hide_watched():
 	return get_setting('fenlight.widget_hide_watched', 'false') == 'true'
 
+def digital_release_indicators_trakt_trending():
+	return get_setting('fenlight.digital_release_indicators_trakt_trending', 'true') == 'true'
+
 def calendar_sort_order():
 	return int(get_setting('fenlight.trakt.calendar_sort_order', '0'))
 

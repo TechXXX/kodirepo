@@ -78,6 +78,13 @@
                     "value": "Skin.SetString(CustomRating.Movies.Item02,Metacritic)"
                 }],
                 [{
+                    "rules": ["!Skin.HasSetting(DefaultConfig.DigitalReleaseIndicatorRatingsUpdated)"],
+                    "value": [
+                        "Skin.SetString(CustomRating.Movies.Item03,None)",
+                        "Skin.SetBool(DefaultConfig.DigitalReleaseIndicatorRatingsUpdated)"
+                    ]
+                }],
+                [{
                     "rules": ["String.IsEmpty(Skin.String(CustomRating.TVShows.Item01))"],
                     "value": "Skin.SetString(CustomRating.TVShows.Item01,Trakt)"
                 }],
