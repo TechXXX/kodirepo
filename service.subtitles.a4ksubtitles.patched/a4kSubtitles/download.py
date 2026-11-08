@@ -181,7 +181,11 @@ def download(core, params):
     try:
         actions_args = params['action_args']
         lang_code = core.utils.get_lang_id(actions_args['lang'], core.kodi.xbmc.ISO_639_2)
-        filename = __insert_lang_code_in_filename(core, actions_args['filename'], lang_code, actions_args.get('raw', False))
+        # Kodi exposes the local filename in its stream selector.  Providers
+        # can supply a shortened display filename alongside the complete
+        # release name, so retain the latter whenever it is available.
+        subtitle_release_name = actions_args.get('release_name') or actions_args['filename']
+        filename = __insert_lang_code_in_filename(core, subtitle_release_name, lang_code, actions_args.get('raw', False))
         filename = core.utils.slugify_filename(filename)
         filename = filename.strip()
         archivepath = core.os.path.join(core.utils.temp_dir, 'sub.zip')

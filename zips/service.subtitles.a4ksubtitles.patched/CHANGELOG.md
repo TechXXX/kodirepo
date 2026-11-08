@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.51:
+  * Preserve the full provider release name in the downloaded subtitle filename, allowing Kodi to display the complete codec and release group in its subtitle selector.
+
 * v3.23.49:
   * Migrate existing profiles to the experimental subtitle-timing feature's explicit opt-in state. The migration turns it off once, then preserves the user's later choice.
 
