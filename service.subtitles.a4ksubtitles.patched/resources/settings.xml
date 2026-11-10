@@ -128,7 +128,7 @@
                 </setting>
                 <setting id="general.auto_sync_subtitles" type="boolean" label="33113" help="">
                     <level>0</level>
-                    <default>false</default>
+                    <default>true</default>
                     <control type="toggle"/>
                 </setting>
             </group>

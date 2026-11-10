@@ -1,10 +1,107 @@
 # -*- coding: utf-8 -*-
 
+import os
+
+from a4kSubtitles.subtitle_sync import (
+    embedded_cue_candidates,
+    find_best_offset,
+    retime_srt,
+    subtitle_starts,
+)
+
 selector_source_key_prop = 'subs.selector_source_key'
 selector_payload_prop = 'subs.selector_payload'
 selector_player_filename_prop = 'subs.player_filename'
 selector_playback_url_prop = 'subs.selector_playback_url'
 OPENAI_TRANSLATION_MODEL = 'gpt-4.1-mini-2025-04-14'
+
+# Both retiming the selected subtitle and replacing it with an alternative
+# change what Kodi renders. Require the same evidence for either operation.
+FALLBACK_MIN_EMBEDDED_CUES = 16
+FALLBACK_MIN_EXTERNAL_CUES = 30
+FALLBACK_MIN_MATCHED_CUES = 8
+FALLBACK_MAX_RESIDUAL_MS = 250
+MIN_RETIME_MS = 150
+SMALL_OFFSET_RANGE_MS = 400
+
+
+def _fallback_match_is_confirmed(result):
+    """Return whether a timing result is safe enough to replace a subtitle."""
+    if not result or result.get('matched_cues', 0) < FALLBACK_MIN_MATCHED_CUES:
+        return False
+
+    # The histogram fallback can count the same embedded event more than once
+    # and reports only a median residual. Keep it for diagnostics, but require
+    # the ordered one-to-one match before changing Kodi's active subtitle.
+    if result.get('method') == 'histogram':
+        return False
+
+    # The accepted ordered match must also have tightly clustered starts.
+    residual = result.get('mean_abs_residual_ms')
+    if residual is None:
+        residual = abs(result.get('median_residual_ms', FALLBACK_MAX_RESIDUAL_MS + 1))
+    return residual <= FALLBACK_MAX_RESIDUAL_MS
+
+
+def _fallback_match_rank(result):
+    """Prefer more shared starts, then a tighter fit and less correction."""
+    return (
+        result.get('matched_cues', 0),
+        -result.get('mean_abs_residual_ms', abs(result.get('median_residual_ms', 0))),
+        -abs(result.get('offset_ms', 0)),
+    )
+
+
+def _best_embedded_match(reference_candidates, target_starts):
+    """Use non-SDH timing when it is as convincing as the SDH timeline."""
+    strongest = find_best_offset(reference_candidates, target_starts)
+    if not strongest or not strongest.get('is_sdh'):
+        return strongest
+
+    normal_tracks = [candidate for candidate in reference_candidates if not candidate.get('is_sdh')]
+    normal = find_best_offset(normal_tracks, target_starts)
+    if not _fallback_match_is_confirmed(normal):
+        return strongest
+    if not _fallback_match_is_confirmed(strongest):
+        return normal
+
+    # SDH adds sound descriptions that can create extra chance cue matches.
+    # Prefer the normal track when its ordered evidence is nearly as strong.
+    if (normal['matched_cues'] >= strongest['matched_cues'] * 0.9 and
+            normal['mean_abs_residual_ms'] <= strongest['mean_abs_residual_ms'] + 25):
+        return normal
+    return strongest
+
+
+def _offset_to_apply(result):
+    """Require a material gain before making a small timing correction."""
+    offset_ms = result.get('offset_ms', 0)
+    if abs(offset_ms) < MIN_RETIME_MS:
+        return 0
+    if abs(offset_ms) >= SMALL_OFFSET_RANGE_MS:
+        return offset_ms
+
+    # A dense subtitle timeline can produce a broad plateau of nearly equal
+    # offset scores. Sparse sampling can also move the best bucket away from
+    # zero. A small shift is trustworthy only when zero has substantially
+    # fewer ordered matches or appreciably worse timing residuals.
+    best_matches = result.get('matched_cues', 0)
+    zero_matches = result.get('zero_offset_matches')
+    if zero_matches is not None and zero_matches <= best_matches * 0.75:
+        return offset_ms
+    zero_residual = result.get('zero_offset_mean_abs_residual_ms')
+    best_residual = result.get('mean_abs_residual_ms')
+    if zero_residual is not None and best_residual is not None and zero_residual - best_residual >= 75:
+        return offset_ms
+    return 0
+
+
+def _autosync_path(path, offset_ms):
+    """Spell out the sign because Kodi drops punctuation in stream labels."""
+    root, extension = os.path.splitext(path)
+    direction = 'plus' if offset_ms > 0 else 'minus'
+    return '%s.autosync.%s%dms%s' % (root, direction, abs(offset_ms), extension or '.srt')
+
 
 def _pinned_ai_model(core, ai_provider, configured_model):
     if ai_provider != 'OpenAI':
@@ -247,11 +344,6 @@ def _selector_payload_requires_ai_translation(payload):
 
 def start(api):
     core = api.core
-    try:
-        if core.kodi.migrate_auto_sync_subtitles_to_opt_in():
-            core.logger.debug('Disabled experimental background subtitle sync for first opt-in')
-    except Exception as exc:
-        core.logger.debug('Background subtitle sync opt-in migration skipped: %s' % exc)
     core.kodi.xbmcvfs.delete(core.utils.suspend_service_file)
     core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
     monitor = core.kodi.xbmc.Monitor()
@@ -429,33 +521,233 @@ def start(api):
         except:
             return False
 
-    def start_background_subtitle_sync(subfile):
+    def start_background_subtitle_sync(subfile, selected_result=None):
         """Align a newly attached external SRT without delaying playback."""
-        if not subfile or '.autosync.' in core.os.path.basename(subfile):
+        if not subfile:
+            core.logger.debug('Background subtitle sync skipped: no subtitle file was attached')
+            return
+        if '.autosync.' in core.os.path.basename(subfile):
+            core.logger.debug('Background subtitle sync skipped: subtitle was already timing-adjusted | subtitle=%s' % subfile)
             return
         try:
             if not core.kodi.get_bool_setting('general', 'auto_sync_subtitles'):
+                core.logger.debug('Background subtitle sync skipped: auto-sync setting is disabled | subtitle=%s' % subfile)
                 return
-        except:
+        except Exception as exc:
+            core.logger.debug('Background subtitle sync skipped: unable to read auto-sync setting | error=%s' % exc)
             return
 
         playback_url = current_playing_url()
         if playback_url.startswith('plugin://'):
             playback_url = core.kodi.get_property(selector_playback_url_prop) or ''
         if not playback_url or playback_url.startswith('plugin://'):
-            core.logger.debug('Background subtitle sync skipped: no direct playback URL')
+            core.logger.debug(
+                'Background subtitle sync skipped: no direct playback URL | player=%s | selector_url=%s' % (
+                    current_playing_url(), core.kodi.get_property(selector_playback_url_prop) or '',
+                )
+            )
             return
 
         sync_key = '%s|%s' % (playback_url, subfile)
         if sync_key in sync_started_subfiles:
+            core.logger.debug('Background subtitle sync skipped: worker already queued for subtitle | subtitle=%s' % subfile)
             return
         sync_started_subfiles.add(sync_key)
         selector_source_key = core.kodi.get_property(selector_source_key_prop)
+        core.logger.debug(
+            'Background subtitle sync queued | subtitle=%s | playback=%s | selector_source=%s' % (
+                subfile, _selector_short_text(playback_url), _selector_short_text(selector_source_key),
+            )
+        )
+
+        def playback_is_current():
+            """Avoid work and UI changes after Kodi has moved to another item."""
+            if monitor.abortRequested():
+                core.logger.debug('Background subtitle sync playback guard failed: service is stopping')
+                return False
+            if not core.kodi.xbmc.Player().isPlayingVideo():
+                core.logger.debug('Background subtitle sync playback guard failed: video is no longer playing')
+                return False
+            current_url = current_playing_url()
+            normalized_current_url = current_url
+            # Kodi continues to report the Fen plugin URL for a short period
+            # after attaching the subtitle, while the selector already holds
+            # the direct stream URL used to start this worker.  Treat those
+            # two representations as the same playback until Kodi catches up.
+            if current_url.startswith('plugin://'):
+                normalized_current_url = core.kodi.get_property(selector_playback_url_prop) or current_url
+            if normalized_current_url != playback_url:
+                core.logger.debug(
+                    'Background subtitle sync playback guard failed: playback URL changed | expected=%s | current=%s | normalized=%s' % (
+                        _selector_short_text(playback_url),
+                        _selector_short_text(current_url),
+                        _selector_short_text(normalized_current_url),
+                    )
+                )
+                return False
+            current_source_key = core.kodi.get_property(selector_source_key_prop)
+            if selector_source_key and current_source_key and current_source_key != selector_source_key:
+                core.logger.debug(
+                    'Background subtitle sync playback guard failed: selector source changed | expected=%s | current=%s' % (
+                        _selector_short_text(selector_source_key), _selector_short_text(current_source_key),
+                    )
+                )
+                return False
+            return True
+
+        def result_identity(result):
+            result = result or {}
+            action_args = result.get('action_args') or {}
+            return (
+                result.get('service_name') or '',
+                str(action_args.get('url') or ''),
+                action_args.get('release_name') or action_args.get('filename') or result.get('name') or '',
+            )
+
+        def try_timing_validated_fallback(reference_candidates, external_starts):
+            """Only replace a rejected subtitle with a proven timing match."""
+            embedded_cue_counts = [len(candidate.get('starts') or []) for candidate in reference_candidates]
+            embedded_cues = max(embedded_cue_counts) if embedded_cue_counts else 0
+            # A missing Cue index is not evidence that the selected subtitle is
+            # bad.  Require a useful amount of broad embedded evidence before
+            # spending network requests on fallback candidates.  The threshold
+            # applies to one track: timings across separate English tracks must
+            # never be combined as if they were one reference timeline.
+            if embedded_cues < FALLBACK_MIN_EMBEDDED_CUES or len(external_starts) < FALLBACK_MIN_EXTERNAL_CUES:
+                core.logger.debug(
+                    'Background subtitle fallback skipped: insufficient timing evidence | embedded_cues=%s | embedded_tracks=%s | subtitle_cues=%s' % (
+                        embedded_cues, len(reference_candidates), len(external_starts),
+                    )
+                )
+                return False
+
+            if not playback_is_current():
+                core.logger.debug('Background subtitle fallback cancelled: playback changed before candidate search')
+                return False
+
+            selected_identity = result_identity(selected_result)
+            selected_language = ((selected_result or {}).get('lang') or
+                                 ((selected_result or {}).get('action_args') or {}).get('lang') or '')
+            if not selected_language:
+                return False
+
+            try:
+                alternatives = api.search({
+                    'action': 'search',
+                    'languages': selected_language,
+                    'preferredlanguage': selected_language,
+                }) or []
+            except Exception as exc:
+                core.logger.debug('Background subtitle fallback search failed: %s' % exc)
+                return False
+
+            attempted = 0
+            confirmed = []
+            for alternative in alternatives:
+                if result_identity(alternative) == selected_identity:
+                    continue
+                attempted += 1
+                if attempted > 3:
+                    break
+                candidate_name = _selector_matched_subtitle_name(alternative)
+                if not playback_is_current():
+                    core.logger.debug(
+                        'Background subtitle fallback cancelled: playback changed before candidate | subtitle=%s' % candidate_name
+                    )
+                    return False
+                try:
+                    core.logger.debug(
+                        'Background subtitle fallback comparing candidate | index=%s | subtitle=%s' % (
+                            attempted, candidate_name,
+                        )
+                    )
+                    alternative_file = api.download(alternative, preserve_existing=True)
+                    if not alternative_file:
+                        core.logger.debug(
+                            'Background subtitle fallback rejected candidate: download produced no subtitle file | subtitle=%s' % candidate_name
+                        )
+                        continue
+                    with open(alternative_file, 'rb') as handle:
+                        alternative_bytes = handle.read()
+                    alternative_text = alternative_bytes.decode('utf-8-sig')
+                    alternative_starts = subtitle_starts(alternative_text)
+                    if len(alternative_starts) < FALLBACK_MIN_EXTERNAL_CUES:
+                        core.logger.debug(
+                            'Background subtitle fallback rejected candidate: insufficient external cues | subtitle=%s | subtitle_cues=%s' % (
+                                candidate_name, len(alternative_starts),
+                            )
+                        )
+                        continue
+                    alternative_result = _best_embedded_match(
+                        reference_candidates, alternative_starts
+                    )
+                    if not _fallback_match_is_confirmed(alternative_result):
+                        core.logger.debug(
+                            'Background subtitle fallback rejected candidate: no strong timing match | subtitle=%s | subtitle_cues=%s | result=%s' % (
+                                candidate_name, len(alternative_starts), alternative_result,
+                            )
+                        )
+                        continue
+                    core.logger.debug(
+                        'Background subtitle fallback confirmed candidate | subtitle=%s | result=%s' % (
+                            candidate_name, alternative_result,
+                        )
+                    )
+                    confirmed.append((alternative_file, alternative_text, alternative_result, candidate_name))
+                except Exception as exc:
+                    core.logger.debug(
+                        'Background subtitle fallback rejected candidate: comparison failed | subtitle=%s | error=%s' % (
+                            candidate_name, exc,
+                        )
+                    )
+            if not confirmed:
+                core.logger.debug('Background subtitle fallback completed: all compared candidates rejected | attempted=%s' % attempted)
+                return False
+
+            best = max(confirmed, key=lambda item: _fallback_match_rank(item[2]))
+            for candidate in confirmed:
+                if candidate is not best:
+                    core.logger.debug(
+                        'Background subtitle fallback rejected candidate: weaker confirmed timing fit | subtitle=%s | result=%s | selected=%s' % (
+                            candidate[3], candidate[2], best[3],
+                        )
+                    )
+
+            # Do not attach a completed worker result to a later episode.
+            if not playback_is_current():
+                core.logger.debug('Background subtitle fallback cancelled: playback changed before attach')
+                return False
+            alternative_file, alternative_text, alternative_result, candidate_name = best
+            detected_offset_ms = alternative_result['offset_ms']
+            offset_ms = _offset_to_apply(alternative_result)
+            output_file = alternative_file
+            if offset_ms:
+                output_file = _autosync_path(alternative_file, offset_ms)
+                with open(output_file, 'w', encoding='utf-8') as handle:
+                    handle.write(retime_srt(alternative_text, offset_ms))
+            if not playback_is_current():
+                core.logger.debug('Background subtitle fallback cancelled: playback changed before attach')
+                return False
+            core.kodi.xbmc.Player().setSubtitles(output_file)
+            try:
+                core.kodi.xbmc.Player().showSubtitles(True)
+            except:
+                pass
+            core.kodi.notification('Subtitle fallback matched timing: %s' % candidate_name, time=5000)
+            core.logger.debug(
+                'Background subtitle fallback applied | detected_offset_ms=%s | applied_offset_ms=%s | method=%s | matched_cues=%s | from=%s | to=%s' % (
+                    detected_offset_ms, offset_ms,
+                    alternative_result.get('method', 'unknown'), alternative_result['matched_cues'], subfile, output_file,
+                )
+            )
+            return True
 
         def worker():
             try:
-                from a4kSubtitles.subtitle_sync import embedded_cue_starts, find_offset, retime_srt, subtitle_starts
-
+                if not playback_is_current():
+                    core.logger.debug('Background subtitle sync cancelled before probe: playback is no longer current | subtitle=%s' % subfile)
+                    return
+                core.logger.debug('Background subtitle sync worker started | subtitle=%s' % subfile)
                 with open(subfile, 'rb') as handle:
                     original_bytes = handle.read()
                 try:
@@ -464,36 +756,67 @@ def start(api):
                     core.logger.debug('Background subtitle sync skipped: external SRT is not UTF-8')
                     return
 
-                reference_starts = embedded_cue_starts(playback_url)
-                result = find_offset(reference_starts, subtitle_starts(original_text))
-                if not result:
+                original_starts = subtitle_starts(original_text)
+                core.logger.debug(
+                    'Background subtitle sync probing embedded cues | subtitle_cues=%s | playback=%s' % (
+                        len(original_starts), _selector_short_text(playback_url),
+                    )
+                )
+                reference_candidates = embedded_cue_candidates(playback_url)
+                embedded_cues = max([len(candidate.get('starts') or []) for candidate in reference_candidates] or [0])
+                core.logger.debug(
+                    'Background subtitle sync probe complete | embedded_tracks=%s | embedded_cues=%s | subtitle_cues=%s' % (
+                        len(reference_candidates), embedded_cues, len(original_starts),
+                    )
+                )
+                for candidate in reference_candidates:
+                    if candidate.get('sample_stats'):
+                        core.logger.debug(
+                            'Background subtitle sync sampling | track=%s | stats=%s' % (
+                                candidate.get('track_number'), candidate['sample_stats'],
+                            )
+                        )
+                eligible_candidates = [
+                    candidate for candidate in reference_candidates
+                    if len(candidate.get('starts') or []) >= FALLBACK_MIN_EMBEDDED_CUES
+                ]
+                if not eligible_candidates or len(original_starts) < FALLBACK_MIN_EXTERNAL_CUES:
                     core.logger.debug(
-                        'Background subtitle sync found no confident embedded-English timing match | embedded_cues=%s | subtitle=%s' % (
-                            len(reference_starts), subfile,
+                        'Background subtitle sync retained original: insufficient timing evidence | embedded_cues=%s | subtitle_cues=%s' % (
+                            embedded_cues, len(original_starts),
+                        )
+                    )
+                    return
+                result = _best_embedded_match(eligible_candidates, original_starts)
+                if not _fallback_match_is_confirmed(result):
+                    core.logger.debug(
+                        'Background subtitle sync found no strong embedded-English timing match | embedded_tracks=%s | embedded_cues=%s | result=%s | subtitle=%s' % (
+                            len(eligible_candidates), embedded_cues, result, subfile,
+                        )
+                    )
+                    try_timing_validated_fallback(eligible_candidates, original_starts)
+                    return
+
+                detected_offset_ms = result['offset_ms']
+                offset_ms = _offset_to_apply(result)
+                if not offset_ms:
+                    core.logger.debug(
+                        'Background subtitle sync: subtitle already aligned | detected_offset_ms=%s | zero_offset_matches=%s | subtitle=%s' % (
+                            detected_offset_ms, result.get('zero_offset_matches'), subfile,
                         )
                     )
                     return
 
-                offset_ms = result['offset_ms']
-                if abs(offset_ms) < 150:
-                    core.logger.debug('Background subtitle sync: subtitle already aligned | subtitle=%s' % subfile)
-                    return
-
                 # Do not attach a completed worker result to a later episode.
-                if not core.kodi.xbmc.Player().isPlayingVideo():
-                    return
-                if current_playing_url() != playback_url:
-                    return
-                if selector_source_key and core.kodi.get_property(selector_source_key_prop) != selector_source_key:
+                if not playback_is_current():
                     return
 
-                root, extension = core.os.path.splitext(subfile)
-                output_file = '%s.autosync.%+dms%s' % (root, offset_ms, extension or '.srt')
+                output_file = _autosync_path(subfile, offset_ms)
                 with open(output_file, 'w', encoding='utf-8') as handle:
                     handle.write(retime_srt(original_text, offset_ms))
 
                 # Recheck after writing, because range probing is asynchronous.
-                if not core.kodi.xbmc.Player().isPlayingVideo() or current_playing_url() != playback_url:
+                if not playback_is_current():
                     return
                 core.kodi.xbmc.Player().setSubtitles(output_file)
                 try:
@@ -502,8 +825,8 @@ def start(api):
                     pass
                 core.kodi.notification('Subtitle timing corrected: %+d ms' % offset_ms, time=5000)
                 core.logger.debug(
-                    'Background subtitle sync applied | offset_ms=%s | votes=%s | matched_cues=%s | subtitle=%s' % (
-                        offset_ms, result['votes'], result['matched_cues'], output_file,
+                    'Background subtitle sync applied | offset_ms=%s | method=%s | votes=%s | matched_cues=%s | track=%s | track_name=%s | sdh=%s | subtitle=%s' % (
+                        offset_ms, result.get('method', 'unknown'), result['votes'], result['matched_cues'], result['track_number'], result['track_name'], result['is_sdh'], output_file,
                     )
                 )
             except Exception as exc:
@@ -951,7 +1274,7 @@ def start(api):
             core.logger.debug('Setting subtitles: %s' % subfile)
             core.kodi.xbmc.Player().setSubtitles(subfile)
             attached_subtitle_active = True
-            start_background_subtitle_sync(subfile)
+            start_background_subtitle_sync(subfile, result)
             return True
 
         return translate_and_attach_subfile(

@@ -1,6 +1,10 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.52:
+  * Enable conservative automatic subtitle timing validation by default for new installations. Remove the old startup migration that forced the setting off; existing saved preferences remain intact.
+  * Validate the selected SRT against embedded English timing and compare available alternatives when timing evidence is sufficient. Replace only after a strong confirmed match; otherwise retain the original subtitle.
+
 * v3.23.51:
   * Preserve the full provider release name in the downloaded subtitle filename, allowing Kodi to display the complete codec and release group in its subtitle selector.
 

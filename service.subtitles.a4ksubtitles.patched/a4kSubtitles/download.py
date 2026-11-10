@@ -171,11 +171,15 @@ def __copy_sub_local(core, subfile):
     if file_dest and core.kodi.xbmcvfs.exists(folder_dest):
         core.kodi.xbmcvfs.copy(subfile, file_dest)
 
-def download(core, params):
+def download(core, params, preserve_existing=False):
     core.logger.debug(lambda: core.json.dumps(params, indent=2))
 
     core.kodi.xbmcvfs.File(core.utils.suspend_service_file, 'w').close()
-    core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
+    # Timing-validated fallback candidates are downloaded beside the current
+    # subtitle.  Do not delete the subtitle Kodi is actively rendering until a
+    # replacement has passed the timing check.
+    if not preserve_existing:
+        core.shutil.rmtree(core.utils.temp_dir, ignore_errors=True)
     core.kodi.xbmcvfs.mkdirs(core.utils.temp_dir)
 
     try:
@@ -188,6 +192,14 @@ def download(core, params):
         filename = __insert_lang_code_in_filename(core, subtitle_release_name, lang_code, actions_args.get('raw', False))
         filename = core.utils.slugify_filename(filename)
         filename = filename.strip()
+        if preserve_existing:
+            # Distinct provider results can share a release name. Give every
+            # fallback download its own path so it cannot overwrite the SRT
+            # Kodi is currently rendering.
+            identity = '%s|%s|%s' % (params.get('service_name', ''), actions_args.get('url', ''), filename)
+            suffix = core.hashlib.sha1(identity.encode('utf-8')).hexdigest()[:10]
+            root, extension = core.os.path.splitext(filename)
+            filename = '%s.fallback.%s%s' % (root, suffix, extension)
         archivepath = core.os.path.join(core.utils.temp_dir, 'sub.zip')
 
         service_name = params['service_name']

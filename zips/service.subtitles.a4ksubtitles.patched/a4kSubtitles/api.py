@@ -216,14 +216,14 @@ class A4kSubtitlesApi(object):
             if restore_video_meta:
                 restore_video_meta()
 
-    def download(self, params, settings=None):
+    def download(self, params, settings=None, preserve_existing=False):
         restore_settings = None
 
         try:
             if settings:
                 restore_settings = self.mock_settings(settings)
 
-            return self.core.download(self.core, params)
+            return self.core.download(self.core, params, preserve_existing=preserve_existing)
         finally:
             if restore_settings:
                 restore_settings()

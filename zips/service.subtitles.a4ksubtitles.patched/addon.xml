@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.a4ksubtitles.patched"
        name="a4kSubtitles Patched"
-       version="3.23.51"
+       version="3.23.52"
        provider-name="DutchTech">
     <requires>
       <import addon="script.module.requests"/>
@@ -27,6 +27,10 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
             <screenshot>screenshot-03.png</screenshot>
         </assets>
         <news>
+[v3.23.52]:
+  * Enable conservative automatic subtitle timing validation by default for new installations. Preserve existing saved preferences.
+  * Compare alternative subtitles when the selected release has sufficient timing evidence but no coherent match. Replace only with a strongly confirmed match; otherwise retain the original.
+
 [v3.23.51]:
   * Preserve the complete provider release name when creating a downloaded subtitle file, so Kodi's subtitle selector shows the full label (including codec and release group) rather than a shortened display name.
 

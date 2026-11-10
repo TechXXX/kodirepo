@@ -58,7 +58,10 @@ There are three main entry patterns:
   Subtitle download, archive extraction, and final subtitle-file placement.
 - `a4kSubtitles/service.py`
   Background loop that reacts to playback, prefers built-in subtitles when
-  available, and only falls back to external download when needed.
+  available, and only falls back to external download when needed. It also
+  validates external subtitle timing after playback starts.
+- `a4kSubtitles/subtitle_sync.py`
+  Bounded Matroska cue-start reader and ordered external-SRT timing matcher.
 - `a4kSubtitles/services/opensubtitles.py`
   OpenSubtitles auth/search/download request builder and parser. This is where
   translation flags are preserved in result payloads.
@@ -69,6 +72,11 @@ There are three main entry patterns:
   User-facing addon settings.
 - `CHANGELOG.md`
   Release history only. Read this README first for architecture.
+- `docs/subtitle-timing-validation.md`
+  Timing validation design, measured MKV evidence, live Kodi results, limits,
+  and repeatable verification steps.
+- `AGENTS.md`
+  Short entry point and safety notes for agents working in this addon.
 
 ## Current Patched Behaviors That Matter
 
@@ -113,18 +121,36 @@ available preferred-language Kodi subtitle stream first.
 ### Background subtitle timing alignment
 
 After the service has attached a selector-downloaded external UTF-8 SRT, it
-starts a background probe. It reads only the Matroska header, track table, Cue
-index, and sampled block headers from the resolved local/direct HTTP source;
-it uses an embedded English text-subtitle track as the reference without
-extracting or downloading it. The probe compares cue start times, requires a
-dominant fixed offset, and only then rewrites and reloads a temporary SRT.
-Playback and subtitle selection continue while this runs. Unsupported
-containers, missing English text tracks, incomplete indexes, ambiguous timing,
-and non-UTF-8 external files leave the original subtitle in place.
+starts a background probe. `subtitle_sync.py` reads cue starts from every
+English text track in a Matroska source. The service prefers a normal English
+track when its timing evidence is comparably strong; SDH remains usable when
+normal English is inconclusive. It honors Matroska's default English language
+when a track omits the language element, and can use an explicit "English"
+track name when the language is marked unknown. It first checks the Cue index; if
+that index contains fewer than 16 subtitle starts, it samples Cluster block
+headers across the timeline. Remote reads are bounded to 150 MiB, 80
+requests, and a roughly 30-second deadline. The probe uses start times only:
+it never examines embedded subtitle text, audio, or cue end times.
 
-The General setting **Auto-sync external subtitles** is disabled by default.
-When it applies a correction, a five-second on-screen notification shows the
-offset so the opt-in test run is visible.
+The service requires at least 16 starts from one embedded track and 30 from
+the external SRT. It matches starts in order, one to one, and only changes
+Kodi's subtitle after a coherent, strong timing match. A small detected
+offset is applied only when it materially improves the fit over zero offset.
+If the selected SRT does not match, the service downloads up to three other
+ranked candidates without deleting the active SRT, compares all of them,
+and applies the strongest confirmed match. Equal timing fits favor the SRT
+that needs less correction. If none is confirmed, the original stays active.
+Playback changes cancel the background worker before it attaches a result.
+
+The detailed thresholds, measured releases, and log interpretation are in
+[`docs/subtitle-timing-validation.md`](docs/subtitle-timing-validation.md).
+
+The General setting **Auto-sync external subtitles** is enabled by default for
+new installations. Existing installations retain their saved setting.
+When it applies a timing correction or a confirmed alternative, a five-second
+on-screen notification shows what changed.
+Generated SRT names spell out `autosync.minus600ms` or
+`autosync.plus600ms` so Kodi's subtitle list preserves the direction.
 `tests/fixtures/californication_s04e05_timing.json` is a derived numeric
 regression fixture for the observed `+1000 ms` case; the media and subtitle
 text remain local manual-test assets.
@@ -232,3 +258,6 @@ That behavior must stay aligned with patched Fenlight's goal:
 - If ranking behavior changes, fix selector policy in the selector package
   first, not by adding ad hoc sort rules here unless addon-side ordering truly
   needs it.
+- Keep timing-based replacement conservative: retain the active subtitle when
+  the embedded sample or fixed-offset evidence is inconclusive, and compare
+  every downloaded fallback before choosing one.
