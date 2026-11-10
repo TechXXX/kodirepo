@@ -146,7 +146,9 @@ The detailed thresholds, measured releases, and log interpretation are in
 [`docs/subtitle-timing-validation.md`](docs/subtitle-timing-validation.md).
 
 The General setting **Auto-sync external subtitles** is enabled by default for
-new installations. Existing installations retain their saved setting.
+new installations. Version 3.23.53 also enables it once for existing profiles,
+including those that saved the former opt-in default. Users can turn it off
+again at any time; later service starts preserve that choice.
 When it applies a timing correction or a confirmed alternative, a five-second
 on-screen notification shows what changed.
 Generated SRT names spell out `autosync.minus600ms` or

@@ -232,11 +232,18 @@ class SubtitleSyncTest(unittest.TestCase):
         self.assertEqual('sub.autosync.minus600ms.srt', _autosync_path('sub.srt', -600))
         self.assertEqual('sub.autosync.plus600ms.srt', _autosync_path('sub.srt', 600))
 
-    def test_auto_sync_defaults_on_and_saved_choice_is_respected(self):
+    def test_auto_sync_defaults_on_and_migrates_existing_profiles_once(self):
         settings = ET.parse(os.path.join(ADDON_ROOT, 'resources', 'settings.xml'))
         setting = settings.find(".//setting[@id='general.auto_sync_subtitles']")
         self.assertEqual('true', setting.findtext('default'))
+        kodi.set_setting('migration.auto_sync_subtitles_default_on_v1', '')
         kodi.set_setting('general', 'auto_sync_subtitles', 'false')
+        self.assertTrue(kodi.migrate_auto_sync_subtitles_default_on())
+        self.assertTrue(kodi.get_bool_setting('general', 'auto_sync_subtitles'))
+        self.assertTrue(kodi.get_bool_setting('migration.auto_sync_subtitles_default_on_v1'))
+
+        kodi.set_setting('general', 'auto_sync_subtitles', 'false')
+        self.assertFalse(kodi.migrate_auto_sync_subtitles_default_on())
         self.assertFalse(kodi.get_bool_setting('general', 'auto_sync_subtitles'))
 
 
