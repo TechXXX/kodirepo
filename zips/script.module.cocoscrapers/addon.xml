@@ -23,6 +23,6 @@
 			<fanart>fanart.png</fanart>
 			<screenshot></screenshot>
 		</assets>
-		<news>Provider update: disable Bitsearch; enable Knaben and Kickass2 for existing users.</news>
+		<news>Based on CocoScrapers 1.0.45: provider update disables Bitsearch and enables Knaben and Kickass2 for existing users.</news>
 	</extension>
 </addon>

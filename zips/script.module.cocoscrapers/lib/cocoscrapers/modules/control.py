@@ -223,7 +223,7 @@ def setProviderDefaults(provider_defaults=None):
 	except: return
 
 def applyProviderSelectionMigration():
-	"""Apply the 1.0.44 provider change once without resetting other choices."""
+	"""Apply the provider change once without resetting other choices."""
 	try:
 		previous_migration = ''
 		if xbmcvfs.exists(providerMigrationFile):
