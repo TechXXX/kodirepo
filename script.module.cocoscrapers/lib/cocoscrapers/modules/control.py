@@ -42,6 +42,8 @@ dataPath = transPath(addonInfo('profile'))
 cacheFile = joinPath(dataPath, 'cache.db')
 undesirablescacheFile = joinPath(dataPath, 'undesirables.db')
 settingsFile = joinPath(dataPath, 'settings.xml')
+providerMigrationFile = joinPath(dataPath, 'provider-selection-migration.version')
+PROVIDER_SELECTION_MIGRATION = '1.0.44-bitsearch-knaben-kickass2'
 
 def getKodiVersion(full=False):
 	if full: return xbmc.getInfoLabel("System.BuildVersion")
@@ -219,6 +221,29 @@ def setProviderDefaults(provider_defaults=None):
 		if provider_defaults is None: provider_defaults = getProviderDefaults()
 		for k, v in provider_defaults.items(): setSetting(k, v)
 	except: return
+
+def applyProviderSelectionMigration():
+	"""Apply the 1.0.44 provider change once without resetting other choices."""
+	try:
+		previous_migration = ''
+		if xbmcvfs.exists(providerMigrationFile):
+			with open(providerMigrationFile, 'r') as fh: previous_migration = fh.read()
+		if previous_migration == PROVIDER_SELECTION_MIGRATION: return 0
+
+		for setting_id, value in (
+			('provider.bitsearch', 'false'),
+			('provider.knaben', 'true'),
+			('provider.kickass2', 'true'),
+		):
+			setSetting(setting_id, value)
+
+		homeWindow.clearProperty('cocoscrapers_settings')
+		with open(providerMigrationFile, 'w') as fh: fh.write(PROVIDER_SELECTION_MIGRATION)
+		return 3
+	except:
+		from cocoscrapers.modules import log_utils
+		log_utils.error()
+		return 0
 
 def hide():
 	execute('Dialog.Close(busydialog)')

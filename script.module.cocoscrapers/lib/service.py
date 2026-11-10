@@ -61,6 +61,8 @@ def main():
 		if control.isVersionUpdate():
 			control.clean_settings()
 			xbmc.log('[ script.module.cocoscrapers ]  Settings file cleaned complete', LOGINFO)
+			count = control.applyProviderSelectionMigration()
+			if count: xbmc.log('[ script.module.cocoscrapers ]  Provider selection migration applied: %s' % count, LOGINFO)
 		break
 	SettingsMonitor().waitForAbort()
 	shutdown_executor()

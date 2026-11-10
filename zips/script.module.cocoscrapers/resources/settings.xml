@@ -256,7 +256,7 @@
 				</setting>
 				<setting id="provider.bitsearch" type="boolean" label="32138" help="">
 					<level>0</level>
-					<default>true</default>
+					<default>false</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="provider.comet" type="boolean" label="32563" help="">
@@ -293,12 +293,12 @@
 				</setting>
 				<setting id="provider.kickass2" type="boolean" label="32111" help="">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="provider.knaben" type="boolean" label="32545" help="">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="provider.limetorrents" type="boolean" label="32575" help="">

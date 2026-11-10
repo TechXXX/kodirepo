@@ -1,3 +1,7 @@
+[COLOR red][B]Version 1.0.44[/B][/COLOR]
+- Disable Bitsearch and enable Knaben and Kickass2 for existing users on update.
+- Preserve every other provider selection.
+
 [COLOR red][B]Version 1.0.43[/B][/COLOR]
 - Update Torlock to Torznab XML, Knaben to JSON API, and Nyaa to RSS.
 - Update YTS API endpoint and Kickass search/result parsing.
