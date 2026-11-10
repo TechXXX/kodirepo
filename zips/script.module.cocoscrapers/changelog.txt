@@ -1,4 +1,4 @@
-[COLOR red][B]Version 1.0.44[/B][/COLOR]
+[COLOR red][B]Version 1.0.45.1[/B][/COLOR]
 - Disable Bitsearch and enable Knaben and Kickass2 for existing users on update.
 - Preserve every other provider selection.
 

@@ -767,7 +767,7 @@ v0.0.4
             </assets>
         </extension>
     </addon>
-    <addon id="script.module.cocoscrapers" name="CocoScrapers Module" version="1.0.44" provider-name="CocoJoe">
+    <addon id="script.module.cocoscrapers" name="CocoScrapers Module" version="1.0.45.1" provider-name="CocoJoe">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" />
