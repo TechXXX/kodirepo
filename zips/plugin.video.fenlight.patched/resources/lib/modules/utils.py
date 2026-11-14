@@ -91,13 +91,16 @@ def get_datetime(string=False, dt=False):
 def get_current_timestamp():
 	return int(time.time())
 	
-def adjust_premiered_date(orig_date, adjust_hours):
+def adjust_premiered_date(orig_date, adjust_hours=None):
+	"""Return TMDb's date-only air-date without inventing a broadcast time.
+
+	TMDb episode ``air_date`` values do not include a time zone or time of day.
+	Applying an offset to an assumed 20:00 broadcast can move the displayed date
+	forward, even though the metadata does not support that conversion.
+	"""
 	if not orig_date: return None, None
-	orig_date += ' 20:00:00'
-	datetime_object = jsondate_to_datetime(orig_date, '%Y-%m-%d %H:%M:%S')
-	adjusted_datetime = datetime_object + timedelta(hours=adjust_hours)
-	adjusted_string = adjusted_datetime.strftime('%Y-%m-%d')
-	return adjusted_datetime.date(), adjusted_string
+	date_object = jsondate_to_datetime(orig_date, '%Y-%m-%d')
+	return date_object.date(), orig_date
 
 def make_day(today, date, date_format='%Y-%m-%d', use_words=True):
 	if use_words:

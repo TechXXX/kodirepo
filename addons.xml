@@ -232,7 +232,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.119">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.120">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -256,7 +256,11 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.117]:
+            <news>[v2.0.120]:
+  * Preserve TMDb's date-only episode air dates instead of applying an assumed broadcast-time offset.
+  * Widen intro prompt controls and localize playback cancellation instructions in Dutch.
+
+[v2.0.117]:
   * Set Kodi's default video actions to Resume and Fen's movie and episode auto-resume to Always on the next service start.
 
 [v2.0.116]:
@@ -1654,7 +1658,7 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.22">
+    <addon id="skin.dutchtech.fuse.3" name="DutchTech Fuse 3" provider-name="DutchTech" version="3.2.9.23">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="script.skinvariables" version="2.2.1" />

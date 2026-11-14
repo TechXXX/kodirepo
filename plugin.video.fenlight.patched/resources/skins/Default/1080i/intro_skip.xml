@@ -73,13 +73,13 @@
                 <control type="grouplist">
                     <left>30</left>
                     <top>100</top>
-                    <width>350</width>
+                    <width>450</width>
                     <height>70</height>
                     <orientation>horizontal</orientation>
                     <itemgap>10</itemgap>
                     <control type="button" id="11">
                         <description>$INFO[Window.Property(button_skip_label)]</description>
-                        <width>160</width>
+                        <width>220</width>
                         <height>60</height>
                         <onright>12</onright>
                         <label>$INFO[Window.Property(button_skip_label)]</label>
@@ -93,7 +93,7 @@
                     </control>
                     <control type="button" id="12">
                         <description>$INFO[Window.Property(button_close_label)]</description>
-                        <width>160</width>
+                        <width>220</width>
                         <height>60</height>
                         <onleft>11</onleft>
                         <label>$INFO[Window.Property(button_close_label)]</label>

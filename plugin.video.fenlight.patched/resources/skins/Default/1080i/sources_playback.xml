@@ -35,7 +35,7 @@
                     <textcolor>FFFFFFFF</textcolor>
                     <align>left</align>
                     <aligny>center</aligny>
-                    <label>[UPPERCASE]Press [B]BACK[/B] to Cancel[/UPPERCASE]</label>
+                    <label>Druk op [B]Terug[/B] om te annuleren</label>
                     <visible>String.IsEqual(Window.Property(window_mode),scraper)</visible>
                 </control>
                 <control type="label">
@@ -47,7 +47,7 @@
                     <textcolor>FFFFFFFF</textcolor>
                     <align>left</align>
                     <aligny>center</aligny>
-                    <label>[UPPERCASE]Press [B]BACK[/B] to Cancel [B]|[/B] Press [B]RIGHT[/B] to Skip[/UPPERCASE]</label>
+                    <label>Druk op [B]TERUG[/B] om te annuleren [B]|[/B] Druk op [B]RECHTS[/B] voor volgende bron</label>
                     <visible>String.IsEqual(Window.Property(window_mode),resolver) + !String.IsEqual(Window.Property(enable_busy_spinner),true)</visible>
                 </control>
             </control>

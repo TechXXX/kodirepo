@@ -14,7 +14,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#31073"
+msgid "mins"
+msgstr "min"
+
+msgctxt "#31074"
+msgid "hr"
+msgstr "uur"
+
 #: /1080i/Includes_Labels.xml
 msgctxt "#31134"
 msgid "Playing"
 msgstr "Speelt"
+
+msgctxt "#31293"
+msgid "Cast and more info"
+msgstr "Acteurs en meer info"
+
+msgctxt "#31381"
+msgid "Returning"
+msgstr "Terug op"
+
+msgctxt "#31544"
+msgid "Airing"
+msgstr "Verschijnt op"
+
+msgctxt "#31594"
+msgid "Press down"
+msgstr "Druk omlaag"
+
+msgctxt "#31600"
+msgid "Ends at"
+msgstr "Speelt tot"
