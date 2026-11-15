@@ -1,6 +1,6 @@
 [
     {
-        "label": "Movies",
+        "label": "Films",
         "path": "plugin://plugin.video.fenlight.patched/?mode=build_movie_list&action=tmdb_movies_search&query=",
         "icon": "special://skin/extras/icons/film.png",
         "target": "videos",
@@ -8,7 +8,7 @@
         "widget_style": "Poster"
     },
     {
-        "label": "TV Shows ",
+        "label": "Series",
         "path": "plugin://plugin.video.fenlight.patched/?mode=build_tvshow_list&action=tmdb_tv_search&query=",
         "icon": "special://skin/extras/icons/tv.png",
         "target": "videos",
