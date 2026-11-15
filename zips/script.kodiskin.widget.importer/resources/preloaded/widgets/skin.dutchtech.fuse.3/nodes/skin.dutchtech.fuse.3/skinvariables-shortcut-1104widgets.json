@@ -10,7 +10,7 @@
     },
     {
         "label": "Cloud Storage",
-        "path": "plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png",
+        "path": "plugin://plugin.video.fenlight.patched/?mode=torbox.tb_cloud&fresh=true&iconImage=https%3A%2F%2Fi.imgur.com%2FMF874vS.png",
         "icon": "image://https%3a%2f%2fi.imgur.com%2fMF874vS.png/",
         "target": "videos",
         "guid": "guid-57e2f0c0",
