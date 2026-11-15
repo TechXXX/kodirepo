@@ -22,6 +22,10 @@ msgctxt "#31074"
 msgid "hr"
 msgstr "uur"
 
+msgctxt "#31099"
+msgid "Last aired"
+msgstr "Laatst uitgezonden"
+
 #: /1080i/Includes_Labels.xml
 msgctxt "#31134"
 msgid "Playing"
@@ -35,9 +39,13 @@ msgctxt "#31381"
 msgid "Returning"
 msgstr "Terug op"
 
+msgctxt "#31493"
+msgid "Ended"
+msgstr "Afgelopen"
+
 msgctxt "#31544"
 msgid "Airing"
-msgstr "Verschijnt op"
+msgstr "Volgende aflevering"
 
 msgctxt "#31594"
 msgid "Press down"
