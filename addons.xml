@@ -1371,7 +1371,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.11" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.12" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1389,7 +1389,10 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.11
+            <news>v0.1.12
+- Publish the Kodi Services device-name synchronization fix as a distinct update.
+
+v0.1.11
 - Sync uploads with Kodi's current Services device name by default; custom names are now opt-in.
 
 v0.1.10
