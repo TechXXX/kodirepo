@@ -1390,7 +1390,7 @@ v0.2.3
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
             <news>v0.1.11
-- Report the AI translation toggle and presence of its API key for the requested device, without uploading the key.
+- Sync uploads with Kodi's current Services device name by default; custom names are now opt-in.
 
 v0.1.10
 - Include a safe CocoScrapers provider snapshot: provider IDs and enabled states only.

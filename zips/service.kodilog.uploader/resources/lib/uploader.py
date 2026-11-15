@@ -240,11 +240,13 @@ def ensure_default_settings(addon):
             log("Applied TV-safe default: disabled error-triggered uploads.")
         set_setting_bool(addon, "defaults.tv_safe_v1", True)
     configured = get_setting(addon, "device_name", "").strip()
-    if configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
-        return
     detected = detected_device_name()
-    if detected and detected.lower() != configured.lower() and set_setting_string(addon, "device_name", detected):
-        log("Filled local device name: %s" % detected)
+    if setting_bool(addon, "use_kodi_device_name", True):
+        if detected and detected.lower() != configured.lower() and set_setting_string(addon, "device_name", detected):
+            log("Synced device name from Kodi Services: %s" % detected)
+        return
+    if configured.lower() in DEVICE_NAME_PLACEHOLDERS and detected and set_setting_string(addon, "device_name", detected):
+        log("Filled custom device name: %s" % detected)
 
 
 def setting_bool(addon, setting_id, default=False):
@@ -344,6 +346,8 @@ def detected_device_name():
 
 
 def safe_device_name(addon):
+    if setting_bool(addon, "use_kodi_device_name", True):
+        return detected_device_name()
     configured = sanitize_device_name(get_setting(addon, "device_name", ""))
     if configured and configured.lower() not in DEVICE_NAME_PLACEHOLDERS:
         return configured

@@ -3,7 +3,8 @@
   <category label="Log Server">
     <setting id="server_url" type="text" label="Server URL" default="https://logs.basaio.duckdns.org/upload"/>
     <setting id="auth_token" type="text" label="Upload token" default="27c45ed5c5c31c47c1f22f230c350604ce0c6a77418ced1d158543d87bb82548" option="hidden"/>
-    <setting id="device_name" type="text" label="Device name" default=""/>
+    <setting id="use_kodi_device_name" type="bool" label="Use Kodi Services device name" default="true"/>
+    <setting id="device_name" type="text" label="Custom device name" default=""/>
     <setting id="upload_now_action" type="action" label="Upload logs now" action="RunPlugin(plugin://service.kodilog.uploader/?action=upload_now)"/>
   </category>
   <category label="Automatic Uploads">
