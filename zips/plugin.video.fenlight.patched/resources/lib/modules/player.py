@@ -169,7 +169,14 @@ class FenLightPlayer(xbmc_player):
 					if self.autoplay_nextep or self.autoscrape_nextep:
 						if not self.nextep_info_gathered: self.info_next_ep()
 						else: self.apply_introdb_next_episode_timing()
-						if self.should_run_next_ep(): self.run_next_ep(); break
+						if self.should_run_next_ep():
+							playing_file = self.getPlayingFile()
+							self.run_next_ep()
+							if self.isPlayingVideo() and self.getPlayingFile() == playing_file:
+								self.autoplay_nextep, self.autoscrape_nextep = False, False
+								logger('Fen Light Patched', 'Next episode dismissed; keeping current playback active')
+								continue
+							break
 				except: pass
 			hide_busy_dialog()
 			if not self.media_marked: self.media_watched_marker()

@@ -94,6 +94,7 @@
     </variable>
 
     <variable name="Action_OSD_SkipNext">
+        <value condition="String.IsEqual(Window(Home).Property(fenlight.current_media_type),episode) + !String.IsEmpty(Window(Home).Property(fenlight.current_tmdb_id)) + String.IsEqual(Window(Home).Property(fenlight.current_has_next_episode),true)">RunPlugin(plugin://plugin.video.fenlight.patched/?mode=playback.play_nextep_current)</value>
         <value condition="!String.IsEmpty(Player.Chapter) + !String.IsEqual(Player.Chapter,00) + !String.IsEmpty(Player.ChapterCount) + !String.IsEqual(Player.ChapterCount,00) + !String.IsEqual(Player.Chapter,Player.ChapterCount)">ChapterOrBigStepForward</value>
         <value condition="Integer.IsLess(VideoPlayer.PlaylistPosition,VideoPlayer.PlaylistLength)">SkipNext</value>
         <value condition="!String.IsEmpty(Container(450).ListItem.FileNameAndPath) + Integer.IsLess(Player.TimeRemaining(mins),10)">PlayMedia($ESCINFO[Container(450).ListItem.FileNameAndPath])</value>
