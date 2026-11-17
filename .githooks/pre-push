@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    case "$remote_ref" in
+        refs/heads/main)
+            if test "$remote_sha" = "0000000000000000000000000000000000000000"; then
+                base="$(git hash-object -t tree /dev/null)"
+            else
+                base="$remote_sha"
+            fi
+            python3 scripts/release_safety_check.py --range "$base" "$local_sha"
+            ;;
+    esac
+done

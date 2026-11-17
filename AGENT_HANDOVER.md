@@ -39,6 +39,19 @@ embedded `addon.xml` has the same id and version. Run
 `python3 scripts/validate_repo_packages.py` after any manual packaging flow and
 before committing. The normal build/publish scripts also enforce this invariant.
 
+## Repository Safety Guardrails
+
+The working tree must never be managed by a cloud-sync client. GitHub is the
+sync mechanism for live repositories; cloud storage may hold a disconnected
+archive only. Before publishing, use the repository's `.githooks` by setting
+`git config core.hooksPath .githooks` once per clone.
+
+The hooks run `scripts/release_safety_check.py` before commits and pushes. They
+block untracked sync-conflict copies, conflict-named Git refs, invalid Git
+objects, deleted repository metadata, and deletion bursts over 40 paths. A
+deliberate repository-wide removal requires the explicit
+`KODIREPO_ALLOW_LARGE_DELETION=1` override and must be reviewed separately.
+
 Never regenerate repo-wide `addons.xml` after changing an addon source version
 unless that addon's package mirror and ZIP were regenerated in the same release.
 In October 2026, a4k `3.23.47` was advertised without its ZIP and Kodi correctly
