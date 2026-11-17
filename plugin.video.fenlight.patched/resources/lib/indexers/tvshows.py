@@ -4,7 +4,7 @@ from modules import meta_lists
 from modules import kodi_utils, settings
 from modules.metadata import tvshow_meta
 from modules.utils import manual_function_import, get_datetime, make_thread_list_enumerate, make_thread_list_multi_arg, get_current_timestamp, paginate_list
-from modules.watched_status import get_database, watched_info_tvshow, get_watched_status_tvshow, get_progress_status_tvshow
+from modules.watched_status import get_database, watched_info_tvshow, watched_info_episode, get_watched_status_tvshow, get_progress_status_tvshow, get_next
 # logger = kodi_utils.logger
 
 string, external, add_items, add_dir = str, kodi_utils.external, kodi_utils.add_items, kodi_utils.add_dir
@@ -160,6 +160,16 @@ class TVShows:
 				if self.all_episodes == 1 and total_seasons > 1: url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id})
 				else: url_params = build_url({'mode': 'build_episode_list', 'tmdb_id': tmdb_id, 'season': 'all'})
 			else: url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id})
+			if self.continue_focus:
+				focus_target = self.continue_focus.get(string(tmdb_id))
+				if focus_target:
+					focus_season, focus_episode = focus_target
+					if focus_episode is None:
+						watched = watched_info_episode(tmdb_id, self.focus_db)
+						focus_season, focus_episode = get_next(focus_season, self.last_watched_episodes[string(tmdb_id)], watched, meta_get('season_data'), settings.nextep_method())
+					if focus_season and focus_episode:
+						url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id,
+								'focus_season': focus_season, 'focus_episode': focus_episode})
 			browse_params = url_params
 			if self.open_extras:
 				cm_append(('[B]Browse[/B]', container_update % url_params))
@@ -215,6 +225,17 @@ class TVShows:
 		self.watched_indicators = watched_indicators()
 		self.watched_title = 'Trakt' if self.watched_indicators == 1 else 'Fen Light Patched'
 		self.watched_info = watched_info_tvshow(get_database(self.watched_indicators))
+		self.continue_focus, self.last_watched_episodes = {}, {}
+		self.focus_db = get_database(self.watched_indicators)
+		for media_id, season, episode in self.focus_db.execute(
+			"SELECT media_id, season, episode FROM progress WHERE db_type = ? AND CAST(resume_point AS REAL) > 0 AND typeof(season) = 'integer' AND typeof(episode) = 'integer' ORDER BY last_played DESC", ('episode',)).fetchall():
+			self.continue_focus.setdefault(string(media_id), (int(season), int(episode)))
+		for media_id, season, episode in self.focus_db.execute(
+			"SELECT media_id, season, episode FROM watched WHERE db_type = ? AND typeof(season) = 'integer' AND typeof(episode) = 'integer' ORDER BY season DESC, episode DESC", ('episode',)).fetchall():
+			media_id = string(media_id)
+			if media_id not in self.continue_focus:
+				self.continue_focus[media_id] = (int(season), None)
+				self.last_watched_episodes[media_id] = int(episode)
 		self.window_command = 'ActivateWindow(Videos,%s,return)' if self.is_external else 'Container.Update(%s)'
 		if self.custom_order:
 			threads = list(make_thread_list_multi_arg(self.build_tvshow_content, self.list))

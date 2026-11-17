@@ -15,6 +15,30 @@ string, run_plugin, unaired_label, tmdb_poster = str, 'RunPlugin(%s)', '[COLOR r
 view_mode, content_type = 'view.seasons', 'seasons'
 season_name_str = 'Season %s'
 
+
+def _focus_continue_episode(params, tmdb_id, season_data):
+	try:
+		target_season, target_episode = int(params['focus_season']), int(params['focus_episode'])
+		season_index = next(i for i, item in enumerate(season_data) if item['season_number'] == target_season)
+	except (KeyError, TypeError, ValueError, StopIteration): return
+	if target_episode < 1: return
+	for _ in range(80):
+		path = kodi_utils.get_infolabel('Container.FolderPath')
+		if ('mode=build_season_list' in path and 'tmdb_id=%s' % tmdb_id in path
+				and kodi_utils.get_visibility('Control.IsVisible(521)')
+				and kodi_utils.get_infolabel('Container(521).NumItems')):
+			kodi_utils.execute_builtin('SetFocus(521,%d,absolute)' % season_index)
+			break
+		kodi_utils.sleep(100)
+	else: return
+	for _ in range(80):
+		if kodi_utils.get_infolabel('Container(521).ListItem.Season') == str(target_season):
+			episode_index = target_episode - 1
+			if kodi_utils.get_infolabel('Container(531).ListItemAbsolute(%d).Episode' % episode_index) == str(target_episode):
+				kodi_utils.execute_builtin('SetFocus(531,%d,absolute)' % episode_index)
+				return
+		kodi_utils.sleep(100)
+
 def build_season_list(params):
 	def _process():
 		total_aired_eps, episode_count = meta_get('total_aired_eps'), 0
@@ -111,6 +135,7 @@ def build_season_list(params):
 	set_category(handle, category_name)
 	end_directory(handle, cacheToDisc=False if is_external else True)
 	set_view_mode(view_mode, content_type, is_external)
+	_focus_continue_episode(params, tmdb_id, season_data)
 
 def single_seasons(seasons_list):
 	def _process(item): season_results_append(build_season_list(item))
