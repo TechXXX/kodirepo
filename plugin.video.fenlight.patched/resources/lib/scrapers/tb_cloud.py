@@ -298,14 +298,13 @@ class source:
 		season_match = re.search(r'(?i)(?:^|[^a-z0-9])s(?:eason)?[._ -]*0*(\d{1,2})(?:[^a-z0-9]|$)', folder_name)
 		if season_match and int(season_match.group(1)) != int(self.season): return False
 		stem = re.sub(r'\.[^.]+$', '', file_name.rsplit('/', 1)[-1].rsplit('\\', 1)[-1])
-		number_match = re.match(r'^\s*0*(\d{1,3})(?=[._ -]|$)[._ -]*', stem)
+		number_match = re.match(r'^\s*0*(\d{1,3})(?:[a-z])?(?=[._ -]|$)[._ -]*', stem, re.I)
 		if number_match:
-			if int(number_match.group(1)) != int(self.episode): return False
-			stem = stem[number_match.end():]
+			# Episode metadata can be localized to placeholders such as "Aflevering 2".
+			return int(number_match.group(1)) == int(self.episode) and (int(self.season) == 1 or bool(season_match))
 		episode_name = clean_title(normalize(self.episode_name))
 		stem = clean_title(normalize(stem))
-		if episode_name and stem: return stem == episode_name
-		return bool(number_match and not stem)
+		return bool(episode_name and stem == episode_name)
 
 	def _matches_cloud_folder_query(self, name):
 		name = clean_title(normalize(name or ''))

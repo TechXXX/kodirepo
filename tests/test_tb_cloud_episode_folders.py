@@ -86,12 +86,23 @@ class TorBoxEpisodeFolderTests(unittest.TestCase):
 				 self.subtitle('02 The Dreams.EN.srt', 4), self.video('02 The Dreams.mkv', 3)]
 		for kind in ('torrent', 'usenet', 'webdl'):
 			with self.subTest(kind=kind):
-				results = self.results('The Stand', 'The Plague', files, kind=kind, episode=1,
+				results = self.results('The Stand', 'Aflevering 1', files, kind=kind, episode=1,
 					folder='The Stand (1994 miniserie met NL en EN subs) nu kleiner!')
 				self.assertEqual(['11,1'], [item['url_dl'] for item in results])
 				self.assertEqual(['01 The Plague.EN.srt'],
 					[item['name'] for item in results[0]['cloud_subtitles']])
 				setattr(self.torbox, kind, [])
+		results = self.results('The Stand', 'Aflevering 2', files, episode=2,
+			folder='The Stand (1994 miniserie met NL en EN subs) nu kleiner!')
+		self.assertEqual(['02 The Dreams.mkv'], [item['name'] for item in results])
+
+	def test_numbered_multipart_episodes(self):
+		files = [self.video('01a Thy Kingdom Come (Part 1).mkv', 1),
+				 self.video('01b Thy Kingdom Come (Part 2).mkv', 2),
+				 self.video("02 Death's Kingdom.mkv", 3)]
+		results = self.results("Stephen King's Kingdom Hospital", 'Aflevering 1', files,
+			folder="Stephen King's Kingdom Hospital (DVDrip EN NL subs)")
+		self.assertEqual([1, 2], [int(item['url_dl'].split(',')[1]) for item in results])
 
 	def test_unnumbered_episode_title_in_show_folder(self):
 		files = [self.video('Thy Kingdom Come.mkv', 1), self.video("Death's Kingdom.mkv", 2)]
