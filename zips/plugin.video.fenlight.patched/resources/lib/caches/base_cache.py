@@ -67,7 +67,8 @@ last_played text, resume_id integer, title text, unique (db_type, media_id, seas
 last_played text, resume_id integer, title text, unique (db_type, media_id, season, episode))',
 'CREATE TABLE IF NOT EXISTS watched_status (db_type text not null, media_id text not null, status text, unique (db_type, media_id))'),
 'maincache_db': (
-'CREATE TABLE IF NOT EXISTS maincache (id text unique, data text, expires integer)',),
+'CREATE TABLE IF NOT EXISTS maincache (id text unique, data text, expires integer)',
+'CREATE TABLE IF NOT EXISTS torbox_cleanup (account text not null, kind text not null, transfer_id integer not null, created_at integer not null, retry_at integer not null, attempts integer not null default 0, unique (account, kind, transfer_id))'),
 'metacache_db': (
 'CREATE TABLE IF NOT EXISTS metadata (db_type text not null, tmdb_id text not null, imdb_id text, tvdb_id text, meta text, expires integer, unique (db_type, tmdb_id))',
 'CREATE TABLE IF NOT EXISTS season_metadata (tmdb_id text not null unique, meta text, expires integer)',

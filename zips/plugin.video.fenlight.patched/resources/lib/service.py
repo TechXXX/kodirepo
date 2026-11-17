@@ -40,6 +40,15 @@ class DatabaseMaintenance:
 		make_databases()
 		return logger('Fen Light Patched', 'DatabaseMaintenance Service Finished')
 
+class TorBoxCleanup:
+	def run(self):
+		from apis.torbox_api import TorBoxAPI
+		monitor = xbmc.Monitor()
+		while not monitor.abortRequested():
+			try: TorBoxAPI().retry_pending_cleanup()
+			except Exception as exc: logger('Fen Light Patched', 'TorBox cleanup service failed: %s' % str(exc))
+			monitor.waitForAbort(300)
+
 class SyncSettings:
 	def run(self):
 		logger('Fen Light Patched', 'SyncSettings Service Starting')
@@ -270,6 +279,7 @@ class FenLightMonitor(xbmc.Monitor):
 		DatabaseMaintenance().run()
 		SyncSettings().run()
 		OnUpdateChanges().run()
+		Thread(target=TorBoxCleanup().run).start()
 		Thread(target=CustomFonts().run).start()
 		Thread(target=TraktMonitor().run).start()
 		Thread(target=WidgetRefresher().run).start()

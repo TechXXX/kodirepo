@@ -1,6 +1,9 @@
 import requests
+from hashlib import sha256
 from threading import Thread
+from time import time
 from urllib.parse import urlencode
+from caches.base_cache import connect_database
 from caches.settings_cache import get_setting, set_setting
 from caches.main_cache import cache_object
 from modules.source_utils import supported_video_extensions, seas_ep_filter, EXTRAS
@@ -92,11 +95,63 @@ class TorBoxAPI:
 
 	def clear_user_cloud_cache(self):
 		try:
-			from caches.base_cache import connect_database
 			dbcon = connect_database('maincache_db')
 			dbcon.execute("""DELETE FROM maincache WHERE id LIKE ?""", ('tb_user_cloud%',))
+			dbcon.close()
 			return True
 		except: return False
+
+	def _queue_temporary_transfer(self, kind, transfer_id):
+		try:
+			dbcon = connect_database('maincache_db')
+			dbcon.execute('CREATE TABLE IF NOT EXISTS torbox_cleanup (account text not null, kind text not null, transfer_id integer not null, created_at integer not null, retry_at integer not null, attempts integer not null default 0, unique (account, kind, transfer_id))')
+			now = int(time())
+			dbcon.execute('INSERT OR IGNORE INTO torbox_cleanup (account, kind, transfer_id, created_at, retry_at) VALUES (?, ?, ?, ?, ?)',
+						  (sha256(self.token.encode('utf-8')).hexdigest(), kind, int(transfer_id), now, now + 300))
+			dbcon.close()
+		except Exception as exc: logger('Fen Light Patched', 'TorBox cleanup queue failed | kind=%s | id=%s | error=%s' % (kind, transfer_id, str(exc)))
+
+	def _forget_temporary_transfer(self, kind, transfer_id):
+		try:
+			dbcon = connect_database('maincache_db')
+			dbcon.execute('DELETE FROM torbox_cleanup WHERE account=? AND kind=? AND transfer_id=?',
+						  (sha256(self.token.encode('utf-8')).hexdigest(), kind, int(transfer_id)))
+			dbcon.close()
+		except Exception as exc: logger('Fen Light Patched', 'TorBox cleanup queue removal failed | kind=%s | id=%s | error=%s' % (kind, transfer_id, str(exc)))
+
+	def cleanup_temporary_transfer(self, kind, transfer_id):
+		if kind not in ('torrent', 'usenet'): return False
+		try:
+			delete = self.delete_torrent if kind == 'torrent' else self.delete_usenet
+			response = delete(transfer_id)
+			if isinstance(response, dict) and response.get('success') is True:
+				self._forget_temporary_transfer(kind, transfer_id)
+				self.clear_user_cloud_cache()
+				logger('Fen Light Patched', 'TorBox temporary transfer deleted | kind=%s | id=%s' % (kind, transfer_id))
+				return True
+		except Exception as exc:
+			logger('Fen Light Patched', 'TorBox temporary transfer delete failed | kind=%s | id=%s | error=%s' % (kind, transfer_id, str(exc)))
+		try:
+			dbcon = connect_database('maincache_db')
+			dbcon.execute('UPDATE torbox_cleanup SET attempts=attempts+1, retry_at=? WHERE account=? AND kind=? AND transfer_id=?',
+						  (int(time()) + 300, sha256(self.token.encode('utf-8')).hexdigest(), kind, int(transfer_id)))
+			dbcon.close()
+		except Exception as exc: logger('Fen Light Patched', 'TorBox cleanup retry scheduling failed | kind=%s | id=%s | error=%s' % (kind, transfer_id, str(exc)))
+		logger('Fen Light Patched', 'TorBox temporary transfer delete pending retry | kind=%s | id=%s' % (kind, transfer_id))
+		return False
+
+	def retry_pending_cleanup(self):
+		if self.token in ('empty_setting', ''): return 0
+		try:
+			dbcon = connect_database('maincache_db')
+			pending = dbcon.execute('SELECT kind, transfer_id FROM torbox_cleanup WHERE account=? AND retry_at <= ? ORDER BY retry_at LIMIT 20',
+								   (sha256(self.token.encode('utf-8')).hexdigest(), int(time()))).fetchall()
+			dbcon.close()
+		except Exception as exc:
+			logger('Fen Light Patched', 'TorBox cleanup queue read failed | error=%s' % str(exc))
+			return 0
+		for kind, transfer_id in pending: self.cleanup_temporary_transfer(kind, transfer_id)
+		return len(pending)
 
 	def torrent_info(self, request_id=''):
 		url = explore % request_id
@@ -161,8 +216,9 @@ class TorBoxAPI:
 		return data.get('usenet_id') or data.get('usenetdownload_id') or data.get('usenetdownloadId') or data.get('id') or ''
 
 	def resolve_usenet_search(self, link, name, title, season, episode):
+		file_url, usenet_id = None, None
+		keep_in_cloud = get_setting('fenlight.store_resolved_to_cloud.torbox', '0') == '1'
 		try:
-			file_url, usenet_id = None, None
 			extensions = supported_video_extensions()
 			extras_filtering_list = tuple(i for i in EXTRAS if not i in (title or '').lower())
 			logger('Fen Light Patched', 'TorBox Usenet Search resolve start | name=%s | title=%s | season=%s | episode=%s' % (name, title, season, episode))
@@ -170,6 +226,7 @@ class TorBoxAPI:
 			if not usenet_id:
 				logger('Fen Light Patched', 'TorBox Usenet Search resolve failed | reason=create_transfer | name=%s' % name)
 				return None
+			if not keep_in_cloud: self._queue_temporary_transfer('usenet', usenet_id)
 			selected_files = self._usenet_transfer_video_files(usenet_id, extensions)
 			logger('Fen Light Patched', 'TorBox Usenet Search transfer files | usenet_id=%s | count=%s | files=%s' % (
 				usenet_id, len(selected_files), self._debug_usenet_files(selected_files)))
@@ -197,13 +254,15 @@ class TorBoxAPI:
 			file_key = chosen_file['url']
 			file_url = self.unrestrict_usenet(file_key)
 			logger('Fen Light Patched', 'TorBox Usenet Search requestdl | usenet_id=%s | success=%s' % (usenet_id, bool(file_url)))
-			if not int(get_setting('fenlight.store_resolved_to_cloud.torbox', '0')) == 1:
-				Thread(target=self.delete_usenet, args=(usenet_id,)).start()
 			return file_url
 		except Exception as e:
 			logger('Fen Light Patched', 'TorBox Usenet Search resolve exception | usenet_id=%s | error=%s' % (usenet_id, str(e)))
-			if usenet_id: self.delete_usenet(usenet_id)
 			return None
+		finally:
+			if usenet_id:
+				if not file_url or not keep_in_cloud:
+					if keep_in_cloud: self._queue_temporary_transfer('usenet', usenet_id)
+					Thread(target=self.cleanup_temporary_transfer, args=('usenet', usenet_id)).start()
 
 	def _debug_usenet_files(self, selected_files):
 		return ' / '.join(['%s (%s)' % (i.get('filename', '')[:120], i.get('size')) for i in selected_files[:5]])
@@ -231,6 +290,7 @@ class TorBoxAPI:
 			torrent = self.add_magnet(magnet_url)
 			if not torrent['success']: return None
 			torrent_id = torrent['data']['torrent_id']
+			if not store_to_cloud: self._queue_temporary_transfer('torrent', torrent_id)
 			torrent_files = self.torrent_info(torrent_id)
 			selected_files = [{'url': '%d,%d' % (torrent_id, item['id']), 'filename': item['short_name'], 'size': item['size']} \
 							for item in torrent_files['data']['files'] if item['short_name'].lower().endswith(tuple(extensions))]
@@ -257,7 +317,10 @@ class TorBoxAPI:
 		except:
 			return None
 		finally:
-			if torrent_id and (not store_to_cloud or not file_url): Thread(target=self.delete_torrent, args=(torrent_id,)).start()
+			if torrent_id:
+				if not file_url or not store_to_cloud:
+					if store_to_cloud: self._queue_temporary_transfer('torrent', torrent_id)
+					Thread(target=self.cleanup_temporary_transfer, args=('torrent', torrent_id)).start()
 
 	def display_magnet_pack(self, magnet_url, info_hash, download=False):
 		from modules.source_utils import supported_video_extensions

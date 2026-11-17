@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.125">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.126">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -22,7 +22,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.125]:
+        <news>[v2.0.126]:
+  * Delete temporary TorBox torrent and Usenet transfers after source resolution, including failed searches, and retry cleanup when TorBox does not confirm deletion.
+
+[v2.0.125]:
   * Use a cloud file's leading episode number when localized metadata only supplies a generic episode title.
 
 [v2.0.124]:
