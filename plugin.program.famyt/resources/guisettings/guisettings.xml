@@ -284,7 +284,7 @@
     <setting id="general.addonupdates" default="true">0</setting>
     <setting id="general.addonnotifications">true</setting>
     <setting id="addons.unknownsources">true</setting>
-    <setting id="addons.updatemode">1</setting>
+    <setting id="addons.updatemode">0</setting>
     <setting id="debug.showloginfo" default="true">false</setting>
     <setting id="debug.extralogging" default="true">false</setting>
     <setting id="debug.setextraloglevel" default="true" />

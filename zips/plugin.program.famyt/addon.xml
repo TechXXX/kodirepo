@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.program.famyt"
        name="Kodi Setup Kit"
-       version="0.9.23"
+       version="0.9.24"
        provider-name="DutchTech">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -21,7 +21,10 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/TechXXX/kodirepo</source>
-<news>v0.9.23
+<news>v0.9.24
+- Set Kodi add-on updates to install automatically in the bundled GUI presets
+
+v0.9.23
 - Set the bundled Kodi GUI presets to Resume for both the default select action and play action
 
 v0.9.22
