@@ -160,16 +160,17 @@ class TVShows:
 				if self.all_episodes == 1 and total_seasons > 1: url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id})
 				else: url_params = build_url({'mode': 'build_episode_list', 'tmdb_id': tmdb_id, 'season': 'all'})
 			else: url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id})
-			if self.continue_focus:
-				focus_target = self.continue_focus.get(string(tmdb_id))
-				if focus_target:
-					focus_season, focus_episode = focus_target
-					if focus_episode is None:
-						watched = watched_info_episode(tmdb_id, self.focus_db)
-						focus_season, focus_episode = get_next(focus_season, self.last_watched_episodes[string(tmdb_id)], watched, meta_get('season_data'), settings.nextep_method())
-					if focus_season and focus_episode:
-						url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id,
-								'focus_season': focus_season, 'focus_episode': focus_episode})
+			media_id = string(tmdb_id)
+			focus_target = self.continue_focus.get(media_id)
+			watched_target = self.last_watched_episodes.get(media_id)
+			if watched_target and (not focus_target or watched_target >= focus_target):
+				watched = watched_info_episode(tmdb_id, self.focus_db)
+				focus_season, focus_episode = get_next(*watched_target, watched, meta_get('season_data'), settings.nextep_method())
+			elif focus_target: focus_season, focus_episode = focus_target
+			else: focus_season, focus_episode = None, None
+			if focus_season and focus_episode:
+				url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id,
+						'focus_season': focus_season, 'focus_episode': focus_episode})
 			browse_params = url_params
 			if self.open_extras:
 				cm_append(('[B]Browse[/B]', container_update % url_params))
@@ -233,9 +234,8 @@ class TVShows:
 		for media_id, season, episode in self.focus_db.execute(
 			"SELECT media_id, season, episode FROM watched WHERE db_type = ? AND typeof(season) = 'integer' AND typeof(episode) = 'integer' ORDER BY season DESC, episode DESC", ('episode',)).fetchall():
 			media_id = string(media_id)
-			if media_id not in self.continue_focus:
-				self.continue_focus[media_id] = (int(season), None)
-				self.last_watched_episodes[media_id] = int(episode)
+			if media_id in self.last_watched_episodes: continue
+			self.last_watched_episodes[media_id] = (int(season), int(episode))
 		self.window_command = 'ActivateWindow(Videos,%s,return)' if self.is_external else 'Container.Update(%s)'
 		if self.custom_order:
 			threads = list(make_thread_list_multi_arg(self.build_tvshow_content, self.list))

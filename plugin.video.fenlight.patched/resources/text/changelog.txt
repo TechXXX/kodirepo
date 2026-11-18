@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.127[/B][/COLOR]
+- Focus a show's latest watched season ahead of a paused episode in an earlier season.
+
 [COLOR dodgerblue][B]Version 2.0.93[/B][/COLOR]
 - Remove Fen Light's custom updater in favor of Kodi repository updates.
 - Refresh TorBox cloud cache handling and tighten Trakt watched-progress lookups.
