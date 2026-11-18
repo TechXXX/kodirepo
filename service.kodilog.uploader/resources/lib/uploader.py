@@ -325,6 +325,22 @@ def kodi_setting_value(setting_id):
     return ""
 
 
+def kodi_addon_update_mode():
+    modes = {"0": "Automatic", "1": "Notify only", "2": "Never"}
+    mode = None
+    if xbmc is not None:
+        try:
+            request = {"jsonrpc": "2.0", "method": "Settings.GetSettingValue",
+                       "params": {"setting": "addons.updatemode"}, "id": 1}
+            response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+            mode = response.get("result", {}).get("value")
+        except Exception:
+            pass
+    if isinstance(mode, bool) or str(mode) not in modes:
+        mode = kodi_setting_value("addons.updatemode")
+    return modes.get(str(mode), "Unknown")
+
+
 def kodi_services_device_name():
     return kodi_setting_value("services.devicename")
 
@@ -545,6 +561,7 @@ def kodi_environment_snapshot(device_name):
         "profile_name": kodi_info_label("System.ProfileName"),
         "kodi_version": kodi_info_label("System.BuildVersion"),
         "kodi_build_date": kodi_info_label("System.BuildDate"),
+        "addon_update_mode": kodi_addon_update_mode(),
         "skin": current_skin_snapshot(),
         "language": kodi_info_label("System.Language"),
         "region": kodi_info_label("System.Region"),
@@ -655,6 +672,7 @@ def diagnostics_summary_text(summary):
         "Kodi Services device name: %s" % environment.get("services_device_name", ""),
         "Kodi version: %s" % environment.get("kodi_version", ""),
         "Kodi build date: %s" % environment.get("kodi_build_date", ""),
+        "Kodi add-on updates: %s" % environment.get("addon_update_mode", "Unknown"),
         "Skin: %s %s (%s)" % (skin.get("name", ""), skin.get("version", ""), skin.get("id", "")),
         "Language: %s" % environment.get("language", ""),
         "Region: %s" % environment.get("region", ""),
