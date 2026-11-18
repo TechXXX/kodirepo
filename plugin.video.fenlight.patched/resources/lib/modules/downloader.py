@@ -111,6 +111,24 @@ class Downloader:
 		self.params_get = self.params.get
 
 	def run(self):
+		self.torbox_download_id = None
+		try: return self._run()
+		finally: self.cleanup_torbox_download()
+
+	def cleanup_torbox_download(self):
+		transfer_id = self.torbox_download_id
+		if not transfer_id: return
+		try:
+			response = getattr(self, "resp", None)
+			if response: response.close()
+		except Exception: pass
+		try:
+			from apis.torbox_api import TorBoxAPI
+			TorBoxAPI().cleanup_temporary_transfer("torrent", transfer_id)
+		except Exception as exc:
+			logger("Fen Light Patched", "TorBox download cleanup failed | id=%s | error=%s" % (transfer_id, str(exc)))
+
+	def _run(self):
 		self.download_prep()
 		if not self.action == 'meta.pack': show_busy_dialog()
 		self.get_url_and_headers()
@@ -189,6 +207,7 @@ class Downloader:
 					self.source_provider = ','.join([str(i) for i in source_providers if i])
 					if source.get('scrape_provider', '') == 'easynews': source['url_dl'] = source['down_url']
 					url = sources.resolve_sources(source, meta=self.meta, download=True)
+					self.torbox_download_id = source.get("_torbox_download_id")
 					if url and any(str(i).lower() in ('torbox', 'tb_cloud') for i in source_providers if i):
 						from apis.torbox_api import TorBoxAPI
 						url = TorBoxAPI().add_headers_to_url(url)

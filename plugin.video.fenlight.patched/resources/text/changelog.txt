@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.128[/B][/COLOR]
+- Remove temporary TorBox cloud transfers created for local downloads after completion or cancellation, with delayed retry after an interrupted download.
+
 [COLOR dodgerblue][B]Version 2.0.127[/B][/COLOR]
 - Focus a show's latest watched season ahead of a paused episode in an earlier season.
 

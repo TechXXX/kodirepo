@@ -101,13 +101,13 @@ class TorBoxAPI:
 			return True
 		except: return False
 
-	def _queue_temporary_transfer(self, kind, transfer_id):
+	def _queue_temporary_transfer(self, kind, transfer_id, retry_delay=300):
 		try:
 			dbcon = connect_database('maincache_db')
 			dbcon.execute('CREATE TABLE IF NOT EXISTS torbox_cleanup (account text not null, kind text not null, transfer_id integer not null, created_at integer not null, retry_at integer not null, attempts integer not null default 0, unique (account, kind, transfer_id))')
 			now = int(time())
 			dbcon.execute('INSERT OR IGNORE INTO torbox_cleanup (account, kind, transfer_id, created_at, retry_at) VALUES (?, ?, ?, ?, ?)',
-						  (sha256(self.token.encode('utf-8')).hexdigest(), kind, int(transfer_id), now, now + 300))
+						  (sha256(self.token.encode('utf-8')).hexdigest(), kind, int(transfer_id), now, now + retry_delay))
 			dbcon.close()
 		except Exception as exc: logger('Fen Light Patched', 'TorBox cleanup queue failed | kind=%s | id=%s | error=%s' % (kind, transfer_id, str(exc)))
 
@@ -282,15 +282,19 @@ class TorBoxAPI:
 			sleep(1000)
 		return []
 
-	def resolve_magnet(self, magnet_url, info_hash, store_to_cloud, title, season, episode):
+	def resolve_magnet(self, magnet_url, info_hash, store_to_cloud, title, season, episode, temporary_download=False):
 		try:
+			self.temporary_download_id = None
 			file_url, match, torrent_id = None, False, None
 			extensions = supported_video_extensions()
 			extras_filtering_list = tuple(i for i in EXTRAS if not i in title.lower())
 			torrent = self.add_magnet(magnet_url)
 			if not torrent['success']: return None
 			torrent_id = torrent['data']['torrent_id']
-			if not store_to_cloud: self._queue_temporary_transfer('torrent', torrent_id)
+			if temporary_download:
+				self._queue_temporary_transfer('torrent', torrent_id, retry_delay=86400)
+				self.temporary_download_id = torrent_id
+			elif not store_to_cloud: self._queue_temporary_transfer('torrent', torrent_id)
 			torrent_files = self.torrent_info(torrent_id)
 			selected_files = [{'url': '%d,%d' % (torrent_id, item['id']), 'filename': item['short_name'], 'size': item['size']} \
 							for item in torrent_files['data']['files'] if item['short_name'].lower().endswith(tuple(extensions))]
@@ -321,6 +325,7 @@ class TorBoxAPI:
 				if not file_url or not store_to_cloud:
 					if store_to_cloud: self._queue_temporary_transfer('torrent', torrent_id)
 					Thread(target=self.cleanup_temporary_transfer, args=('torrent', torrent_id)).start()
+					self.temporary_download_id = None
 
 	def display_magnet_pack(self, magnet_url, info_hash, download=False):
 		from modules.source_utils import supported_video_extensions

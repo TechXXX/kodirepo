@@ -1271,7 +1271,7 @@ class Sources():
 						title, season, episode, pack = self.search_info['title'], self.search_info['season'], self.search_info['episode'], 'package' in item
 					else: title, season, episode, pack = self.get_ep_name(), self.get_season(), self.get_episode(), 'package' in item
 				else: title, season, episode, pack = self.get_search_title(), None, None, False
-				if cache_provider in debrid_providers: url = self.resolve_cached(cache_provider, item['url'], item['hash'], title, season, episode, pack, download)
+				if cache_provider in debrid_providers: url = self.resolve_cached(cache_provider, item['url'], item['hash'], title, season, episode, pack, download, item)
 			elif item.get('scrape_provider', None) in default_internal_scrapers:
 				if self.meta['media_type'] == 'episode':
 					if hasattr(self, 'search_info'): title, season, episode = self.search_info['title'], self.search_info['season'], self.search_info['episode']
@@ -1282,10 +1282,15 @@ class Sources():
 		except: pass
 		return url
 
-	def resolve_cached(self, debrid_provider, item_url, _hash, title, season, episode, pack, download=False):
+	def resolve_cached(self, debrid_provider, item_url, _hash, title, season, episode, pack, download=False, item=None):
 		debrid_function = self.debrid_importer(debrid_provider)
 		store_to_cloud = True if download and debrid_provider == 'TorBox' else store_resolved_to_cloud(debrid_provider, pack)
-		try: url = debrid_function().resolve_magnet(item_url, _hash, store_to_cloud, title, season, episode)
+		try:
+			debrid = debrid_function()
+			if download and debrid_provider == 'TorBox':
+				url = debrid.resolve_magnet(item_url, _hash, store_to_cloud, title, season, episode, temporary_download=True)
+				if item is not None: item['_torbox_download_id'] = debrid.temporary_download_id
+			else: url = debrid.resolve_magnet(item_url, _hash, store_to_cloud, title, season, episode)
 		except: url = None
 		return url
 
