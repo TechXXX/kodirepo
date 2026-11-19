@@ -235,7 +235,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.129">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.130">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -259,7 +259,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.129]:
+            <news>[v2.0.130]:
+  * Switch away from Russian audio during Fen playback, preferring English, then Dutch, then another identified usable track; skip the source when no usable switch is available.
+
+[v2.0.129]:
   * Select Dutch audio when a video offers only Russian and Dutch tracks and Kodi starts on Russian; keep Kodi's preferred audio language setting unchanged.
 
 [v2.0.128]:

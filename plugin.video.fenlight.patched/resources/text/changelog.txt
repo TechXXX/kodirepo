@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.130[/B][/COLOR]
+- Switch away from Russian audio during Fen playback, preferring English, then Dutch, then another identified usable track; skip the source when no usable switch is available.
+
 [COLOR dodgerblue][B]Version 2.0.129[/B][/COLOR]
 - Select Dutch audio when a video offers only Russian and Dutch tracks and Kodi starts on Russian; keep Kodi's preferred audio language setting unchanged.
 
