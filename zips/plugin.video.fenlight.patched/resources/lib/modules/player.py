@@ -201,8 +201,15 @@ class FenLightPlayer(xbmc_player):
 				return 'retry'
 			self.audio_language_checked = True
 			return 'pass'
+		if not should_skip:
+			if self._select_dutch_audio_if_russian_dutch() == 'retry':
+				self.audio_language_check_attempts += 1
+				if self.audio_language_check_attempts < audio_language_check_attempts_max:
+					sleep(audio_language_check_settle_ms)
+					return 'retry'
+			self.audio_language_checked = True
+			return 'pass'
 		self.audio_language_checked = True
-		if not should_skip: return 'pass'
 		self.audio_language_rejected = True
 		spoken_language = self.meta_get('spoken_language', '')
 		logger('Fen Light Patched', 'Player.unwanted_audio_language_reject | blocked=%s | spoken_language=%s | streams=%s | url=%s' % (
@@ -213,6 +220,42 @@ class FenLightPlayer(xbmc_player):
 		self.clear_playback_properties()
 		self.stop()
 		return 'skip'
+
+	def _select_dutch_audio_if_russian_dutch(self):
+		try:
+			result = get_jsonrpc({
+				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.GetProperties',
+				'params': {'playerid': 1, 'properties': ['currentaudiostream', 'audiostreams']},
+			}) or {}
+			streams = result.get('audiostreams') or []
+			if len(streams) != 2: return 'done'
+			languages = [self._russian_or_dutch_audio(stream) for stream in streams]
+			if set(languages) != {'Russian', 'Dutch'}: return 'done'
+			current = result.get('currentaudiostream') or {}
+			current_index = current.get('index')
+			if current_index is None: return 'retry'
+			russian_index = streams[languages.index('Russian')].get('index')
+			dutch_index = streams[languages.index('Dutch')].get('index')
+			if current_index != russian_index or not isinstance(dutch_index, int): return 'done'
+			changed = get_jsonrpc({
+				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.SetAudioStream',
+				'params': {'playerid': 1, 'stream': dutch_index},
+			})
+			if changed != 'OK': return 'retry'
+			logger('Fen Light Patched', 'Player.audio_stream_selected | from=Russian | to=Dutch | index=%s' % dutch_index)
+		except Exception as exc:
+			logger('Fen Light Patched', 'Player.audio_stream_selection_failed | error=%s' % str(exc))
+		return 'done'
+
+	def _russian_or_dutch_audio(self, stream):
+		language = (stream.get('language') or '').strip().lower().split('-')[0]
+		if language in ('nl', 'nld', 'dut', 'dutch', 'nederlands'): return 'Dutch'
+		if language in ('ru', 'rus', 'russian'): return 'Russian'
+		if language not in ('', 'und', 'unknown', 'undetermined'): return None
+		tokens = set(re.findall(r'[a-z]+', (stream.get('name') or '').lower()))
+		if tokens.intersection(('nl', 'nld', 'dut', 'dutch', 'nederlands')) and not tokens.intersection(('ru', 'rus', 'russian')): return 'Dutch'
+		if tokens.intersection(('ru', 'rus', 'russian')) and not tokens.intersection(('nl', 'nld', 'dut', 'dutch', 'nederlands')): return 'Russian'
+		return None
 
 	def _should_skip_unwanted_audio_language(self):
 		streams = self._get_audio_streams()
