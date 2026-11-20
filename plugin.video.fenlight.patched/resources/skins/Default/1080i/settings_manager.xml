@@ -2580,6 +2580,30 @@
                       </item>
                       <item>
                           <visible>Container(2000).HasFocus(70)</visible>
+                          <property name="setting_label">Prefer Swedish Audio with Dutch Subtitles</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.playback.prefer_swedish_audio_with_dutch_subs)]</property>
+                          <property name="setting_description">When Dutch subtitles are active, select a Swedish audio track ahead of English. Kodi's audio language preference is unchanged.</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=playback.prefer_swedish_audio_with_dutch_subs)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <property name="setting_label">Prefer Danish Audio with Dutch Subtitles</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.playback.prefer_danish_audio_with_dutch_subs)]</property>
+                          <property name="setting_description">When Dutch subtitles are active, select a Danish audio track ahead of English. Kodi's audio language preference is unchanged.</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=playback.prefer_danish_audio_with_dutch_subs)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
+                          <property name="setting_label">Prefer Original German Audio with Dutch Subtitles</property>
+                          <property name="setting_type">boolean</property>
+                          <property name="setting_value">$INFO[Window(10000).Property(fenlight.playback.prefer_original_german_audio_with_dutch_subs)]</property>
+                          <property name="setting_description">Select German audio only when TMDb marks the movie or series as originally German and Dutch subtitles are active. German dubs are avoided even if this preference is off.</property>
+                          <onclick>RunPlugin(plugin://plugin.video.fenlight.patched/?mode=settings_manager.set_boolean&amp;setting_id=playback.prefer_original_german_audio_with_dutch_subs)</onclick>
+                      </item>
+                      <item>
+                          <visible>Container(2000).HasFocus(70)</visible>
                           <property name="setting_label">Limit Resolve Attempts to Selected Result</property>
                           <property name="setting_type">boolean</property>
                           <property name="setting_value">$INFO[Window(10000).Property(fenlight.playback.limit_resolve)]</property>

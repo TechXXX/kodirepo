@@ -5,6 +5,7 @@ import traceback
 from threading import Thread
 from time import monotonic
 from apis.trakt_api import make_trakt_slug
+from apis.tmdb_api import movie_details, tvshow_details
 from caches.settings_cache import get_setting
 from modules import kodi_utils as ku, settings as st, watched_status as ws
 logger = ku.logger
@@ -28,7 +29,7 @@ post_stop_bookmark_clear_retry_ms = 500
 post_stop_bookmark_clear_attempts = 3
 audio_language_check_attempts_max = 8
 audio_language_check_settle_ms = 150
-nordic_audio_preference_window_seconds = 30
+preferred_audio_window_seconds = 30
 playback_time_jump_threshold = 90
 playback_time_jump_settle_checks = 8
 nextep_near_end_confirmations = 3
@@ -151,9 +152,9 @@ class FenLightPlayer(xbmc_player):
 				total_check_time += 0.10
 			hide_busy_dialog()
 			sleep(post_fullscreen_settle_ms)
-			self.nordic_audio_preference_deadline = monotonic() + nordic_audio_preference_window_seconds
-			self.nordic_audio_preference_initial_index = None
-			self.nordic_audio_preference_done = False
+			self.preferred_audio_deadline = monotonic() + preferred_audio_window_seconds
+			self.preferred_audio_initial_index = None
+			self.preferred_audio_done = False
 			while self.isPlayingVideo():
 				try:
 					try: self.total_time, self.curr_time = self.getTotalTime(), self.getTime()
@@ -164,7 +165,7 @@ class FenLightPlayer(xbmc_player):
 						if audio_language_decision == 'skip': return
 						ensure_dialog_dead = True
 						self.playback_close_dialogs()
-					if not self.nordic_audio_preference_done: self._prefer_nordic_audio_with_dutch_subtitle()
+					if not self.preferred_audio_done: self._prefer_audio_with_dutch_subtitle()
 					self.update_playback_time_guard()
 					self.introdb_handle_skip_segments()
 					sleep(1000)
@@ -207,25 +208,25 @@ class FenLightPlayer(xbmc_player):
 				return 'retry'
 			self.audio_language_checked = True
 			return 'pass'
-		russian_selected = False
+		selected_unwanted = None
 		if not should_skip:
-			audio_choice = self._avoid_russian_audio()
-			if audio_choice in ('waiting', 'retry_russian'):
+			audio_choice = self._avoid_unwanted_selected_audio()
+			if audio_choice in ('waiting', 'retry_unwanted'):
 				self.audio_language_check_attempts += 1
 				if self.audio_language_check_attempts < audio_language_check_attempts_max:
 					sleep(audio_language_check_settle_ms)
 					return 'retry'
-			if audio_choice not in ('reject', 'retry_russian'):
+			if audio_choice not in ('reject', 'retry_unwanted'):
 				self.audio_language_checked = True
 				return 'pass'
-			russian_selected = True
-			blocked_languages = ('Russian',)
+			selected_unwanted = self.unwanted_audio_selected_name
+			blocked_languages = (selected_unwanted,)
 		self.audio_language_checked = True
 		self.audio_language_rejected = True
 		spoken_language = self.meta_get('spoken_language', '')
-		logger('Fen Light Patched', 'Player.unwanted_audio_language_reject | blocked=%s | selected_russian=%s | spoken_language=%s | streams=%s | url=%s' % (
-			', '.join(blocked_languages), russian_selected, spoken_language, ' || '.join(stream_details), self.url))
-		if russian_selected: notification('Skipping source with Russian audio', 2500)
+		logger('Fen Light Patched', 'Player.unwanted_audio_language_reject | blocked=%s | selected_unwanted=%s | spoken_language=%s | streams=%s | url=%s' % (
+			', '.join(blocked_languages), selected_unwanted, spoken_language, ' || '.join(stream_details), self.url))
+		if selected_unwanted: notification('Skipping source with %s audio' % selected_unwanted, 2500)
 		else: notification('Skipping source with %s-only audio' % '/'.join(blocked_languages), 2500)
 		self.playback_successful, self.cancel_all_playback = False, False
 		self.sources_object.playback_successful, self.sources_object.cancel_all_playback = False, False
@@ -233,8 +234,8 @@ class FenLightPlayer(xbmc_player):
 		self.stop()
 		return 'skip'
 
-	def _avoid_russian_audio(self):
-		current_is_russian = False
+	def _avoid_unwanted_selected_audio(self):
+		self.unwanted_audio_selected_name = None
 		try:
 			result = get_jsonrpc({
 				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.GetProperties',
@@ -244,15 +245,18 @@ class FenLightPlayer(xbmc_player):
 			current = result.get('currentaudiostream') or {}
 			current_index = current.get('index')
 			if not current: return 'waiting'
-			current_is_russian = self._audio_stream_language(current) == 'Russian'
-			if not current_is_russian: return 'done'
-			if current_index is None or not streams: return 'retry_russian'
+			current_language = self._audio_stream_language(current)
+			if current_language == 'Russian': self.unwanted_audio_selected_name = 'Russian'
+			elif current_language == 'German' and self._original_audio_language() != 'de': self.unwanted_audio_selected_name = 'German dub'
+			else: return 'done'
+			if current_index is None or not streams: return 'retry_unwanted'
 			candidates = []
 			for stream in streams:
 				index = stream.get('index')
 				language = self._audio_stream_language(stream)
 				if not isinstance(index, int) or index == current_index: continue
 				if language in (None, 'Russian', 'Ukrainian', 'Chinese'): continue
+				if language == 'German' and self._original_audio_language() != 'de': continue
 				priority = 0 if language == 'English' else 1 if language == 'Dutch' else 2
 				candidates.append((priority, index, language))
 			if not candidates: return 'reject'
@@ -261,23 +265,28 @@ class FenLightPlayer(xbmc_player):
 				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.SetAudioStream',
 				'params': {'playerid': 1, 'stream': target_index},
 			})
-			if changed != 'OK': return 'retry_russian'
+			if changed != 'OK': return 'retry_unwanted'
 			confirmed = get_jsonrpc({
 				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.GetProperties',
 				'params': {'playerid': 1, 'properties': ['currentaudiostream']},
 			}) or {}
-			if (confirmed.get('currentaudiostream') or {}).get('index') != target_index: return 'retry_russian'
-			logger('Fen Light Patched', 'Player.audio_stream_selected | from=Russian | to=%s | index=%s' % (target_language, target_index))
+			if (confirmed.get('currentaudiostream') or {}).get('index') != target_index: return 'retry_unwanted'
+			logger('Fen Light Patched', 'Player.audio_stream_selected | from=%s | to=%s | index=%s' % (
+				self.unwanted_audio_selected_name, target_language, target_index))
 		except Exception as exc:
 			logger('Fen Light Patched', 'Player.audio_stream_selection_failed | error=%s' % str(exc))
-			return 'retry_russian' if current_is_russian else 'waiting'
+			return 'retry_unwanted' if self.unwanted_audio_selected_name else 'waiting'
 		return 'done'
 
-	def _prefer_nordic_audio_with_dutch_subtitle(self):
-		if monotonic() >= self.nordic_audio_preference_deadline:
-			self.nordic_audio_preference_done = True
+	def _prefer_audio_with_dutch_subtitle(self):
+		if monotonic() >= self.preferred_audio_deadline:
+			self.preferred_audio_done = True
 			return
 		try:
+			preferences = st.preferred_audio_with_dutch_subs()
+			if not any(preferences.values()):
+				self.preferred_audio_done = True
+				return
 			result = get_jsonrpc({
 				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.GetProperties',
 				'params': {'playerid': 1, 'properties': ['currentaudiostream', 'audiostreams', 'currentsubtitle', 'subtitleenabled']},
@@ -286,18 +295,28 @@ class FenLightPlayer(xbmc_player):
 			streams = result.get('audiostreams') or []
 			current_index = current.get('index')
 			if current_index is None or not streams: return
-			if self.nordic_audio_preference_initial_index is None:
-				self.nordic_audio_preference_initial_index = current_index
-			elif current_index != self.nordic_audio_preference_initial_index:
-				self.nordic_audio_preference_done = True
-				return
-			candidates = [stream for stream in streams if self._audio_stream_language(stream) in ('Swedish', 'Danish') and isinstance(stream.get('index'), int)]
-			if not candidates or any(stream.get('index') == current_index for stream in candidates):
-				self.nordic_audio_preference_done = True
+			if self.preferred_audio_initial_index is None:
+				self.preferred_audio_initial_index = current_index
+			elif current_index != self.preferred_audio_initial_index:
+				self.preferred_audio_done = True
 				return
 			if result.get('subtitleenabled') is not True or not self._is_dutch_subtitle(result.get('currentsubtitle') or {}): return
-			target = candidates[0]
+			candidates = []
+			for stream in streams:
+				language = self._audio_stream_language(stream)
+				if language not in ('German', 'Swedish', 'Danish') or not preferences[language]: continue
+				if not isinstance(stream.get('index'), int): continue
+				if language == 'German' and self._original_audio_language() != 'de': continue
+				priority = 0 if language == 'German' else 1
+				candidates.append((priority, stream['index'], stream, language))
+			if not candidates:
+				self.preferred_audio_done = True
+				return
+			_, _, target, target_language = min(candidates, key=lambda item: (item[0], item[1]))
 			target_index = target['index']
+			if target_index == current_index:
+				self.preferred_audio_done = True
+				return
 			changed = get_jsonrpc({
 				'jsonrpc': '2.0', 'id': 1, 'method': 'Player.SetAudioStream',
 				'params': {'playerid': 1, 'stream': target_index},
@@ -308,11 +327,26 @@ class FenLightPlayer(xbmc_player):
 				'params': {'playerid': 1, 'properties': ['currentaudiostream']},
 			}) or {}
 			if (confirmed.get('currentaudiostream') or {}).get('index') != target_index: return
-			self.nordic_audio_preference_done = True
-			logger('Fen Light Patched', 'Player.nordic_audio_selected | language=%s | index=%s | dutch_subtitle=True' % (
-				self._audio_stream_language(target), target_index))
+			self.preferred_audio_done = True
+			logger('Fen Light Patched', 'Player.preferred_audio_selected | language=%s | index=%s | dutch_subtitle=True' % (
+				target_language, target_index))
 		except Exception as exc:
-			logger('Fen Light Patched', 'Player.nordic_audio_selection_failed | error=%s' % str(exc))
+			logger('Fen Light Patched', 'Player.preferred_audio_selection_failed | error=%s' % str(exc))
+
+	def _original_audio_language(self):
+		if not hasattr(self, 'original_audio_language'):
+			language = (self.meta_get('original_language', '') or '').strip().lower()
+			if not language and self.media_type in ('movie', 'episode'):
+				try:
+					api_key = st.tmdb_api_key()
+					if api_key:
+						lookup = movie_details if self.media_type == 'movie' else tvshow_details
+						data = lookup(self.tmdb_id, api_key) or {}
+						language = (data.get('original_language') or '').strip().lower()
+				except Exception as exc:
+					logger('Fen Light Patched', 'Player.original_language_lookup_failed | error=%s' % str(exc))
+			self.original_audio_language = language
+		return self.original_audio_language
 
 	def _is_dutch_subtitle(self, subtitle):
 		language = (subtitle.get('language') or '').strip().lower().split('-')[0]
@@ -327,6 +361,7 @@ class FenLightPlayer(xbmc_player):
 		if language in ('en', 'eng', 'english'): return 'English'
 		if language in ('sv', 'swe', 'swedish', 'svenska'): return 'Swedish'
 		if language in ('da', 'dan', 'danish', 'dansk'): return 'Danish'
+		if language in ('de', 'deu', 'ger', 'german', 'deutsch'): return 'German'
 		if language in ('ru', 'rus', 'russian') or language.startswith('рус'): return 'Russian'
 		if language and language not in ('und', 'unknown', 'undetermined', 'mis', 'mul', 'zxx'):
 			return self._normalize_unwanted_audio_language(language) or 'Other'
@@ -337,6 +372,7 @@ class FenLightPlayer(xbmc_player):
 			('Dutch', ('nl', 'nld', 'dut', 'dutch', 'nederlands')),
 			('Swedish', ('sv', 'swe', 'swedish', 'svenska')),
 			('Danish', ('da', 'dan', 'danish', 'dansk')),
+			('German', ('de', 'deu', 'ger', 'german', 'deutsch')),
 			('Russian', ('ru', 'rus', 'russian', 'русский', 'русская', 'рус')),
 			('Ukrainian', ('uk', 'ukr', 'ukrainian')),
 			('Chinese', ('zh', 'zho', 'chi', 'chinese', 'mandarin', 'cantonese')),
