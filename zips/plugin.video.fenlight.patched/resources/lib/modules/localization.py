@@ -236,7 +236,7 @@ _DUTCH = {
 	'Open Settings': 'Instellingen openen',
 	'Clear Scrapers Cache': 'Scraper-cache wissen',
 	'Scrapers Options': 'Scraperopties',
-	'Select Source': 'Bron kiezen',
+	'Select Source': 'Kiezen Bron',
 	'Rescrape & Select Source': 'Opnieuw scrapen en bron kiezen',
 	'Scrape with DEFAULT External Scrapers': 'Scrapen met STANDAARD externe scrapers',
 	'Scrape with ALL External Scrapers': 'Scrapen met ALLE externe scrapers',

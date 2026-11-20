@@ -63,9 +63,11 @@ def build_episode_list(params):
 				options_params = build_url({'mode': 'options_menu_choice', 'content': 'episode', 'tmdb_id': tmdb_id, 'poster': show_poster, 'is_external': is_external})
 				extras_params = build_url({'mode': 'extras_menu_choice', 'tmdb_id': tmdb_id, 'media_type': 'episode', 'is_external': is_external})
 				rescrape_params = build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id, 'choice': 'clear_and_rescrape'})
+				select_source_params = build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id, 'choice': 'scrape'})
 				url_params = build_url({'mode': 'playback.media', 'media_type': 'episode', 'tmdb_id': tmdb_id, 'season': season, 'episode': episode})
 				cm_append(('[B]Extras[/B]', run_plugin % extras_params))
 				cm_append(('[B]Rescrape & Select Source[/B]', run_plugin % rescrape_params))
+				cm_append(('[B]Select Source[/B]', run_plugin % select_source_params))
 				cm_append(('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': display, 'path': url_params, 'thumb': thumb})))
 				cm_append(('[B]Options[/B]', run_plugin % options_params))
 				cm_append(('[B]Playback Options[/B]', run_plugin % \
@@ -224,9 +226,11 @@ def build_single_episode(list_type, params={}):
 			options_params = build_url({'mode': 'options_menu_choice', 'content': list_type, 'tmdb_id': tmdb_id, 'poster': show_poster, 'is_external': is_external})
 			extras_params = build_url({'mode': 'extras_menu_choice', 'tmdb_id': tmdb_id, 'media_type': 'episode', 'is_external': is_external})
 			rescrape_params = build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id, 'choice': 'clear_and_rescrape'})
+			select_source_params = build_url({'mode': 'playback_choice', 'media_type': 'episode', 'meta': tmdb_id, 'season': season, 'episode': episode, 'episode_id': episode_id, 'choice': 'scrape'})
 			url_params = build_url({'mode': 'playback.media', 'media_type': 'episode', 'tmdb_id': tmdb_id, 'season': season, 'episode': episode})
 			cm_append(('[B]Extras[/B]', run_plugin % extras_params))
 			cm_append(('[B]Rescrape & Select Source[/B]', run_plugin % rescrape_params))
+			cm_append(('[B]Select Source[/B]', run_plugin % select_source_params))
 			cm_append(('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': display, 'path': url_params, 'thumb': thumb})))
 			cm_append(('[B]Options[/B]', run_plugin % options_params))
 			cm_append(('[B]Playback Options[/B]', run_plugin % \

@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.133">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.134">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -22,7 +22,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.133]:
+        <news>[v2.0.134]:
+  * Add Select Source (Kiezen Bron) immediately below Rescrape &amp; Select Source in movie and episode context menus.
+
+[v2.0.133]:
   * Add a separate Dutch audio switch and keep Swedish and Danish audio preferences independent of TMDb; retain the original-language check for German only.
 
 [v2.0.132]:
