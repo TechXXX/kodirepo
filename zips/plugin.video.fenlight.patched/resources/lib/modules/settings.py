@@ -85,8 +85,9 @@ def playback_settings():
 def limit_resolve():
 	return get_setting('fenlight.playback.limit_resolve', 'false') == 'true'
 
-def preferred_audio_with_dutch_subs():
+def preferred_audio():
 	return {
+		'Dutch': get_setting('fenlight.playback.prefer_dutch_audio', 'true') == 'true',
 		'Swedish': get_setting('fenlight.playback.prefer_swedish_audio_with_dutch_subs', 'true') == 'true',
 		'Danish': get_setting('fenlight.playback.prefer_danish_audio_with_dutch_subs', 'true') == 'true',
 		'German': get_setting('fenlight.playback.prefer_original_german_audio_with_dutch_subs', 'true') == 'true',

@@ -459,6 +459,7 @@ default_settings = [
 {'setting_id': 'introdb.next_episode_timing', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'introdb.debug', 'setting_type': 'boolean', 'setting_default': 'false'},
 #==================== Playback Utilities
+{'setting_id': 'playback.prefer_dutch_audio', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'playback.prefer_swedish_audio_with_dutch_subs', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'playback.prefer_danish_audio_with_dutch_subs', 'setting_type': 'boolean', 'setting_default': 'true'},
 {'setting_id': 'playback.prefer_original_german_audio_with_dutch_subs', 'setting_type': 'boolean', 'setting_default': 'true'},

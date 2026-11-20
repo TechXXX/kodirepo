@@ -1,3 +1,8 @@
+[COLOR dodgerblue][B]Version 2.0.133[/B][/COLOR]
+- Add a separate Dutch audio switch; Dutch audio does not require subtitles.
+- Keep Swedish and Danish audio preferences independent of TMDb, with Dutch subtitles required.
+- Continue checking TMDb original-language metadata before preferring German audio or accepting a German track selected by Kodi.
+
 [COLOR dodgerblue][B]Version 2.0.132[/B][/COLOR]
 - Add separate Swedish, Danish, and original German audio preferences for playback with Dutch subtitles.
 - Avoid German dubs using TMDb original-language metadata; skip the source when a dubbed German track is selected and no usable alternative exists.
