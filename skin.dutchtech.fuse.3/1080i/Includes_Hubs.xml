@@ -14,6 +14,10 @@
         <definition>
 
             <include>Action_Blur_Onload</include>
+            <onload>SetProperty(WidgetReturn.Window,$PARAM[window_id],Home)</onload>
+            <onload condition="!String.IsEmpty(Window(Home).Property(WidgetReturn.FocusMenu)) + [String.IsEqual(Skin.String(HomeSwitcher.$PARAM[window_id].Mode),Combined) | String.IsEqual(Skin.String(HomeSwitcher.$PARAM[window_id].Mode),Wall)]">SetFocus(601)</onload>
+            <onload condition="!String.IsEmpty(Window(Home).Property(WidgetReturn.FocusMenu)) + ![String.IsEqual(Skin.String(HomeSwitcher.$PARAM[window_id].Mode),Combined) | String.IsEqual(Skin.String(HomeSwitcher.$PARAM[window_id].Mode),Wall)]">SetFocus(300)</onload>
+            <onload condition="!String.IsEmpty(Window(Home).Property(WidgetReturn.FocusMenu))">ClearProperty(WidgetReturn.FocusMenu,Home)</onload>
 
             <include content="Hub_Onload_Window">
                 <param name="window">Home</param>
