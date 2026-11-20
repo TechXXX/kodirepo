@@ -156,9 +156,13 @@
         </definition>
     </include>
 
+    <expression name="Exp_View_ReturnWidget_OnUp">Window.IsVisible(videos) + !String.IsEmpty(Window(Home).Property(WidgetReturn.Window)) + [!String.IsEmpty(Window(Home).Property(NextPage.Widget)) | [[Window.Previous(Home) | Window.Previous(1101) | Window.Previous(1102) | Window.Previous(1103) | Window.Previous(1104)] + String.Contains(Container.FolderPath,plugin.video.fenlight.patched) + String.Contains(Container.FolderPath,new_page=)]]</expression>
+
     <include name="Action_View_Movement_OnUp">
         <definition>
-            <onup>ActivateWindow(1171)</onup>
+            <onup condition="!$EXP[Exp_View_ReturnWidget_OnUp]">ActivateWindow(1171)</onup>
+            <onup condition="$EXP[Exp_View_ReturnWidget_OnUp]">SetProperty(WidgetReturn.FocusMenu,True,Home)</onup>
+            <onup condition="$EXP[Exp_View_ReturnWidget_OnUp]">ActivateWindow($INFO[Window(Home).Property(WidgetReturn.Window)])</onup>
         </definition>
     </include>
 
