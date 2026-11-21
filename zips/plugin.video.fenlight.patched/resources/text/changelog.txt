@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.135[/B][/COLOR]
+- Show digital release traffic lights on individual film entries throughout Films, using the existing enabled setting.
+
 [COLOR dodgerblue][B]Version 2.0.134[/B][/COLOR]
 - Add Select Source (Kiezen Bron) immediately below Rescrape & Select Source in movie and episode context menus.
 

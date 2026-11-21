@@ -16,7 +16,7 @@ sleep, xbmc_actor, set_category = kodi_utils.sleep, kodi_utils.xbmc_actor, kodi_
 add_item, home = kodi_utils.add_item, kodi_utils.home
 watched_indicators, widget_hide_next_page = settings.watched_indicators, settings.widget_hide_next_page
 widget_hide_watched, media_open_action, page_limit, paginate = settings.widget_hide_watched, settings.media_open_action, settings.page_limit, settings.paginate
-digital_release_indicators_trakt_trending = settings.digital_release_indicators_trakt_trending
+digital_release_indicators_movies = settings.digital_release_indicators_movies
 tmdb_api_key, mpaa_region = settings.tmdb_api_key, settings.mpaa_region
 run_plugin = 'RunPlugin(%s)'
 tmdb_image_url = 'https://image.tmdb.org/t/p/%s%s'
@@ -251,7 +251,7 @@ class Movies:
 
 	def worker(self):
 		self.current_date, self.current_time, self.watched_indicators = get_datetime(), get_current_timestamp(), watched_indicators()
-		self.digital_release_indicators = self.action == 'trakt_movies_trending' and digital_release_indicators_trakt_trending()
+		self.digital_release_indicators = digital_release_indicators_movies()
 		self.tmdb_api_key, self.mpaa_region = tmdb_api_key(), mpaa_region()
 		self.watched_title = 'Trakt' if self.watched_indicators == 1 else 'Fen Light Patched'
 		watched_db = get_database(self.watched_indicators)
