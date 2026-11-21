@@ -66,6 +66,7 @@ class OnUpdateChanges:
 		from caches.settings_cache import get_setting, set_setting
 		try:
 			migrations = (
+				('disable_regular_tb_usenet_search', self.disable_regular_tb_usenet_search),
 				('enable_digital_release_indicators_trakt_trending', self.enable_digital_release_indicators_trakt_trending),
 				('refresh_addon_keys', self.refresh_addon_keys),
 				('migrate_tb_usenet_aiostreams_url', self.migrate_tb_usenet_aiostreams_url),
@@ -80,6 +81,12 @@ class OnUpdateChanges:
 				set_setting(update_setting_id, 'true')
 		except Exception as e: logger('Fen Light Patched', 'OnUpdateChanges Service Failed: %s' % str(e))
 		return logger('Fen Light Patched', 'OnUpdateChanges Service Finished')
+
+	def disable_regular_tb_usenet_search(self):
+		from caches.settings_cache import set_setting
+		set_setting('tb.usenet_search.movies', 'false')
+		set_setting('tb.usenet_search.episodes', 'false')
+		logger('Fen Light Patched', 'Regular TorBox Usenet Search disabled; no-results retry setting unchanged.')
 
 	def refresh_addon_keys(self):
 		from caches.settings_cache import get_setting, set_setting, restore_setting_default

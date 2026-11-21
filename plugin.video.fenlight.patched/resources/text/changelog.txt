@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Version 2.0.136[/B][/COLOR]
+- Turn off regular TorBox Usenet Search for movies and episodes once on update.
+- Keep the no-results TorBox Usenet retry setting unchanged, so Auto can still retry when no sources are found.
+
 [COLOR dodgerblue][B]Version 2.0.135[/B][/COLOR]
 - Show digital release traffic lights on individual film entries throughout Films, using the existing enabled setting.
 
