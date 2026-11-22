@@ -32,11 +32,14 @@ def release_spec(root_dir: Path) -> dict:
 
 
 def piers_addon(root_dir: Path, addon_id: str, release: dict) -> ET.Element:
-    source_xml = root_dir / addon_id / "addon.xml"
+    source_xml = root_dir / "piers" / addon_id / "addon.xml"
     addon = ET.parse(source_xml).getroot()
     if addon.get("id") != addon_id:
         raise ValueError(f"Source addon ID mismatch: {addon_id}")
-    if version_tuple(release["version"]) <= version_tuple(addon.attrib["version"]):
+    if addon.attrib["version"] != release["version"]:
+        raise ValueError(f"Piers {addon_id} version must match releases.json")
+    shared_addon = ET.parse(root_dir / addon_id / "addon.xml").getroot()
+    if version_tuple(addon.attrib["version"]) <= version_tuple(shared_addon.attrib["version"]):
         raise ValueError(f"Piers {addon_id} must be newer than the shared release")
 
     dependency_id = release["kodi_dependency"]
@@ -47,24 +50,12 @@ def piers_addon(root_dir: Path, addon_id: str, release: dict) -> ET.Element:
         (item for item in addon.findall("./requires/import") if item.get("addon") == dependency_id),
         None,
     )
-    if dependency is None:
-        requires = addon.find("requires")
-        if requires is None:
-            requires = ET.Element("requires")
-            addon.insert(0, requires)
-        dependency = ET.SubElement(requires, "import", {"addon": dependency_id})
-    dependency.set("version", minimum)
-    dependency.attrib.pop("optional", None)
-    addon.set("version", release["version"])
+    if dependency is None or dependency.get("optional") == "true" or version_tuple(dependency.attrib["version"]) < version_tuple(minimum):
+        raise ValueError(f"Piers {addon_id} does not require {dependency_id} {minimum}")
     return addon
 
 
-def addon_xml_bytes(addon: ET.Element) -> bytes:
-    ET.indent(addon, space="    ")
-    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(addon, encoding="utf-8") + b"\n"
-
-
-def package_piers_addon(source_dir: Path, addon_xml: bytes, output_path: Path) -> None:
+def package_piers_addon(source_dir: Path, output_path: Path) -> None:
     addon_id = source_dir.name
     with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for source_file in sorted(source_dir.rglob("*")):
@@ -74,11 +65,16 @@ def package_piers_addon(source_dir: Path, addon_xml: bytes, output_path: Path) -
             member = zipfile.ZipInfo(name, ZIP_TIMESTAMP)
             member.compress_type = zipfile.ZIP_DEFLATED
             member.external_attr = 0o100644 << 16
-            if source_file.name == "addon.xml" and source_file.parent == source_dir:
-                archive.writestr(member, addon_xml)
-            else:
-                with source_file.open("rb") as source, archive.open(member, "w") as target:
-                    shutil.copyfileobj(source, target)
+            with source_file.open("rb") as source, archive.open(member, "w") as target:
+                shutil.copyfileobj(source, target)
+
+
+def file_digest(path: Path) -> bytes:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.digest()
 
 
 def build_piers_release(root_dir: Path) -> None:
@@ -87,7 +83,7 @@ def build_piers_release(root_dir: Path) -> None:
     piers_zips.mkdir(parents=True, exist_ok=True)
     catalog = ET.Element("addons")
     for addon_id, release in sorted(spec["addons"].items()):
-        source_dir = root_dir / addon_id
+        source_dir = root_dir / "piers" / addon_id
         addon = piers_addon(root_dir, addon_id, release)
         catalog.append(addon)
         output_dir = piers_zips / addon_id
@@ -95,8 +91,8 @@ def build_piers_release(root_dir: Path) -> None:
         output_path = output_dir / f"{addon_id}-{release['version']}.zip"
         with tempfile.TemporaryDirectory() as temp_name:
             candidate = Path(temp_name) / output_path.name
-            package_piers_addon(source_dir, addon_xml_bytes(ET.fromstring(ET.tostring(addon))), candidate)
-            if output_path.exists() and output_path.read_bytes() != candidate.read_bytes():
+            package_piers_addon(source_dir, candidate)
+            if output_path.exists() and file_digest(output_path) != file_digest(candidate):
                 raise ValueError(f"{output_path} changed without a Piers version bump")
             if not output_path.exists():
                 shutil.move(candidate, output_path)
@@ -149,6 +145,11 @@ def validate_piers_release(root_dir: Path) -> None:
             packaged = ET.fromstring(archive.read(f"{addon_id}/addon.xml"))
         if ET.canonicalize(ET.tostring(packaged, encoding="unicode"), strip_text=True) != ET.canonicalize(ET.tostring(expected, encoding="unicode"), strip_text=True):
             raise ValueError(f"Piers package metadata mismatch: {addon_id}")
+        with tempfile.TemporaryDirectory() as temp_name:
+            candidate = Path(temp_name) / zip_path.name
+            package_piers_addon(root_dir / "piers" / addon_id, candidate)
+            if file_digest(zip_path) != file_digest(candidate):
+                raise ValueError(f"Piers source and package differ: {addon_id}")
 
 
 def main() -> None:

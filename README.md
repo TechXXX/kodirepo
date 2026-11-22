@@ -280,6 +280,9 @@ Current source-tree versions when this document was updated:
 - `piers/releases.json`
   Kodi 22-only release versions and dependency gates. The initial Piers release
   is DutchTech Fuse 3; shared helpers continue to come from the main feed.
+- `piers/skin.dutchtech.fuse.3/`
+  Independent Kodi 22 skin source. Edit this tree for Piers changes; edits to
+  the shared skin source do not alter the Piers package.
 - `piers/zips/`
   Generated Kodi 22-only packages, `addons.xml`, and checksum. Kodi 21 never
   requests this feed. Each Piers package also requires a Kodi 22 API version.
@@ -449,9 +452,9 @@ Short version:
   metadata needs a full rebuild
 - use `scripts/publish_addon_update.py` when publishing an addon update without
   bumping the repository addon version
-- after editing `piers/releases.json`, run `python3 scripts/build_piers.py` and
-  `python3 scripts/validate_repo_packages.py`; bump a Piers addon version when
-  its source content changes, since released ZIPs are immutable
+- when editing Piers source, bump both its `addon.xml` version and the matching
+  version in `piers/releases.json`, then run `python3 scripts/build_piers.py`
+  and `python3 scripts/validate_repo_packages.py`; released ZIPs are immutable
 - Kodi 22 sees both the shared and Piers feeds and selects the higher compatible
   version. For an addon present in both feeds, the Piers version must stay above
   the shared version. The package validator and Git release hook enforce this.
