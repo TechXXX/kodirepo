@@ -76,6 +76,17 @@ def check_repository_integrity() -> None:
         fail("Git object integrity check failed: " + (result.stderr or result.stdout).strip())
 
 
+def check_package_feeds() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/validate_repo_packages.py"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode:
+        fail("package feed validation failed: " + (result.stderr or result.stdout).strip())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--staged", action="store_true", help="check the staged commit content")
@@ -88,6 +99,7 @@ def main() -> None:
     check_conflict_artifacts()
     check_deletions(changed_paths(diff_args))
     check_repository_integrity()
+    check_package_feeds()
     print("Release safety check passed")
 
 

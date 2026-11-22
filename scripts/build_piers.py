@@ -130,9 +130,15 @@ def validate_piers_release(root_dir: Path) -> None:
     addons = ET.parse(catalog_path).getroot().findall("addon")
     if {addon.get("id") for addon in addons} != set(spec["addons"]):
         raise ValueError("Piers catalog does not match releases.json")
+    shared_versions = {
+        addon.attrib["id"]: addon.attrib["version"]
+        for addon in ET.parse(root_dir / "addons.xml").getroot().findall("addon")
+    }
     for addon in addons:
         addon_id = addon.attrib["id"]
         release = spec["addons"][addon_id]
+        if addon_id in shared_versions and version_tuple(addon.attrib["version"]) <= version_tuple(shared_versions[addon_id]):
+            raise ValueError(f"Piers {addon_id} must be newer than shared catalog version {shared_versions[addon_id]}")
         expected = piers_addon(root_dir, addon_id, release)
         if ET.canonicalize(ET.tostring(addon, encoding="unicode"), strip_text=True) != ET.canonicalize(ET.tostring(expected, encoding="unicode"), strip_text=True):
             raise ValueError(f"Piers catalog metadata mismatch: {addon_id}")

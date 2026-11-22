@@ -452,6 +452,9 @@ Short version:
 - after editing `piers/releases.json`, run `python3 scripts/build_piers.py` and
   `python3 scripts/validate_repo_packages.py`; bump a Piers addon version when
   its source content changes, since released ZIPs are immutable
+- Kodi 22 sees both the shared and Piers feeds and selects the higher compatible
+  version. For an addon present in both feeds, the Piers version must stay above
+  the shared version. The package validator and Git release hook enforce this.
 
 Important future-agent nuance:
 
