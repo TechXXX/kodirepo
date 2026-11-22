@@ -1,6 +1,7 @@
 # Kodi Repo Agent Handover
 
-Last updated: 2026-07-06.
+Last updated: 2026-11-22 for Kodi 22 release guidance. Other version snapshots
+in this file are historical; read current `addon.xml` files before a release.
 
 This is the broad handover for future agents taking over Fen Light Patched,
 TMDb Helper Patched, a4kSubtitles Patched, and nearby Kodi debugging work in
@@ -12,12 +13,16 @@ this repo. Read this with:
 - `service.subtitles.a4ksubtitles.patched/README.md`
 - `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
 - `KODI_SETUP_KIT_HANDOVER.md`
+- `KODI_22_HANDOVER.md` for Omega/Piers source, catalog, packaging, and test status
 
 ## Repo Shape
 
 `/Users/kalter/Documents/CODEX/kodirepo` is the maintained Kodi repository.
 Addon source trees live at repo root. Generated package mirrors and zips live
 under `zips/`, with repo metadata in `addons.xml` and `addons.xml.md5`.
+The Kodi 22 Fuse 3 source is an exception: it lives under
+`piers/skin.dutchtech.fuse.3/`, with its own generated feed under `piers/zips/`.
+Read `KODI_22_HANDOVER.md` before changing either skin track.
 
 `DutchTechTestRepo` is retired from the normal workflow. Treat it as historical
 context only unless the user explicitly revives it. Approved publish work should
@@ -37,7 +42,10 @@ Package invariant: every addon version advertised in `addons.xml` must have an
 exact matching archive at `zips/<addon-id>/<addon-id>-<version>.zip`, whose
 embedded `addon.xml` has the same id and version. Run
 `python3 scripts/validate_repo_packages.py` after any manual packaging flow and
-before committing. The normal build/publish scripts also enforce this invariant.
+before committing. That script validates shared source versions against ZIPs
+and validates the Piers catalog and ZIP against Piers source. It does not
+compare every shared catalog entry to its source manifest, so regenerate and
+inspect shared `addons.xml` after a source version bump.
 
 ## Repository Safety Guardrails
 
@@ -48,7 +56,8 @@ archive only. Before publishing, use the repository's `.githooks` by setting
 
 The hooks run `scripts/release_safety_check.py` before commits and pushes. They
 block untracked sync-conflict copies, conflict-named Git refs, invalid Git
-objects, deleted repository metadata, and deletion bursts over 40 paths. A
+objects, invalid package feeds, deleted repository metadata, and deletion
+bursts over 40 paths. A
 deliberate repository-wide removal requires the explicit
 `KODIREPO_ALLOW_LARGE_DELETION=1` override and must be reviewed separately.
 

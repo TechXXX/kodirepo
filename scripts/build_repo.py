@@ -233,6 +233,10 @@ def update_pages_install_site(root_dir: Path, repo_zip: Path, repo_version: str)
 
 def should_skip_file(addon_id: str, file_path: Path) -> bool:
     parts = file_path.parts
+    # Only inspect the path inside the addon. A checkout may live under a
+    # hidden directory such as ~/.codex/worktrees without hiding its files.
+    if addon_id in parts:
+        parts = parts[parts.index(addon_id) + 1:]
     if any(part.startswith(".") for part in parts):
         return True
     if "__pycache__" in parts:

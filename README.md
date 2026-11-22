@@ -303,15 +303,16 @@ For selector, AI-search, or packaging work in this repo, read:
 2. `AGENT_HANDOVER.md`
 3. `scripts/README.md`
 4. `KODI_SETUP_KIT_HANDOVER.md`
-5. `plugin.video.fenlight.patched/README.md`
-6. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
-7. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
-8. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
-9. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
-10. `service.subtitles.a4ksubtitles.patched/README.md`
-11. `plugin.video.themoviedb.helper.patched/Readme.md`
-12. `skin.arctic.horizon.2.patched/Readme.md`
-13. `skin.arctic.horizon.2.1/Readme.md`
+5. `KODI_22_HANDOVER.md` for Omega/Piers releases and Kodi 22 test findings
+6. `plugin.video.fenlight.patched/README.md`
+7. `plugin.video.fenlight.patched/resources/lib/modules/ai_search.md`
+8. `plugin.video.fenlight.patched/resources/lib/modules/sources.md`
+9. `plugin.video.fenlight.patched/resources/lib/modules/player.md`
+10. `plugin.video.fenlight.patched/resources/lib/fenlightsubs/README.md`
+11. `service.subtitles.a4ksubtitles.patched/README.md`
+12. `plugin.video.themoviedb.helper.patched/Readme.md`
+13. `skin.arctic.horizon.2.patched/Readme.md`
+14. `skin.arctic.horizon.2.1/Readme.md`
 
 ## Fen / a4k / TMDb Helper Handoff
 

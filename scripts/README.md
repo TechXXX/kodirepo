@@ -3,6 +3,9 @@
 This directory contains the helper scripts that build and publish the main
 DutchTech Kodi repository.
 
+For the Kodi 21/22 catalog split, independent Piers skin source, version
+ordering rule, and first Kodi 22 test findings, read `../KODI_22_HANDOVER.md`.
+
 ## `build_repo.py`
 
 Use this when the repository addon or the repo-wide metadata needs a full
@@ -41,6 +44,21 @@ What it does:
 - regenerates `addons.xml` and `addons.xml.md5`
 - commits and pushes to `main`
 
+## `build_piers.py`
+
+Builds the Kodi 22-only catalog and ZIPs from independent source directories
+under `piers/<addon-id>/`. The first such source is
+`piers/skin.dutchtech.fuse.3/`. Edit that tree for Piers skin changes; editing
+the root skin tree does not change Piers source or package contents.
+
+When changing Piers source, bump both its `addon.xml` version and the matching
+entry in `piers/releases.json`, then run `python3 scripts/build_piers.py` and
+`python3 scripts/validate_repo_packages.py`. This script builds locally; it
+does not commit or push. It refuses to overwrite a changed same-version ZIP.
+The validator checks that every Piers package requires a Kodi 22 API version,
+matches its source byte for byte, and is newer than any shared release of the
+same addon ID. The Git release hook runs that validation before commit/push.
+
 ## Important Future-Agent Nuance
 
 If you already edited the unpacked source tree in place, the CLI entrypoint is
@@ -59,10 +77,11 @@ Before committing, run:
 python3 scripts/validate_repo_packages.py
 ```
 
-This checks every source `addon.xml` against the exact archive Kodi will
-request. It fails when a version in `addons.xml` would point Kodi at a missing,
-corrupt, or mismatched `zips/<addon-id>/<addon-id>-<version>.zip` package.
-Both normal publish scripts run the same check automatically.
+This checks that each shared source `addon.xml` version has a valid matching
+archive under `zips/<addon-id>/`. It also checks Piers source, catalog, and
+package consistency. Regenerate and inspect shared `addons.xml` after a source
+version bump; the shared package check does not compare that catalog against
+every source manifest. Both normal publish scripts run validation automatically.
 
 Do not rebuild `addons.xml` from a source tree unless every addon whose source
 version changed has also had its package output regenerated. The a4k 3.23.47
