@@ -1,0 +1,293 @@
+# -*- coding: utf-8 -*-
+# License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
+import xbmc
+from jurialmunkey.ftools import cached_property
+from resources.lib.scriptwindow.items import ScriptWindowItem
+from resources.lib.skinsettings.actions import SettingAction
+
+
+PROPERTY_PREFIX = 'SkinVariables.SkinSettings'
+CATEGORY_PROPERTY = f'{PROPERTY_PREFIX}.Category'
+CATEGORY_LABEL_PROPERTY = f'{CATEGORY_PROPERTY}.Label'
+SEARCH_PROPERTY_PREFIX = f'{PROPERTY_PREFIX}.Search'
+
+# Category ids match Kodi's native category buttons so skin navigation such as SetFocus(-200) still works.
+CATEGORY_ID_START = -200
+GROUP_ID_START = -100000
+SETTING_ID_START = -200000
+
+
+def get_label_text(label):
+    """Resolve a skin label to its displayed text. Kodi parses $INFO, $LOCALIZE and $VAR in full labels."""
+    if label.isdigit():
+        return xbmc.getLocalizedString(int(label))
+    if '$' in label:
+        return xbmc.getInfoLabel(label)
+    return label
+
+
+def get_label_info(label):
+    """Format a skin label to resolve inside other label text. Kodi only localizes ids given as a full label."""
+    return f'$LOCALIZE[{label}]' if label.isdigit() else label
+
+
+class DefinitionEntries:
+    """Sorts the keyed entries of a definition section by index, then by declaration order."""
+
+    def __init__(self, meta):
+        self.meta = meta
+
+    @staticmethod
+    def get_sort_key(position, entry):
+        key, meta = entry
+        return (int(meta.get('index', position)), position)
+
+    @cached_property
+    def entries(self):
+        return self.get_entries()
+
+    def get_entries(self):
+        return [
+            entry
+            for position, entry in sorted(enumerate(self.meta.items()), key=lambda item: self.get_sort_key(*item))
+        ]
+
+
+class DefinitionItem(ScriptWindowItem):
+    # Keys holding skin labels. Numeric ids are substituted as $LOCALIZE so they resolve inside other text.
+    label_keys = ('label', 'label2', 'hinttext', 'description')
+
+    def __init__(self, key, meta, rank, parent=None):
+        self.key = key
+        self.meta = meta
+        self.rank = rank
+        self.parent = parent
+
+    @property
+    def label(self):
+        return str(self.meta.get('label', ''))
+
+    @property
+    def description(self):
+        return str(self.meta.get('description', ''))
+
+    @property
+    def label_text(self):
+        return get_label_text(self.label)
+
+    @property
+    def description_text(self):
+        return get_label_text(self.description)
+
+    @cached_property
+    def order(self):
+        return self.get_order()
+
+    def get_order(self):
+        return self.parent.order + (self.rank,)
+
+    def get_values(self):
+        """String values of the definition. The label property gives the label so subclasses can supply a default."""
+        values = {key: value for key, value in self.meta.items() if isinstance(value, str)}
+        return {**values, 'label': self.label}
+
+    def get_substitution(self, key, value):
+        return get_label_info(value) if key in self.label_keys else value
+
+    def get_substitutions(self):
+        return {key: self.get_substitution(key, value) for key, value in self.values.items()}
+
+    def onfocus(self, window):
+        window.set_description(self.description)
+
+
+class SkinSettingsCategory(DefinitionItem):
+    control_id_start = CATEGORY_ID_START
+    template = 'category'
+
+    @cached_property
+    def condition(self):
+        return self.get_condition()
+
+    def get_condition(self):
+        return f'String.IsEqual(Window.Property({CATEGORY_PROPERTY}),{self.key})'
+
+    def get_order(self):
+        return (self.rank,)
+
+    def get_overrides(self):
+        # Togglebutton templates show the selected category with their alt textures and an altlabel written with
+        # $SUBSTITUTE[label] so the label always matches the toggle state. Other control types ignore the tag.
+        return super().get_overrides() + [('usealttexture', self.condition, {})]
+
+    def onfocus(self, window):
+        window.set_category(self.key)
+        super().onfocus(window)
+
+
+class SettingsListItem(DefinitionItem):
+    """Item shown in the settings grouplist while its category is selected or while it matches the search."""
+
+    def __init__(self, key, meta, rank, parent, search):
+        super().__init__(key, meta, rank, parent)
+        self.search = search
+
+    @property
+    def category(self):
+        raise NotImplementedError
+
+    @cached_property
+    def tags(self):
+        """Tag labels that the tags button can filter by. Matching compares the labels as written."""
+        return self.get_tags()
+
+    def get_tags(self):
+        return [str(tag) for tag in self.meta.get('tags', [])]
+
+    @cached_property
+    def search_property(self):
+        return f'{SEARCH_PROPERTY_PREFIX}.{self.control_id}'
+
+    @cached_property
+    def match_condition(self):
+        return self.get_match_condition()
+
+    def get_match_condition(self):
+        return f'!String.IsEmpty(Window.Property({self.search_property}))'
+
+    @cached_property
+    def shown_condition(self):
+        return self.get_shown_condition()
+
+    def get_shown_condition(self):
+        return self.search.get_shown_condition(self)
+
+    @cached_property
+    def visible(self):
+        return self.get_visible()
+
+    def get_visible_conditions(self):
+        return [self.shown_condition] + ([self.meta['visible']] if 'visible' in self.meta else [])
+
+    def get_visible(self):
+        return ' + '.join(f'[{condition}]' for condition in self.get_visible_conditions())
+
+    def get_overrides(self):
+        return super().get_overrides() + [('visible', self.visible, {})]
+
+
+class SettingsLabel(SettingsListItem):
+    """Label shown above its settings. Hidden while none of its settings are visible."""
+
+    def __init__(self, key, meta, rank, parent, search):
+        super().__init__(key, meta, rank, parent, search)
+        self.settings = []
+
+    def add_setting(self, setting):
+        self.settings.append(setting)
+
+    @cached_property
+    def settings_condition(self):
+        return self.get_settings_condition()
+
+    def get_settings_condition(self):
+        return ' | '.join(f'[{setting.visible}]' for setting in self.settings) or 'false'
+
+    def get_visible_conditions(self):
+        return super().get_visible_conditions() + [self.settings_condition]
+
+
+def link_settings(settings):
+    """Add each setting to the label listed above it. Returns the settings."""
+    for setting in settings:
+        setting.label_item.add_setting(setting)
+    return settings
+
+
+class SkinSettingsGroup(SettingsLabel):
+    control_id_start = GROUP_ID_START
+    template = 'group'
+
+    @property
+    def category(self):
+        return self.parent
+
+
+class SkinSetting(SettingsListItem):
+    control_id_start = SETTING_ID_START
+    template = 'button'
+    optional_tags = (('enabled', 'enable'),)
+
+    @property
+    def group(self):
+        return self.parent
+
+    @property
+    def label_item(self):
+        """Label listed above the setting."""
+        return self.group
+
+    @property
+    def category(self):
+        return self.group.category
+
+    def get_tags(self):
+        # Settings carry the tags of their group so tagging a group tags each of its settings.
+        return list(dict.fromkeys(self.group.tags + super().get_tags()))
+
+    @property
+    def tag_texts(self):
+        return [get_label_text(tag) for tag in self.tags]
+
+    @property
+    def search_text(self):
+        return ' '.join((self.label_text, self.group.label_text, self.description_text, *self.tag_texts)).lower()
+
+    @cached_property
+    def focusable_condition(self):
+        return self.get_focusable_condition()
+
+    def get_focusable_condition(self):
+        conditions = [self.visible] + ([self.meta['enabled']] if 'enabled' in self.meta else [])
+        return ' + '.join(f'[{condition}]' for condition in conditions)
+
+    @cached_property
+    def optional_overrides(self):
+        return self.get_optional_overrides()
+
+    def get_optional_overrides(self):
+        return [(tag, str(self.meta[key]), {}) for key, tag in self.optional_tags if key in self.meta]
+
+    def get_overrides(self):
+        return super().get_overrides() + self.optional_overrides
+
+    def onrefresh(self, window):
+        """Update the control from the skin state when the window opens and when focus moves."""
+
+
+class ButtonSetting(SkinSetting):
+    """Setting whose builtins the skin runs as onclicks."""
+
+    template = 'button'
+
+    @cached_property
+    def onclick_actions(self):
+        return self.get_onclick_actions()
+
+    def get_onclick_actions(self):
+        return [SettingAction(meta) for meta in self.meta.get('onclick', [])]
+
+    @cached_property
+    def onclick_overrides(self):
+        return self.get_onclick_overrides()
+
+    def get_onclick_overrides(self):
+        return [action.override for action in self.onclick_actions]
+
+    def get_overrides(self):
+        return super().get_overrides() + self.onclick_overrides
+
+
+class RadioButtonSetting(ButtonSetting):
+    template = 'radiobutton'
+    optional_tags = SkinSetting.optional_tags + (('selected', 'selected'),)

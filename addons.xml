@@ -1244,7 +1244,7 @@ v0.5.9 (2022-03-22)
             </assets>
         </extension>
     </addon>
-    <addon id="script.skinvariables" version="2.2.1" name="Skin Variables" provider-name="jurialmunkey">
+    <addon id="script.skinvariables" version="2.3.12" name="Skin Variables" provider-name="jurialmunkey">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.jurialmunkey" version="0.2.28" />
