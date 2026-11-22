@@ -1796,12 +1796,17 @@ Full release history is now tracked in CHANGELOG.md.
             </assets>
         </extension>
     </addon>
-    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.50">
+    <addon id="repository.dutchtech" name="DutchTech Repository" provider-name="DutchTech" version="1.0.51">
         <extension point="xbmc.addon.repository" name="DutchTech Repository">
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml</info>
                 <checksum>https://raw.githubusercontent.com/TechXXX/kodirepo/main/addons.xml.md5</checksum>
                 <datadir zip="true">https://raw.githubusercontent.com/TechXXX/kodirepo/main/zips/</datadir>
+            </dir>
+            <dir minversion="21.90.901">
+                <info compressed="false">https://raw.githubusercontent.com/TechXXX/kodirepo/main/piers/zips/addons.xml</info>
+                <checksum>https://raw.githubusercontent.com/TechXXX/kodirepo/main/piers/zips/addons.xml.md5</checksum>
+                <datadir zip="true">https://raw.githubusercontent.com/TechXXX/kodirepo/main/piers/zips/</datadir>
             </dir>
         </extension>
         <extension point="xbmc.addon.metadata">

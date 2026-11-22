@@ -277,6 +277,12 @@ Current source-tree versions when this document was updated:
   Repo build and publish helpers.
 - `zips/`
   Generated installable addon packages. Do not hand-edit these.
+- `piers/releases.json`
+  Kodi 22-only release versions and dependency gates. The initial Piers release
+  is DutchTech Fuse 3; shared helpers continue to come from the main feed.
+- `piers/zips/`
+  Generated Kodi 22-only packages, `addons.xml`, and checksum. Kodi 21 never
+  requests this feed. Each Piers package also requires a Kodi 22 API version.
 - `docs/`
   Tiny GitHub Pages install site. GitHub Pages should serve `main` `/docs`, not
   the repo root. Kodi update data still comes from the raw GitHub URLs declared
@@ -443,6 +449,9 @@ Short version:
   metadata needs a full rebuild
 - use `scripts/publish_addon_update.py` when publishing an addon update without
   bumping the repository addon version
+- after editing `piers/releases.json`, run `python3 scripts/build_piers.py` and
+  `python3 scripts/validate_repo_packages.py`; bump a Piers addon version when
+  its source content changes, since released ZIPs are immutable
 
 Important future-agent nuance:
 

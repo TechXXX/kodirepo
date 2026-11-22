@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 
 from build_repo import get_source_dirs, validate_addon_packages
+from build_piers import validate_piers_release
 
 
 def parse_args() -> argparse.Namespace:
@@ -24,6 +25,7 @@ def main() -> None:
     root_dir = parse_args().root.resolve()
     addon_dirs = get_source_dirs(root_dir)
     validate_addon_packages(root_dir, addon_dirs)
+    validate_piers_release(root_dir)
     print(f"Validated {len(addon_dirs)} addon packages")
 
 

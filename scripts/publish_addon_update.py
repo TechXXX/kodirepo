@@ -18,6 +18,7 @@ from build_repo import (
     validate_addon_packages,
     write_md5,
 )
+from build_piers import build_piers_release
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,6 +53,8 @@ def ensure_publish_ready(root_dir: Path, addon_ids: list[str]) -> None:
             "addons.xml",
             "addons.xml.md5",
             "scripts/publish_addon_update.py",
+            "scripts/build_piers.py",
+            "piers/",
             *addon_ids,
             *[f"zips/{addon_id}" for addon_id in addon_ids],
         ]
@@ -98,6 +101,7 @@ def main() -> None:
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
     validate_addon_packages(root_dir, source_dirs)
+    build_piers_release(root_dir)
 
     print(f"Updated addons: {', '.join(imported_ids)}")
     publish_changes(root_dir, imported_ids)

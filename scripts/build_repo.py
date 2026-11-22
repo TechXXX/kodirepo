@@ -27,11 +27,14 @@ REPO_DESCRIPTION = (
 )
 REPO_ALLOWED_FILES = {"addon.xml", "icon.png", "fanart.jpg"}
 STATIC_PUBLISH_PATHS = [
+    "README.md",
     "addons.xml",
     "addons.xml.md5",
     "docs",
     "index.html",
     "scripts/build_repo.py",
+    "scripts/build_piers.py",
+    "piers/",
 ]
 PAGES_SITE_DIR = "docs"
 EXCLUDED_SOURCE_DIRS = {"scripts", "zips", "__pycache__"}
@@ -118,6 +121,11 @@ def ensure_repo_addon_source(root_dir: Path, repo_data_base_url: str) -> tuple[P
                     <info compressed="false">{repo_data_base_url}addons.xml</info>
                     <checksum>{repo_data_base_url}addons.xml.md5</checksum>
                     <datadir zip="true">{repo_data_base_url}zips/</datadir>
+                </dir>
+                <dir minversion="21.90.901">
+                    <info compressed="false">{repo_data_base_url}piers/zips/addons.xml</info>
+                    <checksum>{repo_data_base_url}piers/zips/addons.xml.md5</checksum>
+                    <datadir zip="true">{repo_data_base_url}piers/zips/</datadir>
                 </dir>
             </extension>
             <extension point="xbmc.addon.metadata">
@@ -392,6 +400,8 @@ def main() -> None:
     build_addons_xml(source_dirs, root_dir / "addons.xml")
     write_md5(root_dir / "addons.xml")
     validate_addon_packages(root_dir, source_dirs)
+    from build_piers import build_piers_release
+    build_piers_release(root_dir)
 
     print(f"Built Kodi repo metadata for {len(source_dirs)} addons")
     print(f"Repository version: {repo_version}")
