@@ -2,7 +2,7 @@
 # Thanks to kodifitzwell for allowing me to borrow his code
 import re
 from threading import Thread
-from apis.torbox_api import TorBoxAPI
+from apis.torbox_api import TorBoxAPI, cloud_item_is_playable
 from modules import source_utils
 from modules.utils import clean_file_name, normalize
 from modules.settings import enabled_debrids_check, filter_by_name, torbox_usenet_search_enabled
@@ -193,10 +193,7 @@ class source:
 		except: return
 
 	def _cloud_item_is_playable(self, item):
-		if not item.get('download_finished'): return False
-		if item.get('download_present') is False: return False
-		state = str(item.get('download_state') or item.get('status') or '').lower()
-		return not any(marker in state for marker in ('expired', 'failed', 'deleted', 'removed', 'unavailable'))
+		return cloud_item_is_playable(item)
 
 	def _scrape_usenet_search(self):
 		try:

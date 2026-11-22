@@ -1,7 +1,7 @@
 import sys
 from threading import Thread
 from time import time
-from apis.torbox_api import TorBoxAPI
+from apis.torbox_api import TorBoxAPI, cloud_item_is_playable
 from modules import kodi_utils
 from modules.source_utils import supported_video_extensions
 from modules.utils import clean_file_name, normalize
@@ -20,7 +20,7 @@ def _safe_cloud_data(result):
 	return data if isinstance(data, list) else []
 
 def _finished_cloud_items(items, media_type):
-	return [{**i, 'media_type': media_type} for i in items if i.get('download_finished')]
+	return [{**i, 'media_type': media_type} for i in items if cloud_item_is_playable(i)]
 
 def tb_cloud(fresh=False):
 	def _builder():

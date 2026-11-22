@@ -30,6 +30,12 @@ user_agent = 'Mozilla/5.0'
 timeout = 20.0
 session = make_session(base_url)
 
+def cloud_item_is_playable(item):
+	if not item.get('download_finished'): return False
+	if item.get('download_present') is False: return False
+	state = str(item.get('download_state') or item.get('status') or '').lower()
+	return not any(marker in state for marker in ('expired', 'failed', 'deleted', 'removed', 'unavailable'))
+
 class TorBoxAPI:
 
 	def __init__(self):

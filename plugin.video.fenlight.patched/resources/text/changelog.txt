@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.137[/B][/COLOR]
+- Hide expired, failed, and unavailable TorBox downloads from cloud storage while retaining playable downloads.
+
 [COLOR dodgerblue][B]Version 2.0.136[/B][/COLOR]
 - Turn off regular TorBox Usenet Search for movies and episodes once on update.
 - Keep the no-results TorBox Usenet retry setting unchanged, so Auto can still retry when no sources are found.
