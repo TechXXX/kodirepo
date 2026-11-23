@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.56:
+  * Normalize Kodi's Dutch subtitle codes before comparing tracks, allowing the embedded-track wait to work when a sidecar is reported as `dut` and the preference as `nld`.
+
 * v3.23.55:
   * Prefer an embedded Dutch subtitle over a Dutch sidecar. If only the sidecar appears, use it after the embedded-track wait instead of downloading another subtitle.
 

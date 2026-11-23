@@ -1488,7 +1488,7 @@ def start(api):
 
                 preferred_subtitles = [
                     sub for sub in player_props.get('subtitles', [])
-                    if sub.get('language') == preferredlang_code
+                    if language_code(sub.get('language')) == preferredlang_code
                 ]
                 if (not force and core.kodi.get_bool_setting('general', 'auto_download')
                         and preferred_subtitles and all(is_external(sub) for sub in preferred_subtitles)
@@ -1502,7 +1502,7 @@ def start(api):
 
                     matching_subtitles = [
                         sub for sub in player_props['subtitles']
-                        if sub.get('language') == preferredlang_code
+                        if language_code(sub.get('language')) == preferredlang_code
                     ]
                     embedded = [sub for sub in matching_subtitles if not is_external(sub)]
                     candidates = embedded or matching_subtitles
