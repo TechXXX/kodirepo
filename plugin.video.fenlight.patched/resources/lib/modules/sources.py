@@ -14,6 +14,7 @@ from scrapers import external, folders
 from modules import debrid, kodi_utils, settings, metadata, watched_status
 from modules.player import FenLightPlayer
 from modules.source_utils import get_cache_expiry, make_alias_dict
+from modules.subtitle_language import detect_dutch_srt
 from modules.utils import clean_file_name, string_to_float, safe_string, remove_accents, get_datetime, append_module_to_syspath, manual_function_import, manual_module_import
 logger = kodi_utils.logger
 
@@ -1075,6 +1076,11 @@ class Sources():
 				destination = os.path.join(subtitle_dir, '%s_%s_%s' % (subtitle['folder_id'], subtitle['id'], file_name))
 				if not kodi_utils.path_exists(destination):
 					if not kodi_utils.copy_file(subtitle_url, destination): destination = subtitle_url
+				if not subtitle.get('language') and destination.lower().endswith('.srt') and detect_dutch_srt(destination):
+					dutch_destination = '%s.nl.srt' % destination[:-4]
+					if kodi_utils.path_exists(dutch_destination) or kodi_utils.copy_file(destination, dutch_destination):
+						destination = dutch_destination
+						logger('Fen Light Patched', 'TorBox cloud sidecar identified as Dutch | file=%s' % file_name)
 				prepared.append(destination)
 			except: continue
 		if prepared:

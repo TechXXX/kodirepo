@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.55:
+  * Prefer an embedded Dutch subtitle over a Dutch sidecar. If only the sidecar appears, use it after the embedded-track wait instead of downloading another subtitle.
+
 * v3.23.54:
   * Give Kodi five seconds to expose embedded subtitle tracks before downloading a fallback, so a Dutch track in a remote video can be selected first.
 

@@ -235,7 +235,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.137">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.138">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -259,7 +259,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.137]:
+            <news>[v2.0.138]:
+  * Identify Dutch text in unlabelled TorBox cloud SRT sidecars locally and label only confident Dutch matches.
+
+[v2.0.137]:
   * Hide expired, failed, and unavailable TorBox downloads from the cloud-storage list using the same playable-item check as source scraping.
 
 [v2.0.136]:
@@ -1480,7 +1483,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.54" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.55" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1505,6 +1508,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.55]:
+  * Prefer embedded Dutch subtitles over Dutch sidecars when both are available; accept the sidecar after the embedded-track wait if needed.
+
 [v3.23.54]:
   * Wait briefly for embedded subtitle tracks to appear before downloading a fallback subtitle, prioritizing an available Dutch track on remote videos.
 

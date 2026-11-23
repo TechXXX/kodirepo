@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.138[/B][/COLOR]
+- Identify Dutch text in unlabelled TorBox cloud SRT subtitles locally and label only confident Dutch matches.
+
 [COLOR dodgerblue][B]Version 2.0.137[/B][/COLOR]
 - Hide expired, failed, and unavailable TorBox downloads from cloud storage while retaining playable downloads.
 

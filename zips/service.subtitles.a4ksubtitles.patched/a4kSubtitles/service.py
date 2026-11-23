@@ -1482,15 +1482,33 @@ def start(api):
                     core.logger.debug('no subtitles found for %s' % preferredlang)
                     return
 
+                def is_external(subtitle):
+                    name = (subtitle.get('name') or '').lower()
+                    return subtitle.get('isexternal') is True or name.endswith((' (extern)', ' (external)'))
+
+                preferred_subtitles = [
+                    sub for sub in player_props.get('subtitles', [])
+                    if sub.get('language') == preferredlang_code
+                ]
+                if (not force and core.kodi.get_bool_setting('general', 'auto_download')
+                        and preferred_subtitles and all(is_external(sub) for sub in preferred_subtitles)
+                        and core.time.time() < subtitle_stream_settle_until):
+                    core.logger.debug('Waiting for an embedded %s subtitle before accepting a sidecar' % preferredlang)
+                    return
+
                 def find_sub_index():
                     if 'subtitles' not in player_props:
                         return None
 
+                    matching_subtitles = [
+                        sub for sub in player_props['subtitles']
+                        if sub.get('language') == preferredlang_code
+                    ]
+                    embedded = [sub for sub in matching_subtitles if not is_external(sub)]
+                    candidates = embedded or matching_subtitles
                     sub_index = None
-                    for sub in player_props['subtitles']:
+                    for sub in candidates:
                         subname = sub['name'].lower()
-                        if sub['language'] != preferredlang_code:
-                            continue
                         if prefer_sdh and (sub['isimpaired'] or 'sdh' in subname or 'captions' in subname or 'honorific' in subname):
                             core.logger.debug('found SDH subtitles: %s' % subname)
                             sub_index = sub['index']
@@ -1501,10 +1519,8 @@ def start(api):
                             break
 
                     if sub_index is None:
-                        for sub in player_props['subtitles']:
+                        for sub in candidates:
                             subname = sub['name'].lower()
-                            if sub['language'] != preferredlang_code:
-                                continue
                             if not sub['isforced'] and all(s not in subname for s in ['forced', 'songs', 'commentary']):
                                 core.logger.debug('found default subtitles: %s' % subname)
                                 sub_index = sub['index']
