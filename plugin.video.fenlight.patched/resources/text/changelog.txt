@@ -1,3 +1,6 @@
+[COLOR dodgerblue][B]Version 2.0.140[/B][/COLOR]
+- Deliver the refined Dutch cloud SRT language check through the normal Kodi update mechanism.
+
 [COLOR dodgerblue][B]Version 2.0.139[/B][/COLOR]
 - Weight distinctive Dutch words more heavily than shared words when checking unlabelled cloud SRTs.
 - Keep short or ambiguous subtitles unlabelled and compare Dutch evidence with other languages.
