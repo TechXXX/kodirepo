@@ -1,3 +1,7 @@
+[COLOR dodgerblue][B]Version 2.0.139[/B][/COLOR]
+- Weight distinctive Dutch words more heavily than shared words when checking unlabelled cloud SRTs.
+- Keep short or ambiguous subtitles unlabelled and compare Dutch evidence with other languages.
+
 [COLOR dodgerblue][B]Version 2.0.138[/B][/COLOR]
 - Identify Dutch text in unlabelled TorBox cloud SRT subtitles locally and label only confident Dutch matches.
 

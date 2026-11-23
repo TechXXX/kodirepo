@@ -235,7 +235,7 @@ v0.1.0
 INFO: For latest changes see Changelog within Tools of add-on.</news>
         </extension>
     </addon>
-    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.138">
+    <addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.139">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.19.1" />
@@ -259,7 +259,10 @@ INFO: For latest changes see Changelog within Tools of add-on.</news>
                 <icon>resources/media/baslite_icon_blue.png</icon>
                 <fanart>resources/media/fenlight_fanart2.jpg</fanart>
             </assets>
-            <news>[v2.0.138]:
+            <news>[v2.0.139]:
+  * Make Dutch SRT detection more conservative by weighting distinctive Dutch words above shared words and checking competing languages.
+
+[v2.0.138]:
   * Identify Dutch text in unlabelled TorBox cloud SRT sidecars locally and label only confident Dutch matches.
 
 [v2.0.137]:
