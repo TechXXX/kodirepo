@@ -356,11 +356,13 @@ def start(api):
     has_done_subs_check = False
     prev_playing_filename = ''
     fast_selector_poll_until = 0.0
+    subtitle_stream_settle_until = 0.0
 
     ai_max_range = 60
     ai_step = ai_max_range / 2
     fast_selector_poll_interval = 0.2
     fast_selector_poll_window = 3.0
+    subtitle_stream_settle_seconds = 5.0
     default_poll_interval = 1.0
 
     last_subfile = None
@@ -374,7 +376,7 @@ def start(api):
 
     def reset():
         nonlocal has_done_subs_check, prev_playing_filename, ai_last_timestamp, ai_tries
-        nonlocal fast_selector_poll_until, ai_translation_active, ai_translation_source
+        nonlocal fast_selector_poll_until, subtitle_stream_settle_until, ai_translation_active, ai_translation_source
         nonlocal attached_subtitle_active, sync_started_subfiles
 
         has_done_subs_check = False
@@ -382,6 +384,7 @@ def start(api):
         ai_last_timestamp = None
         ai_tries = 0
         fast_selector_poll_until = 0.0
+        subtitle_stream_settle_until = 0.0
         ai_translation_active = False
         ai_translation_source = ''
         attached_subtitle_active = False
@@ -1313,7 +1316,7 @@ def start(api):
 
         has_video = core.kodi.xbmc.Player().isPlayingVideo()
 
-        if not has_video and has_done_subs_check:
+        if not has_video and (has_done_subs_check or prev_playing_filename):
             reset()
 
         has_video_duration = core.kodi.xbmc.getCondVisibility('Player.HasDuration')
@@ -1324,6 +1327,7 @@ def start(api):
             if prev_playing_filename != playing_filename:
                 reset()
                 prev_playing_filename = playing_filename
+                subtitle_stream_settle_until = core.time.time() + subtitle_stream_settle_seconds
                 if core.kodi.get_property(selector_payload_prop):
                     fast_selector_poll_until = core.time.time() + fast_selector_poll_window
 
@@ -1542,6 +1546,14 @@ def start(api):
             core.logger.debug('Error on update_sub_stream: %s' % e)
 
         if has_subtitles:
+            continue
+
+        # Kodi can initially expose a sidecar subtitle before the embedded tracks
+        # of a remote video. Give the preferred embedded stream time to appear.
+        if (preferredlang and core.kodi.get_bool_setting('general', 'auto_select')
+                and core.kodi.get_bool_setting('general', 'auto_download')
+                and core.time.time() < subtitle_stream_settle_until):
+            has_done_subs_check = False
             continue
 
         if not core.kodi.get_bool_setting('general', 'auto_download'):

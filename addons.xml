@@ -1480,7 +1480,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.53" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.54" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1505,6 +1505,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.54]:
+  * Wait briefly for embedded subtitle tracks to appear before downloading a fallback subtitle, prioritizing an available Dutch track on remote videos.
+
 [v3.23.53]:
   * Enable automatic subtitle timing validation once for existing profiles as well as new installs. Users can still turn it off afterward.
 

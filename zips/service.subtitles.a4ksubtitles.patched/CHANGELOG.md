@@ -1,6 +1,9 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.54:
+  * Give Kodi five seconds to expose embedded subtitle tracks before downloading a fallback, so a Dutch track in a remote video can be selected first.
+
 * v3.23.53:
   * Enable automatic subtitle timing validation once for existing profiles, including those previously saved as off. A later manual change to off remains off.
 
