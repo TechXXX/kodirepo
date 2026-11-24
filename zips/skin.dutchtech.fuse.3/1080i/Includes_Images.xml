@@ -3,7 +3,7 @@
 
     <variable name="Image_MediaList_FileType">
         <value condition="ListItem.IsFolder">special://skin/extras/icons/folder.png</value>
-        <value condition="String.IsEqual(ListItem.DBType,video) | String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,episode) | String.IsEqual(ListItem.DBType,musicvideo)">special://skin/extras/icons/file-video.png</value>
+        <value condition="String.IsEqual(ListItem.DBType,video) | String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,episode) | String.IsEqual(ListItem.DBType,musicvideo)">special://skin/extras/icons/video.png</value>
         <value>special://skin/extras/icons/file.png</value>
     </variable>
 
