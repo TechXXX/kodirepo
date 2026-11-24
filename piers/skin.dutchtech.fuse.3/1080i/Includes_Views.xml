@@ -170,6 +170,7 @@
     <include name="View_Row_Line">
         <control type="group">
             <visible>!Integer.IsEqual(Container.NumItems,0)</visible>
+            <visible>!$EXP[Exp_View_507]</visible>
             <control type="group">
                 <visible>$EXP[View_Row_Info_Details_Expression]</visible>
                 <visible>!$EXP[View_Mode_Comb_Flix_Expression]</visible>
@@ -203,6 +204,7 @@
     <include name="View_Row_Info">
         <control type="group">
             <visible>!Integer.IsEqual(Container.NumItems,0)</visible>
+            <visible>!$EXP[Exp_View_507]</visible>
             <include>Info_Panel_Dimensions</include>
             <include content="Info_Panel">
                 <param name="visible">String.IsEmpty(Window.Property(TMDBHelper.WidgetContainer))</param>

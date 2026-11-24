@@ -928,6 +928,11 @@
         <value condition="!String.IsEmpty(ListItem.Label)">$INFO[ListItem.Label]</value>
     </variable>
 
+    <variable name="Label_MediaList_FileType">
+        <value condition="ListItem.IsFolder">$LOCALIZE[20334]</value>
+        <value>$VAR[Label_VideoInfo_DetailsItem]</value>
+    </variable>
+
     <variable name="Label_MediaList_Rating">
         <value condition="!String.IsEmpty(ListItem.TrackNumber)">$INFO[ListItem.TrackNumber,#,]</value>
         <value condition="!String.IsEmpty(ListItem.Rating)">$INFO[ListItem.Rating]</value>

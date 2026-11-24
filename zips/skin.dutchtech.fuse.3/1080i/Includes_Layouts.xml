@@ -1034,6 +1034,55 @@
         </definition>
     </include>
 
+    <include name="Layout_MediaList_Files">
+        <param name="selected">false</param>
+        <definition>
+            <control type="group">
+                <left>-20</left>
+                <right>20</right>
+                <height>80</height>
+                <include content="Object_Control" condition="$PARAM[selected]">
+                    <param name="control">image</param>
+                    <include>Texture_Menu_Highlight_H</include>
+                    <right>20</right>
+                    <height>80</height>
+                </include>
+                <control type="image">
+                    <left>30</left>
+                    <centertop>50%</centertop>
+                    <width>42</width>
+                    <height>42</height>
+                    <include content="Object_ColorDiffuse" condition="$PARAM[selected]">
+                        <param name="colordiffuse">$VAR[ColorSelected]</param>
+                    </include>
+                    <colordiffuse>main_fg_90</colordiffuse>
+                    <texture>$VAR[Image_MediaList_FileType]</texture>
+                    <aspectratio>keep</aspectratio>
+                </control>
+                <control type="label">
+                    <left>100</left>
+                    <right>40</right>
+                    <top>8</top>
+                    <height>40</height>
+                    <font>font_mini_bold</font>
+                    <label>$INFO[ListItem.Label]</label>
+                    <include condition="$PARAM[selected]">Color_SelectedText</include>
+                    <textcolor>main_fg_90</textcolor>
+                </control>
+                <control type="label">
+                    <left>100</left>
+                    <right>40</right>
+                    <top>45</top>
+                    <height>28</height>
+                    <font>font_mini</font>
+                    <label>$VAR[Label_MediaList_FileType]</label>
+                    <include condition="$PARAM[selected]">Color_SelectedText</include>
+                    <textcolor>main_fg_70</textcolor>
+                </control>
+            </control>
+        </definition>
+    </include>
+
     <include name="Layout_MediaList">
         <param name="detailed">false</param>
         <param name="selected">false</param>

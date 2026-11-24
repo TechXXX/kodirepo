@@ -19,31 +19,18 @@
 
     <!-- Media List -->
     <include name="View_507_Media_List">
-        <include content="View_MediaList_Include" condition="Window.IsVisible(videos)">
+        <include content="View_MediaList_Include">
             <param name="id">507</param>
             <param name="viewtype_label">$LOCALIZE[31479]</param>
             <param name="visible">$EXP[Exp_View_507]</param>
             <param name="left">0</param>
-            <param name="right">510</param>
-            <param name="top">130</param>
+            <param name="right">0</param>
+            <param name="top">-60</param>
             <param name="focusposition">1</param>
             <param name="movement">5</param>
             <param name="overlay">true</param>
             <param name="item_height">85</param>
-            <include>View_Media_Poster</include>
-        </include>
-        <include content="View_MediaList_Include" condition="!Window.IsVisible(videos)">
-            <param name="id">507</param>
-            <param name="viewtype_label">$LOCALIZE[31479]</param>
-            <param name="visible">$EXP[Exp_View_507]</param>
-            <param name="left">0</param>
-            <param name="right">692</param>
-            <param name="top">130</param>
-            <param name="focusposition">1</param>
-            <param name="movement">5</param>
-            <param name="overlay">true</param>
-            <param name="item_height">85</param>
-            <include>View_Media_Square</include>
+            <param name="itemlayout_include">Layout_MediaList_Files</param>
         </include>
     </include>
 
