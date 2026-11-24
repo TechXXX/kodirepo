@@ -1044,6 +1044,7 @@
                 <include content="Object_Control" condition="$PARAM[selected]">
                     <param name="control">image</param>
                     <include>Texture_Menu_Highlight_H</include>
+                    <left>60</left>
                     <right>20</right>
                     <height>80</height>
                 </include>
