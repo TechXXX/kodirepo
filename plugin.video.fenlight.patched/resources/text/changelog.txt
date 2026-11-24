@@ -1,3 +1,9 @@
+[COLOR dodgerblue][B]Version 2.0.142[/B][/COLOR]
+- Label the next-episode dialog's deferred action "Na afloop" and cancel it when playback is stopped before the end.
+
+[COLOR dodgerblue][B]Version 2.0.141[/B][/COLOR]
+- Show cleaner TorBox cloud rows and fetch a fresh cloud list when Cloud Storage opens.
+
 [COLOR dodgerblue][B]Version 2.0.140[/B][/COLOR]
 - Deliver the refined Dutch cloud SRT language check through the normal Kodi update mechanism.
 

@@ -114,12 +114,12 @@
                     <orientation>horizontal</orientation>
                     <itemgap>10</itemgap>
                     <control type="button" id="10">
-                        <description>Sluiten</description>
+                        <description>Volgende na afloop</description>
                         <width>220</width>
                         <height>60</height>
                         <onleft>12</onleft>
                         <onright>11</onright>
-                        <label>Sluiten</label>
+                        <label>Na afloop</label>
                         <scroll>false</scroll>
                         <font>font10</font> <!-- FENLIGHT_21 -->
                         <textcolor>FFCCCCCC</textcolor>

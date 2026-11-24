@@ -1246,7 +1246,14 @@ class Sources():
 					player.stop()
 					return True
 				else:
-					while player.isPlayingVideo(): sleep(100)
+					remaining_at_stop = None
+					while player.isPlayingVideo():
+						try: remaining_at_stop = max(0, total_time - player.getTime())
+						except: pass
+						sleep(100)
+					if remaining_at_stop is None or remaining_at_stop > 5:
+						logger('Fen Light Patched', 'Next episode after-close canceled because playback stopped early | remaining=%s' % remaining_at_stop)
+						return False
 					self._make_resolve_dialog()
 					return True
 			else: return False
