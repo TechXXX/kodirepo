@@ -2,7 +2,7 @@
   "min_kodi_version": "21.90.901",
   "addons": {
     "skin.dutchtech.fuse.3": {
-      "version": "3.2.9.38",
+      "version": "3.2.9.40",
       "kodi_dependency": "xbmc.gui",
       "minimum_dependency_version": "5.18.0"
     }
