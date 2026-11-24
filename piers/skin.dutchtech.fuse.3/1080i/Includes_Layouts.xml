@@ -1062,22 +1062,12 @@
                 <control type="label">
                     <left>100</left>
                     <right>40</right>
-                    <top>8</top>
-                    <height>40</height>
+                    <top>16</top>
+                    <height>48</height>
                     <font>font_mini_bold</font>
                     <label>$INFO[ListItem.Label]</label>
                     <include condition="$PARAM[selected]">Color_SelectedText</include>
                     <textcolor>main_fg_90</textcolor>
-                </control>
-                <control type="label">
-                    <left>100</left>
-                    <right>40</right>
-                    <top>45</top>
-                    <height>28</height>
-                    <font>font_mini</font>
-                    <label>$VAR[Label_MediaList_FileType]</label>
-                    <include condition="$PARAM[selected]">Color_SelectedText</include>
-                    <textcolor>main_fg_70</textcolor>
                 </control>
             </control>
         </definition>

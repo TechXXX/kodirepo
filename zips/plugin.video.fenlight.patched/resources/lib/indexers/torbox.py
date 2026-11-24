@@ -24,11 +24,11 @@ def _finished_cloud_items(items, media_type):
 
 def tb_cloud(fresh=False):
 	def _builder():
-		for count, item in enumerate(folders, 1):
+		for item in folders:
 			try:
 				cm = []
 				cm_append = cm.append
-				display = '%02d | [I]%s [/I]' % (count, clean_file_name(normalize(item['name'])).upper())
+				display = '[I]%s [/I]' % clean_file_name(normalize(item['name'])).upper()
 				url_params = {'mode': 'torbox.browse_tb_cloud', 'folder_id': item['id'], 'media_type': item['media_type']}
 				if str(fresh).lower() == 'true': url_params['fresh'] = 'true'
 				delete_params = {'mode': 'torbox.delete', 'folder_id': item['id'], 'media_type': item['media_type']}
@@ -67,17 +67,17 @@ def tb_cloud(fresh=False):
 	handle = int(sys.argv[1])
 	add_items(handle, list(_builder()))
 	set_content(handle, 'files')
-	end_directory(handle)
+	end_directory(handle, False)
 	set_view_mode('view.premium')
 
 def browse_tb_cloud(folder_id, media_type, fresh=False):
 	def _builder():
-		for count, item in enumerate(video_files, 1):
+		for item in video_files:
 			try:
 				cm = []
 				name = clean_file_name(item['short_name']).upper()
 				size = float(int(item['size']))/1073741824
-				display = '%02d | [B]FILE[/B] | %.2f GB | [I]%s [/I]' % (count, size, name)
+				display = '[B]FILE[/B] | %.2f GB | [I]%s [/I]' % (size, name)
 				url_link = '%d,%d' % (int(folder_id), item['id'])
 				url_params = {'mode': 'torbox.resolve_tb', 'play': 'true', 'url': url_link, 'media_type': item['media_type']}
 				down_file_params = {'mode': 'downloader.runner', 'name': name, 'url': url_link, 'media_type': item['media_type'], 'action': 'cloud.torbox', 'image': default_tb_icon}
@@ -109,7 +109,7 @@ def browse_tb_cloud(folder_id, media_type, fresh=False):
 	handle = int(sys.argv[1])
 	add_items(handle, list(_builder()))
 	set_content(handle, 'files')
-	end_directory(handle)
+	end_directory(handle, False)
 	set_view_mode('view.premium')
 
 def tb_delete(folder_id, media_type):

@@ -207,7 +207,7 @@ def routing(sys):
 	if 'torbox' in mode:
 		if mode == 'torbox.tb_cloud':
 			from indexers.torbox import tb_cloud
-			return tb_cloud(_get('fresh', 'false'))
+			return tb_cloud(_get('fresh', 'true'))
 		if mode == 'torbox.browse_tb_cloud':
 			from indexers.torbox import browse_tb_cloud
 			return browse_tb_cloud(_get('folder_id'), _get('media_type'), _get('fresh', 'false'))
