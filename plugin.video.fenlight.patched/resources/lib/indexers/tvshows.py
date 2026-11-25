@@ -167,6 +167,7 @@ class TVShows:
 				watched = watched_info_episode(tmdb_id, self.focus_db)
 				focus_season, focus_episode = get_next(*watched_target, watched, meta_get('season_data'), settings.nextep_method())
 			elif focus_target: focus_season, focus_episode = focus_target
+			elif total_seasons == 1 and total_aired_eps and not total_watched: focus_season, focus_episode = 1, 1
 			else: focus_season, focus_episode = None, None
 			if focus_season and focus_episode:
 				url_params = build_url({'mode': 'build_season_list', 'tmdb_id': tmdb_id,
