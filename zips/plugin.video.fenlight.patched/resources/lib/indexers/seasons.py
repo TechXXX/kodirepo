@@ -3,7 +3,7 @@ import sys
 from modules import kodi_utils, settings
 from modules.metadata import tvshow_meta
 from modules.utils import get_datetime, adjust_premiered_date, make_thread_list
-from modules.watched_status import get_database, watched_info_season, get_watched_status_season, get_progress_status_season
+from modules.watched_status import get_database, watched_info_season, get_watched_status_season, get_progress_status_season, get_bookmarks_episode
 # logger = kodi_utils.logger
 
 poster_empty, fanart_empty, xbmc_actor, set_category, home = kodi_utils.empty_poster, kodi_utils.addon_fanart(), kodi_utils.xbmc_actor, kodi_utils.set_category, kodi_utils.home
@@ -126,7 +126,13 @@ def build_season_list(params):
 	else:
 		season_data = [i for i in season_data if not i['season_number'] == 0]
 		season_data.sort(key=lambda k: k['season_number'])
-	watched_info = watched_info_season(tmdb_id, get_database(watched_indicators))
+	watched_db = get_database(watched_indicators)
+	watched_info = watched_info_season(tmdb_id, watched_db)
+	focus_params = params
+	if (total_seasons == 1 and meta_get('total_aired_eps') and not watched_info.get(1)
+			and 'focus_season' not in params and 'focus_episode' not in params
+			and not get_bookmarks_episode(tmdb_id, 1, watched_db)):
+		focus_params = dict(params, focus_season=1, focus_episode=1)
 	list_items = list(list(_process()))
 	if custom_order is not None: return (list_items[0], custom_order)
 	add_items(handle, list_items)
@@ -135,7 +141,7 @@ def build_season_list(params):
 	set_category(handle, category_name)
 	end_directory(handle, cacheToDisc=False if is_external else True)
 	set_view_mode(view_mode, content_type, is_external)
-	_focus_continue_episode(params, tmdb_id, season_data)
+	_focus_continue_episode(focus_params, tmdb_id, season_data)
 
 def single_seasons(seasons_list):
 	def _process(item): season_results_append(build_season_list(item))

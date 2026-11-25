@@ -1,4 +1,4 @@
-<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.143">
+<addon id="plugin.video.fenlight.patched" name="Fen Light Patched" provider-name="DutchTech" version="2.0.144">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -22,7 +22,10 @@
             <icon>resources/media/baslite_icon_blue.png</icon>
             <fanart>resources/media/fenlight_fanart2.jpg</fanart>
         </assets>
-        <news>[v2.0.143]:
+        <news>[v2.0.144]:
+  * Highlight episode 1 even when an unwatched single-season show opens from an older widget link.
+
+[v2.0.143]:
   * Highlight episode 1 when opening a new, unwatched single-season show.
 
 [v2.0.142]:
