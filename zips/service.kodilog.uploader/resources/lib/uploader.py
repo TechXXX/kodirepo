@@ -132,9 +132,31 @@ class UploadResult(object):
         self.upload_id = upload_id
 
 
+def enabled_addon_ids():
+    """Return the ids of installed, enabled add-ons, or None if Kodi can't say."""
+    if xbmc is None:
+        return None
+    try:
+        request = {"jsonrpc": "2.0", "method": "Addons.GetAddons",
+                   "params": {"installed": True, "enabled": True}, "id": 1}
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+        result = response.get("result")
+        if not isinstance(result, dict):
+            return None
+        return set(item.get("addonid") for item in result.get("addons") or [])
+    except Exception:
+        return None
+
+
 def get_addon(addon_id=ADDON_ID):
     if xbmcaddon is None:
         return None
+    if addon_id != ADDON_ID:
+        # xbmcaddon.Addon() makes Kodi log "EXCEPTION: Unknown addon id" for
+        # missing or disabled add-ons even when we catch it, so check first.
+        enabled = enabled_addon_ids()
+        if enabled is not None and addon_id not in enabled:
+            return None
     try:
         return xbmcaddon.Addon(addon_id)
     except Exception:

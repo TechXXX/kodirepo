@@ -1446,7 +1446,7 @@ v0.2.3
 - Add a Kodi settings action button to start Google Drive pairing directly from the add-on UI</news>
         </extension>
     </addon>
-    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.13" provider-name="DutchTech">
+    <addon id="service.kodilog.uploader" name="Kodi Log Uploader" version="0.1.14" provider-name="DutchTech">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -1464,7 +1464,10 @@ v0.2.3
                 <icon>resources/icon.png</icon>
                 <fanart>resources/fanart.jpg</fanart>
             </assets>
-            <news>v0.1.13
+            <news>v0.1.14
+- Check enabled add-ons before reading their details, so missing or disabled optional add-ons no longer log "Unknown addon id" errors.
+
+v0.1.13
 - Include Kodi's live add-on update mode in uploaded diagnostics.
 
 v0.1.12
