@@ -142,10 +142,20 @@ def translated_subtitle_notification_text(is_ai_translated=True, is_machine_tran
     translation_label = 'AI-translated' if is_ai_translated else 'machine-translated'
     return 'Selected subtitle is %s' % translation_label
 
-def gpt_translated_notification_text():  # pragma: no cover
+def ai_model_display_name(model):
+    """Turn an API model id such as gpt-6-luna or gpt-4.1-mini-2025-04-14 into 'GPT-6 Luna' / 'GPT-4.1 Mini'."""
+    import re
+    name = re.sub(r'-\d{4}-\d{2}-\d{2}$', '', str(model or '').strip())
+    parts = [part for part in name.split('-') if part]
+    if len(parts) >= 2 and parts[0].lower() == 'gpt':
+        return ' '.join(['GPT-' + parts[1]] + [part.capitalize() for part in parts[2:]])
+    return name or 'AI'
+
+def gpt_translated_notification_text(model=None):  # pragma: no cover
+    label = ai_model_display_name(model)
     if fenlight_ui_language() == 'nl':
-        return 'GPT4 live vertaald'
-    return 'GPT4 Translated'
+        return '%s live vertaald' % label
+    return '%s Translated' % label
 
 def get_progress_dialog():  # pragma: no cover
     wrapper = lambda: None

@@ -11,7 +11,7 @@ from PySubtitle.SubtitleError import ProviderError
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
-FORCED_OPENAI_MODEL = "gpt-4.1-mini-2025-04-14"
+FORCED_OPENAI_MODEL = "gpt-6-luna"
 
 class OpenAiProvider(TranslationProvider):
     name = "OpenAI"
@@ -57,7 +57,8 @@ class OpenAiProvider(TranslationProvider):
 
         self.valid_model_types = [ "gpt", "o1", "o3" ]
         self.excluded_model_types = [ "vision", "realtime", "audio" ]
-        self.reasoning_models = [ "o1","o3","o4","o5" ]
+        # GPT-5 and later are reasoning models: they take reasoning_effort and reject a custom temperature.
+        self.reasoning_models = [ "o1","o3","o4","o5","gpt-5","gpt-6" ]
 
     @property
     def api_key(self):

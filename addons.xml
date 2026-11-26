@@ -1510,7 +1510,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.59" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.60" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1535,6 +1535,10 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.60]:
+  * Translate subtitles with gpt-6-luna instead of gpt-4.1-mini; in a full-movie test it translated every line with more natural Dutch.
+  * Show the actual model in the translation notification, for example "GPT-6 Luna live vertaald".
+
 [v3.23.59]:
   * Retry AI subtitle batches after timeouts, dropped connections, server errors and rate limits; skip a still-failing batch and try it again later instead of ending the translation.
   * Keep subtitle text out of the Kodi log; unmatched-cue diagnostics now report cue numbers and match facts only.

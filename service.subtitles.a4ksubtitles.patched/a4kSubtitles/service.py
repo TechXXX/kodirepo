@@ -13,7 +13,7 @@ selector_source_key_prop = 'subs.selector_source_key'
 selector_payload_prop = 'subs.selector_payload'
 selector_player_filename_prop = 'subs.player_filename'
 selector_playback_url_prop = 'subs.selector_playback_url'
-OPENAI_TRANSLATION_MODEL = 'gpt-4.1-mini-2025-04-14'
+OPENAI_TRANSLATION_MODEL = 'gpt-6-luna'
 
 # Both retiming the selected subtitle and replacing it with an alternative
 # change what Kodi renders. Require the same evidence for either operation.
@@ -1137,7 +1137,7 @@ def start(api):
             if notification_state['shown']:
                 return
             notification_state['shown'] = True
-            core.kodi.notification(core.kodi.gpt_translated_notification_text(), time=4000)
+            core.kodi.notification(core.kodi.gpt_translated_notification_text(ai_model), time=4000)
 
         def cleanup_live_partial_files(keep_file=''):
             try:

@@ -1,6 +1,11 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.60:
+  * Pin OpenAI subtitle translation to `gpt-6-luna` in `service.py`, `gptsubtrans/__init__.py` and `Provider_OpenAI.py`; on the same full movie it translated all 3,387 cues, where `gpt-4.1-mini-2025-04-14` left one blank.
+  * Route GPT-5 and later models through the reasoning client (`reasoning_effort=low`) and send `temperature` only when a caller passes one, since these models reject a custom temperature.
+  * Build the translation notification from the model name (`GPT-6 Luna Translated` / `GPT-6 Luna live vertaald`) and update the settings label.
+
 * v3.23.59:
   * Retry the AI provider after timeouts, dropped connections, HTTP 5xx/408/409/425 and rate limits (waits capped at 60 seconds); bad keys, bad requests and exhausted quota still stop at once.
   * Skip a batch the provider cannot be reached for and retry it once later in the run; stop only after five unreachable batches in a row.

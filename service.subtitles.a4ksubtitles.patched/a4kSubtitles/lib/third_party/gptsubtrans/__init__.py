@@ -9,7 +9,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.TranslationProvider import TranslationProvider
 
-FORCED_OPENAI_MODEL = "gpt-4.1-mini-2025-04-14"
+FORCED_OPENAI_MODEL = "gpt-6-luna"
 
 def translate(
     input_file,
@@ -17,7 +17,7 @@ def translate(
     output_file,
     api_key=None,
     provider="OpenAI",
-    model="gpt-4.1-mini-2025-04-14",
+    model="gpt-6-luna",
     moviename=None,
     scene_threshold=60.0,
     min_batch_size=1,

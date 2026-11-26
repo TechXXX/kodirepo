@@ -231,10 +231,16 @@ Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved
 `general.use_ai=true` value when no API key is configured.
 
-The OpenAI translation model is pinned to `gpt-4.1-mini-2025-04-14`, chosen as
-a lower-cost GPT-4.1-family snapshot for full-file subtitle translation. If an
-older Kodi profile still has a saved full `gpt-4.1-2025-04-14` setting, the
-service rewrites that setting back to mini before translating.
+The OpenAI translation model is pinned to `gpt-6-luna` in three places that
+must agree: `OPENAI_TRANSLATION_MODEL` in `a4kSubtitles/service.py`,
+`FORCED_OPENAI_MODEL` in `gptsubtrans/__init__.py`, and `FORCED_OPENAI_MODEL` in
+`PySubtitle/Providers/Provider_OpenAI.py`. A saved `general.ai_model` value is
+rewritten to the pin before translating. In a full-movie comparison on the same
+English file, `gpt-6-luna` translated all 3,387 cues with no gaps and more
+natural Dutch, where `gpt-4.1-mini-2025-04-14` left one cue blank. GPT-5 and
+later models run through the reasoning client with `reasoning_effort=low`; they
+reject a custom temperature, so `MinimalOpenAIClient` only sends `temperature`
+when a caller passes one. Their wording varies between runs.
 
 The bundled GPT subtitle translator is kept compatible with Kodi Windows
 builds that still run Python `3.8.15`; modern translator annotations are
@@ -250,7 +256,8 @@ translated coverage, then overwrites that same live file with the complete
 translation when finished. Translated filenames use the target language suffix,
 for example `.translated.live.nld.srt`, so Kodi labels the external stream as
 Dutch rather than English. When the translated fallback is attached, a4k shows
-the `GPT4 Translated` notification.
+a notification naming the model, for example `GPT-6 Luna Translated`
+(`GPT-6 Luna live vertaald` in Dutch).
 
 The slow remote-embedded-subtitle extraction experiment is intentionally not a
 runtime fallback anymore.

@@ -14,14 +14,16 @@ class MinimalOpenAIClient:
             "Content-Type": "application/json"
         })
 
-    def chat_completion(self, model, messages, temperature=0.0, **kwargs):
+    def chat_completion(self, model, messages, temperature=None, **kwargs):
         url = f"{self.api_base}/chat/completions"
         payload = {
             "model": model,
             "messages": messages,
-            "temperature": temperature,
             **kwargs
         }
+        # Reasoning models only accept their default temperature, so send one only when asked.
+        if temperature is not None:
+            payload["temperature"] = temperature
         try:
             resp = self.session.post(url, json=payload, timeout=self.timeout)
             resp.raise_for_status()
