@@ -1,6 +1,11 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.59:
+  * Retry the AI provider after timeouts, dropped connections, HTTP 5xx/408/409/425 and rate limits (waits capped at 60 seconds); bad keys, bad requests and exhausted quota still stop at once.
+  * Skip a batch the provider cannot be reached for and retry it once later in the run; stop only after five unreachable batches in a row.
+  * Remove subtitle text from log output; unmatched-cue diagnostics log cue numbers, timing, word count, `duplicate_source` and nearby cue numbers.
+
 * v3.23.58:
   * Repackage the tested playback-aware AI subtitle translation and cue-number recovery changes.
 

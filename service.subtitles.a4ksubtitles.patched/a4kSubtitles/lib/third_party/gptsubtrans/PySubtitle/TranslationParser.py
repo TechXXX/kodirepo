@@ -182,12 +182,7 @@ class TranslationParser:
         return matched, unmatched
 
     def LogUnmatchedLines(self, originals : list[SubtitleLine], unmatched : list[SubtitleLine]):
-        """Log a small, URL-redacted sample of the source and parsed response."""
-        def excerpt(value):
-            text = re.sub(r"https?://\S+", "<URL>", str(value or ""), flags=re.IGNORECASE)
-            text = " ".join(text.split())
-            return text[:160] + ("..." if len(text) > 160 else "")
-
+        """Log cue numbers and match facts only; subtitle text never goes into the log."""
         def line_number(line):
             try:
                 return int(line.number)
@@ -210,13 +205,15 @@ class TranslationParser:
                 if number is not None and line_number(line) is not None
                 and abs(line_number(line) - number) <= 2
             ][:5]
+            # Repeated source text (e.g. "Yes.") is ambiguous, so it is never matched by text.
+            duplicate_source = sum(
+                1 for source in originals if IsTextContentEqual(source.text, item.text)
+            ) > 1
             logging.warning(
-                "AI subtitle unmatched cue: number=%s start=%s source=%r fuzzy=%r nearby=%s"
-                % (item.number, item.srt_start, excerpt(item.text),
-                   excerpt(item.translation), [
-                       (line.number, excerpt(line.original), excerpt(line.text))
-                       for line in nearby
-                   ])
+                "AI subtitle unmatched cue: number=%s start=%s words=%d duplicate_source=%s fuzzy_found=%s nearby_numbers=%s"
+                % (item.number, item.srt_start, len(str(item.text or "").split()),
+                   duplicate_source, bool(item.translation),
+                   [line.number for line in nearby])
             )
 
     def TryFuzzyMatches(self, unmatched : list [SubtitleLine]):

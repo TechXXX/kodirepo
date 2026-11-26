@@ -12,7 +12,7 @@ try:
     from .MinimalOpenAIClient import MinimalOpenAIClient
 
     from PySubtitle.Helpers import FormatMessages
-    from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
+    from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationProviderUnavailableError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -79,49 +79,86 @@ try:
             # MinimalOpenAIClient does not require explicit close
             return super()._abort()
         
+        # HTTP statuses worth retrying: request timeout, conflict, too early and server-side failures.
+        TRANSIENT_STATUS_CODES = (408, 409, 425)
+        MAX_RETRY_DELAY = 60.0
+        # Give up on the whole file only after this many batches in a row could not reach the provider.
+        MAX_CONSECUTIVE_UNAVAILABLE = 5
+
         def _try_send_messages(self, prompt : TranslationPrompt, temperature: float):
-            for retry in range(self.max_retries + 1):
+            last_error = None
+            for retry in range(int(self.max_retries) + 1):
                 if self.aborted:
                     return None
 
-                backoff_time = self.backoff_time * 2.0**retry
+                backoff_time = min(self.backoff_time * 2.0**retry, self.MAX_RETRY_DELAY)
 
                 try:
                     if not self.client or not self.reuse_client:
                         self._create_client()
 
                     response = self._send_messages(prompt.content, temperature)
+                    self._consecutive_unavailable = 0
                     return response
-                
-                except TranslationResponseError as e:
-                    if retry < self.max_retries and not self.aborted:
-                        logging.warning(f"{str(e)}, retrying in {backoff_time} seconds...")
-                        time.sleep(backoff_time)
-                        continue
+
+                except TranslationImpossibleError:
+                    raise
 
                 except Exception as e:
-                    # Handle HTTP errors from MinimalOpenAIClient
-                    if hasattr(e, 'response') and hasattr(e.response, 'status_code'):
-                        if e.response.status_code == 429 and not self.aborted:
-                            retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
-                            if retry_after:
-                                backoff_time = ParseDelayFromHeader(retry_after)
-                                logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
-                                time.sleep(backoff_time)
-                                continue
-                            else:
-                                raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
-                    raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
+                    last_error = e
+                    status = getattr(getattr(e, 'response', None), 'status_code', None)
 
+                    if status == 429:
+                        if self._is_quota_exhausted(e.response):
+                            raise TranslationImpossibleError("Account quota reached, please upgrade your plan or wait until it renews", error=e)
+                        retry_after = e.response.headers.get('Retry-After') or e.response.headers.get('x-ratelimit-reset-requests')
+                        if retry_after:
+                            backoff_time = min(ParseDelayFromHeader(retry_after), self.MAX_RETRY_DELAY)
+                        reason = "Rate limit hit"
+                    elif status is not None and not (status >= 500 or status in self.TRANSIENT_STATUS_CODES):
+                        # Bad key, bad model or bad request: retrying cannot help.
+                        raise TranslationImpossibleError(f"Provider rejected the request (HTTP {status})", error=e)
+                    elif status is not None:
+                        reason = f"Provider error (HTTP {status})"
+                    elif isinstance(e, (TranslationResponseError, ValueError, OSError)) or self._is_network_error(e):
+                        # Timeouts, dropped connections and unreadable responses (JSONDecodeError is a ValueError).
+                        reason = f"Provider unreachable ({type(e).__name__})"
+                    else:
+                        raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
 
-                except JSONDecodeError as e:
                     if retry < self.max_retries and not self.aborted:
-                        logging.warning(f"Invalid response received, retrying in {backoff_time} seconds...")
+                        logging.warning(f"{reason}, retrying in {backoff_time:.0f} seconds...")
                         time.sleep(backoff_time)
                         continue
 
-            if not self.aborted:
-                raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+            if self.aborted:
+                return None
+
+            self._consecutive_unavailable = getattr(self, '_consecutive_unavailable', 0) + 1
+            if self._consecutive_unavailable >= self.MAX_CONSECUTIVE_UNAVAILABLE:
+                raise TranslationImpossibleError(
+                    f"Provider unreachable for {self._consecutive_unavailable} batches in a row, stopping translation",
+                    error=last_error)
+            raise TranslationProviderUnavailableError(
+                f"Provider unreachable after {int(self.max_retries) + 1} attempts ({type(last_error).__name__}), skipping batch for now",
+                error=last_error)
+
+        @staticmethod
+        def _is_network_error(error):
+            try:
+                import requests
+                return isinstance(error, (requests.ConnectionError, requests.Timeout))
+            except ImportError:
+                return False
+
+        @staticmethod
+        def _is_quota_exhausted(response):
+            try:
+                body = response.json()
+                code = (body.get('error') or {}).get('code') or (body.get('error') or {}).get('type')
+                return code == 'insufficient_quota'
+            except Exception:
+                return False
 
         def _create_client(self):
             # Proxy support can be added to MinimalOpenAIClient if needed

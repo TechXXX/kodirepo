@@ -42,6 +42,11 @@ class TranslationImpossibleError(TranslationError):
     def __init__(self, message, error = None):
         super().__init__(message, error)
 
+class TranslationProviderUnavailableError(TranslationError):
+    """ The provider could not be reached for this batch; a later attempt may succeed """
+    def __init__(self, message, error = None):
+        super().__init__(message, error=error)
+
 class TranslationResponseError(TranslationError):
     def __init__(self, message, response):
         super().__init__(message)

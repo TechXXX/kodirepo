@@ -190,6 +190,6 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
             end = srt.srt_timestamp_to_timedelta(raw_end)
             item = srt.Subtitle(index, start, end, content, proprietary)
         elif item is not None:
-            logging.warning(f"Failed to parse line: {line}")
+            logging.warning(f"Failed to parse subtitle line ({len(str(line or ''))} characters)")
 
     return item

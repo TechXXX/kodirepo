@@ -221,7 +221,11 @@ live Dutch subtitle file refreshes after a seek while the remaining batches
 continue in the background. When a response has wrong cue numbers, a4k uses
 unique echoed source text to restore numbers and timing. Unresolved batches
 are retried once; remaining gaps are logged while translation continues, and
-the completion log reports how many batches fully translated.
+the completion log reports how many batches fully translated. Timeouts,
+dropped connections, server errors and rate limits are retried with backoff; a
+batch that still cannot reach the provider is skipped and retried once later,
+and translation stops only after five unreachable batches in a row. Logs carry
+cue numbers and match facts only, never subtitle text.
 
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved

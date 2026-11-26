@@ -83,6 +83,20 @@ class AiTranslationRecoveryTests(unittest.TestCase):
         self.assertEqual([1679], [line.number for line in batch.translated])
         self.assertTrue(batch.errors)
 
+    def test_unmatched_cue_diagnostics_log_numbers_only(self):
+        with self.assertLogs(level='WARNING') as captured:
+            batch = self.process_batch(
+                [(1678, 'Secret alpha words'), (1679, 'Hidden bravo'), (1698, 'Secret alpha words')],
+                '#1678\nOriginal>\nSecret alpha words\nTranslation>\nGeheime alfa woorden\n\n'
+                '#1679\nOriginal>\nHidden bravo\nTranslation>\nVerborgen bravo\n',
+            )
+        log = '\n'.join(captured.output)
+        self.assertFalse(batch.all_translated)
+        for text in ('Secret', 'alpha', 'Hidden', 'Geheime', 'Verborgen'):
+            self.assertNotIn(text, log)
+        self.assertIn('AI subtitle unmatched cue: number=1698', log)
+        self.assertIn('duplicate_source=True', log)
+
     def test_full_file_follows_resume_and_seeks_then_saves_every_cue(self):
         class FakeProvider:
             validation_message = ''

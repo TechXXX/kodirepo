@@ -277,10 +277,15 @@ def translate(
 
     # Progress reporting and batch translation
     orig_translate_batch = translator.TranslateBatch
-    progress = {'current': 0}
+    progress = {'current': 0, 'attempted': set()}
     def progress_translate_batch(batch, line_numbers, context):
-        progress['current'] += 1
-        log(f"Translating batch {progress['current']} of {total_batches} (scene {batch.scene}, batch {batch.number})...")
+        batch_key = (batch.scene, batch.number)
+        if batch_key in progress['attempted']:
+            log(f"Retrying batch (scene {batch.scene}, batch {batch.number}) after a provider error...")
+        else:
+            progress['attempted'].add(batch_key)
+            progress['current'] += 1
+            log(f"Translating batch {progress['current']} of {total_batches} (scene {batch.scene}, batch {batch.number})...")
         result = orig_translate_batch(batch, line_numbers, context)
         try:
             subtitles.SaveTranslation(output_file)

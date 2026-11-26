@@ -16,7 +16,7 @@ from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
-from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError, TranslationProviderUnavailableError
 from PySubtitle.Helpers import FormatErrorMessages
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
@@ -109,12 +109,21 @@ class SubtitleTranslator:
         selector = getattr(self, 'batch_selector', None)
         if selector:
             pending = [(scene, batch) for scene in subtitles.scenes for batch in scene.batches]
+            requeued = set()
             while pending:
                 if self.aborted or (self.max_lines and self.lines_processed >= self.max_lines):
                     break
                 selected_index = selector(pending)
                 scene, batch = pending.pop(selected_index)
                 self.TranslateScene(subtitles, scene, batch_numbers=[batch.number])
+                # A batch skipped because the provider was unreachable gets one more attempt later.
+                batch_key = (scene.number, batch.number)
+                if batch_key not in requeued and any(
+                    isinstance(error, TranslationProviderUnavailableError) for error in (batch.errors or [])
+                ):
+                    requeued.add(batch_key)
+                    pending.append((scene, batch))
+                    logging.warning(f"Scene {scene.number} batch {batch.number} will be retried later")
                 if self.errors and self.stop_on_error:
                     logging.error(f"Failed to translate scene {scene.number}... stopping translation")
                     return
@@ -152,8 +161,7 @@ class SubtitleTranslator:
 
         if untranslated and not self.max_lines:
             logging.warning(f"Failed to translate {len(untranslated)} lines:")
-            for line in untranslated:
-                logging.info(f"Untranslated > {line.number}. {line.text}")
+            logging.info(f"Untranslated cue numbers: {[line.number for line in untranslated[:50]]}")
 
         subtitles.originals = originals
         subtitles.translated = translations
