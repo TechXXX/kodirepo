@@ -223,6 +223,8 @@ _DUTCH = {
 	'In Trakt Lists': 'In Trakt-lijsten',
 	'Trakt Lists Manager': 'Trakt-lijsten beheren',
 	'Favorites Manager': 'Favorieten beheren',
+	'Check for Kodi Updates': 'Controleren op Kodi-updates',
+	'Checking for Kodi Updates': 'Controleren op Kodi-updates...',
 	'Mark Watched': 'Als bekeken markeren',
 	'Mark Unwatched': 'Als onbekeken markeren',
 	'Clear Progress': 'Voortgang wissen',

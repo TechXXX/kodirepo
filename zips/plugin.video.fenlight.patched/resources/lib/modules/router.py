@@ -265,6 +265,9 @@ def routing(sys):
 	if mode == 'kodi_refresh':
 		from modules.kodi_utils import kodi_refresh
 		return kodi_refresh()
+	if mode == 'check_kodi_updates':
+		from modules.kodi_utils import check_kodi_updates
+		return check_kodi_updates()
 	if mode == 'refresh_widgets':
 		from modules.kodi_utils import refresh_widgets
 		return refresh_widgets(_get('show_notification', 'false'))

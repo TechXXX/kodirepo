@@ -165,7 +165,7 @@ class Movies:
 			movieset_active = self.open_movieset and belongs_to_movieset == 'true'
 			if self.open_extras or movieset_active: cm_append(('[B]Playback[/B]', run_plugin % play_params))
 			if not self.open_extras or movieset_active: cm_append(('[B]Extras[/B]', run_plugin % extras_params))
-			cm.insert(1, ('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': title, 'title': title, 'path': play_params, 'thumb': poster, 'media_type': 'movie', 'tmdb_id': tmdb_id})))
+			cm.insert(0, ('[B]Add to favourites[/B]', run_plugin % build_url({'mode': 'kodi_favourites.add', 'name': title, 'title': title, 'path': play_params, 'thumb': poster, 'media_type': 'movie', 'tmdb_id': tmdb_id})))
 			try:
 				rescrape_index = [i[0] for i in cm].index('[B]Extras[/B]') + 1
 				cm.insert(rescrape_index, ('[B]Rescrape & Select Source[/B]', run_plugin % rescrape_params))
@@ -176,6 +176,7 @@ class Movies:
 			else: url_params = play_params
 			cm_append(('[B]Options[/B]', run_plugin % options_params))
 			cm_append(('[B]Playback Options[/B]', run_plugin % build_url({'mode': 'playback_choice', 'media_type': 'movie', 'meta': tmdb_id})))
+			cm_append(('[B]Check for Kodi Updates[/B]', run_plugin % build_url({'mode': 'check_kodi_updates'})))
 			if belongs_to_movieset == 'true' and not self.movieset_list_active and not self.open_movieset:
 				cm_append(('[B]Browse Movie Set[/B]', self.window_command % \
 					build_url({'mode': 'build_movie_list', 'action': 'tmdb_movies_sets', 'key_id': movieset_id, 'name': movieset_name})))

@@ -381,6 +381,10 @@ def reload_skin():
 def kodi_refresh():
 	execute_builtin('UpdateLibrary(video,special://skin/foo)')
 
+def check_kodi_updates():
+	notification('Checking for Kodi Updates', 3000)
+	execute_builtin('UpdateAddonRepos')
+
 def refresh_widgets(show_notification='false'):
 	set_property('fenlight.refresh_widgets', 'true')
 	sleep(250)
