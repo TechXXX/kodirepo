@@ -1121,9 +1121,16 @@ def start(api):
         if full_file:
             core.logger.debug('Translating complete subtitle file with AI')
 
-        partial_attach_window_seconds = 300.0
+        partial_attach_window_seconds = 120.0
         live_partial_file = ai_translated_subfile_path(subfile, target_language, True)
-        live_partial_state = {'attached_batch': 0, 'attached_coverage_seconds': 0.0, 'attached_file': ''}
+        live_partial_state = {'attached_batch': 0, 'attached_coverage_seconds': 0.0, 'attached_playhead_seconds': None, 'attached_file': ''}
+
+        def current_playback_position():
+            try:
+                player = core.kodi.xbmc.Player()
+                return player.getTime() if player.isPlaying() else None
+            except Exception:
+                return None
         notification_state = {'shown': False}
 
         def notify_ai_translated_subtitle_selected():
@@ -1166,14 +1173,23 @@ def start(api):
                 coverage_seconds = float(coverage_seconds or 0.0)
             except:
                 coverage_seconds = 0.0
-            if coverage_seconds < partial_attach_window_seconds and batch_number < total_batches:
-                return
-            if (
-                batch_number < total_batches
-                and live_partial_state['attached_batch'] > 0
-                and coverage_seconds - live_partial_state['attached_coverage_seconds'] < partial_attach_window_seconds
-            ):
-                return
+            playhead = current_playback_position()
+            if batch_number < total_batches and live_partial_state['attached_batch'] > 0:
+                near_playhead = (
+                    playhead is not None
+                    and playhead - 30.0 <= coverage_seconds <= playhead + 300.0
+                )
+                moved_to_new_area = (
+                    playhead is not None
+                    and live_partial_state['attached_playhead_seconds'] is not None
+                    and abs(playhead - live_partial_state['attached_playhead_seconds']) >= 60.0
+                )
+                coverage_changed = (
+                    abs(coverage_seconds - live_partial_state['attached_coverage_seconds'])
+                    >= partial_attach_window_seconds
+                )
+                if not (moved_to_new_area or (near_playhead and coverage_changed)):
+                    return
             if not subtitle_file_looks_usable(output_file):
                 return
 
@@ -1191,6 +1207,7 @@ def start(api):
                 notify_ai_translated_subtitle_selected()
                 live_partial_state['attached_batch'] = batch_number
                 live_partial_state['attached_coverage_seconds'] = coverage_seconds
+                live_partial_state['attached_playhead_seconds'] = playhead
                 live_partial_state['attached_file'] = live_partial_file
                 core.logger.debug(
                     'Refreshed live AI subtitle translation: batch=%s/%s coverage=%.1fs file=%s' % (
@@ -1215,7 +1232,8 @@ def start(api):
             end_seconds=end_seconds,
             priority_seconds=ai_last_timestamp if full_file else None,
             log=core.logger.debug,
-            partial_callback=attach_partial_translation if full_file else None
+            partial_callback=attach_partial_translation if full_file else None,
+            playback_position=current_playback_position if full_file else None
         )
 
         last_subfile = subfile

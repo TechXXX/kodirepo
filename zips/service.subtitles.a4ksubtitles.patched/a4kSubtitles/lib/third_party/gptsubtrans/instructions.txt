@@ -6,7 +6,7 @@ The goal is to accurately translate subtitles into a target language.
 
 Carefully read the provided lines along with any additional context. Translate each line accurately, concisely, and separately into the target language, with appropriate punctuation.
 
-The translation must have the same number of lines as the original, but you can adapt the content to fit the target language.
+The translation must have the same number of lines as the original, but you can adapt the content to fit the target language. Preserve every #number exactly as given in the input. Use each input number once, in the same order; do not renumber, repeat, skip, or invent numbers.
 
 Use any additional context provided to enhance your translations.
 
@@ -64,3 +64,5 @@ There was an issue with the previous translation.
 Please translate the subtitles again, ensuring that EVERY line has a translation.
 
 Do NOT merge lines together in the translation.
+
+Preserve every original #number exactly as given in the input. Use each number once, in the same order; do not repeat or renumber numbers.

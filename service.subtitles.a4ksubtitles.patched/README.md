@@ -214,6 +214,15 @@ source-matched English OpenSubtitles result during its final pre-play fallback,
 and handed that exact external subtitle to a4k. a4k downloads the complete SRT,
 translates the complete file, and then attaches the translated file.
 
+For a full-file AI fallback, translation starts near the current play position.
+After each batch, it chooses the next untranslated batch near Kodi's current
+position, so seeking or resuming elsewhere moves that area to the front. The
+live Dutch subtitle file refreshes after a seek while the remaining batches
+continue in the background. When a response has wrong cue numbers, a4k uses
+unique echoed source text to restore numbers and timing. Unresolved batches
+are retried once; remaining gaps are logged while translation continues, and
+the completion log reports how many batches fully translated.
+
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved
 `general.use_ai=true` value when no API key is configured.

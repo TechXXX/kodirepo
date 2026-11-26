@@ -74,6 +74,9 @@ class TranslationParser:
         logging.debug(f"Matches: {str(matches)}")
 
         subs = [SubtitleLine.FromDictionary(match) for match in matches]
+        # Keep every parsed cue: a repeated or wrong model-supplied number must not
+        # discard a distinct cue before its echoed source text can identify it.
+        self.parsed_lines = subs
         self.translations = {
             sub.key: sub for sub in subs
             }
@@ -104,41 +107,117 @@ class TranslationParser:
             } for match in template.finditer(text)]
 
     def MatchTranslations(self, originals : list[SubtitleLine]):
-        """
-        Match lines in the translation with the original subtitles
-        """
+        """Match response cues to source cues without trusting incorrect numbers."""
         if not originals:
             raise ValueError("Original subtitles not provided")
 
-        matched = []
-        unmatched = []
+        candidates = list(getattr(self, 'parsed_lines', self.translations.values()))
+        remaining = list(candidates)
+        assigned = {}
 
+        def assign(item, candidate, reason):
+            supplied_number = candidate.number
+            if candidate.original and IsTextContentEqual(candidate.text, item.text):
+                # Some responses put the English source under Translation>.
+                candidate.text, candidate.original = candidate.original, item.text
+            candidate.number = item.number
+            candidate.start = item.start
+            candidate.end = item.end
+            item.translation = candidate.text
+            assigned[id(item)] = candidate
+            remaining[:] = [other for other in remaining if other is not candidate]
+            if supplied_number != item.number:
+                logging.warning(
+                    "Recovered AI subtitle cue number %s as %s using %s"
+                    % (supplied_number, item.number, reason)
+                )
+
+        # The model usually echoes Original>. Match unique source text first, so a
+        # wrong number inside this batch cannot steal another cue's translation.
         for item in originals:
-            translation = self.translations.get(item.key)
-            if translation:
-                translation.number = item.number
-                translation.start = item.start
-                translation.end = item.end
+            source_matches = [
+                source for source in originals
+                if IsTextContentEqual(source.text, item.text)
+            ]
+            text_matches = [
+                candidate for candidate in remaining
+                if candidate.original and IsTextContentEqual(candidate.original, item.text)
+            ]
+            if len(source_matches) == 1 and len(text_matches) == 1:
+                assign(item, text_matches[0], 'echoed source text')
 
-                if translation.original and IsTextContentEqual(translation.text, item.text):
-                    # Check for swapped original & translation
-                    translation.text = translation.original
-                    translation.original = item.text
+        # Fall back to the supplied number only when it is unique and its echoed
+        # source, if present, does not contradict the numbered source cue.
+        for item in originals:
+            if id(item) in assigned:
+                continue
+            number_matches = [
+                candidate for candidate in remaining
+                if candidate.number == item.number
+            ]
+            if len(number_matches) != 1:
+                continue
+            candidate = number_matches[0]
+            if candidate.original and not (
+                IsTextContentEqual(candidate.original, item.text)
+                or IsTextContentEqual(candidate.text, item.text)
+            ):
+                continue
+            assign(item, candidate, 'unique cue number')
 
-                item.translation = translation.text
-                matched.append(translation)
-
-            else:
-                item.translation = None
-                unmatched.append(item)
+        matched = [assigned[id(item)] for item in originals if id(item) in assigned]
+        unmatched = [item for item in originals if id(item) not in assigned]
+        for item in unmatched:
+            item.translation = None
 
         if unmatched:
             self.TryFuzzyMatches(unmatched)
-
-        if unmatched:
-            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched, translation=translation))
+            self.LogUnmatchedLines(originals, unmatched)
+            self.errors.append(UntranslatedLinesError(
+                f"No translation found for {len(unmatched)} lines",
+                lines=unmatched,
+                translation=candidates[0] if candidates else None,
+            ))
 
         return matched, unmatched
+
+    def LogUnmatchedLines(self, originals : list[SubtitleLine], unmatched : list[SubtitleLine]):
+        """Log a small, URL-redacted sample of the source and parsed response."""
+        def excerpt(value):
+            text = re.sub(r"https?://\S+", "<URL>", str(value or ""), flags=re.IGNORECASE)
+            text = " ".join(text.split())
+            return text[:160] + ("..." if len(text) > 160 else "")
+
+        def line_number(line):
+            try:
+                return int(line.number)
+            except (TypeError, ValueError):
+                return None
+
+        returned = list(getattr(self, 'parsed_lines', self.translations.values()))
+        expected_numbers = {line_number(line) for line in originals}
+        returned_numbers = {line_number(line) for line in returned}
+        logging.warning(
+            "AI subtitle match diagnostics: source=%d parsed=%d matched=%d missing=%d missing_numbers=%s unexpected_numbers=%s"
+            % (len(originals), len(returned), len(originals) - len(unmatched),
+               len(unmatched), [line.number for line in unmatched[:10]],
+               sorted(number for number in returned_numbers - expected_numbers if number is not None)[:10])
+        )
+        for item in unmatched[:5]:
+            number = line_number(item)
+            nearby = [
+                line for line in returned
+                if number is not None and line_number(line) is not None
+                and abs(line_number(line) - number) <= 2
+            ][:5]
+            logging.warning(
+                "AI subtitle unmatched cue: number=%s start=%s source=%r fuzzy=%r nearby=%s"
+                % (item.number, item.srt_start, excerpt(item.text),
+                   excerpt(item.translation), [
+                       (line.number, excerpt(line.original), excerpt(line.text))
+                       for line in nearby
+                   ])
+            )
 
     def TryFuzzyMatches(self, unmatched : list [SubtitleLine]):
         """
@@ -163,7 +242,9 @@ class TranslationParser:
 
         if possible_matches:
             for item, translation in possible_matches:
-                logging.warning(f"Found fuzzy match for line {item.number} in translations")
+                logging.warning(
+                    f"Found fuzzy match for line {item.number} in translation line {translation.number}"
+                )
                 item.translation = f"#Fuzzy: {translation.text}"
                 #unmatched.remove(item)
 

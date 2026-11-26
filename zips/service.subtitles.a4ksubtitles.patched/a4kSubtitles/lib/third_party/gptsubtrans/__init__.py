@@ -24,8 +24,8 @@ def translate(
     max_batch_size=30,
     preprocess_subtitles=False,
     postprocess_translation=False,
-    retry_on_error=False,
-    stop_on_error=True,
+    retry_on_error=True,
+    stop_on_error=False,
     theme=None,
     break_long_lines=False,
     max_line_duration=None,
@@ -49,6 +49,7 @@ def translate(
     priority_seconds=None,
     log=print,
     partial_callback=None,
+    playback_position=None,
 ):
     # Input file check
     if not os.path.exists(input_file):
@@ -210,8 +211,49 @@ def translate(
                 % (timestamp, first_batch.scene, first_batch.number)
             )
 
-    if begin_seconds is None and end_seconds is None:
+    if begin_seconds is None and end_seconds is None and playback_position is None:
         prioritize_batches_from_timestamp()
+
+    if playback_position is not None and begin_seconds is None and end_seconds is None:
+        import time
+        playback_state = {'position': priority_seconds, 'sample_time': None}
+
+        def select_batch_near_playback(pending):
+            now = time.monotonic()
+            try:
+                observed = playback_position()
+                position = float(observed) if observed is not None else None
+            except Exception:
+                position = None
+            if position is None:
+                position = float(playback_state['position'] or 0.0)
+
+            previous = playback_state['position']
+            previous_time = playback_state['sample_time']
+            changed = previous_time is None or (
+                abs((position - float(previous or 0.0)) - (now - previous_time)) > 30.0
+            )
+            playback_state['position'] = position
+            playback_state['sample_time'] = now
+
+            ordered = sorted(
+                range(len(pending)),
+                key=lambda index: batch_end_seconds(pending[index][1]) or float('inf'),
+            )
+            selected = next(
+                (index for index in ordered
+                 if (batch_end_seconds(pending[index][1]) or float('inf')) > position),
+                ordered[0],
+            )
+            if changed:
+                batch = pending[selected][1]
+                log(
+                    'Following playback at %.1fs: scene %s, batch %s.'
+                    % (position, batch.scene, batch.number)
+                )
+            return selected
+
+        translator.batch_selector = select_batch_near_playback
 
     total_scenes = len(subtitles.scenes)
     flattened_batches = [
@@ -247,7 +289,7 @@ def translate(
                     output_file,
                     progress['current'],
                     total_batches,
-                    batch_coverage_seconds(progress['current']),
+                    batch_end_seconds(batch),
                 )
         except Exception as e:
             log(f"\nWarning: Failed to save partial output: {e}")
@@ -255,7 +297,12 @@ def translate(
     translator.TranslateBatch = progress_translate_batch
 
     translator.TranslateSubtitles(subtitles)
-    log(f"\nTranslation complete. {total_batches} batches processed.")
+    attempted_batches = progress['current']
+    complete_batches = sum(batch.all_translated for batch in flattened_batches)
+    log(
+        "\nTranslation finished: attempted %s/%s batches, %s fully translated."
+        % (attempted_batches, total_batches, complete_batches)
+    )
 
     # Final save
     subtitles.SaveTranslation(output_file)

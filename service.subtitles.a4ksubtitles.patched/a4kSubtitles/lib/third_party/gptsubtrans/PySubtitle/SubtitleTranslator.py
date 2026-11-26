@@ -105,26 +105,40 @@ class SubtitleTranslator:
 
         self.events.preprocessed(subtitles.scenes)
 
-        # Iterate over each subtitle scene and request translation
-        for scene in subtitles.scenes:
-            if self.aborted:
-                break
+        # A playback-aware selector can choose a different pending batch after a seek.
+        selector = getattr(self, 'batch_selector', None)
+        if selector:
+            pending = [(scene, batch) for scene in subtitles.scenes for batch in scene.batches]
+            while pending:
+                if self.aborted or (self.max_lines and self.lines_processed >= self.max_lines):
+                    break
+                selected_index = selector(pending)
+                scene, batch = pending.pop(selected_index)
+                self.TranslateScene(subtitles, scene, batch_numbers=[batch.number])
+                if self.errors and self.stop_on_error:
+                    logging.error(f"Failed to translate scene {scene.number}... stopping translation")
+                    return
+        else:
+            # Keep the original scene order for callers without playback priority.
+            for scene in subtitles.scenes:
+                if self.aborted:
+                    break
 
-            if self.max_lines and self.lines_processed >= self.max_lines:
-                break
+                if self.max_lines and self.lines_processed >= self.max_lines:
+                    break
 
-            if self.resume and scene.all_translated:
-                logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
-                continue
+                if self.resume and scene.all_translated:
+                    logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
+                    continue
 
-            logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
-            batch_numbers = [ batch.number for batch in scene.batches if not batch.translated ] if self.resume else None
+                logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
+                batch_numbers = [ batch.number for batch in scene.batches if not batch.translated ] if self.resume else None
 
-            self.TranslateScene(subtitles, scene, batch_numbers=batch_numbers)
+                self.TranslateScene(subtitles, scene, batch_numbers=batch_numbers)
 
-            if self.errors and self.stop_on_error:
-                logging.error(f"Failed to translate scene {scene.number}... stopping translation")
-                return
+                if self.errors and self.stop_on_error:
+                    logging.error(f"Failed to translate scene {scene.number}... stopping translation")
+                    return
 
         if self.aborted:
             logging.info("Translation aborted")

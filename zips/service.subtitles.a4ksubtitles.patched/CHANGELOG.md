@@ -1,6 +1,11 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.57:
+  * Choose the next pending AI translation batch from the current play position so seeks and resumes get translated first, then continue across the complete subtitle file.
+  * Refresh the live Dutch subtitle file after a seek, including when that area was translated since the last refresh.
+  * Match misnumbered AI response cues to unique echoed source text before retrying; retry unresolved batches once, continue after persistent gaps, and log actual completion.
+
 * v3.23.56:
   * Normalize Kodi's Dutch subtitle codes before comparing tracks, allowing the embedded-track wait to work when a sidecar is reported as `dut` and the preference as `nld`.
 
