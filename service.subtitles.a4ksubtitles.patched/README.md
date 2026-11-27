@@ -226,6 +226,10 @@ dropped connections, server errors and rate limits are retried with backoff; a
 batch that still cannot reach the provider is skipped and retried once later,
 and translation stops only after five unreachable batches in a row. Logs carry
 cue numbers and match facts only, never subtitle text.
+Before every batch a4k checks whether playback stopped (with a 5-second grace
+for stream reopens), a different video started, or Kodi is exiting; if so the
+translation stops, keeps what is done, and the service loop moves on, so no API
+calls are spent on a movie nobody is watching. Pausing does not stop it.
 
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved

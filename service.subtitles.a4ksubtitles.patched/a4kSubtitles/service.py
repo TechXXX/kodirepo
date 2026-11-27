@@ -1131,6 +1131,36 @@ def start(api):
                 return player.getTime() if player.isPlaying() else None
             except Exception:
                 return None
+
+        try:
+            translation_started_file = core.kodi.xbmc.getInfoLabel('Player.Filenameandpath') or ''
+        except Exception:
+            translation_started_file = ''
+        stop_state = {'seen_playing': bool(translation_started_file)}
+
+        def translation_stop_reason():
+            """Checked before each AI batch: a reason to stop, or None to keep translating."""
+            if monitor.abortRequested():
+                return 'Kodi is shutting down'
+            try:
+                player = core.kodi.xbmc.Player()
+                if player.isPlayingVideo():
+                    stop_state['seen_playing'] = True
+                    playing_file = core.kodi.xbmc.getInfoLabel('Player.Filenameandpath') or ''
+                    if translation_started_file and playing_file and playing_file != translation_started_file:
+                        return 'a different video is playing'
+                    return None
+                if not stop_state['seen_playing']:
+                    return None
+                # Give Kodi a few seconds in case the stream is only reopening.
+                for _ in range(5):
+                    if monitor.waitForAbort(1):
+                        return 'Kodi is shutting down'
+                    if player.isPlayingVideo():
+                        return None
+                return 'playback stopped'
+            except Exception:
+                return None
         notification_state = {'shown': False}
 
         def notify_ai_translated_subtitle_selected():
@@ -1220,7 +1250,7 @@ def start(api):
             except Exception as exc:
                 core.logger.debug('Partial AI subtitle attach skipped: %s' % exc)
 
-        translator.translate(
+        stop_reason = translator.translate(
             input_file=subfile,
             target_language=target_language,
             output_file=subfile_translated,
@@ -1233,8 +1263,17 @@ def start(api):
             priority_seconds=ai_last_timestamp if full_file else None,
             log=core.logger.debug,
             partial_callback=attach_partial_translation if full_file else None,
-            playback_position=current_playback_position if full_file else None
+            playback_position=current_playback_position if full_file else None,
+            should_stop=translation_stop_reason,
         )
+
+        if stop_reason:
+            # Nobody is watching this video any more: do not attach, and hand the
+            # service loop back so it can reset or handle the next video.
+            core.logger.debug('AI subtitle translation stopped early: %s' % stop_reason)
+            if full_file:
+                cleanup_live_partial_files()
+            return True
 
         last_subfile = subfile
         subtitle_to_attach = subfile_translated

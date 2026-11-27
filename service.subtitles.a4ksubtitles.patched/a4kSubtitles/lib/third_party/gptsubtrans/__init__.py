@@ -50,7 +50,14 @@ def translate(
     log=print,
     partial_callback=None,
     playback_position=None,
+    should_stop=None,
 ):
+    """Translate input_file into output_file.
+
+    should_stop, when given, is called before every batch; a truthy return value
+    (a short reason string) stops the translation after saving what is done, and
+    translate() returns that reason. A complete run returns None.
+    """
     # Input file check
     if not os.path.exists(input_file):
         log(f"Input file does not exist: {input_file}")
@@ -277,8 +284,19 @@ def translate(
 
     # Progress reporting and batch translation
     orig_translate_batch = translator.TranslateBatch
-    progress = {'current': 0, 'attempted': set()}
+    progress = {'current': 0, 'attempted': set(), 'stopped': None}
     def progress_translate_batch(batch, line_numbers, context):
+        if should_stop is not None and not translator.aborted:
+            try:
+                reason = should_stop()
+            except Exception as e:
+                reason = None
+                log(f"Warning: stop check failed: {type(e).__name__}: {e}")
+            if reason:
+                progress['stopped'] = str(reason)
+                log(f"Stopping AI translation before scene {batch.scene} batch {batch.number}: {reason}")
+                translator.StopTranslating()
+                return None
         batch_key = (batch.scene, batch.number)
         if batch_key in progress['attempted']:
             log(f"Retrying batch (scene {batch.scene}, batch {batch.number}) after a provider error...")
@@ -304,13 +322,20 @@ def translate(
     translator.TranslateSubtitles(subtitles)
     attempted_batches = progress['current']
     complete_batches = sum(batch.all_translated for batch in flattened_batches)
-    log(
-        "\nTranslation finished: attempted %s/%s batches, %s fully translated."
-        % (attempted_batches, total_batches, complete_batches)
-    )
+    if progress['stopped']:
+        log(
+            "\nTranslation stopped (%s): attempted %s/%s batches, %s fully translated."
+            % (progress['stopped'], attempted_batches, total_batches, complete_batches)
+        )
+    else:
+        log(
+            "\nTranslation finished: attempted %s/%s batches, %s fully translated."
+            % (attempted_batches, total_batches, complete_batches)
+        )
 
     # Final save
     subtitles.SaveTranslation(output_file)
+    return progress['stopped']
 
 def list_provider_models(provider_name, api_key=None):
     """

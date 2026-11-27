@@ -1,6 +1,10 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.61:
+  * Check before every AI batch whether playback stopped (after a 5-second grace for stream reopens), a different file is playing, or Kodi is exiting; stop, save what is done, skip attaching, and return to the service loop. Previously the full-file translation ran to the end with no viewer, spending API calls and blocking subtitle handling for the next video.
+  * `gptsubtrans.translate()` takes `should_stop` and returns the stop reason (or `None` when complete), logging `Translation stopped (<reason>): attempted X/Y batches`.
+
 * v3.23.60:
   * Pin OpenAI subtitle translation to `gpt-6-luna` in `service.py`, `gptsubtrans/__init__.py` and `Provider_OpenAI.py`; on the same full movie it translated all 3,387 cues, where `gpt-4.1-mini-2025-04-14` left one blank.
   * Route GPT-5 and later models through the reasoning client (`reasoning_effort=low`) and send `temperature` only when a caller passes one, since these models reject a custom temperature.
