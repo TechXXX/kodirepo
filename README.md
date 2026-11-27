@@ -93,7 +93,7 @@ Current source-tree versions when this document was updated:
   requesting TV watched data with `extended=progress`, guarding missing
   `seasons` payloads, and running a one-time empty episode-watched cache repair
   after update.
-- `plugin.video.themoviedb.helper.patched` `6.15.2.15`
+- `plugin.video.themoviedb.helper.patched` `6.15.2.19`
   Patched TMDb Helper production build used by the patched Arctic Horizon 2
   flow. The current production build includes the recommendations-window fixes
   and debug logging previously validated in the test repo. It now also switches
@@ -103,7 +103,9 @@ Current source-tree versions when this document was updated:
   definitions for default installs, and adds the refreshed Trakt QR auth dialog
   support promoted from the test repo. It now follows Trakt pagination headers
   for sync responses, removes the hidden-list hard limit, and requests watched
-  show progress metadata.
+  show progress metadata. The daily log-file cleanup now skips missing
+  `log_tagger`, `log_library`, and `timer_report` folders instead of logging
+  `GetDirectory` errors in the Kodi log.
 - `service.subtitles.a4ksubtitles.patched` `3.23.40`
   Main patched a4k build used with selector-aware Fenlight. The current
   production build keeps AI subtitle translation off until an API key is
@@ -141,11 +143,16 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion` `2.1.4`
   Bundled virtual keyboard autocomplete helper so Arctic Fuse 3 can install it
   from this repo instead of the broken upstream `2.1.3` package URL.
-- `resource.images.studios.coloured` `0.0.25`
+- `resource.images.studios.coloured` `0.0.26`
   Coloured studio-logo resource used by the DutchTech Fuse skin. This build is
   based on the official `0.0.24` texture bundle and adds a plain Apple TV
   studio icon entry (`Apple TV.png`) generated from Fen Light's provider
-  artwork, so Kodi no longer falls through on Apple TV studio metadata.
+  artwork, so Kodi no longer falls through on Apple TV studio metadata. It
+  also adds Amazon MGM Studios, To Be Formed, Topic Studios, Paper Kite
+  Productions, and Rabbits Black logos taken from TMDb company artwork
+  (161x109; the black To Be Formed, Topic Studios, and Rabbits Black logos are
+  recoloured white to stay visible on dark skins). The new entries are stored
+  uncompressed in `Textures.xbt`.
 - `script.module.beautifulsoup4` `4.9.3+matrix.1`
   HTML parsing dependency required by MicroJen Scrapers.
 - `script.module.autocompletion` `2.1.1`
@@ -239,8 +246,9 @@ Current source-tree versions when this document was updated:
 - `plugin.program.autocompletion/`
   Bundled virtual keyboard autocomplete helper source.
 - `resource.images.studios.coloured/`
-  Coloured studio-logo image resource, including the Apple TV studio-icon
-  source PNG and patched texture bundle.
+  Coloured studio-logo image resource, including the source PNGs for the
+  added studio icons (Apple TV, Amazon MGM Studios, To Be Formed, Topic
+  Studios, Paper Kite Productions, Rabbits Black) and the patched texture bundle.
 - `script.module.autocompletion/`
   Bundled virtual keyboard autocomplete library source.
 - `script.module.beautifulsoup4/`

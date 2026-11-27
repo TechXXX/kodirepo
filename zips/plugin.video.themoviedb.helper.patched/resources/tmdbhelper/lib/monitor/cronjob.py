@@ -48,7 +48,11 @@ class CronJobMonitor(SafeThread):
         from tmdbhelper.lib.files.futils import get_files_in_folder, get_write_path, delete_file
         from tmdbhelper.lib.addon.tmdate import get_todays_date
         date = get_todays_date(str_fmt="%Y-%m-%d", days=days)
-        for file in get_files_in_folder(get_write_path(folder, make_dir=False), regex=regex):
+        import xbmcvfs
+        folder_path = get_write_path(folder, make_dir=False)
+        if not xbmcvfs.exists(folder_path):
+            return  # Nothing to clean up; avoids a GetDirectory error in the Kodi log
+        for file in get_files_in_folder(folder_path, regex=regex):
             if file > date:
                 continue
             delete_file(folder, file)
