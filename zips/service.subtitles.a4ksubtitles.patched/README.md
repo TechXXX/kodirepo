@@ -230,6 +230,11 @@ Before every batch a4k checks whether playback stopped (with a 5-second grace
 for stream reopens), a different video started, or Kodi is exiting; if so the
 translation stops, keeps what is done, and the service loop moves on, so no API
 calls are spent on a movie nobody is watching. Pausing does not stop it.
+When AI translation is on and has a key, automatic (API-mode) searches drop
+results flagged `ai_translated` or `machine_translated`, such as OpenSubtitles'
+`os-auto` uploads, so they cannot win the preferred-language search and block
+the English source and a4k's own translation (`search.skip_translated` in the
+log). Manual searches still list them with their `[AI]` / `[MT]` badges.
 
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved

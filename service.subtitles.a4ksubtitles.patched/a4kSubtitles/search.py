@@ -373,6 +373,42 @@ def __sanitize_results(core, meta, results):
 def __apply_language_filter(meta, results):
     return list(filter(lambda x: x and x['lang'] in meta.languages, results))
 
+def __own_ai_translation_ready(core):
+    """True when a4k's own AI translation is switched on and has what it needs to run."""
+    try:
+        if not core.kodi.get_bool_setting('general', 'use_ai'):
+            return False
+        ai_api_key = (core.kodi.get_setting('general', 'ai_api_key') or '').strip()
+        if not ai_api_key or ai_api_key == 'empty_setting':
+            return False
+        ai_provider = core.kodi.get_setting('general', 'ai_provider') or '0'
+        if ai_provider != '0' and not core.kodi.get_setting('general', 'ai_model'):
+            return False
+        return True
+    except Exception:
+        return False
+
+def __is_translated_result(result):
+    action_args = result.get('action_args') or {}
+    return bool(
+        result.get('ai_translated') or action_args.get('ai_translated')
+        or result.get('machine_translated') or action_args.get('machine_translated')
+    )
+
+def __drop_translated_results(core, results):
+    """Automatic searches skip other sites' AI/machine translations when a4k can translate itself.
+
+    Without this, an AI-translated upload (e.g. OpenSubtitles' os-auto) wins the target-language
+    search and the English source + our own AI translation never runs. Manual searches keep them.
+    """
+    if not core.api_mode_enabled or not __own_ai_translation_ready(core):
+        return results
+    kept = [result for result in results if not __is_translated_result(result)]
+    if len(kept) != len(results):
+        core.logger.debug('search.skip_translated - dropped %d AI/machine-translated result(s); a4k AI translation is on' % (
+            len(results) - len(kept)))
+    return kept
+
 def __apply_limit(core, all_results, meta):
     limit = core.kodi.get_int_setting('general.results_limit')
     languages = getattr(meta, 'languages', None) or []
@@ -396,6 +432,7 @@ def __prepare_results(core, meta, results):
     __log_results_summary(core, 'prepare.input', results)
     results = __apply_language_filter(meta, results)
     __log_results_summary(core, 'prepare.language_filter', results)
+    results = __drop_translated_results(core, results)
     results = __sanitize_results(core, meta, results)
     __log_results_summary(core, 'prepare.sanitized', results)
     __write_stage_debug(core, 'stage_pre_sort.json', results)

@@ -1,6 +1,10 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.62:
+  * Drop AI- and machine-translated results (for example OpenSubtitles' `os-auto` uploads) in automatic (API-mode) searches when a4k's own AI translation is on and has a key; the target-language search then comes back empty and the English source is translated with `gpt-6-luna`. Manual searches and setups without AI translation keep them. Logged as `search.skip_translated`.
+  * On Dexter: Resurrection S02E05 the OpenSubtitles AI translation had 43 flagged errors against 11 for `gpt-6-luna` from the same English source, mostly sentences broken across cues and idioms taken literally.
+
 * v3.23.61:
   * Check before every AI batch whether playback stopped (after a 5-second grace for stream reopens), a different file is playing, or Kodi is exiting; stop, save what is done, skip attaching, and return to the service loop. Previously the full-file translation ran to the end with no viewer, spending API calls and blocking subtitle handling for the next video.
   * `gptsubtrans.translate()` takes `should_stop` and returns the stop reason (or `None` when complete), logging `Translation stopped (<reason>): attempted X/Y batches`.
