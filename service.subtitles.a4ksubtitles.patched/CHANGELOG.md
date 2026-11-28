@@ -1,6 +1,12 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.65:
+  * End the embedded-track wait (at most 5 seconds after the video starts) as soon as Kodi lists the video's own tracks: an embedded subtitle, or audio for a video without subtitles (`subtitle_attach.embedded_track_wait_active`). Kodi reads an MKV or MP4 track list from the header at once, so no Dutch track can appear later. A sidecar listed alone does not end the wait, and `.ts`/`.m2ts`/`.mts`/`.m2t` videos keep the full 5 seconds because they can list tracks late. Logged as `Embedded-track wait ended early … waited=…` or `Embedded-track wait kept`.
+  * Both timing checks (background sync and the AI source check) read the video's timing no earlier than 5 seconds after playback start (`timing_rules.TIMING_READ_START_DELAY_SECONDS`, `wait_before_timing_reads`), so the reads do not compete with Kodi buffering the start of the video. If playback stops or changes during that delay before an AI translation, nothing is translated.
+  * Live: on MobLand S02E05 and Dexter: Resurrection S02E05 the Dutch subtitle appeared 2.4 s and 1.7 s after start instead of 7 to 8 s; an embedded Dutch track was still picked first; the AI path (You Can See Everything) showed its first translated lines 12.2 s after start, as before.
+  * Add `tests/test_embedded_wait.py` (13 tests); `tests/service_fakes.py` gains audio tracks and recorded monitor waits.
+
 * v3.23.64:
   * Refactor the playback service with no behavior change; every log line keeps its wording. `service.py` (1,904 lines, one 1,550-line `start()` with 42 nested functions sharing `nonlocal` state) is now a 109-line poll loop, and the work moved to `service_state.py` (`PlaybackState`, `ServiceContext`), `subtitle_attach.py`, `selector_handoff.py`, `ai_translate.py`, `ai_source_timing.py`, `background_sync.py`, `timing_rules.py` and `runtime_languages.py`. Module map, shared state and the rules that must not change: `docs/service-structure.md`.
   * Remove the never-called ffmpeg/ffprobe embedded-subtitle extraction (`try_embedded_english_ai_translation` and 10 helpers) and an unreachable `'embedded_english'` range branch. a4k still never extracts embedded subtitle text; timing comes from the Matroska Cue index.

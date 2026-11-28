@@ -222,7 +222,12 @@ That extra handoff matters for repeated in-play manual subtitle searches:
 preferred-language subtitle stream in the player.
 
 Only if no suitable built-in subtitle stream is found does the service continue
-into external subtitle download or subtitle search UI.
+into external subtitle download or subtitle search UI. It waits at most 5
+seconds after the video starts for an embedded preferred-language track, and
+stops waiting as soon as Kodi lists the video's own tracks (embedded subtitles
+or audio), except for TS/M2TS files. The embedded timing reads for subtitle
+sync still start 5 seconds after playback start, so they do not slow the
+start of the video.
 
 AI subtitle translation is intentionally later than all preferred-language
 paths. Enabling `general.use_ai` must not switch pre-play or runtime subtitle

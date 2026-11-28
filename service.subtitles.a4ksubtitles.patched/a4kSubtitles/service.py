@@ -61,7 +61,8 @@ def start(api):
             if state.prev_playing_filename != playing_filename:
                 state.reset()
                 state.prev_playing_filename = playing_filename
-                state.subtitle_stream_settle_until = core.time.time() + SUBTITLE_STREAM_SETTLE_SECONDS
+                state.playback_started_at = core.time.time()
+                state.subtitle_stream_settle_until = state.playback_started_at + SUBTITLE_STREAM_SETTLE_SECONDS
                 if core.kodi.get_property(selector.selector_payload_prop):
                     state.fast_selector_poll_until = core.time.time() + FAST_SELECTOR_POLL_WINDOW
 

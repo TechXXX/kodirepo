@@ -55,6 +55,9 @@ class Player(object):
     def showSubtitles(self, _visible):
         pass
 
+    def getAvailableAudioStreams(self):
+        return list(self.kodi.audio_streams)
+
     def getAvailableSubtitleStreams(self):
         return [sub['language'] for sub in self.kodi.player_subtitles]
 
@@ -77,6 +80,7 @@ class Kodi(object):
         self.attached = []
         self.notifications = []
         self.player_subtitles = []
+        self.audio_streams = []
         self.selected_stream = None
         self.kodi_settings = {'locale.subtitlelanguage': 'Dutch', 'subtitles.languages': 'Dutch'}
         self.xbmc = types.SimpleNamespace(
@@ -159,11 +163,13 @@ class Monitor(object):
 
     def __init__(self, polls=None):
         self.polls = polls
+        self.waits = []
 
     def abortRequested(self):
         return self.polls is not None and self.polls <= 0
 
-    def waitForAbort(self, _seconds):
+    def waitForAbort(self, seconds):
+        self.waits.append(seconds)
         if self.polls is None:
             return False
         self.polls -= 1

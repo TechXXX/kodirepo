@@ -19,6 +19,11 @@ FALLBACK_MAX_RESIDUAL_MS = 250
 MIN_RETIME_MS = 150
 SMALL_OFFSET_RANGE_MS = 400
 
+# Reading the embedded timing can pull tens of megabytes. Do not start it until
+# this many seconds after the video started, so it does not compete with Kodi
+# buffering the start of the video. The subtitle itself is attached earlier.
+TIMING_READ_START_DELAY_SECONDS = 5.0
+
 
 def fallback_match_is_confirmed(result):
     """Return whether a timing result is safe enough to replace a subtitle."""
@@ -96,6 +101,20 @@ def autosync_path(path, offset_ms):
     root, extension = os.path.splitext(path)
     direction = 'plus' if offset_ms > 0 else 'minus'
     return '%s.autosync.%s%dms%s' % (root, direction, abs(offset_ms), extension or '.srt')
+
+
+def wait_before_timing_reads(core, monitor, playback_started_at, log_prefix):
+    """Hold the embedded timing reads until TIMING_READ_START_DELAY_SECONDS after playback start.
+
+    Returns False when Kodi is shutting down. `playback_started_at` 0 (unknown) does not wait.
+    """
+    if not playback_started_at:
+        return True
+    remaining = playback_started_at + TIMING_READ_START_DELAY_SECONDS - core.time.time()
+    if remaining <= 0:
+        return True
+    core.logger.debug('%s waiting %.1fs after playback start before reading the video timing' % (log_prefix, remaining))
+    return not monitor.waitForAbort(remaining)
 
 
 def eligible_reference_candidates(reference_candidates):

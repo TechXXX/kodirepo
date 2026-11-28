@@ -7,7 +7,9 @@ compared with the embedded English cue timings of the playing video: an
 aligned source is used as is, a confirmed fixed offset is applied to a
 retimed copy, and a source that does not match is replaced by the best-timed
 of up to three other subtitles in the source language. With too little
-evidence, or no match, the subtitle is translated as downloaded. Embedded
+evidence, or no match, the subtitle is translated as downloaded. The timing
+reads wait until `TIMING_READ_START_DELAY_SECONDS` after playback start; if
+playback stops or changes meanwhile, nothing is translated. Embedded
 subtitle text is never extracted. Log lines start with `AI source timing`.
 """
 
@@ -22,6 +24,7 @@ from a4kSubtitles.timing_rules import (
     fallback_match_rank,
     max_embedded_cues,
     offset_to_apply,
+    wait_before_timing_reads,
 )
 
 # The probe must stay short; a file without a subtitle Cue index then simply
@@ -113,7 +116,8 @@ def timing_checked_ai_source(ctx, subfile, selected_result, language):
 
     The original when it is aligned or there is too little evidence, a retimed
     copy for a confirmed fixed offset, or a better-timed alternative when the
-    original does not match at all.
+    original does not match at all. None when playback stopped or changed while
+    waiting for the timing reads, so nothing is translated for nobody.
     """
     core = ctx.core
     try:
@@ -133,6 +137,14 @@ def timing_checked_ai_source(ctx, subfile, selected_result, language):
     except Exception as exc:
         core.logger.debug('AI source timing check skipped: subtitle unreadable | error=%s' % exc)
         return subfile
+
+    playing_file = core.kodi.xbmc.getInfoLabel('Player.Filenameandpath') or ''
+    if not wait_before_timing_reads(core, ctx.monitor, ctx.state.playback_started_at, 'AI source timing'):
+        return None
+    if (not core.kodi.xbmc.Player().isPlayingVideo()
+            or (core.kodi.xbmc.getInfoLabel('Player.Filenameandpath') or '') != playing_file):
+        core.logger.debug('AI source timing: playback stopped or changed during the start delay, not translating')
+        return None
 
     reference_candidates = embedded_cue_candidates(playback_url, max_seconds=AI_SOURCE_TIMING_MAX_SECONDS)
     eligible = eligible_reference_candidates(reference_candidates)

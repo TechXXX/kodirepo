@@ -39,7 +39,9 @@ more than `core` take `ctx` as their first argument. `PlaybackState` fields
 
 - `has_done_subs_check`: this video has been handled.
 - `prev_playing_filename`: the video being handled.
-- `fast_selector_poll_until`, `subtitle_stream_settle_until`: poll timing.
+- `fast_selector_poll_until`: poll timing.
+- `playback_started_at`, `subtitle_stream_settle_until`, `embedded_wait_over`,
+  `embedded_wait_logged`: the embedded-track wait and the timing-read delay.
 - `ai_last_timestamp`, `ai_tries`, `ai_translation_active`, `ai_translation_source`:
   AI translation progress.
 - `attached_subtitle_active`: keep the temp folder while a4k's subtitle is in use.
@@ -50,11 +52,20 @@ more than `core` take `ctx` as their first argument. `PlaybackState` fields
 
 ## One video, start to finish
 
-1. `service.start` notices a new video, resets state and opens a 5-second
-   window (`subtitle_stream_settle_until`) for an embedded Dutch track to appear.
+1. `service.start` notices a new video, resets state, records
+   `playback_started_at` and opens a window of at most 5 seconds
+   (`subtitle_stream_settle_until`) for an embedded Dutch track to appear.
 2. `subtitle_attach.attach_runtime_subtitle`:
    - `update_sub_stream` picks a preferred-language stream the player already
-     has. An embedded track always wins; a sidecar only after the 5 seconds.
+     has. An embedded track always wins.
+   - `embedded_track_wait_active` holds off sidecars and downloads during that
+     window. It ends the wait early once Kodi lists the video's own tracks (an
+     embedded subtitle, or audio for a video without subtitles): Kodi reads an
+     MKV or MP4 track list from the header at once, so no Dutch track can
+     appear later. A sidecar listed alone does not end it (Kodi can list one
+     before the embedded tracks), and TS/M2TS files keep the full 5 seconds
+     because they can list tracks late. Logs: `Embedded-track wait ended
+     early` with `waited=…`, or `Embedded-track wait kept`.
    - Otherwise `selector_handoff.forced_subtitle_result` gives Fen's pick. A
      Dutch pick is attached directly and `background_sync` checks its timing.
      An English pick with `requires_ai_translation` goes through
@@ -62,7 +73,14 @@ more than `core` take `ctx` as their first argument. `PlaybackState` fields
      `ai_translate.translate_and_attach_subfile(..., full_file=True)`.
    - Otherwise a runtime search in the preferred languages
      (`keep_translated=True`, it never AI-translates).
-3. The full-file translation stops before the next batch when playback stops or
+3. Both timing checks read the video's timing no earlier than
+   `timing_rules.TIMING_READ_START_DELAY_SECONDS` (5 s) after playback start,
+   so the reads (tens of MB) do not compete with Kodi buffering the start of
+   the video; the subtitle itself is attached before that. Log: `… waiting
+   N.Ns after playback start before reading the video timing`. If playback
+   stops or changes during that delay before an AI translation, nothing is
+   translated.
+4. The full-file translation stops before the next batch when playback stops or
    another video plays, and the loop resets.
 
 ## Decisions that must survive later changes
@@ -80,6 +98,9 @@ more than `core` take `ctx` as their first argument. `PlaybackState` fields
 - The OpenAI model stays pinned to `gpt-6-luna` (see README for all three pins).
 - Timing replacement stays conservative: a weak or ambiguous probe leaves the
   subtitle as it is (`timing_rules.py`, `docs/subtitle-timing-validation.md`).
+- Never accept a sidecar or download while an embedded Dutch track could still
+  appear. Ending the embedded-track wait early is only safe once Kodi has
+  listed the video's own tracks, and never for TS/M2TS files.
 - Every log line keeps its wording; the owner and earlier reports search the
   Kodi log for them.
 
@@ -90,7 +111,8 @@ properties), a fake API that serves SRT text per result name, and timeline
 helpers. `tests/test_service_modules.py` covers state, selector hand-off,
 languages and AI settings; `tests/test_service_flow.py` covers the timing check
 outcomes, full-file and chunked translation, attach paths and one run of the
-real poll loop. Run `python3 -m unittest discover -s tests` from the addon folder.
+real poll loop; `tests/test_embedded_wait.py` covers the early end of the
+embedded-track wait, the TS/M2TS exception and the timing-read delay. Run `python3 -m unittest discover -s tests` from the addon folder.
 
 ## Refactor history
 

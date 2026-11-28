@@ -5,8 +5,11 @@
 `state.has_done_subs_check`). In order:
 
 1. `update_sub_stream`: switch to a subtitle stream already in the video or
-   player in the preferred language. An embedded track always wins; a sidecar
-   is only accepted after `state.subtitle_stream_settle_until`.
+   player in the preferred language. An embedded track always wins. While
+   `embedded_track_wait_active` is true (at most 5 seconds after the video
+   starts), a sidecar is not accepted and nothing is downloaded, so a late
+   embedded track can still win. The wait ends early once Kodi lists the
+   video's own tracks, except for TS/M2TS files, which can list tracks late.
 2. The Fen Light selector payload (`selector_handoff.forced_subtitle_result`):
    attach its matched Dutch subtitle, or AI-translate its English one
    (full-file) when the payload says `requires_ai_translation`.
@@ -24,6 +27,67 @@ from a4kSubtitles.runtime_languages import (
     remove_english_search_languages_for_ai,
     subtitle_result_matches_languages,
 )
+
+
+# MPEG-TS style containers have no track header: Kodi finds their tracks while
+# reading the stream, so a subtitle track can be listed after the audio.
+LATE_TRACK_EXTENSIONS = ('.ts', '.m2ts', '.mts', '.m2t')
+
+
+def is_external_subtitle(subtitle):
+    name = (subtitle.get('name') or '').lower()
+    return subtitle.get('isexternal') is True or name.endswith((' (extern)', ' (external)'))
+
+
+def tracks_can_appear_late(core):
+    names = (
+        core.kodi.xbmc.getInfoLabel('Player.Filename') or '',
+        selector.current_playing_url(core),
+        core.kodi.get_property(selector.selector_playback_url_prop) or '',
+    )
+    for name in names:
+        leaf = selector.path_leaf(name).lower()
+        if leaf.endswith(LATE_TRACK_EXTENSIONS):
+            return leaf
+    return ''
+
+
+def embedded_track_wait_active(ctx, player_props=None):
+    """True while waiting longer could still reveal an embedded preferred-language track.
+
+    Kodi reads all tracks of an MKV or MP4 from its header at once, so as soon
+    as it lists one of the video's own tracks (an embedded subtitle, or audio
+    for a video without subtitles) the list is complete. Before that, and for
+    TS/M2TS files, wait until `state.subtitle_stream_settle_until`.
+    """
+    core, state = ctx.core, ctx.state
+    if state.embedded_wait_over or core.time.time() >= state.subtitle_stream_settle_until:
+        return False
+
+    late_file = tracks_can_appear_late(core)
+    if late_file:
+        if state.embedded_wait_logged != 'late':
+            state.embedded_wait_logged = 'late'
+            core.logger.debug('Embedded-track wait kept: TS/M2TS videos can list their tracks late | file=%s' % late_file)
+        return True
+
+    if player_props is None:
+        player_props = core.kodi.get_kodi_player_subtitles() or {}
+    own_subtitles = [sub for sub in (player_props.get('subtitles') or []) if not is_external_subtitle(sub)]
+    try:
+        audio_streams = core.kodi.xbmc.Player().getAvailableAudioStreams() or []
+    except Exception:
+        audio_streams = []
+    if not own_subtitles and not audio_streams:
+        return True
+
+    state.embedded_wait_over = True
+    core.logger.debug(
+        "Embedded-track wait ended early: Kodi listed the video's own tracks | waited=%.1fs | embedded_subtitles=%s | audio_tracks=%s" % (
+            core.time.time() - state.playback_started_at, len(own_subtitles), len(audio_streams),
+        )
+    )
+    return False
 
 
 def prepare_runtime_attach_subfile(core, subfile):
@@ -100,6 +164,9 @@ def download_and_attach_result(ctx, result, preferredlang, preferredlang_preai, 
         # Only the full-file path: the chunked path re-reads whichever
         # subtitle file is in temp, so it must not see extra candidates.
         subfile = timing_checked_ai_source(ctx, subfile, result, preferredlang)
+        if not subfile:
+            # Playback stopped or changed before the timing check: handled, nothing to translate.
+            return True
         state.last_subfile = subfile
 
     return translate_and_attach_subfile(
@@ -142,9 +209,7 @@ def update_sub_stream(ctx, preferredlang, prefer_sdh, prefer_forced, force=False
         core.logger.debug('no subtitles found for %s' % preferredlang)
         return
 
-    def is_external(subtitle):
-        name = (subtitle.get('name') or '').lower()
-        return subtitle.get('isexternal') is True or name.endswith((' (extern)', ' (external)'))
+    is_external = is_external_subtitle
 
     preferred_subtitles = [
         sub for sub in player_props.get('subtitles', [])
@@ -152,7 +217,7 @@ def update_sub_stream(ctx, preferredlang, prefer_sdh, prefer_forced, force=False
     ]
     if (not force and core.kodi.get_bool_setting('general', 'auto_download')
             and preferred_subtitles and all(is_external(sub) for sub in preferred_subtitles)
-            and core.time.time() < ctx.state.subtitle_stream_settle_until):
+            and embedded_track_wait_active(ctx, player_props)):
         core.logger.debug('Waiting for an embedded %s subtitle before accepting a sidecar' % preferredlang)
         return
 
@@ -242,7 +307,7 @@ def attach_runtime_subtitle(ctx, use_ai, ai_provider, ai_api_key, ai_model):
     # of a remote video. Give the preferred embedded stream time to appear.
     if (preferredlang and core.kodi.get_bool_setting('general', 'auto_select')
             and core.kodi.get_bool_setting('general', 'auto_download')
-            and core.time.time() < state.subtitle_stream_settle_until):
+            and embedded_track_wait_active(ctx)):
         state.has_done_subs_check = False
         return
 

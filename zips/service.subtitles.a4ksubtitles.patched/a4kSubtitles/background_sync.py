@@ -7,7 +7,9 @@ Matroska Cue index (`subtitle_sync.embedded_cue_candidates`, bounded HTTP
 range reads) and compares them with the subtitle's cue starts. A confirmed
 fixed offset is applied to a retimed `.autosync.` copy; a subtitle with no
 strong match is replaced by the best confirmed of up to three alternatives in
-the same language. Log lines start with `Background subtitle`.
+the same language. The timing reads wait until
+`TIMING_READ_START_DELAY_SECONDS` after playback start, so they do not compete
+with Kodi buffering the start of the video. Log lines start with `Background subtitle`.
 """
 
 import threading
@@ -24,6 +26,7 @@ from a4kSubtitles.timing_rules import (
     fallback_match_rank,
     max_embedded_cues,
     offset_to_apply,
+    wait_before_timing_reads,
 )
 
 
@@ -60,6 +63,7 @@ def start_background_subtitle_sync(ctx, subfile, selected_result=None):
         core.logger.debug('Background subtitle sync skipped: worker already queued for subtitle | subtitle=%s' % subfile)
         return
     ctx.state.sync_started_subfiles.add(sync_key)
+    playback_started_at = ctx.state.playback_started_at
     selector_source_key = core.kodi.get_property(selector.selector_source_key_prop)
     core.logger.debug(
         'Background subtitle sync queued | subtitle=%s | playback=%s | selector_source=%s' % (
@@ -245,6 +249,11 @@ def start_background_subtitle_sync(ctx, subfile, selected_result=None):
                 core.logger.debug('Background subtitle sync cancelled before probe: playback is no longer current | subtitle=%s' % subfile)
                 return
             core.logger.debug('Background subtitle sync worker started | subtitle=%s' % subfile)
+            if not wait_before_timing_reads(core, monitor, playback_started_at, 'Background subtitle sync'):
+                return
+            if not playback_is_current():
+                core.logger.debug('Background subtitle sync cancelled after the start delay: playback is no longer current | subtitle=%s' % subfile)
+                return
             with open(subfile, 'rb') as handle:
                 original_bytes = handle.read()
             try:

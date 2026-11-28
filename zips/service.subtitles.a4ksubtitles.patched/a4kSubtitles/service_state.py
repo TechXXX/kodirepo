@@ -23,8 +23,14 @@ class PlaybackState(object):
         self.prev_playing_filename = ''
         # Poll faster until this time while a selector payload is waiting.
         self.fast_selector_poll_until = 0.0
-        # Until this time, wait for an embedded preferred-language track before taking a sidecar.
+        # When the service noticed this video, and the latest time to wait for an
+        # embedded preferred-language track before taking a sidecar or downloading.
+        self.playback_started_at = 0.0
         self.subtitle_stream_settle_until = 0.0
+        # Set once Kodi has listed the video's own tracks, so the wait above ends early.
+        self.embedded_wait_over = False
+        # The wait decision already logged for this video, so it is logged once.
+        self.embedded_wait_logged = ''
         # Chunked AI translation: playback time of the last chunk, and failures in a row.
         self.ai_last_timestamp = None
         self.ai_tries = 0
