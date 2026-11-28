@@ -409,14 +409,16 @@ def _is_sdh(track):
     )
 
 
-def embedded_cue_candidates(source):
+def embedded_cue_candidates(source, max_seconds=MAX_READ_SECONDS):
     """Return bounded timing samples for every embedded English text track.
 
     Unsupported containers and incomplete/non-subtitle Cue indexes deliberately
     return no result. The caller can then leave the active subtitle alone
-    rather than performing an expensive fallback extraction.
+    rather than performing an expensive fallback extraction. A caller that is
+    waiting on the result (for example before AI translation) can pass a
+    shorter max_seconds.
     """
-    reader = RangeReader(source)
+    reader = RangeReader(source, max_seconds=max_seconds)
     header = reader.read(0, INITIAL_READ_BYTES)
     if not header or header[:4] != b'\x1aE\xdf\xa3':
         return []

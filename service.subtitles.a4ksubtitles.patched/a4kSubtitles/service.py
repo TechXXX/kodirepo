@@ -14,6 +14,11 @@ selector_payload_prop = 'subs.selector_payload'
 selector_player_filename_prop = 'subs.player_filename'
 selector_playback_url_prop = 'subs.selector_playback_url'
 OPENAI_TRANSLATION_MODEL = 'gpt-6-luna'
+# The English source for AI translation is timing-checked before translating,
+# so the probe must stay short; a file without a subtitle Cue index then simply
+# reports too little evidence and translation goes ahead as before.
+AI_SOURCE_TIMING_MAX_SECONDS = 12
+AI_SOURCE_MAX_ALTERNATIVES = 3
 
 # Both retiming the selected subtitle and replacing it with an alternative
 # change what Kodi renders. Require the same evidence for either operation.
@@ -845,6 +850,163 @@ def start(api):
         thread.daemon = True
         thread.start()
 
+    def direct_playback_url():
+        playback_url = current_playing_url()
+        if playback_url.startswith('plugin://'):
+            playback_url = core.kodi.get_property(selector_playback_url_prop) or ''
+        if not playback_url or playback_url.startswith('plugin://'):
+            return ''
+        return playback_url
+
+    def read_srt_starts(path):
+        with open(path, 'rb') as handle:
+            text = handle.read().decode('utf-8-sig')
+        return text, subtitle_starts(text)
+
+    def timed_copy(path, text, result):
+        """Return path, or a retimed copy when the match needs a real shift."""
+        offset_ms = _offset_to_apply(result)
+        if not offset_ms:
+            return path, 0
+        output_file = _autosync_path(path, offset_ms)
+        with open(output_file, 'w', encoding='utf-8') as handle:
+            handle.write(retime_srt(text, offset_ms))
+        return output_file, offset_ms
+
+    def best_timed_alternative_source(reference_candidates, selected_result, language):
+        """Download up to three other subtitles in the source language and keep the best confirmed timing match."""
+        def identity(result):
+            result = result or {}
+            action_args = result.get('action_args') or {}
+            return (
+                result.get('service_name') or '',
+                str(action_args.get('url') or ''),
+                action_args.get('release_name') or action_args.get('filename') or result.get('name') or '',
+            )
+
+        try:
+            alternatives = api.search({
+                'action': 'search',
+                'languages': language,
+                'preferredlanguage': language,
+            }) or []
+        except Exception as exc:
+            core.logger.debug('AI source timing: alternative search failed: %s' % exc)
+            return None
+
+        selected_identity = identity(selected_result)
+        confirmed, downloaded, attempted = [], [], 0
+        for alternative in alternatives:
+            if identity(alternative) == selected_identity:
+                continue
+            attempted += 1
+            if attempted > AI_SOURCE_MAX_ALTERNATIVES:
+                break
+            name = _selector_matched_subtitle_name(alternative)
+            try:
+                alternative_file = api.download(alternative, preserve_existing=True)
+                if not alternative_file:
+                    continue
+                downloaded.append(alternative_file)
+                text, starts = read_srt_starts(alternative_file)
+                if len(starts) < FALLBACK_MIN_EXTERNAL_CUES:
+                    core.logger.debug('AI source timing: rejected alternative, too few cues | subtitle=%s | cues=%s' % (name, len(starts)))
+                    continue
+                result = _best_embedded_match(reference_candidates, starts)
+                if not _fallback_match_is_confirmed(result):
+                    core.logger.debug('AI source timing: rejected alternative, no strong timing match | subtitle=%s | result=%s' % (name, result))
+                    continue
+                core.logger.debug('AI source timing: confirmed alternative | subtitle=%s | result=%s' % (name, result))
+                confirmed.append((alternative_file, text, result, name))
+            except Exception as exc:
+                core.logger.debug('AI source timing: alternative comparison failed | subtitle=%s | error=%s' % (name, exc))
+
+        best = max(confirmed, key=lambda item: _fallback_match_rank(item[2])) if confirmed else None
+        for path in downloaded:
+            if best is None or path != best[0]:
+                try:
+                    core.os.remove(path)
+                except Exception:
+                    pass
+        if best is None:
+            core.logger.debug('AI source timing: no alternative matched the embedded timing | compared=%s' % min(attempted, AI_SOURCE_MAX_ALTERNATIVES))
+            return None
+
+        alternative_file, text, result, name = best
+        output_file, offset_ms = timed_copy(alternative_file, text, result)
+        core.logger.debug(
+            'AI source timing: translating better-timed alternative | subtitle=%s | applied_offset_ms=%s | matched_cues=%s | file=%s' % (
+                name, offset_ms, result.get('matched_cues'), output_file,
+            )
+        )
+        return output_file
+
+    def timing_checked_ai_source(subfile, selected_result, language):
+        """Check the subtitle about to be AI-translated against the embedded English timing.
+
+        Translated cues keep the source timing, so a source that does not line up
+        with the video produces a Dutch subtitle that does not line up either.
+        Returns the file to translate: the original when it is aligned or there is
+        too little evidence, a retimed copy for a confirmed fixed offset, or a
+        better-timed alternative when the original does not match at all.
+        """
+        try:
+            if not core.kodi.get_bool_setting('general', 'auto_sync_subtitles'):
+                core.logger.debug('AI source timing check skipped: auto-sync setting is disabled')
+                return subfile
+        except Exception:
+            return subfile
+
+        playback_url = direct_playback_url()
+        if not playback_url:
+            core.logger.debug('AI source timing check skipped: no direct playback URL')
+            return subfile
+
+        try:
+            text, starts = read_srt_starts(subfile)
+        except Exception as exc:
+            core.logger.debug('AI source timing check skipped: subtitle unreadable | error=%s' % exc)
+            return subfile
+
+        reference_candidates = embedded_cue_candidates(playback_url, max_seconds=AI_SOURCE_TIMING_MAX_SECONDS)
+        eligible = [
+            candidate for candidate in reference_candidates
+            if len(candidate.get('starts') or []) >= FALLBACK_MIN_EMBEDDED_CUES
+        ]
+        embedded_cues = max([len(candidate.get('starts') or []) for candidate in reference_candidates] or [0])
+        core.logger.debug(
+            'AI source timing probe | embedded_tracks=%s | embedded_cues=%s | subtitle_cues=%s' % (
+                len(reference_candidates), embedded_cues, len(starts),
+            )
+        )
+        if not eligible or len(starts) < FALLBACK_MIN_EXTERNAL_CUES:
+            core.logger.debug('AI source timing: not enough embedded timing evidence, translating the subtitle as downloaded')
+            return subfile
+
+        result = _best_embedded_match(eligible, starts)
+        if _fallback_match_is_confirmed(result):
+            output_file, offset_ms = timed_copy(subfile, text, result)
+            if offset_ms:
+                core.logger.debug(
+                    'AI source timing: shifted source before translating | offset_ms=%s | matched_cues=%s | file=%s' % (
+                        offset_ms, result.get('matched_cues'), output_file,
+                    )
+                )
+            else:
+                core.logger.debug(
+                    'AI source timing: source matches embedded timing | detected_offset_ms=%s | matched_cues=%s' % (
+                        result.get('offset_ms'), result.get('matched_cues'),
+                    )
+                )
+            return output_file
+
+        core.logger.debug('AI source timing: source does not match embedded timing | result=%s' % result)
+        alternative = best_timed_alternative_source(eligible, selected_result, language)
+        if alternative:
+            return alternative
+        core.logger.info('AI source timing: no subtitle matched the embedded timing; translating the selected one anyway')
+        return subfile
+
     def ai_translated_subfile_path(subfile, target_language, live=False):
         folder = core.os.path.dirname(subfile)
         basename = core.os.path.basename(subfile)
@@ -1342,6 +1504,12 @@ def start(api):
             start_background_subtitle_sync(subfile, result)
             return True
 
+        if full_file_ai:
+            # Only the full-file path: the chunked path re-reads whichever
+            # subtitle file is in temp, so it must not see extra candidates.
+            subfile = timing_checked_ai_source(subfile, result, preferredlang)
+            last_subfile = subfile
+
         return translate_and_attach_subfile(
             subfile,
             preferredlang_preai,
@@ -1700,7 +1868,11 @@ def start(api):
             params = {
                 'action': 'search',
                 'languages': ','.join(languages),
-                'preferredlanguage': preferredlang
+                'preferredlanguage': preferredlang,
+                # This runtime search never AI-translates, so other sites' AI
+                # subtitles are still better than leaving the viewer with none;
+                # they stay ranked below human-made subtitles.
+                'keep_translated': True,
             }
 
             results = api.search(params)

@@ -234,7 +234,20 @@ When AI translation is on and has a key, automatic (API-mode) searches drop
 results flagged `ai_translated` or `machine_translated`, such as OpenSubtitles'
 `os-auto` uploads, so they cannot win the preferred-language search and block
 the English source and a4k's own translation (`search.skip_translated` in the
-log). Manual searches still list them with their `[AI]` / `[MT]` badges.
+log). Manual searches, and a4k's runtime search during playback (which never
+AI-translates), still keep them; the runtime search passes `keep_translated`.
+
+Before a full-file AI translation, a4k checks the English source against the
+embedded English cue timings of the playing video (a 12-second probe of the
+Matroska Cue index, the same reader as background subtitle sync). An aligned
+source is translated as is; a confirmed fixed offset is applied to a retimed
+copy first; a source that does not match is replaced by the best-timed of up
+to three other English subtitles. When the video gives too little timing
+evidence, or nothing matches, the subtitle is translated as downloaded.
+Translated cues keep the source timing, so this is where the Dutch timing is
+decided. a4k never extracts the embedded text itself
+(`try_embedded_english_ai_translation` is unused and needs ffmpeg, which
+Android devices lack). Log lines start with `AI source timing`.
 
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved

@@ -54,29 +54,38 @@ def names(results):
     return [result['name'] for result in results]
 
 
+META = types.SimpleNamespace(keep_translated=False)
+
+
 class SkipTranslatedResultsTest(unittest.TestCase):
     def setUp(self):
         self.drop = load_drop_translated_results()
 
     def test_automatic_search_drops_translated_results_when_ai_is_ready(self):
         core, logged = make_core()
-        self.assertEqual(['human Dutch'], names(self.drop(core, RESULTS)))
+        self.assertEqual(['human Dutch'], names(self.drop(core, META, RESULTS)))
         self.assertIn('dropped 3', logged[0])
 
     def test_manual_search_keeps_translated_results(self):
         core, logged = make_core(api_mode=False)
-        self.assertEqual(names(RESULTS), names(self.drop(core, RESULTS)))
+        self.assertEqual(names(RESULTS), names(self.drop(core, META, RESULTS)))
+        self.assertEqual([], logged)
+
+    def test_runtime_search_that_cannot_translate_keeps_translated_results(self):
+        core, logged = make_core()
+        keep = types.SimpleNamespace(keep_translated=True)
+        self.assertEqual(names(RESULTS), names(self.drop(core, keep, RESULTS)))
         self.assertEqual([], logged)
 
     def test_translated_results_kept_when_own_ai_cannot_run(self):
         for settings in ({'use_ai': False}, {'ai_api_key': ''}, {'ai_api_key': 'empty_setting'},
                          {'ai_provider': '1', 'ai_model': ''}):
             core, _logged = make_core(**settings)
-            self.assertEqual(names(RESULTS), names(self.drop(core, RESULTS)), settings)
+            self.assertEqual(names(RESULTS), names(self.drop(core, META, RESULTS)), settings)
 
     def test_other_provider_with_model_counts_as_ready(self):
         core, _logged = make_core(ai_provider='1', ai_model='some-model')
-        self.assertEqual(['human Dutch'], names(self.drop(core, RESULTS)))
+        self.assertEqual(['human Dutch'], names(self.drop(core, META, RESULTS)))
 
 
 if __name__ == '__main__':

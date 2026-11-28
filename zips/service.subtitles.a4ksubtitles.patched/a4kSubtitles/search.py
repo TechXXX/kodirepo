@@ -395,12 +395,16 @@ def __is_translated_result(result):
         or result.get('machine_translated') or action_args.get('machine_translated')
     )
 
-def __drop_translated_results(core, results):
+def __drop_translated_results(core, meta, results):
     """Automatic searches skip other sites' AI/machine translations when a4k can translate itself.
 
     Without this, an AI-translated upload (e.g. OpenSubtitles' os-auto) wins the target-language
-    search and the English source + our own AI translation never runs. Manual searches keep them.
+    search and the English source + our own AI translation never runs. Manual searches keep them,
+    and so do callers that pass keep_translated because they cannot fall back to our own
+    translation (a4k's runtime search during playback).
     """
+    if getattr(meta, 'keep_translated', False):
+        return results
     if not core.api_mode_enabled or not __own_ai_translation_ready(core):
         return results
     kept = [result for result in results if not __is_translated_result(result)]
@@ -432,7 +436,7 @@ def __prepare_results(core, meta, results):
     __log_results_summary(core, 'prepare.input', results)
     results = __apply_language_filter(meta, results)
     __log_results_summary(core, 'prepare.language_filter', results)
-    results = __drop_translated_results(core, results)
+    results = __drop_translated_results(core, meta, results)
     results = __sanitize_results(core, meta, results)
     __log_results_summary(core, 'prepare.sanitized', results)
     __write_stage_debug(core, 'stage_pre_sort.json', results)
@@ -743,6 +747,7 @@ def search(core, params):
 
     meta.languages = __parse_languages(core, core.utils.unquote(params['languages']).split(','))
     meta.preferredlanguage = core.kodi.parse_language(params['preferredlanguage'])
+    meta.keep_translated = bool(params.get('keep_translated'))
     core.logger.debug(lambda: core.json.dumps(meta, default=lambda o: '', indent=2))
     core.logger.debug('search.meta_languages - languages=%s preferred=%s api_mode=%s filename=%s' % (
         meta.languages, meta.preferredlanguage, core.api_mode_enabled, getattr(meta, 'filename', '')

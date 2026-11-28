@@ -1,6 +1,11 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.63:
+  * Timing-check the English source before full-file AI translation (`timing_checked_ai_source` in `service.py`): compare it against the embedded English cue timings (12-second probe budget); translate it as is when aligned, translate a retimed copy for a confirmed fixed offset, or download up to three other English subtitles and translate the best confirmed match. Too little embedded evidence, or no match at all, translates the subtitle as downloaded. Follows the `general.auto_sync_subtitles` setting; logged as `AI source timing`.
+  * `subtitle_sync.embedded_cue_candidates()` takes an optional `max_seconds` probe budget.
+  * The runtime search during playback passes `keep_translated`, so it keeps AI/machine-translated results: that path never AI-translates, and 3.23.62 left it with no subtitle when only an AI upload existed.
+
 * v3.23.62:
   * Drop AI- and machine-translated results (for example OpenSubtitles' `os-auto` uploads) in automatic (API-mode) searches when a4k's own AI translation is on and has a key; the target-language search then comes back empty and the English source is translated with `gpt-6-luna`. Manual searches and setups without AI translation keep them. Logged as `search.skip_translated`.
   * On Dexter: Resurrection S02E05 the OpenSubtitles AI translation had 43 flagged errors against 11 for `gpt-6-luna` from the same English source, mostly sentences broken across cues and idioms taken literally.

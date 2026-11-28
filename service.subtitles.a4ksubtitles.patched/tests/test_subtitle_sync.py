@@ -34,7 +34,7 @@ class SubtitleSyncTest(unittest.TestCase):
 
     def test_ten_indexed_starts_still_trigger_cluster_sampling(self):
         class Reader(object):
-            def __init__(self, source):
+            def __init__(self, source, **_budget):
                 pass
 
             def read(self, offset, length):
