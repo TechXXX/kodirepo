@@ -26,7 +26,7 @@ def pinned(path, name):
 class ModelPinTests(unittest.TestCase):
     def test_all_three_pins_agree_on_gpt_6_luna(self):
         pins = {
-            pinned('a4kSubtitles/service.py', 'OPENAI_TRANSLATION_MODEL'),
+            pinned('a4kSubtitles/ai_translate.py', 'OPENAI_TRANSLATION_MODEL'),
             pinned('a4kSubtitles/lib/third_party/gptsubtrans/__init__.py', 'FORCED_OPENAI_MODEL'),
             pinned('a4kSubtitles/lib/third_party/gptsubtrans/PySubtitle/Providers/Provider_OpenAI.py', 'FORCED_OPENAI_MODEL'),
         }

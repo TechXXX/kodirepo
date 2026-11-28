@@ -8,8 +8,9 @@ must leave Kodi's current subtitle in place.
 
 ## Runtime path and decision rules
 
-1. `a4kSubtitles/service.py` attaches the selector's chosen external UTF-8
-   SRT first, then starts a daemon timing worker. Every attachment is guarded
+1. `a4kSubtitles/subtitle_attach.py` attaches the selector's chosen external UTF-8
+   SRT first, then `a4kSubtitles/background_sync.py` starts a daemon timing
+   worker; the thresholds are in `a4kSubtitles/timing_rules.py`. Every attachment is guarded
    against a changed playback URL and selector source.
 2. `a4kSubtitles/subtitle_sync.py` reads Matroska `LanguageIETF` when present
    and considers every English text track. The service prefers a normal
@@ -154,7 +155,7 @@ URLs from that log into issues or documentation.
 Run from this addon directory:
 
 ```sh
-python3 -m py_compile a4kSubtitles/subtitle_sync.py a4kSubtitles/service.py
+python3 -m py_compile a4kSubtitles/*.py
 python3 -m unittest discover -s tests -v
 ```
 

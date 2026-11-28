@@ -1510,7 +1510,7 @@ v0.1.0
 - Initial log uploader with manual uploads, startup uploads, error-triggered uploads, redaction, and a stdlib VPS receiver.</news>
         </extension>
     </addon>
-    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.63" provider-name="DutchTech">
+    <addon id="service.subtitles.a4ksubtitles.patched" name="a4kSubtitles Patched" version="3.23.64" provider-name="DutchTech">
         <requires>
             <import addon="script.module.requests" />
             <import addon="vfs.libarchive" optional="true" />
@@ -1535,6 +1535,9 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
                 <screenshot>screenshot-03.png</screenshot>
             </assets>
             <news>
+[v3.23.64]:
+  * Internal clean-up of the playback service with no change in behavior: the code is split into smaller parts with tests, and unused code for reading subtitles out of the video file is removed.
+
 [v3.23.63]:
   * Before AI-translating an English subtitle, check it against the video's embedded English track: translate it when it lines up, shift it when it is off by a fixed amount, or switch to a better-timed English subtitle.
   * When a4k cannot translate during playback, use OpenSubtitles' AI Dutch subtitle again instead of showing no Dutch subtitle.

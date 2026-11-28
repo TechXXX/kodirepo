@@ -1,6 +1,12 @@
 > Maintainer note: Read `README.md` first for the current file map and shipped
 > behavior. This file is release history only.
 
+* v3.23.64:
+  * Refactor the playback service with no behavior change; every log line keeps its wording. `service.py` (1,904 lines, one 1,550-line `start()` with 42 nested functions sharing `nonlocal` state) is now a 109-line poll loop, and the work moved to `service_state.py` (`PlaybackState`, `ServiceContext`), `subtitle_attach.py`, `selector_handoff.py`, `ai_translate.py`, `ai_source_timing.py`, `background_sync.py`, `timing_rules.py` and `runtime_languages.py`. Module map, shared state and the rules that must not change: `docs/service-structure.md`.
+  * Remove the never-called ffmpeg/ffprobe embedded-subtitle extraction (`try_embedded_english_ai_translation` and 10 helpers) and an unreachable `'embedded_english'` range branch. a4k still never extracts embedded subtitle text; timing comes from the Matroska Cue index.
+  * Module-level helpers lost their leading underscore when they moved (for example `_offset_to_apply` is now `timing_rules.offset_to_apply`).
+  * Add `tests/service_fakes.py`, `tests/test_service_modules.py` and `tests/test_service_flow.py` (28 tests, including one run of the real poll loop on a fake Kodi). Live-tested on an embedded Dutch track, direct Dutch subtitles with and without a timing correction, and a full-file AI translation that stopped when playback stopped.
+
 * v3.23.63:
   * Timing-check the English source before full-file AI translation (`timing_checked_ai_source` in `service.py`): compare it against the embedded English cue timings (12-second probe budget); translate it as is when aligned, translate a retimed copy for a confirmed fixed offset, or download up to three other English subtitles and translate the best confirmed match. Too little embedded evidence, or no match at all, translates the subtitle as downloaded. Follows the `general.auto_sync_subtitles` setting; logged as `AI source timing`.
   * `subtitle_sync.embedded_cue_candidates()` takes an optional `max_seconds` probe budget.

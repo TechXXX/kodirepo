@@ -16,7 +16,13 @@ os.environ.setdefault('A4KSUBTITLES_API_MODE', '{"kodi": true}')
 
 from a4kSubtitles import subtitle_sync
 from a4kSubtitles.subtitle_sync import _is_english, _is_sdh, _spread_cluster_positions, _tracks, find_best_offset, find_offset, retime_srt, subtitle_starts
-from a4kSubtitles.service import _autosync_path, _best_embedded_match, _fallback_match_is_confirmed, _fallback_match_rank, _offset_to_apply
+from a4kSubtitles.timing_rules import (
+    autosync_path as _autosync_path,
+    best_embedded_match as _best_embedded_match,
+    fallback_match_is_confirmed as _fallback_match_is_confirmed,
+    fallback_match_rank as _fallback_match_rank,
+    offset_to_apply as _offset_to_apply,
+)
 from a4kSubtitles.lib import kodi
 
 

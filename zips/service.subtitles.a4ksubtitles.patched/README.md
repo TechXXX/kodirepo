@@ -57,9 +57,27 @@ There are three main entry patterns:
 - `a4kSubtitles/download.py`
   Subtitle download, archive extraction, and final subtitle-file placement.
 - `a4kSubtitles/service.py`
-  Background loop that reacts to playback, prefers built-in subtitles when
-  available, and only falls back to external download when needed. It also
-  validates external subtitle timing after playback starts.
+  The background poll loop that reacts to playback. It only decides when to
+  act; the work is in the service modules below. `docs/service-structure.md`
+  maps them, the state they share and the rules that must not change.
+- `a4kSubtitles/service_state.py`
+  `PlaybackState` (per-playback state, `reset()`) and `ServiceContext`.
+- `a4kSubtitles/subtitle_attach.py`
+  One pass per video: switch to an existing preferred-language stream (an
+  embedded track wins), then the Fen selector's pick, then a runtime search.
+- `a4kSubtitles/selector_handoff.py`
+  Reads and validates the Fen Light selector window properties.
+- `a4kSubtitles/ai_translate.py`
+  AI settings, the `gpt-6-luna` pin, full-file and chunked AI translation,
+  and the stop-on-playback-end check.
+- `a4kSubtitles/ai_source_timing.py`
+  Timing check of the English source before a full-file AI translation.
+- `a4kSubtitles/background_sync.py`
+  Background timing check and retime/replace of a directly attached subtitle.
+- `a4kSubtitles/timing_rules.py`
+  Thresholds that decide when a timing match is strong enough to act on.
+- `a4kSubtitles/runtime_languages.py`
+  Language-code helpers for the service.
 - `a4kSubtitles/subtitle_sync.py`
   Bounded Matroska cue-start reader and ordered external-SRT timing matcher.
 - `a4kSubtitles/services/opensubtitles.py`
@@ -110,7 +128,7 @@ During playback, Fen publishes Kodi window properties:
 - `subs.selector_playback_url`
 - `script.trakt.ids`
 
-`a4kSubtitles/service.py` reads the selector properties. If the payload still
+`a4kSubtitles/selector_handoff.py` reads the selector properties. If the payload still
 matches the current patched-Fen playback URL, player filename, or selector
 source key, the service can force the exact selector matched subtitle instead
 of doing a fresh broad runtime search. If playback has moved to another addon
@@ -200,7 +218,7 @@ That extra handoff matters for repeated in-play manual subtitle searches:
 
 ### Built-In Subtitle Preference
 
-`a4kSubtitles/service.py` first tries to switch to an already available
+`a4kSubtitles/subtitle_attach.py` first tries to switch to an already available
 preferred-language subtitle stream in the player.
 
 Only if no suitable built-in subtitle stream is found does the service continue
@@ -245,16 +263,16 @@ copy first; a source that does not match is replaced by the best-timed of up
 to three other English subtitles. When the video gives too little timing
 evidence, or nothing matches, the subtitle is translated as downloaded.
 Translated cues keep the source timing, so this is where the Dutch timing is
-decided. a4k never extracts the embedded text itself
-(`try_embedded_english_ai_translation` is unused and needs ffmpeg, which
-Android devices lack). Log lines start with `AI source timing`.
+decided. a4k never extracts the embedded text itself: an unused ffmpeg-based
+extraction path was removed, because Android devices have no ffmpeg (see
+`docs/service-structure.md`). Log lines start with `AI source timing`.
 
 Fresh installs ship with AI subtitle translation off. The API key field remains
 editable while AI is off, and the service disables any stale saved
 `general.use_ai=true` value when no API key is configured.
 
 The OpenAI translation model is pinned to `gpt-6-luna` in three places that
-must agree: `OPENAI_TRANSLATION_MODEL` in `a4kSubtitles/service.py`,
+must agree: `OPENAI_TRANSLATION_MODEL` in `a4kSubtitles/ai_translate.py`,
 `FORCED_OPENAI_MODEL` in `gptsubtrans/__init__.py`, and `FORCED_OPENAI_MODEL` in
 `PySubtitle/Providers/Provider_OpenAI.py`. A saved `general.ai_model` value is
 rewritten to the pin before translating. In a full-movie comparison on the same
